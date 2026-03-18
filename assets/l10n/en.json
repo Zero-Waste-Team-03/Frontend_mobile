@@ -1,0 +1,7 @@
+{
+  "app_title": "My Flutter Starter",
+  "hello": "Hello",
+  "login": "Login",
+  "logout": "Logout",
+  "welcome": "Welcome, {name}!"
+}
