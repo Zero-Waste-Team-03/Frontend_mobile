@@ -1,0 +1,41 @@
+{
+    "__validationErrors": [],
+    "_queryType": "Query",
+    "_mutationType": "Mutation",
+    "_subscriptionType": null,
+    "_directives": [
+        "@deprecated",
+        "@include",
+        "@oneOf",
+        "@skip",
+        "@specifiedBy"
+    ],
+    "_typeMap": {
+        "AuthResponse": "AuthResponse",
+        "Boolean": "Boolean",
+        "ChangePasswordInput": "ChangePasswordInput",
+        "Float": "Float",
+        "Int": "Int",
+        "Location": "Location",
+        "LoginInput": "LoginInput",
+        "MessageResponse": "MessageResponse",
+        "Mutation": "Mutation",
+        "Query": "Query",
+        "RegisterInput": "RegisterInput",
+        "RegisterLocationInput": "RegisterLocationInput",
+        "ResetPasswordInput": "ResetPasswordInput",
+        "String": "String",
+        "UpdateProfileInput": "UpdateProfileInput",
+        "User": "User",
+        "__Directive": "__Directive",
+        "__DirectiveLocation": "__DirectiveLocation",
+        "__EnumValue": "__EnumValue",
+        "__Field": "__Field",
+        "__InputValue": "__InputValue",
+        "__Schema": "__Schema",
+        "__Type": "__Type",
+        "__TypeKind": "__TypeKind"
+    },
+    "_subTypeMap": {},
+    "_implementationsMap": {}
+}
