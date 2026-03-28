@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'core/router/app_router.dart';
 import 'core/di/injection.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,18 +26,26 @@ class GaspZeroApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: "Gasp'Zero",
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        primaryColor: Colors.green,
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.green,
-          foregroundColor: Colors.white,
-        ),
-      ),
-      routerConfig: appRouter,
+    return ScreenUtilInit(
+      designSize: const Size(393, 852), // iPhone 14 Pro typical Figma size
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (context, child) {
+        return MaterialApp.router(
+          title: "Gasp'Zero",
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            useMaterial3: true,
+            primaryColor: const Color(0xFF2D6C50),
+            textTheme: GoogleFonts.interTextTheme(Theme.of(context).textTheme),
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Color(0xFF2D6C50),
+              foregroundColor: Colors.white,
+            ),
+          ),
+          routerConfig: appRouter,
+        );
+      },
     );
   }
 }

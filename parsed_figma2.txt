@@ -1,0 +1,140 @@
+/Auth/Frame 4 FILL: #f6f7f7
+/Auth/Frame 4/Header / Logo Section FILL: #f6f7f7
+/Auth/Frame 4/Header / Logo Section/Icon FILL: #2d6c50
+/Auth/Frame 4/Header / Logo Section/Gasp'Zero TEXT: text: Gasp'Zero, color: #2d6c50, font: Inter 700 20
+/Auth/Frame 4/Margin/Container/Heading 1/Share Food, Save the Planet. TEXT: text: Share Food, Save the\nPlanet., color: #131615, font: Inter 700 32
+/Auth/Frame 4/Action Buttons/Button FILL: #2d6c50
+/Auth/Frame 4/Action Buttons/Button/Container/Join the Community TEXT: text: Join the Community, color: #ffffff, font: Inter 700 18
+/Auth/Frame 4/Action Buttons/Button FILL: #2d6c50
+/Auth/Frame 4/Action Buttons/Button/Container/Sign In TEXT: text: Sign In, color: #2d6c50, font: Inter 700 18
+/Auth/Frame 4/Footer / App Info/Container/Paragraph/Icon FILL: #2d6c50
+/Auth/Frame 4/Footer / App Info/Container/Paragraph/Text TEXT: text: Eco Friendly, color: #4a5550, font: Inter 500 12
+/Auth/Frame 4/Footer / App Info/Container/Paragraph/Icon FILL: #2d6c50
+/Auth/Frame 4/Footer / App Info/Container/Paragraph/Text TEXT: text: Community, color: #4a5550, font: Inter 500 12
+/Auth/Frame 4/Footer / App Info/Container/Paragraph/Icon FILL: #2d6c50
+/Auth/Frame 4/Footer / App Info/Container/Paragraph/Text TEXT: text: Zero Waste, color: #4a5550, font: Inter 500 12
+/Auth/Frame 4/Join the community-driven movement to reduce food waste and support those in need. TEXT: text: Join the community-driven movement\nto reduce food waste and support those in need., color: #4a5550, font: Inter 400 18
+/Auth/Frame 3 FILL: #f6f7f7
+/Auth/Frame 3/Header / Top Bar/Container/Container/Icon FILL: #2d6c50
+/Auth/Frame 3/Header / Top Bar/Heading 2/Create Account TEXT: text: Create Account, color: #0f172a, font: Inter 700 18
+/Auth/Frame 3/Progress Indicator/Container/Container/Text TEXT: text: Registration Progress, color: #334155, font: Inter 500 16
+/Auth/Frame 3/Progress Indicator/Container/Container/Step 3 of 3 TEXT: text: Step 3 of 3, color: #2d6c50, font: Inter 700 14
+/Auth/Frame 3/Progress Indicator/Overlay FILL: #2d6c50
+/Auth/Frame 3/Progress Indicator/Overlay/Background FILL: #2d6c50
+/Auth/Frame 3/Heading 1/Verify your email TEXT: text: Verify your email, color: #131615, font: Inter 700 32
+/Auth/Frame 3/Container/We've sent a 6-digit code to hello@example.com TEXT: text: We've sent a 6-digit code to\nhello@example.com, color: #2d6c50, font: Inter 400 16
+/Auth/Frame 3/OTP Input Section/Fieldset/Inputs are styled with rounded-lg as requested FILL: #2d6c50
+/Auth/Frame 3/OTP Input Section/Fieldset/Input FILL: #2d6c50
+/Auth/Frame 3/OTP Input Section/Fieldset/Input FILL: #2d6c50
+/Auth/Frame 3/OTP Input Section/Fieldset/Input FILL: #2d6c50
+/Auth/Frame 3/OTP Input Section/Fieldset/Input FILL: #2d6c50
+/Auth/Frame 3/OTP Input Section/Fieldset/Input FILL: #2d6c50
+/Auth/Frame 3/Countdown and Resend/Container/Container/Icon FILL: #2d6c50
+/Auth/Frame 3/Countdown and Resend/Container/Container/Text TEXT: text: Resend code in 0:55, color: #2d6c50, font: Inter 500 14
+/Auth/Frame 3/Countdown and Resend/Button/Text TEXT: text: Resend code, color: #2d6c50, font: Inter 600 14
+/Auth/Frame 3/Primary Action Button:margin/Primary Action Button/Button FILL: #2d6c50
+/Auth/Frame 3/Primary Action Button:margin/Primary Action Button/Button/Button:shadow FILL: #ffffff
+/Auth/Frame 3/Primary Action Button:margin/Primary Action Button/Button/Text TEXT: text: Verify & Continue, color: #ffffff, font: Inter 700 16
+/Auth/Frame 3/Primary Action Button:margin/Primary Action Button/Button/Container/Icon FILL: #ffffff
+/Auth/Frame 3/Primary Action Button:margin/Primary Action Button/Container/Text TEXT: text: By continuing, you agree to Gasp'Zero's Terms of\nService and Privacy Policy., color: #2d6c50, font: Inter 400 12
+/Auth/Container FILL: #f6f7f7
+/Auth/Container/Text TEXT: text: Log in to join the Gasp'Zero community, color: #475569, font: Inter 400 16
+/Auth/Container/Heading 1/Welcome Back TEXT: text: Welcome Back, color: #0f172a, font: Inter 700 30
+/Auth/Container/Paragraph/Text TEXT: text: Don't have an account? , color: #475569, font: Inter 400 14
+/Auth/Container/Paragraph/Link → Sign Up TEXT: text: Sign Up, color: #2d6c50, font: Inter 700 14
+/Auth/Container/Form Fields/Label/Container/Email TEXT: text: Email, color: #334155, font: Inter 500 14
+/Auth/Container/Form Fields/Label/Input FILL: #ffffff
+/Auth/Container/Form Fields/Label/Input/Container/Text TEXT: text: jane.doe@example.com, color: #94a3b8, font: Inter 400 16
+/Auth/Container/Form Fields/Label/Container/Text TEXT: text: Password, color: #334155, font: Inter 500 14
+/Auth/Container/Form Fields/Label/Forget Password? TEXT: text: Forget Password?, color: #2d6c50, font: Inter 400 11
+/Auth/Container/Form Fields/Label/Must be at least 8 chharacters long. TEXT: text: Must be at least 8 chharacters long., color: #64748b, font: Inter 400 11
+/Auth/Container/Form Fields/Label/Container/Input FILL: #ffffff
+/Auth/Container/Form Fields/Label/Container/Input/Container/Text TEXT: text: ••••••••, color: #94a3b8, font: Inter 400 16
+/Auth/Container/Form Fields/Label/Container/Button/Container/Icon FILL: #94a3b8
+/Auth/Container/Button FILL: #ffffff
+/Auth/Container/Button/SVG/Vector FILL: #4285f4
+/Auth/Container/Button/SVG/Vector FILL: #34a853
+/Auth/Container/Button/SVG/Vector FILL: #fbbc05
+/Auth/Container/Button/SVG/Vector FILL: #ea4335
+/Auth/Container/Button/Text TEXT: text: Google, color: #0f172a, font: Inter 600 16
+/Auth/Container/Background FILL: #f6f7f7
+/Auth/Container/Background/Or continue with TEXT: text: Or continue with, color: #64748b, font: Inter 400 12
+/Auth/Container/Button FILL: #2d6c50
+/Auth/Container/Button/Button:shadow FILL: #ffffff
+/Auth/Container/Button/Verify & Continue TEXT: text: Verify & Continue, color: #ffffff, font: Inter 700 16
+/Auth/Container/Button/Container/Icon FILL: #ffffff
+/Auth/Container/Header / Top Bar/Container/Container/Icon FILL: #2d6c50
+/Auth/Container/Header / Top Bar/Heading 2/Sign In TEXT: text: Sign In, color: #0f172a, font: Inter 700 18
+/Auth/Frame 2 FILL: #f6f7f7
+/Auth/Frame 2/Header / Top Bar/Container/Container/Icon FILL: #2d6c50
+/Auth/Frame 2/Header / Top Bar/Heading 2/Create Account TEXT: text: Create Account, color: #0f172a, font: Inter 700 18
+/Auth/Frame 2/Progress Indicator/Container/Container/Profile Setup TEXT: text: Profile Setup, color: #0f172a, font: Inter 600 16
+/Auth/Frame 2/Progress Indicator/Container/Container/Step 1 of 3 TEXT: text: Step 1 of 3, color: #2d6c50, font: Inter 700 14
+/Auth/Frame 2/Progress Indicator/Overlay FILL: #2d6c50
+/Auth/Frame 2/Progress Indicator/Overlay/Background FILL: #2d6c50
+/Auth/Frame 2/Form Fields/Heading 2/Join the Community TEXT: text: Join the Community, color: #0f172a, font: Inter 700 30
+/Auth/Frame 2/Form Fields/Container/Label/Container/First Name TEXT: text: First Name, color: #334155, font: Inter 500 14
+/Auth/Frame 2/Form Fields/Container/Label/Input FILL: #ffffff
+/Auth/Frame 2/Form Fields/Container/Label/Input/Container/Text TEXT: text: Jane, color: #94a3b8, font: Inter 400 16
+/Auth/Frame 2/Form Fields/Container/Label/Container/Last Name TEXT: text: Last Name, color: #334155, font: Inter 500 14
+/Auth/Frame 2/Form Fields/Container/Label/Input FILL: #ffffff
+/Auth/Frame 2/Form Fields/Container/Label/Input/Container/Text TEXT: text: Doe, color: #94a3b8, font: Inter 400 16
+/Auth/Frame 2/Form Fields/Label/Container/Email TEXT: text: Email, color: #334155, font: Inter 500 14
+/Auth/Frame 2/Form Fields/Label/Input FILL: #ffffff
+/Auth/Frame 2/Form Fields/Label/Input/Container/Text TEXT: text: jane.doe@example.com, color: #94a3b8, font: Inter 400 16
+/Auth/Frame 2/Form Fields/Label/Container/Text TEXT: text: Password, color: #334155, font: Inter 500 14
+/Auth/Frame 2/Form Fields/Label/Margin/Container/Must be at least 8 characters long. TEXT: text: Must be at least 8 characters long., color: #64748b, font: Inter 400 11
+/Auth/Frame 2/Form Fields/Label/Container/Input FILL: #ffffff
+/Auth/Frame 2/Form Fields/Label/Container/Input/Container/Text TEXT: text: ••••••••, color: #94a3b8, font: Inter 400 16
+/Auth/Frame 2/Form Fields/Label/Container/Button/Container/Icon FILL: #94a3b8
+/Auth/Frame 2/Button FILL: #2d6c50
+/Auth/Frame 2/Button/Button:shadow FILL: #ffffff
+/Auth/Frame 2/Button/Next TEXT: text: Next, color: #ffffff, font: Inter 700 16
+/Auth/Frame 2/Button/Container/Icon FILL: #ffffff
+/Auth/Frame 2/Paragraph/Already have an account? TEXT: text: Already have an account? , color: #475569, font: Inter 400 14
+/Auth/Frame 2/Paragraph/Sign In TEXT: text: Sign In, color: #2d6c50, font: Inter 700 14
+/Auth/Frame 2/Button FILL: #ffffff
+/Auth/Frame 2/Button/SVG/Vector FILL: #4285f4
+/Auth/Frame 2/Button/SVG/Vector FILL: #34a853
+/Auth/Frame 2/Button/SVG/Vector FILL: #fbbc05
+/Auth/Frame 2/Button/SVG/Vector FILL: #ea4335
+/Auth/Frame 2/Button/Text TEXT: text: Google, color: #0f172a, font: Inter 600 16
+/Auth/Frame 2/Background FILL: #f6f7f7
+/Auth/Frame 2/Background/Text TEXT: text: Or continue with, color: #64748b, font: Inter 400 12
+/Auth/Frame 1 FILL: #f6f7f7
+/Auth/Frame 1/Header / Top Bar/Container/Container/Icon FILL: #2d6c50
+/Auth/Frame 1/Header / Top Bar/Heading 2/Create Account TEXT: text: Create Account, color: #0f172a, font: Inter 700 18
+/Auth/Frame 1/Progress Indicator/Container/Container/Text TEXT: text: Registration Progress, color: #334155, font: Inter 500 16
+/Auth/Frame 1/Progress Indicator/Container/Container/Step 2 of 3 TEXT: text: Step 2 of 3, color: #2d6c50, font: Inter 700 14
+/Auth/Frame 1/Progress Indicator/Overlay FILL: #2d6c50
+/Auth/Frame 1/Progress Indicator/Overlay/Background FILL: #2d6c50
+/Auth/Frame 1/Heading 2/A bit more about you TEXT: text: A bit more about you, color: #0f172a, font: Inter 700 30
+/Auth/Frame 1/Date of Birth Selector/Label/Date of Birth TEXT: text: Date of Birth, color: #334155, font: Inter 700 14
+/Auth/Frame 1/Date of Birth Selector/Container/Month FILL: #2d6c50
+/Auth/Frame 1/Date of Birth Selector/Container/Month/Container/Text TEXT: text: Month, color: #94a3b8, font: Inter 700 10
+/Auth/Frame 1/Date of Birth Selector/Container/Month/Container/Container/Text TEXT: text: Jan, color: #94a3b8, font: Inter 400 12
+/Auth/Frame 1/Date of Birth Selector/Container/Month/Container/Background FILL: #2d6c50
+/Auth/Frame 1/Date of Birth Selector/Container/Month/Container/Background/Text TEXT: text: Feb, color: #ffffff, font: Inter 700 14
+/Auth/Frame 1/Date of Birth Selector/Container/Month/Container/Container/Text TEXT: text: Mar, color: #94a3b8, font: Inter 400 12
+/Auth/Frame 1/Date of Birth Selector/Container/Day FILL: #2d6c50
+/Auth/Frame 1/Date of Birth Selector/Container/Day/Container/Text TEXT: text: Day, color: #94a3b8, font: Inter 700 10
+/Auth/Frame 1/Date of Birth Selector/Container/Day/Container/Container/Icon FILL: #94a3b8
+/Auth/Frame 1/Date of Birth Selector/Container/Day/Container/Background FILL: #2d6c50
+/Auth/Frame 1/Date of Birth Selector/Container/Day/Container/Background/Text TEXT: text: 16, color: #ffffff, font: Inter 700 14
+/Auth/Frame 1/Date of Birth Selector/Container/Day/Container/Container/Text TEXT: text: 17, color: #94a3b8, font: Inter 400 12
+/Auth/Frame 1/Date of Birth Selector/Container/Year FILL: #2d6c50
+/Auth/Frame 1/Date of Birth Selector/Container/Year/Container/Text TEXT: text: Year, color: #94a3b8, font: Inter 700 10
+/Auth/Frame 1/Date of Birth Selector/Container/Year/Container/Container/Text TEXT: text: 1990, color: #94a3b8, font: Inter 400 12
+/Auth/Frame 1/Date of Birth Selector/Container/Year/Container/Background FILL: #2d6c50
+/Auth/Frame 1/Date of Birth Selector/Container/Year/Container/Background/Text TEXT: text: 1991, color: #ffffff, font: Inter 700 14
+/Auth/Frame 1/Date of Birth Selector/Container/Year/Container/Container/Text TEXT: text: 1992, color: #94a3b8, font: Inter 400 12
+/Auth/Frame 1/Location Field/Label/Location TEXT: text: Location, color: #334155, font: Inter 700 14
+/Auth/Frame 1/Location Field/Container/Input FILL: #2d6c50
+/Auth/Frame 1/Location Field/Container/Input/Container/Enter your city or zip code TEXT: text: Enter your city or zip code, color: #94a3b8, font: Inter 400 16
+/Auth/Frame 1/Location Field/Container/Button/Container/Icon FILL: #2d6c50
+/Auth/Frame 1/Location Field/Container/Used to find local community challenges and initiatives. TEXT: text: Used to find local community challenges and initiatives., color: #94a3b8, font: Inter 400 12
+/Auth/Frame 1/Primary Action Button/Button FILL: #2d6c50
+/Auth/Frame 1/Primary Action Button/Button/Button:shadow FILL: #ffffff
+/Auth/Frame 1/Primary Action Button/Button/Next TEXT: text: Next, color: #ffffff, font: Inter 700 16
+/Auth/Frame 1/Primary Action Button/Button/Container/Icon FILL: #ffffff
+/Auth/Frame 1/Primary Action Button/Container/Text TEXT: text: By continuing, you agree to Gasp'Zero's Terms of\nService and Privacy Policy., color: #2d6c50, font: Inter 400 12
