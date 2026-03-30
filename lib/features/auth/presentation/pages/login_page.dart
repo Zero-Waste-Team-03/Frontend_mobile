@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
@@ -31,6 +32,10 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  void _onGoogleSignIn() {
+    context.read<AuthBloc>().add(AuthGoogleLoginRequested());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,7 +45,7 @@ class _LoginPageState extends State<LoginPage> {
         elevation: 0,
         titleSpacing: 0,
         title: Text(
-          "Log In",
+          "Sign In",
           style: TextStyle(
             color: AuthColors.headingText,
             fontSize: 18.sp,
@@ -97,31 +102,31 @@ class _LoginPageState extends State<LoginPage> {
                   // Form
                   _buildLabel('Email'),
                   SizedBox(height: AppDimensions.paddingSmall.h),
-                  _buildTextField(_emailController, 'Enter your email', false),
+                  _buildTextField(_emailController, 'jane.doe@example.com', false),
                   SizedBox(height: AppDimensions.paddingLarge.h),
+                  _buildLabel('Password'),
+                  SizedBox(height: AppDimensions.paddingSmall.h),
+                  _buildTextField(_passwordController, 'Enter your password', true),
+                  SizedBox(height: AppDimensions.paddingSmall.h),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildLabel('Password'),
+                      Text(
+                        "Must be at least 8 characters long.",
+                        style: TextStyle(color: AuthColors.subText, fontSize: 11.sp),
+                      ),
                       GestureDetector(
-                        onTap: () {},
+                        onTap: () => context.push('/forgot-password'),
                         child: Text(
                           "Forget Password?",
                           style: TextStyle(
-                            color: AuthColors.headingText,
-                            fontWeight: FontWeight.w500,
+                            color: AuthColors.primary,
+                            fontWeight: FontWeight.w600,
                             fontSize: 11.sp,
                           ),
                         ),
                       ),
                     ],
-                  ),
-                  SizedBox(height: AppDimensions.paddingSmall.h),
-                  _buildTextField(_passwordController, 'Enter your password', true),
-                  SizedBox(height: AppDimensions.paddingSmall.h),
-                  Text(
-                    "Must be at least 8 characters long.",
-                    style: TextStyle(color: AuthColors.subText, fontSize: 11.sp),
                   ),
                   SizedBox(height: 48.h),
 
@@ -158,7 +163,15 @@ class _LoginPageState extends State<LoginPage> {
                       const Expanded(child: Divider(color: AuthColors.inputBorder)),
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: AppDimensions.paddingMedium.w),
-                        child: Text("Or continue with", style: TextStyle(color: AuthColors.subText, fontSize: AppDimensions.captionSize.sp)),
+                        child: Text(
+                          "OR CONTINUE WITH",
+                          style: TextStyle(
+                            color: AuthColors.subText,
+                            fontSize: AppDimensions.captionSize.sp,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
                       ),
                       const Expanded(child: Divider(color: AuthColors.inputBorder)),
                     ],
@@ -166,8 +179,12 @@ class _LoginPageState extends State<LoginPage> {
                   SizedBox(height: AppDimensions.paddingLarge.h),
                   
                   OutlinedButton.icon(
-                    onPressed: isLoading ? null : () {},
-                    icon: Icon(Icons.g_mobiledata, size: AppDimensions.headingSize.sp),
+                    onPressed: isLoading ? null : _onGoogleSignIn,
+                    icon: SvgPicture.asset(
+                      'assets/images/google_logo.svg',
+                      width: 20.sp,
+                      height: 20.sp,
+                    ),
                     label: Text(
                       'Google',
                       style: TextStyle(
@@ -225,33 +242,34 @@ class _LoginPageState extends State<LoginPage> {
         borderRadius: BorderRadius.circular(AppDimensions.borderRadiusLarge.r),
         border: Border.all(color: AuthColors.inputBorder),
       ),
-      child: Center(
-        child: TextField(
-          controller: controller,
-          obscureText: isPassword ? _obscurePassword : false,
-          style: TextStyle(color: AuthColors.headingText, fontSize: 16.sp, fontWeight: FontWeight.w400),
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: TextStyle(color: AuthColors.inputText, fontSize: 16.sp, fontWeight: FontWeight.w400),
-            border: InputBorder.none,
-            isDense: true,
-            contentPadding: EdgeInsets.symmetric(horizontal: AppDimensions.paddingMedium.w),
-            suffixIcon: isPassword
-                ? IconButton(
-                    padding: EdgeInsets.zero,
-                    icon: Icon(
-                      _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                      color: AuthColors.inputText,
-                      size: AppDimensions.iconSize.sp,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
-                    },
-                  )
-                : null,
+      child: TextField(
+        controller: controller,
+        obscureText: isPassword ? _obscurePassword : false,
+        style: TextStyle(color: AuthColors.headingText, fontSize: 16.sp, fontWeight: FontWeight.w400),
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: TextStyle(color: AuthColors.inputText, fontSize: 16.sp, fontWeight: FontWeight.w400),
+          border: InputBorder.none,
+          isDense: false,
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: AppDimensions.paddingMedium.w,
+            vertical: (AppDimensions.inputHeight.h - 20.sp) / 2,
           ),
+          suffixIcon: isPassword
+              ? IconButton(
+                  padding: EdgeInsets.zero,
+                  icon: Icon(
+                    _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                    color: AuthColors.inputText,
+                    size: AppDimensions.iconSize.sp,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _obscurePassword = !_obscurePassword;
+                    });
+                  },
+                )
+              : null,
         ),
       ),
     );
