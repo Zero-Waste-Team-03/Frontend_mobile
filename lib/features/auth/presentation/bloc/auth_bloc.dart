@@ -13,6 +13,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthSignUpRequested>(_onAuthSignUpRequested);
     on<AuthVerifyOtpRequested>(_onAuthVerifyOtpRequested);
     on<AuthGoogleLoginRequested>(_onAuthGoogleLoginRequested);
+    on<AuthForgotPasswordRequested>(_onAuthForgotPasswordRequested);
+    on<AuthResetPasswordRequested>(_onAuthResetPasswordRequested);
   }
 
   void _onAuthLoginRequested(AuthLoginRequested event, Emitter<AuthState> emit) async {
@@ -35,16 +37,45 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   void _onAuthVerifyOtpRequested(AuthVerifyOtpRequested event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
-    final name = '${event.firstName} ${event.lastName}'.trim();
-    final result = await authRepository.register(name, event.email, event.password, event.otp);
+    final displayName = '${event.firstName} ${event.lastName}'.trim();
+    final registerResult = await authRepository.register(displayName, event.email, event.password, event.otp);
+    await registerResult.fold(
+      (failure) async => emit(AuthError(failure.message)),
+      (_) async {
+        // Registration successful, now auto-login to get tokens
+        final loginResult = await authRepository.login(event.email, event.password);
+        loginResult.fold(
+          (failure) => emit(AuthError(failure.message)),
+          (response) => emit(AuthSuccess(response.user)),
+        );
+      },
+    );
+  }
+
+  void _onAuthGoogleLoginRequested(AuthGoogleLoginRequested event, Emitter<AuthState> emit) async {
+    emit(AuthLoading());
+    final result = await authRepository.googleSignIn();
     result.fold(
       (failure) => emit(AuthError(failure.message)),
       (response) => emit(AuthSuccess(response.user)),
     );
   }
 
-  void _onAuthGoogleLoginRequested(AuthGoogleLoginRequested event, Emitter<AuthState> emit) {
-    // Placeholder for Google Login
-    emit(const AuthError('Google login not implemented yet'));
+  void _onAuthForgotPasswordRequested(AuthForgotPasswordRequested event, Emitter<AuthState> emit) async {
+    emit(AuthLoading());
+    final result = await authRepository.forgotPassword(event.email);
+    result.fold(
+      (failure) => emit(AuthError(failure.message)),
+      (_) => emit(AuthForgotPasswordSuccess()),
+    );
+  }
+
+  void _onAuthResetPasswordRequested(AuthResetPasswordRequested event, Emitter<AuthState> emit) async {
+    emit(AuthLoading());
+    final result = await authRepository.resetPassword(event.token, event.newPassword);
+    result.fold(
+      (failure) => emit(AuthError(failure.message)),
+      (_) => emit(AuthResetPasswordSuccess()),
+    );
   }
 }

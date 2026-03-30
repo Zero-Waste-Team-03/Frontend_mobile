@@ -9,11 +9,12 @@ import 'package:injectable/injectable.dart';
 abstract class AuthRemoteDataSource {
   Future<AuthResponseModel> login(String email, String password);
   Future<void> sendOtp(String email);
-  Future<AuthResponseModel> register(String name, String email, String password, String otp);
+  Future<void> register(String displayName, String email, String password, String otp);
   Future<AuthResponseModel> oAuthLogin(String provider, String accessToken);
   Future<UserModel> getCurrentUser();
   Future<void> changePassword(String oldPassword, String newPassword);
-  Future<void> resetPassword(String email);
+  Future<void> forgotPassword(String email);
+  Future<void> resetPassword(String token, String newPassword);
 }
 
 @LazySingleton(as: AuthRemoteDataSource)
@@ -41,7 +42,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           user {
             id
             email
-            name
+            displayName
+            role
           }
         }
       }
@@ -64,13 +66,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         }
       }
     ''';
-    await _executeGraphqlMutation(query, {
+    await _executeGraphqlVoidMutation(query, {
       'email': email,
     }, 'sendVerification');
   }
 
   @override
-  Future<AuthResponseModel> register(String name, String email, String password, String otp) async {
+  Future<void> register(String displayName, String email, String password, String otp) async {
     const query = '''
       mutation Register(\$otp: String!, \$registerInput: RegisterInput!) {
         register(otp: \$otp, registerInput: \$registerInput) {
@@ -79,12 +81,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       }
     ''';
     
-    return _executeGraphqlMutation(query, {
+    await _executeGraphqlVoidMutation(query, {
       'otp': otp,
       'registerInput': {
-        'name': name,
+        'displayName': displayName,
         'email': email,
         'password': password,
+        'location': {},
       }
     }, 'register');
   }
@@ -115,10 +118,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<UserModel> getCurrentUser() async {
     const query = '''
       query GetCurrentUser {
-        me {
+        currentUser {
           id
           email
-          name
+          displayName
+          role
         }
       }
     ''';
@@ -132,7 +136,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         throw ServerException(response.data['errors'][0]['message']);
       }
       
-      return UserModel.fromJson(response.data['data']['me']);
+      return UserModel.fromJson(response.data['data']['currentUser']);
     } on DioException catch (e) {
       final errorMessage = e.message ?? e.error?.toString() ?? 'Failed to get user';
       throw ServerException(errorMessage);
@@ -148,16 +152,30 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         }
       }
     ''';
-    await _executeGraphqlMutation(query, {
+    await _executeGraphqlVoidMutation(query, {
       'changePasswordInput': {
-        'oldPassword': oldPassword,
+        'currentPassword': oldPassword,
         'newPassword': newPassword,
       }
     }, 'changePassword');
   }
 
   @override
-  Future<void> resetPassword(String email) async {
+  Future<void> forgotPassword(String email) async {
+    const query = '''
+      mutation ForgotPassword(\$email: String!) {
+        forgotPassword(email: \$email) {
+          message
+        }
+      }
+    ''';
+    await _executeGraphqlVoidMutation(query, {
+      'email': email,
+    }, 'forgotPassword');
+  }
+
+  @override
+  Future<void> resetPassword(String token, String newPassword) async {
     const query = '''
       mutation ResetPassword(\$resetPasswordInput: ResetPasswordInput!) {
         resetPassword(resetPasswordInput: \$resetPasswordInput) {
@@ -165,9 +183,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         }
       }
     ''';
-    await _executeGraphqlMutation(query, {
+    await _executeGraphqlVoidMutation(query, {
       'resetPasswordInput': {
-        'email': email,
+        'token': token,
+        'password': newPassword,
       }
     }, 'resetPassword');
   }
@@ -189,6 +208,34 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         }
         _logger.i('✅ GraphQL Success: $operationName');
         return AuthResponseModel.fromJson(response.data['data'][operationName]);
+      } else {
+        _logger.e('❌ GraphQL Failed with status: ${response.statusCode}');
+        throw ServerException('Action failed with status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      _logger.e('❌ DioException in $operationName: ${e.message} | Error: ${e.error} | Type: ${e.type}\nResponse Data: ${e.response?.data}');
+      final errorMessage = e.response?.data?['errors']?[0]?['message'] ?? e.message ?? e.error?.toString() ?? 'GraphQL request failed';
+      throw ServerException(errorMessage);
+    }
+  }
+
+  /// Execute a GraphQL mutation that returns void (MessageResponse)
+  Future<void> _executeGraphqlVoidMutation(String query, Map<String, dynamic> variables, String operationName) async {
+    _logger.i('🚀 Executing GraphQL: $operationName\nVariables: $variables');
+    try {
+      final response = await dio.post('/graphql', data: {
+        'query': query,
+        'variables': variables,
+      });
+
+      _logger.d('📥 GraphQL Response [$operationName]: ${response.statusCode}\nData: ${response.data}');
+
+      if (response.statusCode == 200) {
+        if (response.data['errors'] != null) {
+          _logger.e('❌ GraphQL Error: ${response.data['errors'][0]['message']}');
+          throw ServerException(response.data['errors'][0]['message']);
+        }
+        _logger.i('✅ GraphQL Success: $operationName');
       } else {
         _logger.e('❌ GraphQL Failed with status: ${response.statusCode}');
         throw ServerException('Action failed with status: ${response.statusCode}');
