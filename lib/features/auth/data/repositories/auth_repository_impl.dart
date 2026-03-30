@@ -57,9 +57,31 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, void>> register(String displayName, String email, String password, String otp) async {
+  Future<Either<Failure, void>> register({
+    required String displayName,
+    required String email,
+    required String password,
+    required String confirmPassword,
+    required String otp,
+    String? city,
+    String? country,
+    double? latitude,
+    double? longitude,
+    String? neighborhood,
+  }) async {
     try {
-      await remoteDataSource.register(displayName, email, password, otp);
+      await remoteDataSource.register(
+        displayName: displayName,
+        email: email,
+        password: password,
+        confirmPassword: confirmPassword,
+        otp: otp,
+        city: city,
+        country: country,
+        latitude: latitude,
+        longitude: longitude,
+        neighborhood: neighborhood,
+      );
       return const Right(null);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -157,9 +179,9 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, void>> changePassword(String oldPassword, String newPassword) async {
+  Future<Either<Failure, void>> changePassword(String oldPassword, String newPassword, {bool logoutFromOtherDevices = false}) async {
     try {
-      await remoteDataSource.changePassword(oldPassword, newPassword);
+      await remoteDataSource.changePassword(oldPassword, newPassword, logoutFromOtherDevices: logoutFromOtherDevices);
       return const Right(null);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -185,6 +207,67 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await remoteDataSource.resetPassword(token, newPassword);
       return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, AuthResponse>> refreshTokens() async {
+    try {
+      final responseModel = await remoteDataSource.refreshTokens();
+
+      final user = responseModel.toEntity().user;
+      if (user != null && user.isAdmin) {
+        return Left(ServerFailure('Admin accounts cannot access the mobile app. Please use the web dashboard.'));
+      }
+
+      if (responseModel.accessToken != null) {
+        await localDataSource.cacheTokens(responseModel.accessToken!, responseModel.refreshToken);
+      }
+      return Right(responseModel.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> logoutFromAllDevices() async {
+    try {
+      await remoteDataSource.logoutFromAllDevices();
+      await localDataSource.clearTokens();
+      await googleSignInClient.signOut();
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteAccount() async {
+    try {
+      await remoteDataSource.deleteAccount();
+      await localDataSource.clearTokens();
+      await googleSignInClient.signOut();
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, User>> updateProfile(String displayName) async {
+    try {
+      final userModel = await remoteDataSource.updateProfile(displayName);
+      return Right(userModel.toEntity());
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {

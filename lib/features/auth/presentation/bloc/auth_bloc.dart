@@ -38,7 +38,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   void _onAuthVerifyOtpRequested(AuthVerifyOtpRequested event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     final displayName = '${event.firstName} ${event.lastName}'.trim();
-    final registerResult = await authRepository.register(displayName, event.email, event.password, event.otp);
+    final registerResult = await authRepository.register(
+      displayName: displayName,
+      email: event.email,
+      password: event.password,
+      confirmPassword: event.confirmPassword,
+      otp: event.otp,
+      city: event.location,
+    );
     await registerResult.fold(
       (failure) async => emit(AuthError(failure.message)),
       (_) async {

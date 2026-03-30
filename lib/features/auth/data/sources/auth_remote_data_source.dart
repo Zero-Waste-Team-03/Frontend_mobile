@@ -9,17 +9,50 @@ import 'package:injectable/injectable.dart';
 abstract class AuthRemoteDataSource {
   Future<AuthResponseModel> login(String email, String password);
   Future<void> sendOtp(String email);
-  Future<void> register(String displayName, String email, String password, String otp);
+  Future<void> register({
+    required String displayName,
+    required String email,
+    required String password,
+    required String confirmPassword,
+    required String otp,
+    String? city,
+    String? country,
+    double? latitude,
+    double? longitude,
+    String? neighborhood,
+  });
   Future<AuthResponseModel> oAuthLogin(String provider, String accessToken);
   Future<UserModel> getCurrentUser();
-  Future<void> changePassword(String oldPassword, String newPassword);
+  Future<void> changePassword(String oldPassword, String newPassword, {bool logoutFromOtherDevices = false});
   Future<void> forgotPassword(String email);
   Future<void> resetPassword(String token, String newPassword);
+  Future<AuthResponseModel> refreshTokens();
+  Future<void> logoutFromAllDevices();
+  Future<void> deleteAccount();
+  Future<UserModel> updateProfile(String displayName);
 }
 
 @LazySingleton(as: AuthRemoteDataSource)
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final Dio dio;
+  static const String _userFields = '''
+    id
+    email
+    displayName
+    role
+    description
+    isMailVerified
+    reputationScore
+    locationId
+    location {
+      id
+      city
+      country
+      latitude
+      longitude
+      neighborhood
+    }
+  ''';
   final Logger _logger = Logger(
     printer: PrettyPrinter(
       methodCount: 0,
@@ -40,10 +73,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           accessToken
           refreshToken
           user {
-            id
-            email
-            displayName
-            role
+            $_userFields
           }
         }
       }
@@ -51,7 +81,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     
     return _executeGraphqlMutation(query, {
       'loginInput': {
-        'email': email,
+        'email': email.trim(),
         'password': password,
       }
     }, 'login');
@@ -67,12 +97,23 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       }
     ''';
     await _executeGraphqlVoidMutation(query, {
-      'email': email,
+      'email': email.trim(),
     }, 'sendVerification');
   }
 
   @override
-  Future<void> register(String displayName, String email, String password, String otp) async {
+  Future<void> register({
+    required String displayName,
+    required String email,
+    required String password,
+    required String confirmPassword,
+    required String otp,
+    String? city,
+    String? country,
+    double? latitude,
+    double? longitude,
+    String? neighborhood,
+  }) async {
     const query = '''
       mutation Register(\$otp: String!, \$registerInput: RegisterInput!) {
         register(otp: \$otp, registerInput: \$registerInput) {
@@ -80,15 +121,27 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         }
       }
     ''';
-    
+
+    final registerInput = <String, dynamic>{
+      'email': email.trim(),
+      'password': password,
+      'location': _buildRegisterLocationInput(
+        city: city,
+        country: country,
+        latitude: latitude,
+        longitude: longitude,
+        neighborhood: neighborhood,
+      ),
+    };
+
+    final normalizedDisplayName = displayName.trim();
+    if (normalizedDisplayName.isNotEmpty) {
+      registerInput['displayName'] = normalizedDisplayName;
+    }
+
     await _executeGraphqlVoidMutation(query, {
       'otp': otp,
-      'registerInput': {
-        'displayName': displayName,
-        'email': email,
-        'password': password,
-        'location': {},
-      }
+      'registerInput': registerInput,
     }, 'register');
   }
 
@@ -119,10 +172,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     const query = '''
       query GetCurrentUser {
         currentUser {
-          id
-          email
-          displayName
-          role
+          $_userFields
         }
       }
     ''';
@@ -144,7 +194,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<void> changePassword(String oldPassword, String newPassword) async {
+  Future<void> changePassword(String oldPassword, String newPassword, {bool logoutFromOtherDevices = false}) async {
     const query = '''
       mutation ChangePassword(\$changePasswordInput: ChangePasswordInput!) {
         changePassword(changePasswordInput: \$changePasswordInput) {
@@ -156,6 +206,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       'changePasswordInput': {
         'currentPassword': oldPassword,
         'newPassword': newPassword,
+        'logoutFromOtherDevices': logoutFromOtherDevices,
       }
     }, 'changePassword');
   }
@@ -170,7 +221,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       }
     ''';
     await _executeGraphqlVoidMutation(query, {
-      'email': email,
+      'email': email.trim(),
     }, 'forgotPassword');
   }
 
@@ -189,6 +240,78 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         'password': newPassword,
       }
     }, 'resetPassword');
+  }
+
+  @override
+  Future<AuthResponseModel> refreshTokens() async {
+    const query = '''
+      mutation RefreshTokens {
+        refreshTokens {
+          accessToken
+          refreshToken
+          user {
+            $_userFields
+          }
+        }
+      }
+    ''';
+    return _executeGraphqlMutation(query, {}, 'refreshTokens');
+  }
+
+  @override
+  Future<void> logoutFromAllDevices() async {
+    const query = '''
+      mutation LogoutFromAllDevices {
+        logoutFromAllDevices {
+          message
+        }
+      }
+    ''';
+    await _executeGraphqlVoidMutation(query, {}, 'logoutFromAllDevices');
+  }
+
+  @override
+  Future<void> deleteAccount() async {
+    const query = '''
+      mutation DeleteAccount {
+        deleteAccount {
+          message
+        }
+      }
+    ''';
+    await _executeGraphqlVoidMutation(query, {}, 'deleteAccount');
+  }
+
+  @override
+  Future<UserModel> updateProfile(String displayName) async {
+    const query = '''
+      mutation UpdateProfile(\$updateProfileInput: UpdateProfileInput!) {
+        updateProfile(updateProfileInput: \$updateProfileInput) {
+          $_userFields
+        }
+      }
+    ''';
+    
+    _logger.i('🚀 Executing GraphQL: updateProfile');
+    try {
+      final response = await dio.post('/graphql', data: {
+        'query': query,
+        'variables': {
+          'updateProfileInput': {
+            'displayName': displayName.trim(),
+          }
+        },
+      });
+
+      if (response.data['errors'] != null) {
+        throw ServerException(response.data['errors'][0]['message']);
+      }
+      
+      return UserModel.fromJson(response.data['data']['updateProfile']);
+    } on DioException catch (e) {
+      final errorMessage = e.message ?? e.error?.toString() ?? 'Failed to update profile';
+      throw ServerException(errorMessage);
+    }
   }
 
   Future<AuthResponseModel> _executeGraphqlMutation(String query, Map<String, dynamic> variables, String operationName) async {
@@ -217,6 +340,22 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       final errorMessage = e.response?.data?['errors']?[0]?['message'] ?? e.message ?? e.error?.toString() ?? 'GraphQL request failed';
       throw ServerException(errorMessage);
     }
+  }
+
+  Map<String, dynamic> _buildRegisterLocationInput({
+    String? city,
+    String? country,
+    double? latitude,
+    double? longitude,
+    String? neighborhood,
+  }) {
+    final location = <String, dynamic>{};
+    if (city != null && city.trim().isNotEmpty) location['city'] = city.trim();
+    if (country != null && country.trim().isNotEmpty) location['country'] = country.trim();
+    if (latitude != null) location['latitude'] = latitude;
+    if (longitude != null) location['longitude'] = longitude;
+    if (neighborhood != null && neighborhood.trim().isNotEmpty) location['neighborhood'] = neighborhood.trim();
+    return location;
   }
 
   /// Execute a GraphQL mutation that returns void (MessageResponse)

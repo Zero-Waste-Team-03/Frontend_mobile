@@ -46,8 +46,10 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
     final phone = _phoneController.text.trim();
     final location = _locationController.text.trim();
 
-    if (phone.isNotEmpty && location.isNotEmpty) {
-      widget.formData['phone'] = phone;
+    if (location.isNotEmpty) {
+      if (phone.isNotEmpty) {
+        widget.formData['phone'] = phone;
+      }
       widget.formData['location'] = location;
 
       // Dispatch the action to send OTP
@@ -61,7 +63,7 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
           );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields')),
+        const SnackBar(content: Text('Please enter your city')),
       );
     }
   }
@@ -102,7 +104,7 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
                 SizedBox(height: AppDimensions.paddingLarge.h),
                 _buildLabel('Phone Number'),
                 SizedBox(height: AppDimensions.paddingSmall.h),
-                _buildTextField(_phoneController, 'Enter your phone number'),
+                _buildTextField(_phoneController, 'Enter your phone number (optional)'),
                 SizedBox(height: AppDimensions.paddingLarge.h),
                 _buildLabel('Location'),
                 SizedBox(height: AppDimensions.paddingSmall.h),
