@@ -1,0 +1,104 @@
+name: Build APK & Upload to MediaFire
+
+on:
+  push:
+    branches: [master]
+
+# Cancel any in-progress runs for the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-upload:
+    name: Build APK & Upload
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      # ── Checkout ──────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── Java (required by Gradle) ─────────────────────────────
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      # ── Flutter ───────────────────────────────────────────────
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.27.4"   # pin to your current version
+          channel: stable
+          cache: true
+
+      - name: Install Flutter dependencies
+        run: flutter pub get
+
+      # ── Create .env (if your app loads it at runtime) ─────────
+      - name: Create .env file
+        run: |
+          cat > .env << 'EOF'
+          APP_NAME=MyFlutterStarter
+          API_BASE_URL=${{ secrets.API_BASE_URL }}
+          GRAPHQL_ENDPOINT=${{ secrets.GRAPHQL_ENDPOINT }}
+          ENABLE_ANALYTICS=false
+          EOF
+
+      # ── Build APK ─────────────────────────────────────────────
+      - name: Build release APK
+        run: flutter build apk --release
+
+      # ── Rename APK with version & commit info ─────────────────
+      - name: Rename APK
+        run: |
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          DATE=$(date +'%Y%m%d')
+          APK_NAME="gaspzero-${DATE}-${SHORT_SHA}.apk"
+          cp build/app/outputs/flutter-apk/app-release.apk "${APK_NAME}"
+          echo "APK_NAME=${APK_NAME}" >> $GITHUB_ENV
+
+      # ── Upload APK as GitHub artifact (backup) ────────────────
+      - name: Upload APK as GitHub Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-apk
+          path: ${{ env.APK_NAME }}
+          retention-days: 30
+
+      # ── Upload to MediaFire ───────────────────────────────────
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install MediaFire SDK
+        run: pip install mediafire requests
+
+      - name: Upload APK to MediaFire
+        env:
+          MEDIAFIRE_EMAIL: ${{ secrets.MEDIAFIRE_EMAIL }}
+          MEDIAFIRE_PASSWORD: ${{ secrets.MEDIAFIRE_PASSWORD }}
+          MEDIAFIRE_APP_ID: ${{ secrets.MEDIAFIRE_APP_ID }}
+          MEDIAFIRE_FOLDER_KEY: ${{ secrets.MEDIAFIRE_FOLDER_KEY }}
+          APK_NAME: ${{ env.APK_NAME }}
+        run: python .github/scripts/upload_to_mediafire.py
+
+      # ── Post download link in job summary ─────────────────────
+      - name: Display MediaFire link
+        if: always()
+        run: |
+          if [ -f mediafire_link.txt ]; then
+            LINK=$(cat mediafire_link.txt)
+            echo "## 📦 APK Download" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**MediaFire:** [Download APK](${LINK})" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**File:** \`${{ env.APK_NAME }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ MediaFire link not available" >> $GITHUB_STEP_SUMMARY
+          fi
