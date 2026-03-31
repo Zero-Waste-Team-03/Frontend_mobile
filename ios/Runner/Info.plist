@@ -48,6 +48,10 @@
 	<!-- NFC Configuration -->
 	<key>NFCReaderUsageDescription</key>
 	<string>We need access to NFC to scan tags</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We use your location to auto-fill your city for local challenges.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>We use your location to auto-fill your city for local challenges.</string>
 	<key>com.apple.developer.nfc.readersession.formats</key>
 	<array>
 		<string>NDEF</string>
