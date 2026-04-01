@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import '../bloc/auth_bloc.dart';
+import '../bloc/auth_event.dart';
+import '../bloc/auth_state.dart';
 import 'auth_colors.dart';
 
 class RegisterStep1Page extends StatefulWidget {
@@ -64,8 +69,14 @@ class _RegisterStep1PageState extends State<RegisterStep1Page> {
     }
   }
 
+  void _onGoogleSignUp() {
+    context.read<AuthBloc>().add(AuthGoogleLoginRequested());
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isLoading = context.watch<AuthBloc>().state is AuthLoading;
+
     return SingleChildScrollView(
       padding: EdgeInsets.all(AppDimensions.paddingLarge.w),
       child: Column(
@@ -124,7 +135,7 @@ class _RegisterStep1PageState extends State<RegisterStep1Page> {
           ),
           SizedBox(height: 48.h),
           ElevatedButton(
-            onPressed: _onNext,
+            onPressed: isLoading ? null : _onNext,
             style: ElevatedButton.styleFrom(
               minimumSize: Size(double.infinity, 56.h),
               backgroundColor: AuthColors.primary,
@@ -140,6 +151,50 @@ class _RegisterStep1PageState extends State<RegisterStep1Page> {
               style: TextStyle(
                 fontSize: AppDimensions.buttonTextSize.sp,
                 fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          SizedBox(height: AppDimensions.paddingLarge.h),
+          Row(
+            children: [
+              const Expanded(child: Divider(color: AuthColors.inputBorder)),
+              Padding(
+                padding: EdgeInsets.symmetric(
+                    horizontal: AppDimensions.paddingMedium.w),
+                child: Text(
+                  'OR CONTINUE WITH',
+                  style: TextStyle(
+                    color: AuthColors.subText,
+                    fontSize: AppDimensions.captionSize.sp,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+              const Expanded(child: Divider(color: AuthColors.inputBorder)),
+            ],
+          ),
+          SizedBox(height: AppDimensions.paddingLarge.h),
+          OutlinedButton.icon(
+            onPressed: isLoading ? null : _onGoogleSignUp,
+            icon: SvgPicture.asset(
+              'assets/images/google_logo.svg',
+              width: 20.sp,
+              height: 20.sp,
+            ),
+            label: Text(
+              'Google',
+              style: TextStyle(
+                fontSize: AppDimensions.buttonTextSize.sp,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            style: OutlinedButton.styleFrom(
+              minimumSize: Size(double.infinity, 56.h),
+              foregroundColor: AuthColors.headingText,
+              side: const BorderSide(color: AuthColors.inputBorder),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(22.r),
               ),
             ),
           ),
@@ -191,9 +246,7 @@ class _RegisterStep1PageState extends State<RegisterStep1Page> {
               ? IconButton(
                   padding: EdgeInsets.zero,
                   icon: Icon(
-                    _obscurePassword
-                        ? Icons.visibility_off
-                        : Icons.visibility,
+                    _obscurePassword ? Icons.visibility_off : Icons.visibility,
                     color: AuthColors.inputText,
                     size: AppDimensions.iconSize.sp,
                   ),

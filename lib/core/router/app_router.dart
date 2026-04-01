@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/pages/intro_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_flow_page.dart';
@@ -11,7 +9,6 @@ import '../../features/map/presentation/pages/map_placeholder_page.dart';
 import '../../features/chat/presentation/pages/chat_placeholder_page.dart';
 import '../../features/profile/presentation/pages/profile_placeholder_page.dart';
 import '../../shared/widgets/main_shell.dart';
-import '../di/injection.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -20,31 +17,21 @@ final appRouter = GoRouter(
   initialLocation: '/',
   routes: [
     // ── Auth routes (no bottom nav) ──
-    ShellRoute(
-      builder: (context, state, child) {
-        return BlocProvider(
-          create: (context) => getIt<AuthBloc>(),
-          child: child,
-        );
-      },
-      routes: [
-        GoRoute(
-          path: '/',
-          builder: (context, state) => const IntroPage(),
-        ),
-        GoRoute(
-          path: '/login',
-          builder: (context, state) => const LoginPage(),
-        ),
-        GoRoute(
-          path: '/register',
-          builder: (context, state) => const RegisterFlowPage(),
-        ),
-        GoRoute(
-          path: '/forgot-password',
-          builder: (context, state) => const ForgotPasswordPage(),
-        ),
-      ],
+    GoRoute(
+      path: '/',
+      builder: (context, state) => const IntroPage(),
+    ),
+    GoRoute(
+      path: '/login',
+      builder: (context, state) => const LoginPage(),
+    ),
+    GoRoute(
+      path: '/register',
+      builder: (context, state) => const RegisterFlowPage(),
+    ),
+    GoRoute(
+      path: '/forgot-password',
+      builder: (context, state) => const ForgotPasswordPage(),
     ),
 
     // ── Main app routes (with bottom nav) ──

@@ -1,4 +1,4 @@
-# My Flutter Starter
+# gaspzero
 
 This is a lightweight starter scaffold extracted from the `3amerli` app. It includes:
 

@@ -9,7 +9,7 @@
     <uses-feature android:name="android.hardware.nfc" android:required="false" />
     
     <application
-        android:label="my_flutter_starter"
+        android:label="ZeroWaste"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -38,9 +38,9 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <!-- Accepts URIs: myflutterstarter://oauth-callback -->
+                <!-- Accepts URIs: zerowaste://oauth-callback -->
                 <data
-                    android:scheme="myflutterstarter"
+                    android:scheme="zerowaste"
                     android:host="oauth-callback" />
             </intent-filter>
             

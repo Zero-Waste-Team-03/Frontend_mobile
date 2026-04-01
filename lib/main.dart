@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'core/router/app_router.dart';
 import 'core/di/injection.dart';
+import 'features/auth/presentation/bloc/auth_bloc.dart';
+import 'features/auth/presentation/bloc/auth_state.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 void main() async {
@@ -43,6 +46,18 @@ class GaspZeroApp extends StatelessWidget {
               foregroundColor: Colors.white,
             ),
           ),
+          builder: (context, child) {
+            return BlocProvider.value(
+              value: getIt<AuthBloc>(),
+              child: BlocListener<AuthBloc, AuthState>(
+                listenWhen: (previous, current) => current is AuthSuccess,
+                listener: (context, state) {
+                  appRouter.go('/home');
+                },
+                child: child ?? const SizedBox.shrink(),
+              ),
+            );
+          },
           routerConfig: appRouter,
         );
       },
