@@ -14,6 +14,6 @@ abstract class ProfileRepository {
     required String displayName,
     String? email,
     String? phoneNumber,
-    String? location,
+    Map<String, dynamic>? location,
   });
 }

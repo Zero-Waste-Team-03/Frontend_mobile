@@ -91,6 +91,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, void>> register({
     required String displayName,
     required String email,
+    required String phoneNumber,
     required String password,
     required String confirmPassword,
     required String otp,
@@ -104,6 +105,7 @@ class AuthRepositoryImpl implements AuthRepository {
       await remoteDataSource.register(
         displayName: displayName,
         email: email,
+        phoneNumber: phoneNumber,
         password: password,
         confirmPassword: confirmPassword,
         otp: otp,
@@ -373,9 +375,14 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, User>> updateProfile(String displayName) async {
+  Future<Either<Failure, User>> updateProfile({String? displayName, String? email, String? phoneNumber, Map<String, dynamic>? location}) async {
     try {
-      final userModel = await remoteDataSource.updateProfile(displayName);
+      final userModel = await remoteDataSource.updateProfile(
+        displayName: displayName,
+        email: email,
+        phoneNumber: phoneNumber,
+        location: location,
+      );
 
       // Cache the updated user profile
       await localDataSource.cacheUserProfile(userModel);

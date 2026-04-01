@@ -19,7 +19,7 @@ class ProfileUpdateRequested extends ProfileEvent {
   final String displayName;
   final String? email;
   final String? phoneNumber;
-  final String? location;
+  final Map<String, dynamic>? location;
 
   const ProfileUpdateRequested({
     required this.displayName,

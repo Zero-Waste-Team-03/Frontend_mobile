@@ -12,6 +12,7 @@ abstract class AuthRemoteDataSource {
   Future<void> register({
     required String displayName,
     required String email,
+    required String phoneNumber,
     required String password,
     required String confirmPassword,
     required String otp,
@@ -31,7 +32,7 @@ abstract class AuthRemoteDataSource {
   Future<AuthResponseModel> refreshTokens();
   Future<void> logoutFromAllDevices();
   Future<void> deleteAccount();
-  Future<UserModel> updateProfile(String displayName);
+  Future<UserModel> updateProfile({String? displayName, String? email, String? phoneNumber, Map<String, dynamic>? location});
 }
 
 @LazySingleton(as: AuthRemoteDataSource)
@@ -44,6 +45,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     role
     description
     isMailVerified
+    phoneNumber
     reputationScore
     locationId
     location {
@@ -113,6 +115,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<void> register({
     required String displayName,
     required String email,
+    required String phoneNumber,
     required String password,
     required String confirmPassword,
     required String otp,
@@ -133,6 +136,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     final registerInput = <String, dynamic>{
       'email': email.trim(),
       'password': password,
+      'phoneNumber': phoneNumber,
       'location': _buildRegisterLocationInput(
         city: city,
         country: country,
@@ -315,7 +319,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<UserModel> updateProfile(String displayName) async {
+  Future<UserModel> updateProfile({String? displayName, String? email, String? phoneNumber, Map<String, dynamic>? location}) async {
     const query = '''
       mutation UpdateProfile(\$updateProfileInput: UpdateProfileInput!) {
         updateProfile(updateProfileInput: \$updateProfileInput) {
@@ -330,7 +334,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         'query': query,
         'variables': {
           'updateProfileInput': {
-            'displayName': displayName.trim(),
+            if (displayName != null && displayName.trim().isNotEmpty) 'displayName': displayName.trim(),
+            if (email != null && email.trim().isNotEmpty) 'email': email.trim(),
+            if (phoneNumber != null && phoneNumber.trim().isNotEmpty) 'phoneNumber': phoneNumber.trim(),
+            if (location != null) 'location': location,
           }
         },
       });

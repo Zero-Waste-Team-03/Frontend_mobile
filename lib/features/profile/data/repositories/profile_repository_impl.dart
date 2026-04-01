@@ -51,12 +51,12 @@ class ProfileRepositoryImpl implements ProfileRepository {
     required String displayName,
     String? email,
     String? phoneNumber,
-    String? location,
+    Map<String, dynamic>? location,
   }) async {
     try {
       // Currently the API only supports displayName update
       // TODO: Extend backend API to support email, phoneNumber, and location updates
-      final result = await authRepository.updateProfile(displayName);
+      final result = await authRepository.updateProfile(displayName:displayName, email: email, phoneNumber: phoneNumber, location: location);
       return result;
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));

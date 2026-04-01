@@ -9,6 +9,7 @@ abstract class AuthRepository {
   Future<Either<Failure, void>> register({
     required String displayName,
     required String email,
+    required String phoneNumber,
     required String password,
     required String confirmPassword,
     required String otp,
@@ -31,7 +32,7 @@ abstract class AuthRepository {
   Future<Either<Failure, AuthResponse>> refreshTokens();
   Future<Either<Failure, void>> logoutFromAllDevices();
   Future<Either<Failure, void>> deleteAccount();
-  Future<Either<Failure, User>> updateProfile(String displayName);
+  Future<Either<Failure, User>> updateProfile({String? displayName, String? email, String? phoneNumber, Map<String, dynamic>? location});
 
   // Profile caching methods
   Future<Either<Failure, User>> getCachedUser();

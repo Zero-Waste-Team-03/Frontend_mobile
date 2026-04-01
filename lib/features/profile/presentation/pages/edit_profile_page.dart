@@ -62,7 +62,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           displayName: fullName,
           email: email,
           phoneNumber: phone,
-          location: city,
+          location: city.isNotEmpty ? {'city': city} : null,
         ));
       }
     }
@@ -161,8 +161,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
               final user = state is ProfileLoaded
                   ? state.user
-                  : (state is ProfileUpdating ? state.currentUser : null);
-              final isUpdating = state is ProfileUpdating;
+                  : (state is ProfileUpdating
+                      ? state.currentUser
+                      : (state is ProfileUpdateSuccess ? state.user : null));
+              final isUpdating =
+                  state is ProfileUpdating || state is ProfileUpdateSuccess;
 
               if (!_isInitialized && user != null) {
                 _populateFields(user);

@@ -90,24 +90,24 @@ final appRouter = GoRouter(
         // Tab 3 â€” Profile
         StatefulShellBranch(
           routes: [
-            GoRoute(
-              path: '/profile',
-              builder: (context, state) {
+            ShellRoute(
+              builder: (context, state, child) {
                 return BlocProvider(
                   create: (context) =>
                       getIt<ProfileBloc>()..add(const ProfileLoadRequested()),
-                  child: const ProfilePage(),
+                  child: child,
                 );
               },
               routes: [
                 GoRoute(
-                  path: 'edit',
-                  builder: (context, state) {
-                    return BlocProvider.value(
-                      value: context.read<ProfileBloc>(),
-                      child: const EditProfilePage(),
-                    );
-                  },
+                  path: '/profile',
+                  builder: (context, state) => const ProfilePage(),
+                  routes: [
+                    GoRoute(
+                      path: 'edit',
+                      builder: (context, state) => const EditProfilePage(),
+                    ),
+                  ],
                 ),
               ],
             ),
