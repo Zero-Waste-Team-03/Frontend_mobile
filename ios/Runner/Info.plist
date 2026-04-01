@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>My Flutter Starter</string>
+	<string>ZeroWaste</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>my_flutter_starter</string>
+	<string>zerowaste</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -48,6 +48,10 @@
 	<!-- NFC Configuration -->
 	<key>NFCReaderUsageDescription</key>
 	<string>We need access to NFC to scan tags</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We use your location to auto-fill your city for local challenges.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>We use your location to auto-fill your city for local challenges.</string>
 	<key>com.apple.developer.nfc.readersession.formats</key>
 	<array>
 		<string>NDEF</string>
@@ -60,10 +64,10 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>com.myflutterstarter.oauth</string>
+			<string>com.zerowaste.oauth</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>myflutterstarter</string>
+				<string>zerowaste</string>
 			</array>
 		</dict>
 	</array>

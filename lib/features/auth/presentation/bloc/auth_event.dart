@@ -37,6 +37,8 @@ class AuthVerifyOtpRequested extends AuthEvent {
   final String lastName;
   final String email;
   final String password;
+  final String confirmPassword;
+  final String location;
   final String otp;
   
   const AuthVerifyOtpRequested({
@@ -44,11 +46,21 @@ class AuthVerifyOtpRequested extends AuthEvent {
     required this.lastName,
     required this.email,
     required this.password,
+    required this.confirmPassword,
+    required this.location,
     required this.otp,
   });
   
   @override
-  List<Object?> get props => [firstName, lastName, email, password, otp];
+  List<Object?> get props => [
+        firstName,
+        lastName,
+        email,
+        password,
+        confirmPassword,
+        location,
+        otp,
+      ];
 }
 
 class AuthGoogleLoginRequested extends AuthEvent {}

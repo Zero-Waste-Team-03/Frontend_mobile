@@ -130,11 +130,11 @@ The OAuth flow remains the same:
 1. Call `signInWithOAuth(provider: 'google', backendUrl: '...')`
 2. App opens external browser with OAuth URL
 3. User authenticates with provider
-4. Provider redirects back to app via deep link: `myflutterstarter://oauth-callback?token=...&refresh_token=...`
+4. Provider redirects back to app via deep link: `gaspzero://oauth-callback?token=...&refresh_token=...`
 5. App extracts tokens and stores them
 6. App verifies tokens by calling `/auth/me`
 
-Deep link scheme: `myflutterstarter://oauth-callback`
+Deep link scheme: `gaspzero://oauth-callback`
 
 ## Example Screen
 

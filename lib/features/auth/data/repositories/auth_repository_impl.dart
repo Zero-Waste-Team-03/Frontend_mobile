@@ -1,5 +1,9 @@
+import 'dart:async';
+
+import 'package:app_links/app_links.dart';
 import 'package:dartz/dartz.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:logger/logger.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/exceptions/exceptions.dart';
 import '../../domain/entities/auth_response.dart';
@@ -14,27 +18,47 @@ import 'package:injectable/injectable.dart';
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
   final AuthLocalDataSource localDataSource;
-  final GoogleSignIn googleSignInClient;
 
   AuthRepositoryImpl({
     required this.remoteDataSource,
     required this.localDataSource,
-    required this.googleSignInClient,
   });
 
+  static const String _oauthCallbackScheme = String.fromEnvironment(
+    'OAUTH_CALLBACK_SCHEME',
+    defaultValue: 'zerowaste',
+  );
+  static const String _oauthCallbackHost = String.fromEnvironment(
+    'OAUTH_CALLBACK_HOST',
+    defaultValue: 'oauth-callback',
+  );
+  final AppLinks _appLinks = AppLinks();
+  final Logger _logger = Logger(
+    printer: PrettyPrinter(
+      methodCount: 0,
+      errorMethodCount: 3,
+      lineLength: 120,
+      colors: true,
+      printEmojis: true,
+    ),
+  );
+
   @override
-  Future<Either<Failure, AuthResponse>> login(String email, String password) async {
+  Future<Either<Failure, AuthResponse>> login(
+      String email, String password) async {
     try {
       final responseModel = await remoteDataSource.login(email, password);
 
       // Block admin users from using the mobile app
       final user = responseModel.toEntity().user;
       if (user != null && user.isAdmin) {
-        return Left(ServerFailure('Admin accounts cannot access the mobile app. Please use the web dashboard.'));
+        return Left(ServerFailure(
+            'Admin accounts cannot access the mobile app. Please use the web dashboard.'));
       }
 
       if (responseModel.accessToken != null) {
-        await localDataSource.cacheTokens(responseModel.accessToken!, responseModel.refreshToken);
+        await localDataSource.cacheTokens(
+            responseModel.accessToken!, responseModel.refreshToken);
       }
       return Right(responseModel.toEntity());
     } on ServerException catch (e) {
@@ -57,9 +81,31 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, void>> register(String displayName, String email, String password, String otp) async {
+  Future<Either<Failure, void>> register({
+    required String displayName,
+    required String email,
+    required String password,
+    required String confirmPassword,
+    required String otp,
+    String? city,
+    String? country,
+    double? latitude,
+    double? longitude,
+    String? neighborhood,
+  }) async {
     try {
-      await remoteDataSource.register(displayName, email, password, otp);
+      await remoteDataSource.register(
+        displayName: displayName,
+        email: email,
+        password: password,
+        confirmPassword: confirmPassword,
+        otp: otp,
+        city: city,
+        country: country,
+        latitude: latitude,
+        longitude: longitude,
+        neighborhood: neighborhood,
+      );
       return const Right(null);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -69,18 +115,22 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, AuthResponse>> oAuthLogin(String provider, String accessToken) async {
+  Future<Either<Failure, AuthResponse>> oAuthLogin(
+      String provider, String accessToken) async {
     try {
-      final responseModel = await remoteDataSource.oAuthLogin(provider, accessToken);
+      final responseModel =
+          await remoteDataSource.oAuthLogin(provider, accessToken);
 
       // Block admin users from using the mobile app
       final user = responseModel.toEntity().user;
       if (user != null && user.isAdmin) {
-        return Left(ServerFailure('Admin accounts cannot access the mobile app. Please use the web dashboard.'));
+        return Left(ServerFailure(
+            'Admin accounts cannot access the mobile app. Please use the web dashboard.'));
       }
 
       if (responseModel.accessToken != null) {
-        await localDataSource.cacheTokens(responseModel.accessToken!, responseModel.refreshToken);
+        await localDataSource.cacheTokens(
+            responseModel.accessToken!, responseModel.refreshToken);
       }
       return Right(responseModel.toEntity());
     } on ServerException catch (e) {
@@ -92,34 +142,93 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, AuthResponse>> googleSignIn() async {
+    StreamSubscription<Uri>? sub;
     try {
-      // google_sign_in v7.x: use authenticate() instead of signIn()
-      final googleUser = await googleSignInClient.authenticate();
+      final authUrl = remoteDataSource.getOAuthProviderEntryUrl('google');
+      _logger.i('🌐 [OAuth] Launching external browser URL: $authUrl');
 
-      final googleAuth = await googleUser.authentication;
-      final idToken = googleAuth.idToken;
+      final callbackCompleter = Completer<Uri>();
 
-      if (idToken == null) {
-        return Left(ServerFailure('Failed to get Google ID token'));
+      Future<void> completeIfCallback(Uri? uri, String source) async {
+        if (uri == null) return;
+        if (!_isOAuthCallback(uri) || callbackCompleter.isCompleted) return;
+        _logger.i('↩️ [OAuth] Callback received from $source: $uri');
+        _logger.i('🧩 [OAuth] Callback query params: ${uri.queryParameters}');
+        _logger.i('🧩 [OAuth] Callback fragment: ${uri.fragment}');
+        callbackCompleter.complete(uri);
       }
 
-      // Send the Google ID token to our backend
-      final responseModel = await remoteDataSource.oAuthLogin('google', idToken);
+      await completeIfCallback(
+          await _appLinks.getInitialLink(), 'initial-link');
 
-      // Block admin users from using the mobile app
-      final user = responseModel.toEntity().user;
-      if (user != null && user.isAdmin) {
-        return Left(ServerFailure('Admin accounts cannot access the mobile app. Please use the web dashboard.'));
+      sub = _appLinks.uriLinkStream.listen((uri) {
+        completeIfCallback(uri, 'stream');
+      });
+
+      final launched = await launchUrl(
+        Uri.parse(authUrl),
+        mode: LaunchMode.externalApplication,
+      );
+      if (!launched) {
+        return Left(ServerFailure('Failed to open Google sign-in page.'));
       }
 
-      if (responseModel.accessToken != null) {
-        await localDataSource.cacheTokens(responseModel.accessToken!, responseModel.refreshToken);
+      final callbackUri = await callbackCompleter.future.timeout(
+        const Duration(minutes: 3),
+        onTimeout: () => throw ServerException('Google sign-in timed out.'),
+      );
+
+      final accessToken = _extractToken(callbackUri, keys: const [
+        'accessToken',
+        'access_token',
+        'token',
+      ]);
+      final refreshToken = _extractToken(callbackUri, keys: const [
+        'refreshToken',
+        'refresh_token',
+      ]);
+      final error =
+          _extractToken(callbackUri, keys: const ['error', 'message']);
+
+      if (error != null && error.isNotEmpty) {
+        return Left(ServerFailure(error));
       }
-      return Right(responseModel.toEntity());
+      if (accessToken == null || accessToken.isEmpty) {
+        _logger
+            .e('❌ [OAuth] Missing access token in callback URI: $callbackUri');
+        return Left(ServerFailure('No access token found in OAuth callback.'));
+      }
+
+      _logger.i(
+        '🔐 [OAuth] Extracted tokens | access: ${_previewToken(accessToken)} | '
+        'refresh: ${_previewToken(refreshToken)}',
+      );
+
+      await localDataSource.cacheTokens(accessToken, refreshToken);
+      _logger.i('💾 [OAuth] Tokens cached in secure storage');
+      final userModel = await remoteDataSource.getCurrentUser();
+      final user = userModel.toEntity();
+      _logger.i(
+          '👤 [OAuth] currentUser loaded: id=${user.id} email=${user.email}');
+
+      if (user.isAdmin) {
+        await localDataSource.clearTokens();
+        return Left(ServerFailure(
+            'Admin accounts cannot access the mobile app. Please use the web dashboard.'));
+      }
+
+      _logger.i('✅ [OAuth] Returning success to AuthBloc for navigation');
+      return Right(AuthResponse(
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+        user: user,
+      ));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {
       return Left(ServerFailure(e.toString()));
+    } finally {
+      await sub?.cancel();
     }
   }
 
@@ -132,7 +241,8 @@ class AuthRepositoryImpl implements AuthRepository {
       // Block admin users from using the mobile app
       if (user.isAdmin) {
         await localDataSource.clearTokens();
-        return Left(ServerFailure('Admin accounts cannot access the mobile app. Please use the web dashboard.'));
+        return Left(ServerFailure(
+            'Admin accounts cannot access the mobile app. Please use the web dashboard.'));
       }
 
       return Right(user);
@@ -147,7 +257,6 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, void>> logout() async {
     try {
       await localDataSource.clearTokens();
-      await googleSignInClient.signOut();
       return const Right(null);
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message));
@@ -157,9 +266,12 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, void>> changePassword(String oldPassword, String newPassword) async {
+  Future<Either<Failure, void>> changePassword(
+      String oldPassword, String newPassword,
+      {bool logoutFromOtherDevices = false}) async {
     try {
-      await remoteDataSource.changePassword(oldPassword, newPassword);
+      await remoteDataSource.changePassword(oldPassword, newPassword,
+          logoutFromOtherDevices: logoutFromOtherDevices);
       return const Right(null);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -181,7 +293,8 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, void>> resetPassword(String token, String newPassword) async {
+  Future<Either<Failure, void>> resetPassword(
+      String token, String newPassword) async {
     try {
       await remoteDataSource.resetPassword(token, newPassword);
       return const Right(null);
@@ -190,5 +303,109 @@ class AuthRepositoryImpl implements AuthRepository {
     } catch (e) {
       return Left(ServerFailure(e.toString()));
     }
+  }
+
+  @override
+  Future<Either<Failure, AuthResponse>> refreshTokens() async {
+    try {
+      final responseModel = await remoteDataSource.refreshTokens();
+
+      final user = responseModel.toEntity().user;
+      if (user != null && user.isAdmin) {
+        return Left(ServerFailure(
+            'Admin accounts cannot access the mobile app. Please use the web dashboard.'));
+      }
+
+      if (responseModel.accessToken != null) {
+        await localDataSource.cacheTokens(
+            responseModel.accessToken!, responseModel.refreshToken);
+      }
+      return Right(responseModel.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> logoutFromAllDevices() async {
+    try {
+      await remoteDataSource.logoutFromAllDevices();
+      await localDataSource.clearTokens();
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteAccount() async {
+    try {
+      await remoteDataSource.deleteAccount();
+      await localDataSource.clearTokens();
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, User>> updateProfile(String displayName) async {
+    try {
+      final userModel = await remoteDataSource.updateProfile(displayName);
+      return Right(userModel.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  bool _isOAuthCallback(Uri uri) {
+    return uri.scheme == _oauthCallbackScheme && uri.host == _oauthCallbackHost;
+  }
+
+  String? _extractToken(Uri uri, {required List<String> keys}) {
+    final allParams = <String, String>{};
+    allParams.addAll(uri.queryParameters);
+
+    if (uri.fragment.isNotEmpty) {
+      final fragment = uri.fragment;
+
+      void addFragmentParams(String raw) {
+        if (raw.isEmpty || !raw.contains('=')) return;
+        try {
+          allParams.addAll(Uri.splitQueryString(raw));
+        } catch (_) {}
+      }
+
+      addFragmentParams(fragment);
+      addFragmentParams(
+          fragment.startsWith('?') ? fragment.substring(1) : fragment);
+
+      final fragmentQueryIndex = fragment.indexOf('?');
+      if (fragmentQueryIndex >= 0 && fragmentQueryIndex + 1 < fragment.length) {
+        addFragmentParams(fragment.substring(fragmentQueryIndex + 1));
+      }
+    }
+
+    for (final key in keys) {
+      final value = allParams[key];
+      if (value != null && value.isNotEmpty) {
+        return Uri.decodeComponent(value);
+      }
+    }
+    return null;
+  }
+
+  String _previewToken(String? token) {
+    if (token == null || token.isEmpty) return '<none>';
+    if (token.length <= 14) return token;
+    return '${token.substring(0, 8)}...${token.substring(token.length - 6)}';
   }
 }

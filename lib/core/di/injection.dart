@@ -1,6 +1,5 @@
 import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import '../env.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../network/auth_interceptor.dart';
@@ -59,9 +58,6 @@ void configureDependencies() {
     return dio;
   });
 
-  // Google Sign-In (v7.x singleton)
-  getIt.registerLazySingleton<GoogleSignIn>(() => GoogleSignIn.instance);
-
   // ── Remote Data Source ──
   getIt.registerLazySingleton<AuthRemoteDataSource>(
       () => AuthRemoteDataSourceImpl(getIt()));
@@ -70,9 +66,8 @@ void configureDependencies() {
   getIt.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(
         remoteDataSource: getIt(),
         localDataSource: getIt(),
-        googleSignInClient: getIt(),
       ));
 
   // ── BLoC ──
-  getIt.registerFactory(() => AuthBloc(authRepository: getIt()));
+  getIt.registerLazySingleton(() => AuthBloc(authRepository: getIt()));
 }

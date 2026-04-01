@@ -6,20 +6,20 @@ This guide explains how to use the OAuth authentication flow in your Flutter app
 
 The app is configured to handle OAuth callbacks using the following deep link scheme:
 
-**Deep Link URL:** `myflutterstarter://oauth-callback`
+**Deep Link URL:** `gaspzero://oauth-callback`
 
 ### Configured Platforms:
 
 #### ✅ Android
 - **File:** `android/app/src/main/AndroidManifest.xml`
-- **Scheme:** `myflutterstarter`
+- **Scheme:** `gaspzero`
 - **Host:** `oauth-callback`
 - **Intent Filter:** Configured with `android:autoVerify="true"`
 
 #### ✅ iOS
 - **File:** `ios/Runner/Info.plist`
-- **Bundle URL Type:** `com.myflutterstarter.oauth`
-- **URL Scheme:** `myflutterstarter`
+- **Bundle URL Type:** `com.gaspzero.oauth`
+- **URL Scheme:** `gaspzero`
 
 ## 🔐 OAuth Flow
 
@@ -36,7 +36,7 @@ The app is configured to handle OAuth callbacks using the following deep link sc
        │                                                                              │
        └──────────────────────────────────────────────────────────────────────────────┘
                                    Deep Link with Token
-                          myflutterstarter://oauth-callback?token=xxx
+                          gaspzero://oauth-callback?token=xxx
 ```
 
 ### Steps:
@@ -44,7 +44,7 @@ The app is configured to handle OAuth callbacks using the following deep link sc
 1. **User taps OAuth button** → App calls `AuthCubit.signInWithOAuth()`
 2. **App requests auth URL** → Backend returns OAuth provider's authorization URL
 3. **Opens external browser** → User sees OAuth provider's consent screen
-4. **User approves** → OAuth provider redirects to `myflutterstarter://oauth-callback?token=xxx`
+4. **User approves** → OAuth provider redirects to `gaspzero://oauth-callback?token=xxx`
 5. **App receives deep link** → Extracts token and fetches user data
 6. **Authentication complete** → User is logged in
 
@@ -77,7 +77,7 @@ await context.read<AuthCubit>().signInWithOAuth(
 Your backend needs to implement an OAuth initiation endpoint that:
 
 1. Receives the OAuth provider name (e.g., 'google', 'github')
-2. Receives the callback URL: `myflutterstarter://oauth-callback`
+2. Receives the callback URL: `gaspzero://oauth-callback`
 3. Generates and returns the OAuth provider's authorization URL
 
 #### Example Backend Endpoint:
@@ -89,14 +89,14 @@ Content-Type: application/json
 
 {
   "provider": "google",
-  "redirect_uri": "myflutterstarter://oauth-callback"
+  "redirect_uri": "gaspzero://oauth-callback"
 }
 ```
 
 **Response:**
 ```json
 {
-  "auth_url": "https://accounts.google.com/o/oauth2/v2/auth?client_id=xxx&redirect_uri=myflutterstarter://oauth-callback&..."
+  "auth_url": "https://accounts.google.com/o/oauth2/v2/auth?client_id=xxx&redirect_uri=gaspzero://oauth-callback&..."
 }
 ```
 
@@ -107,7 +107,7 @@ After user authentication, your backend OAuth callback endpoint should:
 1. Receive the authorization code from OAuth provider
 2. Exchange it for access/refresh tokens
 3. Create or update user in your database
-4. Redirect to: `myflutterstarter://oauth-callback?token=YOUR_JWT_TOKEN&refresh_token=REFRESH_TOKEN`
+4. Redirect to: `gaspzero://oauth-callback?token=YOUR_JWT_TOKEN&refresh_token=REFRESH_TOKEN`
 
 **Important:** The tokens in the deep link should be YOUR backend's JWT tokens, not the OAuth provider's tokens.
 
@@ -214,14 +214,14 @@ OAUTH_FACEBOOK_ENABLED=true
 
 ```bash
 # Test deep link on Android emulator/device
-adb shell am start -W -a android.intent.action.VIEW -d "myflutterstarter://oauth-callback?token=test_token_123&refresh_token=test_refresh_456"
+adb shell am start -W -a android.intent.action.VIEW -d "gaspzero://oauth-callback?token=test_token_123&refresh_token=test_refresh_456"
 ```
 
 ### Testing Deep Links (iOS):
 
 ```bash
 # Test deep link on iOS simulator
-xcrun simctl openurl booted "myflutterstarter://oauth-callback?token=test_token_123&refresh_token=test_refresh_456"
+xcrun simctl openurl booted "gaspzero://oauth-callback?token=test_token_123&refresh_token=test_refresh_456"
 ```
 
 ### Mock Testing:
