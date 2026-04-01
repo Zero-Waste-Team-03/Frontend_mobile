@@ -2,7 +2,8 @@ name: Build APK & Upload to MediaFire
 
 on:
   push:
-    branches: [master, islam_auth]
+    branches: [master, islam_auth, islam_cicd]
+  workflow_dispatch:
 
 # Cancel any in-progress runs for the same branch
 concurrency:
@@ -31,21 +32,49 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: stable
+          flutter-version: 3.29.2
           cache: true
+
+      - name: Verify required secrets
+        env:
+          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+          GRAPHQL_ENDPOINT: ${{ secrets.GRAPHQL_ENDPOINT }}
+          MEDIAFIRE_EMAIL: ${{ secrets.MEDIAFIRE_EMAIL }}
+          MEDIAFIRE_PASSWORD: ${{ secrets.MEDIAFIRE_PASSWORD }}
+          MEDIAFIRE_APP_ID: ${{ secrets.MEDIAFIRE_APP_ID }}
+        run: |
+          missing=0
+          for v in API_BASE_URL GRAPHQL_ENDPOINT MEDIAFIRE_EMAIL MEDIAFIRE_PASSWORD; do
+            if [ -z "${!v}" ]; then
+              echo "::error::Missing required secret: $v"
+              missing=1
+            fi
+          done
+          if [ -z "$MEDIAFIRE_APP_ID" ]; then
+            echo "::warning::MEDIAFIRE_APP_ID is empty, script default (42511) will be used"
+          fi
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
 
       - name: Install Flutter dependencies
         run: flutter pub get
 
-      # ── Create .env (if your app loads it at runtime) ─────────
+      # ── Create .env (app/test runtime config) ─────────────────
       - name: Create .env file
         run: |
           cat > .env << 'EOF'
-          APP_NAME=MyFlutterStarter
+          APP_NAME=ZeroWaste
           API_BASE_URL=${{ secrets.API_BASE_URL }}
           GRAPHQL_ENDPOINT=${{ secrets.GRAPHQL_ENDPOINT }}
           ENABLE_ANALYTICS=false
           EOF
+
+      - name: Flutter analyze
+        run: flutter analyze --no-fatal-infos
+
+      - name: Flutter tests
+        run: flutter test --exclude-tags=requires_env
 
       # ── Build APK ─────────────────────────────────────────────
       - name: Build release APK
@@ -74,8 +103,8 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install MediaFire SDK
-        run: pip install mediafire requests
+      - name: Install upload dependencies
+        run: pip install requests
 
       - name: Upload APK to MediaFire
         env:

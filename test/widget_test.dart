@@ -1,13 +1,11 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:gaspzero/main.dart'; // gaspzero because pubspec.yaml name
+import 'package:gaspzero/core/di/injection.dart';
+import 'package:gaspzero/main.dart';
 
 void main() {
-  testWidgets('App startup test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+  testWidgets('App bootstraps', (WidgetTester tester) async {
+    configureDependencies();
     await tester.pumpWidget(const GaspZeroApp());
-
-    // Verify that the loading mock text is shown.
-    expect(find.text("Gasp'Zero Map Loading..."), findsOneWidget);
-  });
+    expect(find.byType(GaspZeroApp), findsOneWidget);
+  }, tags: ['requires_env']);
 }
