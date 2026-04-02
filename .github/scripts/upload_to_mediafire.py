@@ -15,10 +15,10 @@ import time
 import requests
 
 # ── Configuration ────────────────────────────────────────────────
-EMAIL = os.environ.get("MEDIAFIRE_EMAIL")
-PASSWORD = os.environ.get("MEDIAFIRE_PASSWORD")
-APP_ID = os.environ.get("MEDIAFIRE_APP_ID", "42511")
-FOLDER_KEY = os.environ.get("MEDIAFIRE_FOLDER_KEY", "")
+EMAIL = (os.environ.get("MEDIAFIRE_EMAIL") or "").strip()
+PASSWORD = (os.environ.get("MEDIAFIRE_PASSWORD") or "").strip()
+APP_ID = (os.environ.get("MEDIAFIRE_APP_ID") or "42511").strip() or "42511"
+FOLDER_KEY = (os.environ.get("MEDIAFIRE_FOLDER_KEY") or "").strip()
 APK_NAME = os.environ.get("APK_NAME", "app-release.apk")
 
 API_BASE = "https://www.mediafire.com/api/1.5"
@@ -36,13 +36,29 @@ def api_call(endpoint: str, params: dict | None = None, method: str = "GET") -> 
     params = params or {}
     params["response_format"] = "json"
 
-    if method == "POST":
-        resp = requests.post(url, data=params, timeout=120)
-    else:
-        resp = requests.get(url, params=params, timeout=120)
+    headers = {
+        "User-Agent": "gaspzero-ci-mediafire-uploader/1.0",
+    }
 
-    resp.raise_for_status()
-    data = resp.json()
+    if method == "POST":
+        resp = requests.post(url, data=params, headers=headers, timeout=120)
+    else:
+        resp = requests.get(url, params=params, headers=headers, timeout=120)
+
+    try:
+        resp.raise_for_status()
+    except requests.HTTPError as exc:
+        body = resp.text[:500]
+        fail(
+            f"HTTP {resp.status_code} calling {endpoint}: {exc}. "
+            f"Response body (first 500 chars): {body}"
+        )
+
+    try:
+        data = resp.json()
+    except ValueError:
+        fail(f"Non-JSON response from {endpoint}: {resp.text[:500]}")
+        return {}
 
     result = data.get("response", {}).get("result", "Error")
     if result != "Success":
@@ -58,6 +74,10 @@ def get_session_token() -> str:
     print("🔑 Authenticating with MediaFire…")
     if not EMAIL or not PASSWORD:
         fail("MEDIAFIRE_EMAIL and MEDIAFIRE_PASSWORD must be set as GitHub Secrets.")
+    if not APP_ID:
+        fail("MEDIAFIRE_APP_ID resolved to empty value.")
+
+    print(f"ℹ️ Using MediaFire application_id={APP_ID}")
 
     resp = api_call("user/get_session_token.php", {
         "email": EMAIL,
@@ -68,6 +88,7 @@ def get_session_token() -> str:
     token = resp.get("session_token")
     if not token:
         fail("Failed to obtain session token.")
+    token = str(token)
     print("✅ Authenticated successfully.")
     return token
 
@@ -138,6 +159,7 @@ def poll_upload(session_token: str, upload_key: str, max_retries: int = 30) -> s
             print(f"   ⏳ [{attempt+1}/{max_retries}] {progress}")
 
     fail("Upload timed out after polling.")
+    return ""
 
 
 # ── 3. Get download link ────────────────────────────────────────
