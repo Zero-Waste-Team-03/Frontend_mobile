@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'core/router/app_router.dart';
 import 'core/di/injection.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
+import 'features/auth/presentation/bloc/auth_event.dart';
 import 'features/auth/presentation/bloc/auth_state.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -47,8 +48,8 @@ class GaspZeroApp extends StatelessWidget {
             ),
           ),
           builder: (context, child) {
-            return BlocProvider.value(
-              value: getIt<AuthBloc>(),
+            return BlocProvider(
+              create: (_) => getIt<AuthBloc>()..add(AuthCheckRequested()),
               child: BlocListener<AuthBloc, AuthState>(
                 listenWhen: (previous, current) => current is AuthSuccess,
                 listener: (context, state) {
