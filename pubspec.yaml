@@ -77,8 +77,6 @@ dev_dependencies:
   injectable_generator: ^2.4.1
   
   # Testing
-  mockito: 5.4.4
-  bloc_test: ^9.1.5
 
 flutter:
   uses-material-design: true
