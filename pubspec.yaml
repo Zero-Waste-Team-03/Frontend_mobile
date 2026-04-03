@@ -4,7 +4,7 @@ description: "Gasp'Zero — Flutter Development Agent Brief"
 publish_to: 'none'
 version: 0.0.1
 environment:
-  sdk: ">=2.17.0 <4.0.0"
+  sdk: ">=3.9.0 <4.0.0"
 
 dependencies:
   flutter:
@@ -61,7 +61,7 @@ dependencies:
   formz: ^0.8.0
   cached_network_image: ^3.4.1
   dartz: ^0.10.1
-  google_fonts: ^8.0.2
+  google_fonts: ^6.2.1
   flutter_screenutil: ^5.9.3
   flutter_svg: ^2.0.10+1
 
@@ -77,8 +77,6 @@ dev_dependencies:
   injectable_generator: ^2.4.1
   
   # Testing
-  mockito: ^5.4.4
-  bloc_test: ^9.1.5
 
 flutter:
   uses-material-design: true

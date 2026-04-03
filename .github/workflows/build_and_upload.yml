@@ -1,8 +1,9 @@
-name: Build APK & Upload to MediaFire
+name: Build APK & Publish
 
 on:
   push:
-    branches: [master, islam_auth]
+    branches: [master, islam_auth, islam_cicd]
+  workflow_dispatch:
 
 # Cancel any in-progress runs for the same branch
 concurrency:
@@ -11,7 +12,7 @@ concurrency:
 
 jobs:
   build-and-upload:
-    name: Build APK & Upload
+    name: Build APK & Publish
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -34,18 +35,40 @@ jobs:
           channel: stable
           cache: true
 
+      - name: Verify required secrets
+        env:
+          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+          GRAPHQL_ENDPOINT: ${{ secrets.GRAPHQL_ENDPOINT }}
+        run: |
+          missing=0
+          for v in API_BASE_URL GRAPHQL_ENDPOINT; do
+            if [ -z "${!v}" ]; then
+              echo "::error::Missing required secret: $v"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
+
       - name: Install Flutter dependencies
         run: flutter pub get
 
-      # ── Create .env (if your app loads it at runtime) ─────────
+      # ── Create .env (app/test runtime config) ─────────────────
       - name: Create .env file
         run: |
           cat > .env << 'EOF'
-          APP_NAME=MyFlutterStarter
+          APP_NAME=ZeroWaste
           API_BASE_URL=${{ secrets.API_BASE_URL }}
           GRAPHQL_ENDPOINT=${{ secrets.GRAPHQL_ENDPOINT }}
           ENABLE_ANALYTICS=false
           EOF
+
+      - name: Flutter analyze
+        run: flutter analyze --no-fatal-infos
+
+      - name: Flutter tests
+        run: flutter test --exclude-tags=requires_env
 
       # ── Build APK ─────────────────────────────────────────────
       - name: Build release APK
@@ -68,36 +91,13 @@ jobs:
           path: ${{ env.APK_NAME }}
           retention-days: 30
 
-      # ── Upload to MediaFire ───────────────────────────────────
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install MediaFire SDK
-        run: pip install mediafire requests
-
-      - name: Upload APK to MediaFire
-        env:
-          MEDIAFIRE_EMAIL: ${{ secrets.MEDIAFIRE_EMAIL }}
-          MEDIAFIRE_PASSWORD: ${{ secrets.MEDIAFIRE_PASSWORD }}
-          MEDIAFIRE_APP_ID: ${{ secrets.MEDIAFIRE_APP_ID }}
-          MEDIAFIRE_FOLDER_KEY: ${{ secrets.MEDIAFIRE_FOLDER_KEY }}
-          APK_NAME: ${{ env.APK_NAME }}
-        run: python .github/scripts/upload_to_mediafire.py
-
-      # ── Post download link in job summary ─────────────────────
-      - name: Display MediaFire link
+      # ── Post download links in job summary ─────────────────────
+      - name: Display download links
         if: always()
         run: |
-          if [ -f mediafire_link.txt ]; then
-            LINK=$(cat mediafire_link.txt)
-            echo "## 📦 APK Download" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "**MediaFire:** [Download APK](${LINK})" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "**File:** \`${{ env.APK_NAME }}\`" >> $GITHUB_STEP_SUMMARY
-            echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "⚠️ MediaFire link not available" >> $GITHUB_STEP_SUMMARY
-          fi
+          echo "## 📦 APK Download" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**GitHub Artifact:** available in this workflow run under Artifacts (name: \`release-apk\`)." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**File:** \`${{ env.APK_NAME }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
