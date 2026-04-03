@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -209,7 +209,7 @@ class _RegisterFlowPageState extends State<RegisterFlowPage>
                           child: LinearProgressIndicator(
                             value: _progressAnimation.value,
                             backgroundColor:
-                                AuthColors.primary.withOpacity(0.2),
+                                AuthColors.primary.withValues(alpha: 0.2),
                             color: AuthColors.primary,
                             minHeight: 10.h,
                           ),

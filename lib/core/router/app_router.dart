@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/pages/intro_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
@@ -19,7 +19,7 @@ final appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: '/',
   routes: [
-    // ── Auth routes (no bottom nav) ──
+    // â”€â”€ Auth routes (no bottom nav) â”€â”€
     GoRoute(
       path: '/',
       builder: (context, state) => const IntroPage(),
@@ -48,13 +48,13 @@ final appRouter = GoRouter(
       builder: (context, state) => const AddDonationPage(),
     ),
 
-    // ── Main app routes (with bottom nav) ──
+    // â”€â”€ Main app routes (with bottom nav) â”€â”€
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
         return MainShell(navigationShell: navigationShell);
       },
       branches: [
-        // Tab 0 — Home
+        // Tab 0 â€” Home
         StatefulShellBranch(
           routes: [
             GoRoute(
@@ -63,7 +63,7 @@ final appRouter = GoRouter(
             ),
           ],
         ),
-        // Tab 1 — Browse
+        // Tab 1 â€” Browse
         StatefulShellBranch(
           routes: [
             GoRoute(
@@ -72,7 +72,7 @@ final appRouter = GoRouter(
             ),
           ],
         ),
-        // Tab 2 — Chat
+        // Tab 2 â€” Chat
         StatefulShellBranch(
           routes: [
             GoRoute(
@@ -81,7 +81,7 @@ final appRouter = GoRouter(
             ),
           ],
         ),
-        // Tab 3 — Profile
+        // Tab 3 â€” Profile
         StatefulShellBranch(
           routes: [
             GoRoute(

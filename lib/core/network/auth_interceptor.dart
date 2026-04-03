@@ -1,4 +1,4 @@
-import 'package:dio/dio.dart';
+﻿import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 import '../../features/auth/data/sources/auth_local_data_source.dart';
 
@@ -33,11 +33,11 @@ class AuthInterceptor extends Interceptor {
       if (accessToken != null && accessToken.isNotEmpty) {
         options.headers['Authorization'] = 'Bearer $accessToken';
         _logger
-            .i('🔑 [AuthInterceptor] Bearer token attached to ${options.path}');
+            .i('ðŸ”‘ [AuthInterceptor] Bearer token attached to ${options.path}');
       }
     } catch (_) {
       // If we can't read the token, just proceed without it
-      _logger.w('⚠️ [AuthInterceptor] Could not read token');
+      _logger.w('âš ï¸ [AuthInterceptor] Could not read token');
     }
     handler.next(options);
   }
@@ -47,13 +47,13 @@ class AuthInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     // If the server returns 401 Unauthorized, attempt to refresh the token
     if (err.response?.statusCode == 401) {
-      _logger.w('🔄 [AuthInterceptor] 401 received, attempting token refresh');
+      _logger.w('ðŸ”„ [AuthInterceptor] 401 received, attempting token refresh');
 
       try {
         final refreshToken = await localDataSource.getRefreshToken();
         if (refreshToken == null || refreshToken.isEmpty) {
           _logger.e(
-              '❌ [AuthInterceptor] No refresh token available, clearing session');
+              'âŒ [AuthInterceptor] No refresh token available, clearing session');
           await localDataSource.clearTokens();
           return handler.next(err);
         }
@@ -88,7 +88,7 @@ class AuthInterceptor extends Interceptor {
           // Persist the new tokens
           await localDataSource.cacheTokens(newAccessToken, newRefreshToken);
 
-          _logger.i('✅ [AuthInterceptor] Token refreshed successfully');
+          _logger.i('âœ… [AuthInterceptor] Token refreshed successfully');
 
           // Retry the original request with the new token
           final retryOptions = err.requestOptions;
@@ -97,11 +97,11 @@ class AuthInterceptor extends Interceptor {
           final retryResponse = await dio.fetch(retryOptions);
           return handler.resolve(retryResponse);
         } else {
-          _logger.e('❌ [AuthInterceptor] Refresh failed, clearing session');
+          _logger.e('âŒ [AuthInterceptor] Refresh failed, clearing session');
           await localDataSource.clearTokens();
         }
       } catch (e) {
-        _logger.e('❌ [AuthInterceptor] Refresh exception: $e');
+        _logger.e('âŒ [AuthInterceptor] Refresh exception: $e');
         await localDataSource.clearTokens();
       }
     }

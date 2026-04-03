@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import '../../shared/theme/app_colors.dart';
@@ -56,7 +56,7 @@ class _MainShellState extends State<MainShell> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.06),
+              color: Colors.black.withValues(alpha: 0.06),
               blurRadius: 16,
               offset: const Offset(0, -4),
             ),
@@ -89,7 +89,7 @@ class _MainShellState extends State<MainShell> {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: AuthColors.primary.withOpacity(0.3),
+                          color: AuthColors.primary.withValues(alpha: 0.3),
                           blurRadius: 8,
                           offset: const Offset(0, 4),
                         ),
@@ -139,7 +139,7 @@ class _MainShellState extends State<MainShell> {
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: AuthColors.primary.withOpacity(0.3),
+                color: AuthColors.primary.withValues(alpha: 0.3),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'auth_colors.dart';
@@ -88,7 +88,7 @@ class IntroPage extends StatelessWidget {
                 onPressed: () => context.push('/login'),
                 style: ElevatedButton.styleFrom(
                   minimumSize: Size(double.infinity, 56.h),
-                  backgroundColor: AuthColors.primary.withOpacity(0.1),
+                  backgroundColor: AuthColors.primary.withValues(alpha: 0.1),
                   foregroundColor: AuthColors.primary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(AppDimensions.borderRadiusExtraLarge.r),

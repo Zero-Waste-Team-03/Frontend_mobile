@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 
 import 'package:app_links/app_links.dart';
 import 'package:dartz/dartz.dart';
@@ -145,16 +145,16 @@ class AuthRepositoryImpl implements AuthRepository {
     StreamSubscription<Uri>? sub;
     try {
       final authUrl = remoteDataSource.getOAuthProviderEntryUrl('google');
-      _logger.i('🌐 [OAuth] Launching external browser URL: $authUrl');
+      _logger.i('ðŸŒ [OAuth] Launching external browser URL: $authUrl');
 
       final callbackCompleter = Completer<Uri>();
 
       Future<void> completeIfCallback(Uri? uri, String source) async {
         if (uri == null) return;
         if (!_isOAuthCallback(uri) || callbackCompleter.isCompleted) return;
-        _logger.i('↩️ [OAuth] Callback received from $source: $uri');
-        _logger.i('🧩 [OAuth] Callback query params: ${uri.queryParameters}');
-        _logger.i('🧩 [OAuth] Callback fragment: ${uri.fragment}');
+        _logger.i('â†©ï¸ [OAuth] Callback received from $source: $uri');
+        _logger.i('ðŸ§© [OAuth] Callback query params: ${uri.queryParameters}');
+        _logger.i('ðŸ§© [OAuth] Callback fragment: ${uri.fragment}');
         callbackCompleter.complete(uri);
       }
 
@@ -195,21 +195,21 @@ class AuthRepositoryImpl implements AuthRepository {
       }
       if (accessToken == null || accessToken.isEmpty) {
         _logger
-            .e('❌ [OAuth] Missing access token in callback URI: $callbackUri');
+            .e('âŒ [OAuth] Missing access token in callback URI: $callbackUri');
         return Left(ServerFailure('No access token found in OAuth callback.'));
       }
 
       _logger.i(
-        '🔐 [OAuth] Extracted tokens | access: ${_previewToken(accessToken)} | '
+        'ðŸ” [OAuth] Extracted tokens | access: ${_previewToken(accessToken)} | '
         'refresh: ${_previewToken(refreshToken)}',
       );
 
       await localDataSource.cacheTokens(accessToken, refreshToken);
-      _logger.i('💾 [OAuth] Tokens cached in secure storage');
+      _logger.i('ðŸ’¾ [OAuth] Tokens cached in secure storage');
       final userModel = await remoteDataSource.getCurrentUser();
       final user = userModel.toEntity();
       _logger.i(
-          '👤 [OAuth] currentUser loaded: id=${user.id} email=${user.email}');
+          'ðŸ‘¤ [OAuth] currentUser loaded: id=${user.id} email=${user.email}');
 
       if (user.isAdmin) {
         await localDataSource.clearTokens();
@@ -217,7 +217,7 @@ class AuthRepositoryImpl implements AuthRepository {
             'Admin accounts cannot access the mobile app. Please use the web dashboard.'));
       }
 
-      _logger.i('✅ [OAuth] Returning success to AuthBloc for navigation');
+      _logger.i('âœ… [OAuth] Returning success to AuthBloc for navigation');
       return Right(AuthResponse(
         accessToken: accessToken,
         refreshToken: refreshToken,

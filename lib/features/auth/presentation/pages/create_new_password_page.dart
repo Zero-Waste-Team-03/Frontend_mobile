@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -137,7 +137,7 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
                   SizedBox(height: AppDimensions.paddingSmall.h),
                   _buildPasswordField(
                     _newPasswordController,
-                    '••••••••',
+                    'â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢',
                     _obscureNewPassword,
                     () => setState(() => _obscureNewPassword = !_obscureNewPassword),
                   ),
@@ -148,7 +148,7 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
                   SizedBox(height: AppDimensions.paddingSmall.h),
                   _buildPasswordField(
                     _confirmPasswordController,
-                    '••••••••',
+                    'â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢',
                     _obscureConfirmPassword,
                     () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
                   ),

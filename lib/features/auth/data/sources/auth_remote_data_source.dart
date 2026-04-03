@@ -1,4 +1,4 @@
-import 'package:dio/dio.dart';
+﻿import 'package:dio/dio.dart';
 import '../../../../core/exceptions/exceptions.dart';
 import '../models/auth_response_model.dart';
 import '../models/user_model.dart';
@@ -324,7 +324,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       }
     ''';
 
-    _logger.i('🚀 Executing GraphQL: updateProfile');
+    _logger.i('ðŸš€ Executing GraphQL: updateProfile');
     try {
       final response = await dio.post('/graphql', data: {
         'query': query,
@@ -349,7 +349,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   Future<AuthResponseModel> _executeGraphqlMutation(String query,
       Map<String, dynamic> variables, String operationName) async {
-    _logger.i('🚀 Executing GraphQL: $operationName\nVariables: $variables');
+    _logger.i('ðŸš€ Executing GraphQL: $operationName\nVariables: $variables');
     try {
       final response = await dio.post('/graphql', data: {
         'query': query,
@@ -357,24 +357,24 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       });
 
       _logger.d(
-          '📥 GraphQL Response [$operationName]: ${response.statusCode}\nData: ${response.data}');
+          'ðŸ“¥ GraphQL Response [$operationName]: ${response.statusCode}\nData: ${response.data}');
 
       if (response.statusCode == 200) {
         if (response.data['errors'] != null) {
           _logger
-              .e('❌ GraphQL Error: ${response.data['errors'][0]['message']}');
+              .e('âŒ GraphQL Error: ${response.data['errors'][0]['message']}');
           throw ServerException(response.data['errors'][0]['message']);
         }
-        _logger.i('✅ GraphQL Success: $operationName');
+        _logger.i('âœ… GraphQL Success: $operationName');
         return AuthResponseModel.fromJson(response.data['data'][operationName]);
       } else {
-        _logger.e('❌ GraphQL Failed with status: ${response.statusCode}');
+        _logger.e('âŒ GraphQL Failed with status: ${response.statusCode}');
         throw ServerException(
             'Action failed with status: ${response.statusCode}');
       }
     } on DioException catch (e) {
       _logger.e(
-          '❌ DioException in $operationName: ${e.message} | Error: ${e.error} | Type: ${e.type}\nResponse Data: ${e.response?.data}');
+          'âŒ DioException in $operationName: ${e.message} | Error: ${e.error} | Type: ${e.type}\nResponse Data: ${e.response?.data}');
       final errorMessage = e.response?.data?['errors']?[0]?['message'] ??
           e.message ??
           e.error?.toString() ??
@@ -404,7 +404,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   /// Execute a GraphQL mutation that returns void (MessageResponse)
   Future<void> _executeGraphqlVoidMutation(String query,
       Map<String, dynamic> variables, String operationName) async {
-    _logger.i('🚀 Executing GraphQL: $operationName\nVariables: $variables');
+    _logger.i('ðŸš€ Executing GraphQL: $operationName\nVariables: $variables');
     try {
       final response = await dio.post('/graphql', data: {
         'query': query,
@@ -412,23 +412,23 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       });
 
       _logger.d(
-          '📥 GraphQL Response [$operationName]: ${response.statusCode}\nData: ${response.data}');
+          'ðŸ“¥ GraphQL Response [$operationName]: ${response.statusCode}\nData: ${response.data}');
 
       if (response.statusCode == 200) {
         if (response.data['errors'] != null) {
           _logger
-              .e('❌ GraphQL Error: ${response.data['errors'][0]['message']}');
+              .e('âŒ GraphQL Error: ${response.data['errors'][0]['message']}');
           throw ServerException(response.data['errors'][0]['message']);
         }
-        _logger.i('✅ GraphQL Success: $operationName');
+        _logger.i('âœ… GraphQL Success: $operationName');
       } else {
-        _logger.e('❌ GraphQL Failed with status: ${response.statusCode}');
+        _logger.e('âŒ GraphQL Failed with status: ${response.statusCode}');
         throw ServerException(
             'Action failed with status: ${response.statusCode}');
       }
     } on DioException catch (e) {
       _logger.e(
-          '❌ DioException in $operationName: ${e.message} | Error: ${e.error} | Type: ${e.type}\nResponse Data: ${e.response?.data}');
+          'âŒ DioException in $operationName: ${e.message} | Error: ${e.error} | Type: ${e.type}\nResponse Data: ${e.response?.data}');
       final errorMessage = e.response?.data?['errors']?[0]?['message'] ??
           e.message ??
           e.error?.toString() ??

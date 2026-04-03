@@ -207,7 +207,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
                       padding: EdgeInsets.all(12.w),
                       decoration: BoxDecoration(
                         color:
-                            AuthColors.primary.withOpacity(0.1), // 10% opacity
+                            AuthColors.primary.withValues(alpha: 0.1), // 10% opacity
                         shape: BoxShape.circle,
                       ),
                       child: SvgPicture.asset(
@@ -271,7 +271,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
                 child: Container(
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? AuthColors.primary.withOpacity(0.1)
+                        ? AuthColors.primary.withValues(alpha: 0.1)
                         : const Color(0xFFF1F5F9),
                     border: Border.all(
                       color:
@@ -347,7 +347,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
                   children: [
                     _buildLabel('Unit'),
                     DropdownButtonFormField<String>(
-                      value: _selectedUnit,
+                      initialValue: _selectedUnit,
                       icon: Icon(Icons.keyboard_arrow_down_rounded,
                           color: AuthColors.subText),
                       style: TextStyle(
@@ -717,7 +717,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, -4)),
           ],

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection.dart';
@@ -83,7 +83,7 @@ class HomePlaceholderPage extends StatelessWidget {
             Icon(
               Icons.eco_rounded,
               size: 80.sp,
-              color: AuthColors.primary.withOpacity(0.4),
+              color: AuthColors.primary.withValues(alpha: 0.4),
             ),
             SizedBox(height: 24.h),
             Text(
