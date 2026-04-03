@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -190,7 +190,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: AuthColors.primary.withOpacity(0.3),
+                color: AuthColors.primary.withValues(alpha: 0.3),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -240,7 +240,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
           onTap: () => context.pop(),
           child: Container(
             decoration: BoxDecoration(
-              color: const Color(0xFF131615).withOpacity(0.4),
+              color: const Color(0xFF131615).withValues(alpha: 0.4),
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.arrow_back, color: Colors.white),
@@ -255,7 +255,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: const Color(0xFF131615).withOpacity(0.4),
+                color: const Color(0xFF131615).withValues(alpha: 0.4),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.share_rounded,
@@ -270,7 +270,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: const Color(0xFF131615).withOpacity(0.4),
+                color: const Color(0xFF131615).withValues(alpha: 0.4),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.favorite_border_rounded,
@@ -572,7 +572,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                           width: 32.w,
                           height: 32.w,
                           decoration: BoxDecoration(
-                            color: AuthColors.primary.withOpacity(0.2),
+                            color: AuthColors.primary.withValues(alpha: 0.2),
                             shape: BoxShape.circle,
                           ),
                           child: Center(

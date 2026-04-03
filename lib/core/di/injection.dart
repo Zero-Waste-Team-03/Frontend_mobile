@@ -1,4 +1,4 @@
-import 'package:get_it/get_it.dart';
+﻿import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
 import '../env.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -12,14 +12,14 @@ import '../../features/auth/presentation/bloc/auth_bloc.dart';
 final getIt = GetIt.instance;
 
 void configureDependencies() {
-  // ── Secure Storage ──
+  // â”€â”€ Secure Storage â”€â”€
   getIt.registerLazySingleton(() => const FlutterSecureStorage());
 
-  // ── Local Data Source (needs storage, registered early for interceptor) ──
+  // â”€â”€ Local Data Source (needs storage, registered early for interceptor) â”€â”€
   getIt.registerLazySingleton<AuthLocalDataSource>(
       () => AuthLocalDataSourceImpl(getIt()));
 
-  // ── Dio with Auth Interceptor ──
+  // â”€â”€ Dio with Auth Interceptor â”€â”€
   getIt.registerLazySingleton(() {
     final baseUrl = const String.fromEnvironment('API_BASE_URL',
         defaultValue: 'https://api.gaspzero.qzz.io/');
@@ -39,7 +39,7 @@ void configureDependencies() {
       ),
     );
 
-    // Auth interceptor — attaches Bearer token & handles 401 refresh
+    // Auth interceptor â€” attaches Bearer token & handles 401 refresh
     dio.interceptors.add(AuthInterceptor(
       localDataSource: getIt<AuthLocalDataSource>(),
       dio: dio,
@@ -58,16 +58,16 @@ void configureDependencies() {
     return dio;
   });
 
-  // ── Remote Data Source ──
+  // â”€â”€ Remote Data Source â”€â”€
   getIt.registerLazySingleton<AuthRemoteDataSource>(
       () => AuthRemoteDataSourceImpl(getIt()));
 
-  // ── Repository ──
+  // â”€â”€ Repository â”€â”€
   getIt.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(
         remoteDataSource: getIt(),
         localDataSource: getIt(),
       ));
 
-  // ── BLoC ──
+  // â”€â”€ BLoC â”€â”€
   getIt.registerLazySingleton(() => AuthBloc(authRepository: getIt()));
 }

@@ -1,4 +1,4 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
+﻿import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:logger/logger.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -87,15 +87,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   void _onAuthGoogleLoginRequested(
       AuthGoogleLoginRequested event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
-    _logger.i('🟡 [AuthBloc] Google OAuth requested');
+    _logger.i('ðŸŸ¡ [AuthBloc] Google OAuth requested');
     final result = await authRepository.googleSignIn();
     result.fold(
       (failure) {
-        _logger.e('🔴 [AuthBloc] Google OAuth failed: ${failure.message}');
+        _logger.e('ðŸ”´ [AuthBloc] Google OAuth failed: ${failure.message}');
         emit(AuthError(failure.message));
       },
       (response) {
-        _logger.i('🟢 [AuthBloc] Emitting AuthSuccess from Google OAuth');
+        _logger.i('ðŸŸ¢ [AuthBloc] Emitting AuthSuccess from Google OAuth');
         emit(AuthSuccess(response.user));
       },
     );

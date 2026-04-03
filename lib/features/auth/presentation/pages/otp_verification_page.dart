@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -150,7 +150,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w400,
-                  color: AuthColors.primary.withOpacity(0.7),
+                  color: AuthColors.primary.withValues(alpha: 0.7),
                   height: 1.625,
                 ),
               ),
@@ -179,7 +179,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                       child: TextField(
                         controller: _otpControllers[index],
                         focusNode: _focusNodes[index],
-                        // No maxLength — handled by formatter to allow paste interception
+                        // No maxLength â€” handled by formatter to allow paste interception
                         keyboardType: TextInputType.number,
                         textAlign: TextAlign.center,
                         style: TextStyle(
@@ -199,8 +199,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                           counterText: "",
                           filled: true,
                           fillColor: isFilled
-                              ? AuthColors.primary.withOpacity(0.08)
-                              : AuthColors.primary.withOpacity(0.03),
+                              ? AuthColors.primary.withValues(alpha: 0.08)
+                              : AuthColors.primary.withValues(alpha: 0.03),
                           contentPadding: EdgeInsets.zero,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(
@@ -208,15 +208,15 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                             borderSide: BorderSide(
                                 color: isFilled
                                     ? AuthColors.primary
-                                    : AuthColors.primary.withOpacity(0.2)),
+                                    : AuthColors.primary.withValues(alpha: 0.2)),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(
                                 AppDimensions.borderRadiusLarge.r),
                             borderSide: BorderSide(
                               color: isFilled
-                                  ? AuthColors.primary.withOpacity(0.6)
-                                  : AuthColors.primary.withOpacity(0.2),
+                                  ? AuthColors.primary.withValues(alpha: 0.6)
+                                  : AuthColors.primary.withValues(alpha: 0.2),
                               width: isFilled ? 1.5 : 1,
                             ),
                           ),
@@ -338,7 +338,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                 child: Text(
                   "By continuing, you agree to Gasp'Zero's Terms of\nService and Privacy Policy.",
                   style: TextStyle(
-                    color: AuthColors.primary.withOpacity(0.6),
+                    color: AuthColors.primary.withValues(alpha: 0.6),
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w400,
                     height: 1.33,
@@ -374,7 +374,7 @@ class _OtpFieldFormatter extends TextInputFormatter {
   ) {
     final newText = newValue.text;
 
-    // If more than 1 digit arrived, it's a paste — distribute across fields
+    // If more than 1 digit arrived, it's a paste â€” distribute across fields
     if (newText.length > 1) {
       // Schedule the distribution after this frame to avoid conflicts
       WidgetsBinding.instance.addPostFrameCallback((_) {

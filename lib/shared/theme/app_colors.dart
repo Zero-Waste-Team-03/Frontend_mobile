@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 class AuthColors {
   static const Color background = Color(0xFFF6F7F7); // Light Gray Background

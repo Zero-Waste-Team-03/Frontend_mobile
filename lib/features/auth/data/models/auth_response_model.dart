@@ -1,4 +1,4 @@
-import 'package:equatable/equatable.dart';
+﻿import 'package:equatable/equatable.dart';
 import '../../domain/entities/auth_response.dart';
 import 'user_model.dart';
 

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -69,7 +69,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         builder: (context, state) {
           final isLoading = state is AuthLoading;
 
-          // ── Success view — link has been sent ──
+          // â”€â”€ Success view â€” link has been sent â”€â”€
           if (_linkSent) {
             return SafeArea(
               child: Padding(
@@ -81,7 +81,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       width: 80.w,
                       height: 80.w,
                       decoration: BoxDecoration(
-                        color: AuthColors.primary.withOpacity(0.1),
+                        color: AuthColors.primary.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -171,7 +171,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             );
           }
 
-          // ── Email entry view ──
+          // â”€â”€ Email entry view â”€â”€
           return SafeArea(
             child: SingleChildScrollView(
               padding: EdgeInsets.all(AppDimensions.paddingLarge.w),
