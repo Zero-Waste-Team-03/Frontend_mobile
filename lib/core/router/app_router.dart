@@ -4,10 +4,13 @@ import '../../features/auth/presentation/pages/intro_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_flow_page.dart';
 import '../../features/auth/presentation/pages/forgot_password_page.dart';
-import '../../features/auth/presentation/pages/home_placeholder_page.dart';
-import '../../features/map/presentation/pages/map_placeholder_page.dart';
+import '../../features/donations/presentation/pages/donations_home_page.dart';
+import '../../features/donations/presentation/pages/donation_details_page.dart';
+import '../../features/donations/domain/entities/donation.dart';
+import '../../features/donations/presentation/pages/donations_list_page.dart';
 import '../../features/chat/presentation/pages/chat_placeholder_page.dart';
 import '../../features/profile/presentation/pages/profile_placeholder_page.dart';
+import '../../features/donations/presentation/pages/add_donation_page.dart';
 import '../../shared/widgets/main_shell.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -33,6 +36,17 @@ final appRouter = GoRouter(
       path: '/forgot-password',
       builder: (context, state) => const ForgotPasswordPage(),
     ),
+    GoRoute(
+      path: '/donation-details',
+      builder: (context, state) {
+        final donation = state.extra as Donation;
+        return DonationDetailsPage(donation: donation);
+      },
+    ),
+    GoRoute(
+      path: '/add-donation',
+      builder: (context, state) => const AddDonationPage(),
+    ),
 
     // ── Main app routes (with bottom nav) ──
     StatefulShellRoute.indexedStack(
@@ -45,16 +59,16 @@ final appRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/home',
-              builder: (context, state) => const HomePlaceholderPage(),
+              builder: (context, state) => const DonationsHomePage(),
             ),
           ],
         ),
-        // Tab 1 — Map
+        // Tab 1 — Browse
         StatefulShellBranch(
           routes: [
             GoRoute(
-              path: '/map',
-              builder: (context, state) => const MapPlaceholderPage(),
+              path: '/browse',
+              builder: (context, state) => const DonationsListPage(),
             ),
           ],
         ),

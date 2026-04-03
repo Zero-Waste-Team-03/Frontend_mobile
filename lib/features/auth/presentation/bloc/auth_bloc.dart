@@ -25,6 +25,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthGoogleLoginRequested>(_onAuthGoogleLoginRequested);
     on<AuthForgotPasswordRequested>(_onAuthForgotPasswordRequested);
     on<AuthResetPasswordRequested>(_onAuthResetPasswordRequested);
+    on<AuthCheckRequested>(_onAuthCheckRequested);
+  }
+
+  void _onAuthCheckRequested(
+      AuthCheckRequested event, Emitter<AuthState> emit) async {
+    emit(AuthLoading());
+    final result = await authRepository.getCurrentUser();
+    result.fold(
+      (failure) => emit(AuthError(failure.message)), // Or handle silently
+      (user) => emit(AuthSuccess(user)),
+    );
   }
 
   void _onAuthLoginRequested(

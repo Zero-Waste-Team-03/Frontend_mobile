@@ -64,6 +64,7 @@ dependencies:
   google_fonts: ^6.2.1
   flutter_screenutil: ^5.9.3
   flutter_svg: ^2.0.10+1
+  shimmer: ^3.0.0
 
 dev_dependencies:
   flutter_test:
@@ -85,4 +86,5 @@ flutter:
     - .env
     - assets/l10n/
     - assets/images/
+    - assets/icons/donations/
 
