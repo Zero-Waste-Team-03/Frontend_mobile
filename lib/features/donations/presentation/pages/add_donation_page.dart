@@ -2,6 +2,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../../shared/theme/app_colors.dart';
 
 class AddDonationPage extends StatefulWidget {
@@ -32,11 +35,11 @@ class _AddDonationPageState extends State<AddDonationPage> {
   final TextEditingController _notesController = TextEditingController();
 
   final List<String> _categories = ['Fresh', 'Dry Goods', 'Cooked', 'Bakery'];
-  final List<IconData> _categoryIcons = [
-    Icons.soup_kitchen_rounded,
-    Icons.inventory_2_rounded,
-    Icons.rice_bowl_rounded,
-    Icons.bakery_dining_rounded,
+  final List<String> _categoryIcons = [
+    'assets/icons/donations/category_fresh.svg',
+    'assets/icons/donations/category_dry.svg',
+    'assets/icons/donations/category_cooked.svg',
+    'assets/icons/donations/category_bakery.svg',
   ];
 
   @override
@@ -92,9 +95,9 @@ class _AddDonationPageState extends State<AddDonationPage> {
         ),
         title: Text(
           'Add Donation',
-          style: TextStyle(
+          style: GoogleFonts.inter(
             fontSize: 18.sp,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w700,
             color: AuthColors.headingText,
             letterSpacing: -0.5,
           ),
@@ -113,15 +116,15 @@ class _AddDonationPageState extends State<AddDonationPage> {
                   children: [
                     Text(
                       _getStepTitle(),
-                      style: TextStyle(
+                      style: GoogleFonts.inter(
                         fontSize: 24.sp,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w700,
                         color: AuthColors.headingText,
                       ),
                     ),
                     Text(
                       'STEP ${_currentStep + 1} OF 3',
-                      style: TextStyle(
+                      style: GoogleFonts.inter(
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w700,
                         color: AuthColors.primary,
@@ -133,12 +136,13 @@ class _AddDonationPageState extends State<AddDonationPage> {
                 SizedBox(height: 16.h),
                 // Progress Bar
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(4.r),
+                  borderRadius: BorderRadius.circular(9999.r),
                   child: LinearProgressIndicator(
                     value: (_currentStep + 1) / 3,
                     backgroundColor: const Color(0xFFE2E8F0),
                     color: AuthColors.primary,
                     minHeight: 8.h,
+                    borderRadius: BorderRadius.circular(9999.r),
                   ),
                 ),
               ],
@@ -177,7 +181,10 @@ class _AddDonationPageState extends State<AddDonationPage> {
         children: [
           // Photo Upload Area
           GestureDetector(
-            onTap: () {},
+            onTap: () async {
+              final picker = ImagePicker();
+              await picker.pickImage(source: ImageSource.gallery);
+            },
             child: Container(
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: 32.h),
@@ -203,8 +210,13 @@ class _AddDonationPageState extends State<AddDonationPage> {
                             AuthColors.primary.withOpacity(0.1), // 10% opacity
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(Icons.camera_alt_rounded,
-                          color: AuthColors.primary, size: 32.sp),
+                      child: SvgPicture.asset(
+                        'assets/icons/donations/upload_photo.svg',
+                        width: 26.sp,
+                        height: 26.sp,
+                        colorFilter: ColorFilter.mode(
+                            AuthColors.primary, BlendMode.srcIn),
+                      ),
                     ),
                     SizedBox(height: 12.h),
                     Text(
@@ -248,7 +260,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
               crossAxisCount: 2,
               crossAxisSpacing: 16.w,
               mainAxisSpacing: 16.h,
-              childAspectRatio: 1.0,
+              childAspectRatio: 1.55,
             ),
             itemBuilder: (context, index) {
               final isSelected = _selectedCategory == _categories[index];
@@ -271,17 +283,21 @@ class _AddDonationPageState extends State<AddDonationPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
+                      SvgPicture.asset(
                         _categoryIcons[index],
-                        color: isSelected
-                            ? AuthColors.primary
-                            : const Color(0xFF64748B),
-                        size: 32.sp,
+                        width: 40.sp,
+                        height: 40.sp,
+                        colorFilter: ColorFilter.mode(
+                          isSelected
+                              ? AuthColors.primary
+                              : const Color(0xFF64748B),
+                          BlendMode.srcIn,
+                        ),
                       ),
                       SizedBox(height: 12.h),
                       Text(
                         _categories[index],
-                        style: TextStyle(
+                        style: GoogleFonts.inter(
                           fontSize: 16.sp,
                           fontWeight:
                               isSelected ? FontWeight.w700 : FontWeight.w600,
@@ -311,7 +327,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
           Row(
             children: [
               Expanded(
-                flex: 35,
+                flex: 40,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -325,7 +341,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
               ),
               SizedBox(width: 16.w),
               Expanded(
-                flex: 65,
+                flex: 60,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -339,8 +355,8 @@ class _AddDonationPageState extends State<AddDonationPage> {
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: const Color(0xFFF8FAFC),
-                        contentPadding:
-                            EdgeInsets.symmetric(horizontal: 16.w, vertical: 0),
+                        contentPadding: EdgeInsets.symmetric(
+                            horizontal: 16.w, vertical: 14.h),
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.r),
                             borderSide:
@@ -449,36 +465,28 @@ class _AddDonationPageState extends State<AddDonationPage> {
                       padding: EdgeInsets.symmetric(vertical: 12.h),
                       decoration: BoxDecoration(
                         color: _pickupPreference == 'Home'
-                            ? Colors.white
+                            ? AuthColors.primary
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(8.r),
-                        boxShadow: _pickupPreference == 'Home'
-                            ? [
-                                const BoxShadow(
-                                    color: Color(0x1A000000),
-                                    blurRadius: 4,
-                                    offset: Offset(0, 2))
-                              ]
-                            : null,
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.home_rounded,
                               color: _pickupPreference == 'Home'
-                                  ? AuthColors.primary
+                                  ? Colors.white
                                   : AuthColors.subText,
                               size: 18.sp),
                           SizedBox(width: 8.w),
                           Text(
                             'Home',
-                            style: TextStyle(
+                            style: GoogleFonts.inter(
                               fontSize: 14.sp,
                               fontWeight: _pickupPreference == 'Home'
                                   ? FontWeight.w700
                                   : FontWeight.w500,
                               color: _pickupPreference == 'Home'
-                                  ? AuthColors.primary
+                                  ? Colors.white
                                   : AuthColors.subText,
                             ),
                           ),
@@ -495,36 +503,28 @@ class _AddDonationPageState extends State<AddDonationPage> {
                       padding: EdgeInsets.symmetric(vertical: 12.h),
                       decoration: BoxDecoration(
                         color: _pickupPreference == 'Public Spot'
-                            ? Colors.white
+                            ? AuthColors.primary
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(8.r),
-                        boxShadow: _pickupPreference == 'Public Spot'
-                            ? [
-                                const BoxShadow(
-                                    color: Color(0x1A000000),
-                                    blurRadius: 4,
-                                    offset: Offset(0, 2))
-                              ]
-                            : null,
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.location_on_rounded,
                               color: _pickupPreference == 'Public Spot'
-                                  ? AuthColors.primary
+                                  ? Colors.white
                                   : AuthColors.subText,
                               size: 18.sp),
                           SizedBox(width: 8.w),
                           Text(
                             'Public Spot',
-                            style: TextStyle(
+                            style: GoogleFonts.inter(
                               fontSize: 14.sp,
                               fontWeight: _pickupPreference == 'Public Spot'
                                   ? FontWeight.w700
                                   : FontWeight.w500,
                               color: _pickupPreference == 'Public Spot'
-                                  ? AuthColors.primary
+                                  ? Colors.white
                                   : AuthColors.subText,
                             ),
                           ),
@@ -544,82 +544,90 @@ class _AddDonationPageState extends State<AddDonationPage> {
             children: [
               _buildLabel('Pickup Location'),
               GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Opening Location Picker...')),
+                  );
+                },
                 child: Text('Change',
-                    style: TextStyle(
+                    style: GoogleFonts.inter(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w600,
                         color: AuthColors.primary)),
               ),
             ],
           ),
-          Container(
-            margin: EdgeInsets.only(top: 8.h),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12.r),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
-              color: Colors.white,
-            ),
-            child: Column(
-              children: [
-                // Map placeholder (clip)
-                Container(
-                  height: 120.h,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE2E8F0), // A lighter grey for "map"
-                    borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(12.r)),
+          GestureDetector(
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Opening Maps...')),
+              );
+            },
+            child: Container(
+              margin: EdgeInsets.only(top: 8.h),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12.r),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+                color: Colors.white,
+              ),
+              child: Column(
+                children: [
+                  // Map placeholder (clip)
+                  Container(
+                    height: 120.h,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE2E8F0),
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(12.r)),
+                    ),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Positioned(
+                            top: 40.h,
+                            right: -20,
+                            left: -20,
+                            child: Container(height: 8.h, color: Colors.white)),
+                        Positioned(
+                            top: -20,
+                            bottom: -20,
+                            right: 100.w,
+                            child: Container(width: 8.w, color: Colors.white)),
+                        Icon(Icons.location_on,
+                            color: AuthColors.primary, size: 48.sp),
+                      ],
+                    ),
                   ),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      // Fake street lines
-                      Positioned(
-                          top: 40.h,
-                          right: -20,
-                          left: -20,
-                          child: Container(height: 8.h, color: Colors.white)),
-                      Positioned(
-                          top: -20,
-                          bottom: -20,
-                          right: 100.w,
-                          child: Container(width: 8.w, color: Colors.white)),
-                      // Green Pin Icon
-                      Icon(Icons.location_on,
-                          color: AuthColors.primary, size: 48.sp),
-                    ],
-                  ),
-                ),
-                // Address Field
-                Container(
-                  width: double.infinity,
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-                  decoration: BoxDecoration(
-                    border:
-                        Border(top: BorderSide(color: const Color(0xFFE2E8F0))),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.my_location_rounded,
-                          color: AuthColors.subText, size: 20.sp),
-                      SizedBox(width: 12.w),
-                      Expanded(
-                        child: Text(
-                          '742 Evergreen Terrace, Springfield',
-                          style: TextStyle(
-                              fontSize: 14.sp,
-                              color: AuthColors.headingText,
-                              fontWeight: FontWeight.w500),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                  // Address Field
+                  Container(
+                    width: double.infinity,
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                    decoration: const BoxDecoration(
+                      border: Border(top: BorderSide(color: Color(0xFFE2E8F0))),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.my_location_rounded,
+                            color: AuthColors.subText, size: 20.sp),
+                        SizedBox(width: 12.w),
+                        Expanded(
+                          child: Text(
+                            '742 Evergreen Terrace, Springfield',
+                            style: GoogleFonts.inter(
+                                fontSize: 14.sp,
+                                color: AuthColors.headingText,
+                                fontWeight: FontWeight.w500),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
@@ -636,8 +644,8 @@ class _AddDonationPageState extends State<AddDonationPage> {
         children: [
           Text(
             'Please confirm the following safety protocols for your cooked food donation.',
-            style: TextStyle(
-                fontSize: 16.sp, color: AuthColors.headingText, height: 1.4),
+            style: GoogleFonts.openSans(
+                fontSize: 14.sp, color: const Color(0xFF6C7F76), height: 1.4),
           ),
           SizedBox(height: 24.h),
 
@@ -668,26 +676,29 @@ class _AddDonationPageState extends State<AddDonationPage> {
 
           // Final Review Box
           Container(
-            padding: EdgeInsets.all(16.w),
+            padding: EdgeInsets.all(20.w),
             decoration: BoxDecoration(
-              color: const Color(0xFFFFF7ED), // Light orange
-              borderRadius: BorderRadius.circular(12.r),
-              border: Border.all(color: const Color(0xFFFED7AA)),
+              color: const Color(0xFFF59E0B),
+              borderRadius: BorderRadius.circular(24.r),
             ),
-            child: Row(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.info_outline_rounded,
-                    color: const Color(0xFFF97316), size: 24.sp),
-                SizedBox(width: 12.w),
-                Expanded(
-                  child: Text(
-                    'Once published, your donation will be visible to local community centers and individuals in need.',
-                    style: TextStyle(
-                        fontSize: 14.sp,
-                        color: const Color(0xFF9A3412),
-                        height: 1.4),
+                Text(
+                  'Final Review',
+                  style: GoogleFonts.inter(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
                   ),
+                ),
+                SizedBox(height: 8.h),
+                Text(
+                  'Once published, your donation will be visible to local community centers and individuals in need.',
+                  style: GoogleFonts.inter(
+                      fontSize: 14.sp,
+                      color: Colors.white.withValues(alpha: 0.9),
+                      height: 1.4),
                 ),
               ],
             ),
@@ -803,14 +814,15 @@ class _AddDonationPageState extends State<AddDonationPage> {
       controller: controller,
       maxLines: maxLines,
       keyboardType: keyboardType,
-      style: TextStyle(fontSize: 14.sp, color: AuthColors.headingText),
+      style: GoogleFonts.inter(fontSize: 14.sp, color: AuthColors.headingText),
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: TextStyle(fontSize: 14.sp, color: AuthColors.inputText),
+        hintStyle:
+            GoogleFonts.inter(fontSize: 14.sp, color: AuthColors.inputText),
         filled: true,
         fillColor: const Color(0xFFF8FAFC),
         contentPadding: EdgeInsets.symmetric(
-            horizontal: 16.w, vertical: maxLines > 1 ? 16.h : 0),
+            horizontal: 16.w, vertical: maxLines > 1 ? 16.h : 14.h),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
           borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
@@ -856,7 +868,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
             Expanded(
               child: Text(
                 title,
-                style: TextStyle(
+                style: GoogleFonts.openSans(
                     fontSize: 14.sp,
                     color: AuthColors.headingText,
                     fontWeight: FontWeight.w500),

@@ -88,4 +88,5 @@ flutter:
     - .env
     - assets/l10n/
     - assets/images/
+    - assets/icons/donations/
 
