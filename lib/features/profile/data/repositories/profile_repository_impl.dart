@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
+import 'dart:io';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/exceptions/exceptions.dart';
 import '../../../auth/domain/entities/user.dart';
@@ -56,8 +57,46 @@ class ProfileRepositoryImpl implements ProfileRepository {
     try {
       // Currently the API only supports displayName update
       // TODO: Extend backend API to support email, phoneNumber, and location updates
-      final result = await authRepository.updateProfile(displayName:displayName, email: email, phoneNumber: phoneNumber, location: location);
+      final result = await authRepository.updateProfile(
+        displayName: displayName,
+        email: email,
+        phoneNumber: phoneNumber,
+        location: location,
+      );
       return result;
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> uploadProfileAvatar(File file) async {
+    try {
+      final result = await authRepository.uploadProfileAvatar(file);
+      if (result.id == null) {
+        return Left(
+          ServerFailure('Failed to get attachment ID from upload response'),
+        );
+      }
+      return Right(result.id!);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, User>> updateProfileWithAvatarId(
+    String avatarAttachmentId,
+  ) async {
+    try {
+      final result = await authRepository.updateProfileWithAvatarId(
+        avatarAttachmentId,
+      );
+      return Right(result);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {

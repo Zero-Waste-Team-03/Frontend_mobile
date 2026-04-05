@@ -4,6 +4,7 @@ import 'package:app_links/app_links.dart';
 import 'package:dartz/dartz.dart';
 import 'package:logger/logger.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:io';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/exceptions/exceptions.dart';
 import '../../domain/entities/auth_response.dart';
@@ -454,6 +455,32 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(CacheFailure(e.message));
     } catch (e) {
       return Left(CacheFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<dynamic> uploadProfileAvatar(File file) async {
+    try {
+      final result = await remoteDataSource.uploadProfileAvatar(file);
+      return result;
+    } on ServerException catch (e) {
+      throw ServerException(e.message);
+    }
+  }
+
+  @override
+  Future<User> updateProfileWithAvatarId(String avatarAttachmentId) async {
+    try {
+      final userModel = await remoteDataSource.updateProfileWithAvatarId(
+        avatarAttachmentId,
+      );
+
+      // Cache the updated user profile
+      await localDataSource.cacheUserProfile(userModel);
+
+      return userModel.toEntity();
+    } on ServerException {
+      rethrow;
     }
   }
 

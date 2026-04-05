@@ -11,6 +11,7 @@ class User extends Equatable {
   final int reputationScore;
   final String? locationId;
   final Map<String, dynamic>? location;
+  final String? avatarUrl;
 
   const User({
     required this.id,
@@ -23,6 +24,7 @@ class User extends Equatable {
     this.reputationScore = 0,
     this.locationId,
     this.location,
+    this.avatarUrl,
   });
 
   bool get isAdmin => role?.toLowerCase() == 'admin';
@@ -38,6 +40,7 @@ class User extends Equatable {
     int? reputationScore,
     String? locationId,
     Map<String, dynamic>? location,
+    String? avatarUrl,
   }) {
     return User(
       id: id ?? this.id,
@@ -50,20 +53,22 @@ class User extends Equatable {
       reputationScore: reputationScore ?? this.reputationScore,
       locationId: locationId ?? this.locationId,
       location: location ?? this.location,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
     );
   }
 
   @override
   List<Object?> get props => [
-        id,
-        email,
-        name,
-        phoneNumber,
-        role,
-        description,
-        isMailVerified,
-        reputationScore,
-        locationId,
-        location
-      ];
+    id,
+    email,
+    name,
+    phoneNumber,
+    role,
+    description,
+    isMailVerified,
+    reputationScore,
+    locationId,
+    location,
+    avatarUrl,
+  ];
 }

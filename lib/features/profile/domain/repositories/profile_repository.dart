@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'dart:io';
 import '../../../../core/errors/failures.dart';
 import '../../../auth/domain/entities/user.dart';
 
@@ -16,4 +17,12 @@ abstract class ProfileRepository {
     String? phoneNumber,
     Map<String, dynamic>? location,
   });
+
+  /// Upload profile avatar file and get attachment ID
+  Future<Either<Failure, String>> uploadProfileAvatar(File file);
+
+  /// Update profile with avatar attachment ID
+  Future<Either<Failure, User>> updateProfileWithAvatarId(
+    String avatarAttachmentId,
+  );
 }

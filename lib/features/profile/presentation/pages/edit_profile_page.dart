@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../bloc/profile_bloc.dart';
 import '../bloc/profile_event.dart';
@@ -58,12 +59,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
         final phone = _phoneController.text.trim();
         final city = _cityController.text.trim();
 
-        profileBloc.add(ProfileUpdateRequested(
-          displayName: fullName,
-          email: email,
-          phoneNumber: phone,
-          location: city.isNotEmpty ? {'city': city} : null,
-        ));
+        profileBloc.add(
+          ProfileUpdateRequested(
+            displayName: fullName,
+            email: email,
+            phoneNumber: phone,
+            location: city.isNotEmpty ? {'city': city} : null,
+          ),
+        );
       }
     }
   }
@@ -162,8 +165,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
               final user = state is ProfileLoaded
                   ? state.user
                   : (state is ProfileUpdating
-                      ? state.currentUser
-                      : (state is ProfileUpdateSuccess ? state.user : null));
+                        ? state.currentUser
+                        : (state is ProfileUpdateSuccess ? state.user : null));
               final isUpdating =
                   state is ProfileUpdating || state is ProfileUpdateSuccess;
 
@@ -194,35 +197,89 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                   width: 2.w,
                                 ),
                               ),
-                              child: Center(
-                                child: Text(
-                                  getInitials(user?.name),
-                                  style: TextStyle(
-                                    fontSize: 40.sp,
-                                    fontWeight: FontWeight.w700,
-                                    color: AuthColors.primary,
-                                  ),
-                                ),
-                              ),
+                              child:
+                                  (user != null &&
+                                      user.avatarUrl != null &&
+                                      user.avatarUrl!.isNotEmpty)
+                                  ? ClipOval(
+                                      child: Image.network(
+                                        user.avatarUrl!,
+                                        key: ValueKey(user.avatarUrl),
+                                        fit: BoxFit.cover,
+                                        cacheHeight:
+                                            (120 *
+                                                    (MediaQuery.of(
+                                                      context,
+                                                    ).devicePixelRatio))
+                                                .toInt(),
+                                        cacheWidth:
+                                            (120 *
+                                                    (MediaQuery.of(
+                                                      context,
+                                                    ).devicePixelRatio))
+                                                .toInt(),
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                              return Center(
+                                                child: Text(
+                                                  getInitials(user.name),
+                                                  style: TextStyle(
+                                                    fontSize: 40.sp,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: AuthColors.primary,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                      ),
+                                    )
+                                  : Center(
+                                      child: Text(
+                                        getInitials(user?.name),
+                                        style: TextStyle(
+                                          fontSize: 40.sp,
+                                          fontWeight: FontWeight.w700,
+                                          color: AuthColors.primary,
+                                        ),
+                                      ),
+                                    ),
                             ),
                             Positioned(
                               bottom: 0,
                               right: 0,
-                              child: Container(
-                                width: 32.w,
-                                height: 32.w,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: AuthColors.primary,
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 2.w,
+                              child: GestureDetector(
+                                onTap: isUpdating
+                                    ? null
+                                    : () => _pickAndUploadAvatar(context),
+                                child: Container(
+                                  width: 32.w,
+                                  height: 32.w,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: AuthColors.primary,
+                                    border: Border.all(
+                                      color: Colors.white,
+                                      width: 2.w,
+                                    ),
                                   ),
-                                ),
-                                child: Icon(
-                                  Icons.camera_alt_rounded,
-                                  color: Colors.white,
-                                  size: 16.sp,
+                                  child: isUpdating
+                                      ? SizedBox(
+                                          width: 12.w,
+                                          height: 12.w,
+                                          child:
+                                              const CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                valueColor:
+                                                    AlwaysStoppedAnimation<
+                                                      Color
+                                                    >(Colors.white),
+                                              ),
+                                        )
+                                      : Icon(
+                                          Icons.camera_alt_rounded,
+                                          color: Colors.white,
+                                          size: 16.sp,
+                                        ),
                                 ),
                               ),
                             ),
@@ -425,5 +482,33 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ),
       ),
     );
+  }
+
+  Future<void> _pickAndUploadAvatar(BuildContext context) async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 80,
+      );
+
+      if (image != null) {
+        if (mounted) {
+          context.read<ProfileBloc>().add(
+            ProfileAvatarUploadRequested(filePath: image.path),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error picking image: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 }
