@@ -1,4 +1,4 @@
-﻿import 'package:get_it/get_it.dart';
+import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
 import '../env.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -8,6 +8,11 @@ import '../../features/auth/data/sources/auth_remote_data_source.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
+
+import '../../features/donations/data/sources/donation_remote_data_source.dart';
+import '../../features/donations/data/repositories/donation_repository_impl.dart';
+import '../../features/donations/domain/repositories/donation_repository.dart';
+import '../../features/donations/presentation/bloc/donations_bloc.dart';
 
 final getIt = GetIt.instance;
 
@@ -70,4 +75,11 @@ void configureDependencies() {
 
   // â”€â”€ BLoC â”€â”€
   getIt.registerLazySingleton(() => AuthBloc(authRepository: getIt()));
+
+  // â”€â”€ Donations â”€â”€
+  getIt.registerLazySingleton<DonationRemoteDataSource>(
+      () => DonationRemoteDataSourceImpl(getIt()));
+  getIt.registerLazySingleton<DonationRepository>(
+      () => DonationRepositoryImpl(remoteDataSource: getIt()));
+  getIt.registerFactory(() => DonationsBloc(donationRepository: getIt()));
 }

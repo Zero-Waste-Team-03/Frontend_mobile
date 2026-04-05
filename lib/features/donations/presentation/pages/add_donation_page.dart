@@ -5,7 +5,12 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../core/di/injection.dart';
+import '../bloc/donations_bloc.dart';
+import '../bloc/donations_event.dart';
+import '../bloc/donations_state.dart';
 
 class AddDonationPage extends StatefulWidget {
   const AddDonationPage({super.key});
@@ -168,7 +173,32 @@ class _AddDonationPageState extends State<AddDonationPage> {
           ),
         ],
       ),
-      bottomNavigationBar: _buildBottomActions(),
+      bottomNavigationBar: BlocProvider(
+        create: (context) => getIt<DonationsBloc>(),
+        child: BlocConsumer<DonationsBloc, DonationsState>(
+          listener: (context, state) {
+            if (state is DonationAddSuccess) {
+              context.pop();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text('Donation published successfully!'),
+                  backgroundColor: AuthColors.primary,
+                ),
+              );
+            } else if (state is DonationAddError) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Error: ${state.message}'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          },
+          builder: (context, state) {
+            return _buildBottomActions(context, state);
+          },
+        ),
+      ),
     );
   }
 
@@ -709,7 +739,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
   }
 
   // ===================== BOTTOM ACTIONS =====================
-  Widget _buildBottomActions() {
+  Widget _buildBottomActions(BuildContext context, DonationsState state) {
     return SafeArea(
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
@@ -752,19 +782,21 @@ class _AddDonationPageState extends State<AddDonationPage> {
               child: SizedBox(
                 height: 52.h,
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: state is DonationAddLoading ? null : () {
                     if (_currentStep < 2) {
                       _nextStep();
                     } else {
-                      // Publish
-                      context.pop();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content:
-                              const Text('Donation published successfully!'),
-                          backgroundColor: AuthColors.primary,
-                        ),
-                      );
+                      final categoryId = _categories.indexOf(_selectedCategory).toString();
+                      context.read<DonationsBloc>().add(AddDonationEvent(
+                        title: _itemNameController.text.isNotEmpty ? _itemNameController.text : 'Donation',
+                        description: _notesController.text,
+                        categoryId: categoryId.isEmpty ? '1' : categoryId,
+                        quantity: int.tryParse(_amountController.text) ?? 1,
+                        urgency: 'HIGH',
+                        mainAttachmentId: 'temp_attachment_id',
+                        attachmentIds: [],
+                        expiryDate: _expirationDate ?? DateTime.now().add(const Duration(days: 1)),
+                      ));
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -773,7 +805,9 @@ class _AddDonationPageState extends State<AddDonationPage> {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12.r)),
                   ),
-                  child: Text(
+                  child: state is DonationAddLoading 
+                    ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                    : Text(
                     _currentStep == 2 ? 'Publish Donation' : 'Next Step',
                     style: TextStyle(
                         fontSize: 16.sp,

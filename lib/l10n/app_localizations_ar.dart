@@ -1,4 +1,4 @@
-﻿// ignore: unused_import
+// ignore: unused_import
 import 'package:intl/intl.dart' as intl;
 import 'app_localizations.dart';
 
@@ -9,5 +9,5 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
-  String get appTitle => 'Ù…Ø´Ø±ÙˆØ¹ ÙÙ„Ø§ØªØ±';
+  String get appTitle => 'مشروع فلاتر';
 }

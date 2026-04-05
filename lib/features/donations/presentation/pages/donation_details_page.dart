@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -360,7 +360,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                   ),
                   SizedBox(height: 4.h),
                   Text(
-                    '3.5 kg',
+                    '${widget.donation.quantity} units',
                     style: TextStyle(
                       fontSize: 16.sp,
                       color: const Color(0xFF15803D),
@@ -551,10 +551,10 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
             ),
             clipBehavior: Clip.antiAlias,
             child: FlutterMap(
-              options: const MapOptions(
-                initialCenter: LatLng(21.4225, 39.8262),
+              options: MapOptions(
+                initialCenter: LatLng(widget.donation.latitude ?? 21.4225, widget.donation.longitude ?? 39.8262),
                 initialZoom: 15.0,
-                interactionOptions: InteractionOptions(flags: InteractiveFlag.all),
+                interactionOptions: const InteractionOptions(flags: InteractiveFlag.all),
               ),
               children: [
                 TileLayer(
@@ -564,7 +564,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                 MarkerLayer(
                   markers: [
                     Marker(
-                      point: const LatLng(21.4225, 39.8262),
+                      point: LatLng(widget.donation.latitude ?? 21.4225, widget.donation.longitude ?? 39.8262),
                       width: 40.w,
                       height: 40.w,
                       child: Center(
