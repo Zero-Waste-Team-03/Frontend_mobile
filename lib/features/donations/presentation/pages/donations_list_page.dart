@@ -104,15 +104,15 @@ class _DonationsListPageState extends State<DonationsListPage> {
           Text(
             'Browse Donations',
             style: TextStyle(
-              fontSize: 22.sp,
+              fontSize: AppDimensions.appBarTitleSize.sp,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF131615),
+              color: AuthColors.primary,
             ),
           ),
           Stack(
             children: [
               Icon(Icons.notifications_none_rounded,
-                  size: 28.sp, color: const Color(0xFF131615)),
+                  size: 28.sp, color: AuthColors.primary),
               Positioned(
                 right: 2,
                 top: 2,

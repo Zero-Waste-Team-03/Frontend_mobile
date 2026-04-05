@@ -96,6 +96,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
               firstName: widget.userData['firstName'] ?? '',
               lastName: widget.userData['lastName'] ?? '',
               email: widget.userData['email'] ?? '',
+              phoneNumber: widget.userData['phone'] ?? '',
               password: widget.userData['password'] ?? '',
               confirmPassword: widget.userData['confirmPassword'] ?? '',
               location: widget.userData['location'] ?? '',
@@ -281,6 +282,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                                               widget.userData['lastName'] ?? '',
                                           email:
                                               widget.userData['email'] ?? '',
+                                          phoneNumber: 
+                                              widget.userData['phone'] ?? '',  
                                           password:
                                               widget.userData['password'] ?? '',
                                         ),

@@ -22,8 +22,10 @@ class AuthSignUpRequested extends AuthEvent {
   final String lastName;
   final String email;
   final String password;
-  
+  final String phoneNumber;
+
   const AuthSignUpRequested({
+    required this.phoneNumber,
     required this.firstName,
     required this.lastName,
     required this.email,
@@ -31,13 +33,14 @@ class AuthSignUpRequested extends AuthEvent {
   });
   
   @override
-  List<Object?> get props => [firstName, lastName, email, password];
+  List<Object?> get props => [firstName, lastName, email, password, phoneNumber];
 }
 
 class AuthVerifyOtpRequested extends AuthEvent {
   final String firstName;
   final String lastName;
   final String email;
+  final String? phoneNumber;
   final String password;
   final String confirmPassword;
   final String location;
@@ -47,6 +50,7 @@ class AuthVerifyOtpRequested extends AuthEvent {
     required this.firstName,
     required this.lastName,
     required this.email,
+    this.phoneNumber,
     required this.password,
     required this.confirmPassword,
     required this.location,
@@ -62,6 +66,7 @@ class AuthVerifyOtpRequested extends AuthEvent {
         confirmPassword,
         location,
         otp,
+        phoneNumber,
       ];
 }
 

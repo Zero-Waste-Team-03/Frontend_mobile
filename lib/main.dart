@@ -20,7 +20,7 @@ void main() async {
   }
 
   // Setup Dependency Injection initialized by injectable
-  configureDependencies();
+  await configureDependencies();
 
   runApp(const GaspZeroApp());
 }

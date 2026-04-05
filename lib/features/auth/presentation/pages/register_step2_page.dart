@@ -218,6 +218,7 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
               firstName: widget.formData['firstName'] ?? '',
               lastName: widget.formData['lastName'] ?? '',
               email: widget.formData['email'] ?? '',
+              phoneNumber: widget.formData['phone'] ?? '',
               password: widget.formData['password'] ?? '',
             ),
           );
