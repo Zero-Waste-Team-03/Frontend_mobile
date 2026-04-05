@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -26,7 +26,10 @@ class _RegisterStep1PageState extends State<RegisterStep1Page> {
   late final TextEditingController _lastNameController;
   late final TextEditingController _emailController;
   late final TextEditingController _passwordController;
+  late final TextEditingController _confirmPasswordController;
+  final _formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
 
   @override
   void initState() {
@@ -39,6 +42,8 @@ class _RegisterStep1PageState extends State<RegisterStep1Page> {
         TextEditingController(text: widget.formData['email'] ?? '');
     _passwordController =
         TextEditingController(text: widget.formData['password'] ?? '');
+    _confirmPasswordController =
+        TextEditingController(text: widget.formData['password'] ?? '');
   }
 
   @override
@@ -47,26 +52,18 @@ class _RegisterStep1PageState extends State<RegisterStep1Page> {
     _lastNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
   void _onNext() {
-    final fn = _firstNameController.text.trim();
-    final ln = _lastNameController.text.trim();
-    final em = _emailController.text.trim();
-    final pw = _passwordController.text;
+    if (!_formKey.currentState!.validate()) return;
 
-    if (fn.isNotEmpty && ln.isNotEmpty && em.isNotEmpty && pw.isNotEmpty) {
-      widget.formData['firstName'] = fn;
-      widget.formData['lastName'] = ln;
-      widget.formData['email'] = em;
-      widget.formData['password'] = pw;
-      widget.onNext();
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields')),
-      );
-    }
+    widget.formData['firstName'] = _firstNameController.text.trim();
+    widget.formData['lastName'] = _lastNameController.text.trim();
+    widget.formData['email'] = _emailController.text.trim();
+    widget.formData['password'] = _passwordController.text;
+    widget.onNext();
   }
 
   void _onGoogleSignUp() {
@@ -79,9 +76,11 @@ class _RegisterStep1PageState extends State<RegisterStep1Page> {
 
     return SingleChildScrollView(
       padding: EdgeInsets.all(AppDimensions.paddingLarge.w),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
           SizedBox(height: AppDimensions.paddingExtraLarge.h),
           Text(
             "Join the Community",
@@ -102,7 +101,7 @@ class _RegisterStep1PageState extends State<RegisterStep1Page> {
                     _buildLabel('First Name'),
                     SizedBox(height: AppDimensions.paddingSmall.h),
                     _buildTextField(
-                        _firstNameController, 'Enter first name', false),
+                        _firstNameController, 'Enter first name', false, validator: (v) => v == null || v.isEmpty ? 'Required' : null),
                   ],
                 ),
               ),
@@ -114,7 +113,7 @@ class _RegisterStep1PageState extends State<RegisterStep1Page> {
                     _buildLabel('Last Name'),
                     SizedBox(height: AppDimensions.paddingSmall.h),
                     _buildTextField(
-                        _lastNameController, 'Enter last name', false),
+                        _lastNameController, 'Enter last name', false, validator: (v) => v == null || v.isEmpty ? 'Required' : null),
                   ],
                 ),
               ),
@@ -123,16 +122,32 @@ class _RegisterStep1PageState extends State<RegisterStep1Page> {
           SizedBox(height: AppDimensions.paddingLarge.h),
           _buildLabel('Email'),
           SizedBox(height: AppDimensions.paddingSmall.h),
-          _buildTextField(_emailController, 'Enter your email', false),
+          _buildTextField(_emailController, 'Enter your email', true, validator: (v) {
+            if (v == null || v.isEmpty) return 'Required';
+            if (!RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(v)) return 'Invalid email';
+            return null;
+          }),
           SizedBox(height: AppDimensions.paddingLarge.h),
           _buildLabel('Password'),
           SizedBox(height: AppDimensions.paddingSmall.h),
-          _buildTextField(_passwordController, 'Enter your password', true),
+          _buildPasswordField(_passwordController, 'Enter your password', _obscurePassword, () => setState(() => _obscurePassword = !_obscurePassword), validator: (v) {
+            if (v == null || v.isEmpty) return 'Required';
+            if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$').hasMatch(v)) return 'Not strong enough';
+            return null;
+          }),
           SizedBox(height: AppDimensions.paddingMedium.h),
           Text(
-            "Must be at least 8 characters long.",
+            "Must be at least 8 characters with 1 uppercase, 1 lowercase, 1 number, and 1 symbol.",
             style: TextStyle(color: AuthColors.subText, fontSize: 11.sp),
           ),
+          SizedBox(height: AppDimensions.paddingLarge.h),
+          _buildLabel('Confirm Password'),
+          SizedBox(height: AppDimensions.paddingSmall.h),
+          _buildPasswordField(_confirmPasswordController, 'Confirm your password', _obscureConfirmPassword, () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword), validator: (v) {
+            if (v == null || v.isEmpty) return 'Required';
+            if (v != _passwordController.text) return 'Passwords do not match';
+            return null;
+          }),
           SizedBox(height: 48.h),
           ElevatedButton(
             onPressed: isLoading ? null : _onNext,
@@ -200,6 +215,7 @@ class _RegisterStep1PageState extends State<RegisterStep1Page> {
           ),
         ],
       ),
+      ),
     );
   }
 
@@ -214,49 +230,64 @@ class _RegisterStep1PageState extends State<RegisterStep1Page> {
     );
   }
 
+  OutlineInputBorder _getBorder(Color color) {
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppDimensions.borderRadiusLarge.r),
+      borderSide: BorderSide(color: color),
+    );
+  }
+
   Widget _buildTextField(
-      TextEditingController controller, String hint, bool isPassword) {
-    return Container(
-      height: AppDimensions.inputHeight.h,
-      decoration: BoxDecoration(
-        color: AuthColors.inputBackground,
-        borderRadius: BorderRadius.circular(AppDimensions.borderRadiusLarge.r),
-        border: Border.all(color: AuthColors.inputBorder),
+      TextEditingController controller, String hint, bool isEmail, {String? Function(String?)? validator}) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: isEmail ? TextInputType.emailAddress : TextInputType.text,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      validator: validator,
+      style: TextStyle(color: AuthColors.headingText, fontSize: 16.sp, fontWeight: FontWeight.w400),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: TextStyle(color: AuthColors.inputText, fontSize: 16.sp, fontWeight: FontWeight.w400),
+        filled: true,
+        fillColor: AuthColors.inputBackground,
+        isDense: false,
+        contentPadding: EdgeInsets.symmetric(horizontal: AppDimensions.paddingMedium.w, vertical: (AppDimensions.inputHeight.h - 20.sp) / 2),
+        border: _getBorder(AuthColors.inputBorder),
+        enabledBorder: _getBorder(AuthColors.inputBorder),
+        focusedBorder: _getBorder(AuthColors.primary),
+        errorBorder: _getBorder(Colors.red),
+        focusedErrorBorder: _getBorder(Colors.red),
       ),
-      child: TextField(
-        controller: controller,
-        obscureText: isPassword ? _obscurePassword : false,
-        style: TextStyle(
-            color: AuthColors.headingText,
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w400),
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: TextStyle(
-              color: AuthColors.inputText,
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w400),
-          border: InputBorder.none,
-          isDense: false,
-          contentPadding: EdgeInsets.symmetric(
-            horizontal: AppDimensions.paddingMedium.w,
-            vertical: (AppDimensions.inputHeight.h - 20.sp) / 2,
+    );
+  }
+
+  Widget _buildPasswordField(TextEditingController controller, String hint, bool obscure, VoidCallback toggleVisibility, {String? Function(String?)? validator}) {
+    return TextFormField(
+      controller: controller,
+      obscureText: obscure,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      validator: validator,
+      style: TextStyle(color: AuthColors.headingText, fontSize: 16.sp, fontWeight: FontWeight.w400),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: TextStyle(color: AuthColors.inputText, fontSize: 16.sp, fontWeight: FontWeight.w400),
+        filled: true,
+        fillColor: AuthColors.inputBackground,
+        isDense: false,
+        contentPadding: EdgeInsets.symmetric(horizontal: AppDimensions.paddingMedium.w, vertical: (AppDimensions.inputHeight.h - 20.sp) / 2),
+        border: _getBorder(AuthColors.inputBorder),
+        enabledBorder: _getBorder(AuthColors.inputBorder),
+        focusedBorder: _getBorder(AuthColors.primary),
+        errorBorder: _getBorder(Colors.red),
+        focusedErrorBorder: _getBorder(Colors.red),
+        suffixIcon: IconButton(
+          padding: EdgeInsets.zero,
+          icon: Icon(
+            obscure ? Icons.visibility_off : Icons.visibility,
+            color: AuthColors.inputText,
+            size: AppDimensions.iconSize.sp,
           ),
-          suffixIcon: isPassword
-              ? IconButton(
-                  padding: EdgeInsets.zero,
-                  icon: Icon(
-                    _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                    color: AuthColors.inputText,
-                    size: AppDimensions.iconSize.sp,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _obscurePassword = !_obscurePassword;
-                    });
-                  },
-                )
-              : null,
+          onPressed: toggleVisibility,
         ),
       ),
     );

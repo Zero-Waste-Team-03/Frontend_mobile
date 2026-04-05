@@ -431,6 +431,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
 
+                      /*
                       // Activity Section
                       Padding(
                         padding: EdgeInsets.symmetric(
@@ -509,6 +510,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           ],
                         ),
                       ),
+                      */
 
                       SizedBox(height: AppDimensions.paddingLarge.h),
 

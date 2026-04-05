@@ -17,8 +17,7 @@ class DonationDetailsPage extends StatefulWidget {
 }
 
 class _DonationDetailsPageState extends State<DonationDetailsPage> {
-  // Generate mock distance and conditions based on data
-  late String distance;
+  // UI colors based on urgency/condition
   late Color tagBgColor;
   late Color tagTextColor;
 
@@ -28,8 +27,6 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
   @override
   void initState() {
     super.initState();
-    distance = '1.2 km away'; // Mock distance matching design
-
     if (widget.donation.condition.toUpperCase() == 'DRY') {
       tagBgColor = const Color(0xFFFFF0E6);
       tagTextColor = const Color(0xFFE87C3E);
@@ -61,8 +58,9 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                   clipBehavior: Clip.antiAlias,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(32.r)),
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(32.r),
+                    ),
                   ),
                   transform: Matrix4.translationValues(0, -32.h, 0),
                   child: Column(
@@ -91,10 +89,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 border: Border(
-                  top: BorderSide(
-                    color: Colors.grey.shade200,
-                    width: 1,
-                  ),
+                  top: BorderSide(color: Colors.grey.shade200, width: 1),
                 ),
               ),
               child: SafeArea(
@@ -161,7 +156,8 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                   if (dx < 0) dx = 0;
                   if (dx > screenSize.width - 64) dx = screenSize.width - 64;
                   if (dy < kToolbarHeight) dy = kToolbarHeight;
-                  if (dy > screenSize.height - 100) dy = screenSize.height - 100;
+                  if (dy > screenSize.height - 100)
+                    dy = screenSize.height - 100;
                   _chatPos = Offset(dx, dy);
                 });
               },
@@ -258,8 +254,11 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                 color: const Color(0xFF131615).withValues(alpha: 0.4),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.share_rounded,
-                  color: Colors.white, size: 20),
+              child: const Icon(
+                Icons.share_rounded,
+                color: Colors.white,
+                size: 20,
+              ),
             ),
           ),
         ),
@@ -273,8 +272,11 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                 color: const Color(0xFF131615).withValues(alpha: 0.4),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.favorite_border_rounded,
-                  color: Colors.white, size: 20),
+              child: const Icon(
+                Icons.favorite_border_rounded,
+                color: Colors.white,
+                size: 20,
+              ),
             ),
           ),
         ),
@@ -317,11 +319,17 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
           SizedBox(height: 8.h),
           Row(
             children: [
-              Icon(Icons.location_on_outlined,
-                  size: 16.sp, color: const Color(0xFF64748B)),
+              Icon(
+                Icons.location_on_outlined,
+                size: 16.sp,
+                color: const Color(0xFF64748B),
+              ),
               SizedBox(width: 4.w),
               Text(
-                'Downtown, $distance',
+                widget.donation.latitude != null &&
+                        widget.donation.longitude != null
+                    ? '${widget.donation.latitude!.toStringAsFixed(4)}, ${widget.donation.longitude!.toStringAsFixed(4)}'
+                    : 'Location unavailable',
                 style: TextStyle(
                   fontSize: 13.sp,
                   color: const Color(0xFF64748B),
@@ -384,11 +392,14 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.access_time_rounded,
-                          size: 14.sp, color: const Color(0xFFEA580C)),
+                      Icon(
+                        Icons.access_time_rounded,
+                        size: 14.sp,
+                        color: const Color(0xFFEA580C),
+                      ),
                       SizedBox(width: 4.w),
                       Text(
-                        'Expires In',
+                        'Status',
                         style: TextStyle(
                           fontSize: 12.sp,
                           color: const Color(0xFFEA580C),
@@ -399,7 +410,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                   ),
                   SizedBox(height: 4.h),
                   Text(
-                    '2h 15m left',
+                    widget.donation.status,
                     style: TextStyle(
                       fontSize: 16.sp,
                       color: const Color(0xFFEA580C),
@@ -432,7 +443,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
           SizedBox(height: 8.h),
           Text(
             widget.donation.description.isEmpty
-                ? 'Freshly picked apples from my local garden. They are completely organic, crisp, and sweet. Perfect for pies, snacks, or juicing. Must be picked up today before sunset.'
+                ? 'No additional description provided by donor.'
                 : widget.donation.description,
             style: TextStyle(
               fontSize: 14.sp,
@@ -464,8 +475,18 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
             children: [
               CircleAvatar(
                 radius: 20.r,
-                backgroundImage: const NetworkImage(
-                    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80'),
+                backgroundColor: AuthColors.primary.withValues(alpha: 0.15),
+                child: Text(
+                  (widget.donation.author.isEmpty
+                          ? 'U'
+                          : widget.donation.author.characters.first)
+                      .toUpperCase(),
+                  style: TextStyle(
+                    color: AuthColors.primary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16.sp,
+                  ),
+                ),
               ),
               SizedBox(width: 12.w),
               Expanded(
@@ -485,11 +506,15 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                     SizedBox(height: 2.h),
                     Row(
                       children: [
-                        Icon(Icons.star_rounded,
-                            size: 14.sp, color: const Color(0xFFF59E0B)),
+                        Icon(
+                          Icons.badge_outlined,
+                          size: 14.sp,
+                          color: const Color(0xFF64748B),
+                        ),
                         SizedBox(width: 4.w),
                         Text(
-                          '4.8 (124 reviews)',
+                          widget.donation.category?.name ??
+                              'Category not available',
                           style: TextStyle(
                             fontSize: 12.sp,
                             color: const Color(0xFF64748B),
@@ -501,7 +526,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                 ),
               ),
               Text(
-                'View Profile',
+                'Qty ${widget.donation.quantity}',
                 style: TextStyle(
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w600,
@@ -533,7 +558,10 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                 ),
               ),
               Text(
-                'Near St. George St.',
+                widget.donation.latitude != null &&
+                        widget.donation.longitude != null
+                    ? 'Lat ${widget.donation.latitude!.toStringAsFixed(3)}, Lng ${widget.donation.longitude!.toStringAsFixed(3)}'
+                    : 'Coordinates unavailable',
                 style: TextStyle(
                   fontSize: 12.sp,
                   color: const Color(0xFF64748B),
@@ -552,19 +580,26 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
             clipBehavior: Clip.antiAlias,
             child: FlutterMap(
               options: MapOptions(
-                initialCenter: LatLng(widget.donation.latitude ?? 21.4225, widget.donation.longitude ?? 39.8262),
+                initialCenter: LatLng(
+                  widget.donation.latitude ?? 21.4225,
+                  widget.donation.longitude ?? 39.8262,
+                ),
                 initialZoom: 15.0,
-                interactionOptions: const InteractionOptions(flags: InteractiveFlag.all),
+                interactionOptions: const InteractionOptions(
+                  flags: InteractiveFlag.all,
+                ),
               ),
               children: [
                 TileLayer(
-                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  userAgentPackageName: 'com.zerowaste.zerowaste',
+                  urlTemplate: 'https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
                 ),
                 MarkerLayer(
                   markers: [
                     Marker(
-                      point: LatLng(widget.donation.latitude ?? 21.4225, widget.donation.longitude ?? 39.8262),
+                      point: LatLng(
+                        widget.donation.latitude ?? 21.4225,
+                        widget.donation.longitude ?? 39.8262,
+                      ),
                       width: 40.w,
                       height: 40.w,
                       child: Center(
@@ -582,7 +617,10 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                               decoration: BoxDecoration(
                                 color: AuthColors.primary,
                                 shape: BoxShape.circle,
-                                border: Border.all(color: Colors.white, width: 2),
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 2,
+                                ),
                               ),
                             ),
                           ),
