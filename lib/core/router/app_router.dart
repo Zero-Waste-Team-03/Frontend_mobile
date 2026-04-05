@@ -9,7 +9,7 @@ import '../../features/donations/presentation/pages/donation_details_page.dart';
 import '../../features/donations/domain/entities/donation.dart';
 import '../../features/donations/presentation/pages/donations_list_page.dart';
 import '../../features/chat/presentation/pages/chat_placeholder_page.dart';
-import '../../features/profile/presentation/pages/profile_placeholder_page.dart';
+import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/donations/presentation/pages/add_donation_page.dart';
 import '../../shared/widgets/main_shell.dart';
 
@@ -86,7 +86,7 @@ final appRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/profile',
-              builder: (context, state) => const ProfilePlaceholderPage(),
+              builder: (context, state) => const ProfilePage(),
             ),
           ],
         ),
