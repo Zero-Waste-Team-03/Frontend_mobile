@@ -8,6 +8,10 @@ import '../../features/auth/data/sources/auth_remote_data_source.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
+import '../../features/profile/data/repositories/profile_repository_impl.dart';
+import '../../features/profile/domain/repositories/profile_repository.dart';
+import '../../features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final getIt = GetIt.instance;
 
@@ -15,9 +19,9 @@ void configureDependencies() {
   // â”€â”€ Secure Storage â”€â”€
   getIt.registerLazySingleton(() => const FlutterSecureStorage());
 
-  // â”€â”€ Local Data Source (needs storage, registered early for interceptor) â”€â”€
+  // ── Local Data Source (needs storage, registered early for interceptor) ──
   getIt.registerLazySingleton<AuthLocalDataSource>(
-      () => AuthLocalDataSourceImpl(getIt()));
+      () => AuthLocalDataSourceImpl(getIt(), getIt()));
 
   // â”€â”€ Dio with Auth Interceptor â”€â”€
   getIt.registerLazySingleton(() {
@@ -68,6 +72,6 @@ void configureDependencies() {
         localDataSource: getIt(),
       ));
 
-  // â”€â”€ BLoC â”€â”€
-  getIt.registerLazySingleton(() => AuthBloc(authRepository: getIt()));
+  // ── BLoC ──
+  getIt.registerFactory(() => AuthBloc(authRepository: getIt()));
 }

@@ -9,6 +9,7 @@ import '../../../../core/exceptions/exceptions.dart';
 import '../../domain/entities/auth_response.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
+import '../models/user_model.dart';
 import '../sources/auth_local_data_source.dart';
 import '../sources/auth_remote_data_source.dart';
 
@@ -60,6 +61,12 @@ class AuthRepositoryImpl implements AuthRepository {
         await localDataSource.cacheTokens(
             responseModel.accessToken!, responseModel.refreshToken);
       }
+
+      // Cache user profile
+      if (responseModel.user != null) {
+        await localDataSource.cacheUserProfile(responseModel.user!);
+      }
+
       return Right(responseModel.toEntity());
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -132,6 +139,12 @@ class AuthRepositoryImpl implements AuthRepository {
         await localDataSource.cacheTokens(
             responseModel.accessToken!, responseModel.refreshToken);
       }
+
+      // Cache user profile
+      if (responseModel.user != null) {
+        await localDataSource.cacheUserProfile(responseModel.user!);
+      }
+
       return Right(responseModel.toEntity());
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -245,6 +258,9 @@ class AuthRepositoryImpl implements AuthRepository {
             'Admin accounts cannot access the mobile app. Please use the web dashboard.'));
       }
 
+      // Cache user profile
+      await localDataSource.cacheUserProfile(userModel);
+
       return Right(user);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -257,6 +273,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, void>> logout() async {
     try {
       await localDataSource.clearTokens();
+      await localDataSource.clearUserProfile();
       return const Right(null);
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message));
@@ -346,6 +363,7 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await remoteDataSource.deleteAccount();
       await localDataSource.clearTokens();
+      await localDataSource.clearUserProfile();
       return const Right(null);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -358,11 +376,32 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, User>> updateProfile(String displayName) async {
     try {
       final userModel = await remoteDataSource.updateProfile(displayName);
+
+      // Cache the updated user profile
+      await localDataSource.cacheUserProfile(userModel);
+
       return Right(userModel.toEntity());
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {
       return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, User>> getCachedUser() async {
+    try {
+      final cachedUserModel = await localDataSource.getCachedUserProfile();
+
+      if (cachedUserModel == null) {
+        return Left(CacheFailure('No cached user profile found'));
+      }
+
+      return Right(cachedUserModel.toEntity());
+    } on CacheException catch (e) {
+      return Left(CacheFailure(e.message));
+    } catch (e) {
+      return Left(CacheFailure(e.toString()));
     }
   }
 

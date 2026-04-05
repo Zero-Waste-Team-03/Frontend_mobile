@@ -4,6 +4,7 @@ class User extends Equatable {
   final String id;
   final String? email;
   final String? name;
+  final String? phoneNumber;
   final String? role;
   final String? description;
   final bool isMailVerified;
@@ -15,6 +16,7 @@ class User extends Equatable {
     required this.id,
     this.email,
     this.name,
+    this.phoneNumber,
     this.role,
     this.description,
     this.isMailVerified = false,
@@ -25,6 +27,43 @@ class User extends Equatable {
 
   bool get isAdmin => role?.toLowerCase() == 'admin';
 
+  User copyWith({
+    String? id,
+    String? email,
+    String? name,
+    String? phoneNumber,
+    String? role,
+    String? description,
+    bool? isMailVerified,
+    int? reputationScore,
+    String? locationId,
+    Map<String, dynamic>? location,
+  }) {
+    return User(
+      id: id ?? this.id,
+      email: email ?? this.email,
+      name: name ?? this.name,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      role: role ?? this.role,
+      description: description ?? this.description,
+      isMailVerified: isMailVerified ?? this.isMailVerified,
+      reputationScore: reputationScore ?? this.reputationScore,
+      locationId: locationId ?? this.locationId,
+      location: location ?? this.location,
+    );
+  }
+
   @override
-  List<Object?> get props => [id, email, name, role, description, isMailVerified, reputationScore, locationId, location];
+  List<Object?> get props => [
+        id,
+        email,
+        name,
+        phoneNumber,
+        role,
+        description,
+        isMailVerified,
+        reputationScore,
+        locationId,
+        location
+      ];
 }

@@ -1,4 +1,6 @@
 ﻿import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gaspzero/core/di/injection.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/pages/intro_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
@@ -11,6 +13,10 @@ import '../../features/donations/presentation/pages/donations_list_page.dart';
 import '../../features/chat/presentation/pages/chat_placeholder_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/donations/presentation/pages/add_donation_page.dart';
+import '../../features/profile/presentation/pages/profile_page.dart';
+import '../../features/profile/presentation/pages/edit_profile_page.dart';
+import '../../features/profile/presentation/bloc/profile_bloc.dart';
+import '../../features/profile/presentation/bloc/profile_event.dart';
 import '../../shared/widgets/main_shell.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -86,7 +92,24 @@ final appRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/profile',
-              builder: (context, state) => const ProfilePage(),
+              builder: (context, state) {
+                return BlocProvider(
+                  create: (context) =>
+                      getIt<ProfileBloc>()..add(const ProfileLoadRequested()),
+                  child: const ProfilePage(),
+                );
+              },
+              routes: [
+                GoRoute(
+                  path: 'edit',
+                  builder: (context, state) {
+                    return BlocProvider.value(
+                      value: context.read<ProfileBloc>(),
+                      child: const EditProfilePage(),
+                    );
+                  },
+                ),
+              ],
             ),
           ],
         ),

@@ -5,6 +5,7 @@ class UserModel extends Equatable {
   final String id;
   final String? email;
   final String? displayName;
+  final String? phoneNumber;
   final String? role;
   final String? description;
   final bool isMailVerified;
@@ -16,6 +17,7 @@ class UserModel extends Equatable {
     required this.id,
     this.email,
     this.displayName,
+    this.phoneNumber,
     this.role,
     this.description,
     this.isMailVerified = false,
@@ -29,6 +31,7 @@ class UserModel extends Equatable {
       id: json['id'] as String,
       email: json['email'] as String?,
       displayName: (json['displayName'] ?? json['name']) as String?,
+      phoneNumber: json['phoneNumber'] as String?,
       role: json['role'] as String?,
       description: json['description'] as String?,
       isMailVerified: (json['isMailVerified'] as bool?) ?? false,
@@ -43,6 +46,7 @@ class UserModel extends Equatable {
       'id': id,
       'email': email,
       'displayName': displayName,
+      'phoneNumber': phoneNumber,
       'role': role,
       'description': description,
       'isMailVerified': isMailVerified,
@@ -57,6 +61,7 @@ class UserModel extends Equatable {
       id: id,
       email: email,
       name: displayName,
+      phoneNumber: phoneNumber,
       role: role,
       description: description,
       isMailVerified: isMailVerified,
@@ -67,5 +72,16 @@ class UserModel extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, email, displayName, role, description, isMailVerified, reputationScore, locationId, location];
+  List<Object?> get props => [
+        id,
+        email,
+        displayName,
+        phoneNumber,
+        role,
+        description,
+        isMailVerified,
+        reputationScore,
+        locationId,
+        location
+      ];
 }
