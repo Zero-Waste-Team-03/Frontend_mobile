@@ -13,7 +13,6 @@ import '../../features/donations/presentation/pages/donations_list_page.dart';
 import '../../features/chat/presentation/pages/chat_placeholder_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/donations/presentation/pages/add_donation_page.dart';
-import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/profile/presentation/pages/edit_profile_page.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
 import '../../features/profile/presentation/bloc/profile_event.dart';
@@ -26,14 +25,8 @@ final appRouter = GoRouter(
   initialLocation: '/',
   routes: [
     // â”€â”€ Auth routes (no bottom nav) â”€â”€
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const IntroPage(),
-    ),
-    GoRoute(
-      path: '/login',
-      builder: (context, state) => const LoginPage(),
-    ),
+    GoRoute(path: '/', builder: (context, state) => const IntroPage()),
+    GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
     GoRoute(
       path: '/register',
       builder: (context, state) => const RegisterFlowPage(),
