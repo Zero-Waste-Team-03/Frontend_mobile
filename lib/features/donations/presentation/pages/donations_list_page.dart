@@ -20,7 +20,6 @@ class DonationsListPage extends StatefulWidget {
 }
 
 class _DonationsListPageState extends State<DonationsListPage> {
-  bool _isLoadingContent = true;
   List<Donation> _donations = [];
   String _selectedCategory = 'All';
   String? _selectedCategoryId;
