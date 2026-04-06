@@ -35,6 +35,9 @@ class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
     status
     urgency
     mainAttachmentId
+    mainAttachment {
+      url
+    }
     locationId
     location {
       latitude

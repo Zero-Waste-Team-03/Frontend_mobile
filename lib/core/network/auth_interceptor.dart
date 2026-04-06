@@ -1,4 +1,4 @@
-﻿import 'package:dio/dio.dart';
+import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 import '../../features/auth/data/sources/auth_local_data_source.dart';
 
@@ -64,6 +64,7 @@ class AuthInterceptor extends Interceptor {
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
+            'Authorization': 'Bearer $refreshToken',
           },
         ));
 
