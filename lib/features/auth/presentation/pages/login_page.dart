@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -18,18 +18,14 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
 
   void _onLogin() {
+    if (!_formKey.currentState!.validate()) return;
     final email = _emailController.text.trim();
     final password = _passwordController.text;
-    if (email.isNotEmpty && password.isNotEmpty) {
-      context.read<AuthBloc>().add(AuthLoginRequested(email, password));
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields')),
-      );
-    }
+    context.read<AuthBloc>().add(AuthLoginRequested(email, password));
   }
 
   void _onGoogleSignIn() {
@@ -73,9 +69,11 @@ class _LoginPageState extends State<LoginPage> {
           return SafeArea(
             child: SingleChildScrollView(
               padding: EdgeInsets.all(AppDimensions.paddingLarge.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
                   SizedBox(height: 20.h),
                   Text(
                     "Welcome Back",
@@ -102,18 +100,27 @@ class _LoginPageState extends State<LoginPage> {
                   // Form
                   _buildLabel('Email'),
                   SizedBox(height: AppDimensions.paddingSmall.h),
-                  _buildTextField(_emailController, 'jane.doe@example.com', false),
+                  _buildTextField(_emailController, 'jane.doe@example.com', false, validator: (v) {
+                    if (v == null || v.isEmpty) return 'Required';
+                    if (!RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(v)) return 'Invalid email';
+                    return null;
+                  }),
                   SizedBox(height: AppDimensions.paddingLarge.h),
                   _buildLabel('Password'),
                   SizedBox(height: AppDimensions.paddingSmall.h),
-                  _buildTextField(_passwordController, 'Enter your password', true),
+                  _buildTextField(_passwordController, 'Enter your password', true, validator: (v) {
+                    if (v == null || v.isEmpty) return 'Required';
+                    return null;
+                  }),
                   SizedBox(height: AppDimensions.paddingSmall.h),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        "Must be at least 8 characters long.",
-                        style: TextStyle(color: AuthColors.subText, fontSize: 11.sp),
+                      Expanded(
+                        child: Text(
+                          "Must be at least 8 characters with 1 uppercase, 1 lowercase, 1 number, and 1 symbol.",
+                          style: TextStyle(color: AuthColors.subText, fontSize: 10.sp),
+                        ),
                       ),
                       GestureDetector(
                         onTap: () => context.push('/forgot-password'),
@@ -216,6 +223,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ],
               ),
+              ),
             ),
           );
         },
@@ -234,43 +242,48 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String hint, bool isPassword) {
-    return Container(
-      height: AppDimensions.inputHeight.h,
-      decoration: BoxDecoration(
-        color: AuthColors.inputBackground,
-        borderRadius: BorderRadius.circular(AppDimensions.borderRadiusLarge.r),
-        border: Border.all(color: AuthColors.inputBorder),
-      ),
-      child: TextField(
-        controller: controller,
-        obscureText: isPassword ? _obscurePassword : false,
-        style: TextStyle(color: AuthColors.headingText, fontSize: 16.sp, fontWeight: FontWeight.w400),
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: TextStyle(color: AuthColors.inputText, fontSize: 16.sp, fontWeight: FontWeight.w400),
-          border: InputBorder.none,
-          isDense: false,
-          contentPadding: EdgeInsets.symmetric(
-            horizontal: AppDimensions.paddingMedium.w,
-            vertical: (AppDimensions.inputHeight.h - 20.sp) / 2,
-          ),
-          suffixIcon: isPassword
-              ? IconButton(
-                  padding: EdgeInsets.zero,
-                  icon: Icon(
-                    _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                    color: AuthColors.inputText,
-                    size: AppDimensions.iconSize.sp,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _obscurePassword = !_obscurePassword;
-                    });
-                  },
-                )
-              : null,
-        ),
+  OutlineInputBorder _getBorder(Color color) {
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppDimensions.borderRadiusLarge.r),
+      borderSide: BorderSide(color: color),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String hint, bool isPassword, {String? Function(String?)? validator}) {
+    return TextFormField(
+      controller: controller,
+      obscureText: isPassword ? _obscurePassword : false,
+      keyboardType: isPassword ? TextInputType.text : TextInputType.emailAddress,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      validator: validator,
+      style: TextStyle(color: AuthColors.headingText, fontSize: 16.sp, fontWeight: FontWeight.w400),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: TextStyle(color: AuthColors.inputText, fontSize: 16.sp, fontWeight: FontWeight.w400),
+        filled: true,
+        fillColor: AuthColors.inputBackground,
+        isDense: false,
+        contentPadding: EdgeInsets.symmetric(horizontal: AppDimensions.paddingMedium.w, vertical: (AppDimensions.inputHeight.h - 20.sp) / 2),
+        border: _getBorder(AuthColors.inputBorder),
+        enabledBorder: _getBorder(AuthColors.inputBorder),
+        focusedBorder: _getBorder(AuthColors.primary),
+        errorBorder: _getBorder(Colors.red),
+        focusedErrorBorder: _getBorder(Colors.red),
+        suffixIcon: isPassword
+            ? IconButton(
+                padding: EdgeInsets.zero,
+                icon: Icon(
+                  _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                  color: AuthColors.inputText,
+                  size: AppDimensions.iconSize.sp,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _obscurePassword = !_obscurePassword;
+                  });
+                },
+              )
+            : null,
       ),
     );
   }

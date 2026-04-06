@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -16,6 +16,7 @@ class ForgotPasswordPage extends StatefulWidget {
 
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final _emailController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
   bool _linkSent = false;
 
   @override
@@ -25,14 +26,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   }
 
   void _onSendResetLink() {
+    if (!_formKey.currentState!.validate()) return;
     final email = _emailController.text.trim();
-    if (email.isNotEmpty) {
-      context.read<AuthBloc>().add(AuthForgotPasswordRequested(email));
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter your email address')),
-      );
-    }
+    context.read<AuthBloc>().add(AuthForgotPasswordRequested(email));
   }
 
   @override
@@ -175,9 +171,11 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           return SafeArea(
             child: SingleChildScrollView(
               padding: EdgeInsets.all(AppDimensions.paddingLarge.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
                   SizedBox(height: 20.h),
                   Text(
                     "Forgot Password",
@@ -205,7 +203,11 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   // Email field
                   _buildLabel('Email'),
                   SizedBox(height: AppDimensions.paddingSmall.h),
-                  _buildTextField(_emailController, 'jane.doe@example.com'),
+                  _buildTextField(_emailController, 'jane.doe@example.com', validator: (v) {
+                    if (v == null || v.isEmpty) return 'Required';
+                    if (!RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(v)) return 'Invalid email address';
+                    return null;
+                  }),
                   
                   // Spacer to push button to bottom area
                   SizedBox(height: 220.h),
@@ -269,6 +271,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   ),
                 ],
               ),
+              ),
             ),
           );
         },
@@ -287,28 +290,32 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String hint) {
-    return Container(
-      height: AppDimensions.inputHeight.h,
-      decoration: BoxDecoration(
-        color: AuthColors.inputBackground,
-        borderRadius: BorderRadius.circular(AppDimensions.borderRadiusLarge.r),
-        border: Border.all(color: AuthColors.inputBorder),
-      ),
-      child: TextField(
-        controller: controller,
-        keyboardType: TextInputType.emailAddress,
-        style: TextStyle(color: AuthColors.headingText, fontSize: 16.sp, fontWeight: FontWeight.w400),
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: TextStyle(color: AuthColors.inputText, fontSize: 16.sp, fontWeight: FontWeight.w400),
-          border: InputBorder.none,
-          isDense: false,
-          contentPadding: EdgeInsets.symmetric(
-            horizontal: AppDimensions.paddingMedium.w,
-            vertical: (AppDimensions.inputHeight.h - 20.sp) / 2,
-          ),
-        ),
+  OutlineInputBorder _getBorder(Color color) {
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppDimensions.borderRadiusLarge.r),
+      borderSide: BorderSide(color: color),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String hint, {String? Function(String?)? validator}) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: TextInputType.emailAddress,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      validator: validator,
+      style: TextStyle(color: AuthColors.headingText, fontSize: 16.sp, fontWeight: FontWeight.w400),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: TextStyle(color: AuthColors.inputText, fontSize: 16.sp, fontWeight: FontWeight.w400),
+        filled: true,
+        fillColor: AuthColors.inputBackground,
+        isDense: false,
+        contentPadding: EdgeInsets.symmetric(horizontal: AppDimensions.paddingMedium.w, vertical: (AppDimensions.inputHeight.h - 20.sp) / 2),
+        border: _getBorder(AuthColors.inputBorder),
+        enabledBorder: _getBorder(AuthColors.inputBorder),
+        focusedBorder: _getBorder(AuthColors.primary),
+        errorBorder: _getBorder(Colors.red),
+        focusedErrorBorder: _getBorder(Colors.red),
       ),
     );
   }

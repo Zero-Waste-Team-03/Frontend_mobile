@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -19,6 +19,7 @@ class CreateNewPasswordPage extends StatefulWidget {
 class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
   bool _obscureNewPassword = true;
   bool _obscureConfirmPassword = true;
 
@@ -30,29 +31,8 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
   }
 
   void _onSubmit() {
+    if (!_formKey.currentState!.validate()) return;
     final newPassword = _newPasswordController.text;
-    final confirmPassword = _confirmPasswordController.text;
-
-    if (newPassword.isEmpty || confirmPassword.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields')),
-      );
-      return;
-    }
-
-    if (newPassword != confirmPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Passwords do not match')),
-      );
-      return;
-    }
-
-    if (newPassword.length < 8) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password must be at least 8 characters long')),
-      );
-      return;
-    }
 
     // The token would come from the reset email deep link
     final token = widget.data['token'] ?? '';
@@ -104,9 +84,11 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
           return SafeArea(
             child: SingleChildScrollView(
               padding: EdgeInsets.all(AppDimensions.paddingLarge.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
                   SizedBox(height: 20.h),
                   Text(
                     "Create New\nPassword",
@@ -137,9 +119,19 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
                   SizedBox(height: AppDimensions.paddingSmall.h),
                   _buildPasswordField(
                     _newPasswordController,
-                    'â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢',
+                    '••••••••',
                     _obscureNewPassword,
                     () => setState(() => _obscureNewPassword = !_obscureNewPassword),
+                    validator: (v) {
+                      if (v == null || v.isEmpty) return 'Required';
+                      if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$').hasMatch(v)) return 'Not strong enough';
+                      return null;
+                    }
+                  ),
+                  SizedBox(height: AppDimensions.paddingSmall.h),
+                  Text(
+                    "Must be at least 8 characters with 1 uppercase, 1 lowercase, 1 number, and 1 symbol.",
+                    style: TextStyle(color: AuthColors.subText, fontSize: 11.sp),
                   ),
                   SizedBox(height: AppDimensions.paddingLarge.h),
 
@@ -148,9 +140,14 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
                   SizedBox(height: AppDimensions.paddingSmall.h),
                   _buildPasswordField(
                     _confirmPasswordController,
-                    'â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢',
+                    '••••••••',
                     _obscureConfirmPassword,
                     () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
+                    validator: (v) {
+                      if (v == null || v.isEmpty) return 'Required';
+                      if (v != _newPasswordController.text) return 'Passwords do not match';
+                      return null;
+                    }
                   ),
 
                   SizedBox(height: 120.h),
@@ -191,6 +188,7 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
                   ),
                 ],
               ),
+              ),
             ),
           );
         },
@@ -209,41 +207,46 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
     );
   }
 
+  OutlineInputBorder _getBorder(Color color) {
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppDimensions.borderRadiusLarge.r),
+      borderSide: BorderSide(color: color),
+    );
+  }
+
   Widget _buildPasswordField(
     TextEditingController controller,
     String hint,
     bool obscure,
-    VoidCallback toggleVisibility,
-  ) {
-    return Container(
-      height: AppDimensions.inputHeight.h,
-      decoration: BoxDecoration(
-        color: AuthColors.inputBackground,
-        borderRadius: BorderRadius.circular(AppDimensions.borderRadiusLarge.r),
-        border: Border.all(color: AuthColors.inputBorder),
-      ),
-      child: TextField(
-        controller: controller,
-        obscureText: obscure,
-        style: TextStyle(color: AuthColors.headingText, fontSize: 16.sp, fontWeight: FontWeight.w400),
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: TextStyle(color: AuthColors.inputText, fontSize: 16.sp, fontWeight: FontWeight.w400),
-          border: InputBorder.none,
-          isDense: false,
-          contentPadding: EdgeInsets.symmetric(
-            horizontal: AppDimensions.paddingMedium.w,
-            vertical: (AppDimensions.inputHeight.h - 20.sp) / 2,
+    VoidCallback toggleVisibility, {
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: obscure,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      validator: validator,
+      style: TextStyle(color: AuthColors.headingText, fontSize: 16.sp, fontWeight: FontWeight.w400),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: TextStyle(color: AuthColors.inputText, fontSize: 16.sp, fontWeight: FontWeight.w400),
+        filled: true,
+        fillColor: AuthColors.inputBackground,
+        isDense: false,
+        contentPadding: EdgeInsets.symmetric(horizontal: AppDimensions.paddingMedium.w, vertical: (AppDimensions.inputHeight.h - 20.sp) / 2),
+        border: _getBorder(AuthColors.inputBorder),
+        enabledBorder: _getBorder(AuthColors.inputBorder),
+        focusedBorder: _getBorder(AuthColors.primary),
+        errorBorder: _getBorder(Colors.red),
+        focusedErrorBorder: _getBorder(Colors.red),
+        suffixIcon: IconButton(
+          padding: EdgeInsets.zero,
+          icon: Icon(
+            obscure ? Icons.visibility_off : Icons.visibility,
+            color: AuthColors.inputText,
+            size: AppDimensions.iconSize.sp,
           ),
-          suffixIcon: IconButton(
-            padding: EdgeInsets.zero,
-            icon: Icon(
-              obscure ? Icons.visibility_off : Icons.visibility,
-              color: AuthColors.inputText,
-              size: AppDimensions.iconSize.sp,
-            ),
-            onPressed: toggleVisibility,
-          ),
+          onPressed: toggleVisibility,
         ),
       ),
     );

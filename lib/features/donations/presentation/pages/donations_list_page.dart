@@ -4,7 +4,13 @@ import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../../shared/theme/app_colors.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/di/injection.dart';
+import '../bloc/donations_bloc.dart';
+import '../bloc/donations_event.dart';
+import '../bloc/donations_state.dart';
 import '../../domain/entities/donation.dart';
+import '../../domain/entities/category.dart';
 
 class DonationsListPage extends StatefulWidget {
   const DonationsListPage({super.key});
@@ -16,117 +22,65 @@ class DonationsListPage extends StatefulWidget {
 class _DonationsListPageState extends State<DonationsListPage> {
   bool _isLoadingContent = true;
   List<Donation> _donations = [];
-  Offset _chatButtonPosition = const Offset(300, 500);
   String _selectedCategory = 'All';
-
-  final List<String> _categories = ['All', 'Fruits', 'Dry', 'Cooked', 'Bakery'];
+  String? _selectedCategoryId;
 
   @override
   void initState() {
     super.initState();
-    _initData();
-  }
-
-  Future<void> _initData() async {
-    await Future.delayed(const Duration(milliseconds: 1500));
-    if (mounted) {
-      setState(() {
-        _isLoadingContent = false;
-        _donations = [
-          Donation(
-            id: '1',
-            title: 'Organic Sourdough Bread',
-            description: 'Freshly baked organic sourdough.',
-            imageUrl:
-                'https://images.unsplash.com/photo-1589367920951-8bca2c2dbaf3?auto=format&fit=crop&w=300&q=80',
-            author: 'Bakery',
-            condition: 'DRY',
-          ),
-          Donation(
-            id: '2',
-            title: 'Fresh Vegetable Basket',
-            description: 'A basket of fresh organic vegetables.',
-            imageUrl:
-                'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=300&q=80',
-            author: 'Farm',
-            condition: 'FRESH',
-          ),
-          Donation(
-            id: '3',
-            title: 'Homemade Pasta',
-            description: 'Cooked homemade pasta ready to eat.',
-            imageUrl:
-                'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?auto=format&fit=crop&w=300&q=80',
-            author: 'Home',
-            condition: 'COOKED',
-          ),
-          Donation(
-            id: '4',
-            title: 'Assorted Morning Pastries',
-            description: 'Delicious morning pastries.',
-            imageUrl:
-                'https://images.unsplash.com/photo-1495147466023-ac5c588e2e94?auto=format&fit=crop&w=300&q=80',
-            author: 'Bakery',
-            condition: 'DRY',
-          ),
-          Donation(
-            id: '5',
-            title: 'Quinoa Salad Bowls',
-            description: 'Healthy and cooked quinoa bowls.',
-            imageUrl:
-                'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=300&q=80',
-            author: 'Restaurant',
-            condition: 'COOKED',
-          ),
-        ];
-
-        // Let's position the chat button at the bottom right corner when we know screen size
-      });
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_chatButtonPosition == const Offset(300, 500)) {
-      final screenSize = MediaQuery.of(context).size;
-      _chatButtonPosition =
-          Offset(screenSize.width - 80, screenSize.height - 180);
-    }
-
-    final screenSize = MediaQuery.of(context).size;
-    if (_chatButtonPosition.dx > screenSize.width - 64) {
-      _chatButtonPosition =
-          Offset(screenSize.width - 80, _chatButtonPosition.dy);
-    }
-    if (_chatButtonPosition.dy > screenSize.height - 150) {
-      _chatButtonPosition =
-          Offset(_chatButtonPosition.dx, screenSize.height - 150);
-    }
-
-    return Scaffold(
-      backgroundColor:
-          const Color(0xFFF8F9FA), // Very light off-white background
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(),
-                _buildSearchBar(),
-                SizedBox(height: 16.h),
-                _buildCategoryFilters(),
-                SizedBox(height: 16.h),
-                _buildListMetadata(),
-                Expanded(
-                  child: _isLoadingContent
-                      ? _buildLoadingSkeleton()
-                      : _buildDonationsList(),
-                ),
-              ],
-            ),
-            _buildDraggableChatButton(),
-          ],
+    return BlocProvider(
+      create: (context) =>
+          getIt<DonationsBloc>()..add(const LoadDonationsEvent()),
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF8F9FA),
+        body: SafeArea(
+          child: Stack(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeader(),
+                  _buildSearchBar(),
+                  SizedBox(height: 16.h),
+                  BlocBuilder<DonationsBloc, DonationsState>(
+                    builder: (context, state) {
+                      final categories = state is DonationsLoaded
+                          ? state.categories
+                          : const <Category>[];
+                      return _buildCategoryFilters(categories);
+                    },
+                  ),
+                  SizedBox(height: 16.h),
+                  _buildListMetadata(),
+                  Expanded(
+                    child: BlocBuilder<DonationsBloc, DonationsState>(
+                      builder: (context, state) {
+                        if (state is DonationsLoading ||
+                            state is DonationsInitial) {
+                          return _buildLoadingSkeleton();
+                        } else if (state is DonationsLoaded) {
+                          _donations = state.donations;
+                          if (_donations.isEmpty) {
+                            return const Center(
+                              child: Text('No donations found.'),
+                            );
+                          }
+                          return _buildDonationsList();
+                        } else if (state is DonationsError) {
+                          return Center(child: Text('Error: ${state.message}'));
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -148,8 +102,11 @@ class _DonationsListPageState extends State<DonationsListPage> {
           ),
           Stack(
             children: [
-              Icon(Icons.notifications_none_rounded,
-                  size: 28.sp, color: AuthColors.primary),
+              Icon(
+                Icons.notifications_none_rounded,
+                size: 28.sp,
+                color: AuthColors.primary,
+              ),
               Positioned(
                 right: 2,
                 top: 2,
@@ -188,8 +145,11 @@ class _DonationsListPageState extends State<DonationsListPage> {
         child: Row(
           children: [
             SizedBox(width: 16.w),
-            Icon(Icons.search_rounded,
-                color: const Color(0xFF94A3B8), size: 22.sp),
+            Icon(
+              Icons.search_rounded,
+              color: const Color(0xFF94A3B8),
+              size: 22.sp,
+            ),
             SizedBox(width: 12.w),
             Expanded(
               child: TextField(
@@ -216,15 +176,16 @@ class _DonationsListPageState extends State<DonationsListPage> {
     );
   }
 
-  Widget _buildCategoryFilters() {
+  Widget _buildCategoryFilters(List<Category> categories) {
+    final labels = ['All', ...categories.map((c) => c.name)];
     return SizedBox(
       height: 36.h,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: _categories.length,
+        itemCount: labels.length,
         padding: EdgeInsets.symmetric(horizontal: 20.w),
         itemBuilder: (context, index) {
-          final category = _categories[index];
+          final category = labels[index];
           final isSelected = category == _selectedCategory;
           return Padding(
             padding: EdgeInsets.only(right: 8.w),
@@ -232,7 +193,13 @@ class _DonationsListPageState extends State<DonationsListPage> {
               onTap: () {
                 setState(() {
                   _selectedCategory = category;
+                  _selectedCategoryId = index == 0
+                      ? null
+                      : categories[index - 1].id;
                 });
+                context.read<DonationsBloc>().add(
+                  LoadDonationsEvent(categoryId: _selectedCategoryId),
+                );
               },
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
@@ -242,8 +209,9 @@ class _DonationsListPageState extends State<DonationsListPage> {
                   color: isSelected ? AuthColors.primary : Colors.white,
                   borderRadius: BorderRadius.circular(20.r),
                   border: Border.all(
-                    color:
-                        isSelected ? AuthColors.primary : Colors.grey.shade300,
+                    color: isSelected
+                        ? AuthColors.primary
+                        : Colors.grey.shade300,
                     width: 1,
                   ),
                 ),
@@ -297,13 +265,22 @@ class _DonationsListPageState extends State<DonationsListPage> {
   }
 
   Widget _buildDonationsList() {
-    return ListView.builder(
-      padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 80.h),
-      itemCount: _donations.length,
-      itemBuilder: (context, index) {
-        final donation = _donations[index];
-        return _buildDonationCard(donation, index);
+    return RefreshIndicator(
+      onRefresh: () async {
+        if (!mounted) return;
+        context.read<DonationsBloc>().add(LoadDonationsEvent(categoryId: _selectedCategoryId));
+        await Future.delayed(const Duration(milliseconds: 500));
       },
+      color: AuthColors.primary,
+      backgroundColor: Colors.white,
+      child: ListView.builder(
+        padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 80.h),
+        itemCount: _donations.length,
+        itemBuilder: (context, index) {
+          final donation = _donations[index];
+          return _buildDonationCard(donation, index);
+        },
+      ),
     );
   }
 
@@ -314,7 +291,7 @@ class _DonationsListPageState extends State<DonationsListPage> {
       '1.2 km away',
       '2.0 km away',
       '0.8 km away',
-      '3.5 km away'
+      '3.5 km away',
     ];
     final distance = distances[index % distances.length];
 
@@ -397,7 +374,9 @@ class _DonationsListPageState extends State<DonationsListPage> {
                         SizedBox(width: 8.w),
                         Container(
                           padding: EdgeInsets.symmetric(
-                              horizontal: 8.w, vertical: 4.h),
+                            horizontal: 8.w,
+                            vertical: 4.h,
+                          ),
                           decoration: BoxDecoration(
                             color: tagBgColor,
                             borderRadius: BorderRadius.circular(8.r),
@@ -417,8 +396,11 @@ class _DonationsListPageState extends State<DonationsListPage> {
                     SizedBox(height: 8.h),
                     Row(
                       children: [
-                        Icon(Icons.location_on_outlined,
-                            size: 14.sp, color: const Color(0xFF64748B)),
+                        Icon(
+                          Icons.location_on_outlined,
+                          size: 14.sp,
+                          color: const Color(0xFF64748B),
+                        ),
                         SizedBox(width: 4.w),
                         Text(
                           distance,
@@ -461,65 +443,4 @@ class _DonationsListPageState extends State<DonationsListPage> {
     );
   }
 
-  Widget _buildDraggableChatButton() {
-    return Positioned(
-      left: _chatButtonPosition.dx,
-      top: _chatButtonPosition.dy,
-      child: Draggable(
-        feedback: _buildChatButtonUI(isDragging: true),
-        childWhenDragging: const SizedBox.shrink(),
-        onDragEnd: (details) {
-          setState(() {
-            double dx = details.offset.dx;
-            double dy = details.offset.dy;
-
-            final screenSize = MediaQuery.of(context).size;
-            if (dx < 0) dx = 0;
-            if (dx > screenSize.width - 64) dx = screenSize.width - 64;
-            if (dy < kToolbarHeight + 40) dy = kToolbarHeight + 40;
-            if (dy > screenSize.height - 150) dy = screenSize.height - 150;
-
-            _chatButtonPosition = Offset(dx, dy);
-          });
-        },
-        child: _buildChatButtonUI(isDragging: false),
-      ),
-    );
-  }
-
-  Widget _buildChatButtonUI({required bool isDragging}) {
-    return GestureDetector(
-      onTap: () {
-        // Switch to the chat tab
-        context.go('/chat');
-      },
-      child: Material(
-        color: Colors.transparent,
-        elevation: isDragging ? 10 : 6,
-        shape: const CircleBorder(),
-        child: Container(
-          width: 56.w,
-          height: 56.w,
-          decoration: BoxDecoration(
-            color: AuthColors.primary,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: AuthColors.primary.withValues(alpha: 0.3),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Center(
-            child: Icon(
-              Icons.chat_bubble_rounded,
-              color: Colors.white,
-              size: 26.sp,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }

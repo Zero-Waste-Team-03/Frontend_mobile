@@ -1,4 +1,4 @@
-﻿import 'package:get_it/get_it.dart';
+import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
 import '../env.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -12,6 +12,11 @@ import '../../features/profile/data/repositories/profile_repository_impl.dart';
 import '../../features/profile/domain/repositories/profile_repository.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../features/donations/data/sources/donation_remote_data_source.dart';
+import '../../features/donations/data/repositories/donation_repository_impl.dart';
+import '../../features/donations/domain/repositories/donation_repository.dart';
+import '../../features/donations/presentation/bloc/donations_bloc.dart';
 
 final getIt = GetIt.instance;
 
@@ -91,4 +96,11 @@ Future<void> configureDependencies() async {
 
   // ── Profile BLoC ──
   getIt.registerFactory(() => ProfileBloc(profileRepository: getIt()));
+
+  // ── Donations ──
+  getIt.registerLazySingleton<DonationRemoteDataSource>(
+      () => DonationRemoteDataSourceImpl(getIt()));
+  getIt.registerLazySingleton<DonationRepository>(
+      () => DonationRepositoryImpl(remoteDataSource: getIt()));
+  getIt.registerFactory(() => DonationsBloc(donationRepository: getIt()));
 }

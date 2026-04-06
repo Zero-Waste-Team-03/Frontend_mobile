@@ -18,7 +18,6 @@ class EditProfilePage extends StatefulWidget {
 class _EditProfilePageState extends State<EditProfilePage> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _fullNameController;
-  late TextEditingController _emailController;
   late TextEditingController _phoneController;
   late TextEditingController _cityController;
 
@@ -28,14 +27,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
   void initState() {
     super.initState();
     _fullNameController = TextEditingController();
-    _emailController = TextEditingController();
     _phoneController = TextEditingController();
     _cityController = TextEditingController();
   }
 
   void _populateFields(dynamic user) {
     _fullNameController.text = user.name ?? '';
-    _emailController.text = user.email ?? '';
     _phoneController.text = user.phoneNumber ?? '';
     _cityController.text = user.location?['city'] ?? '';
   }
@@ -43,7 +40,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   void dispose() {
     _fullNameController.dispose();
-    _emailController.dispose();
     _phoneController.dispose();
     _cityController.dispose();
     super.dispose();
@@ -55,14 +51,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
       final currentState = profileBloc.state;
       if (currentState is ProfileLoaded || currentState is ProfileUpdating) {
         final fullName = _fullNameController.text.trim();
-        final email = _emailController.text.trim();
         final phone = _phoneController.text.trim();
         final city = _cityController.text.trim();
 
         profileBloc.add(
           ProfileUpdateRequested(
             displayName: fullName,
-            email: email,
             phoneNumber: phone,
             location: city.isNotEmpty ? {'city': city} : null,
           ),
@@ -71,16 +65,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
     }
   }
 
-  String? _validateEmail(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Email is required';
-    }
-    final emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
-    if (!emailRegex.hasMatch(value)) {
-      return 'Please enter a valid email';
-    }
-    return null;
-  }
 
   String? _validatePhoneNumber(String? value) {
     if (value == null || value.isEmpty) {
@@ -311,44 +295,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       ),
                       SizedBox(height: AppDimensions.paddingLarge.h),
 
-                      // Email Field with Verified Badge
-                      _buildLabel('Email Address'),
-                      SizedBox(height: AppDimensions.paddingSmall.h),
-                      Stack(
-                        children: [
-                          _buildFormField(
-                            controller: _emailController,
-                            hint: 'Enter your email',
-                            validator: _validateEmail,
-                            keyboardType: TextInputType.emailAddress,
-                          ),
-                          if (user?.isMailVerified == true)
-                            Positioned(
-                              right: 12.w,
-                              top: (AppDimensions.inputHeight.h - 20.h) / 2,
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: AppDimensions.paddingSmall.w,
-                                  vertical: 2.h,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AuthColors.primary.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(4.r),
-                                ),
-                                child: Text(
-                                  'VERIFIED',
-                                  style: TextStyle(
-                                    fontSize: 10.sp,
-                                    fontWeight: FontWeight.w600,
-                                    color: AuthColors.primary,
-                                    letterSpacing: 0.3,
-                                  ),
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                      SizedBox(height: AppDimensions.paddingLarge.h),
 
                       // Phone Number Field
                       _buildLabel('Phone Number'),
