@@ -2,8 +2,6 @@ import 'package:dio/dio.dart';
 import '../../../../core/exceptions/exceptions.dart';
 import '../models/category_model.dart';
 import '../models/donation_model.dart';
-import 'package:logger/logger.dart';
-
 abstract class DonationRemoteDataSource {
   Future<List<DonationModel>> getDonations({int page = 1, int limit = 20, String? categoryId});
   Future<List<CategoryModel>> getCategories({int page = 1, int limit = 50});
@@ -23,7 +21,6 @@ abstract class DonationRemoteDataSource {
 
 class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
   final Dio dio;
-  final Logger _logger = Logger();
 
   static const String _donationFields = '''
     id

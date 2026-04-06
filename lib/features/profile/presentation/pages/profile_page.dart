@@ -184,7 +184,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   height: 120.w,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: AuthColors.primary.withOpacity(0.1),
+                                    color: AuthColors.primary.withValues(alpha: 0.1),
                                   ),
                                   child:
                                       user.avatarUrl != null &&
@@ -550,7 +550,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       onChanged: (_) {
                                         // TODO: Handle notification preference
                                       },
-                                      activeColor: AuthColors.primary,
+                                      activeThumbColor: AuthColors.primary,
                                     ),
                                   ),
                                   Divider(
