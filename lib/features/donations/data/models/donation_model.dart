@@ -24,15 +24,19 @@ class DonationModel extends Donation {
     final lat = location != null ? (location['latitude'] as num?)?.toDouble() : null;
     final lng = location != null ? (location['longitude'] as num?)?.toDouble() : null;
 
-    // Parse mainAttachmentId to imageUrl
-    final mainAttachmentId = json['mainAttachmentId'] as String?;
+    // Parse mainAttachmentId or mainAttachment to imageUrl
+    final mainAttachment = json['mainAttachment'] as Map<String, dynamic>?;
+    final fallbackAttachmentId = json['mainAttachmentId'] as String?;
     final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://api.gaspzero.qzz.io/');
     final envBaseUrl = Env.get('API_BASE_URL') ?? baseUrl;
     
-    // As attachment URL logic is typical to append to base, we do a minimal safe format
-    final imageUrl = mainAttachmentId != null 
-      ? '${envBaseUrl}attachments/$mainAttachmentId' 
-      : 'https://ui-avatars.com/api/?name=${Uri.encodeComponent(json['title'] ?? 'Food')}&background=random';
+    String imageUrl = 'https://ui-avatars.com/api/?name=${Uri.encodeComponent(json['title'] ?? 'Food')}&background=random';
+    
+    if (mainAttachment != null && mainAttachment['url'] != null) {
+      imageUrl = mainAttachment['url'] as String;
+    } else if (fallbackAttachmentId != null) {
+      imageUrl = '${envBaseUrl}attachments/$fallbackAttachmentId';
+    }
 
     // Parse the user (author)
     final user = json['user'] as Map<String, dynamic>?;

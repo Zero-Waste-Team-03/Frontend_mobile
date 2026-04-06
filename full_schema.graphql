@@ -180,6 +180,9 @@ type Donation {
   """Optional pickup location id"""
   locationId: String
 
+  """The Main attahcment used as cover photo"""
+  mainAttachment: Attachment
+
   """Main attachment id used as cover photo"""
   mainAttachmentId: String
 
@@ -464,6 +467,9 @@ type Query {
 
   """Get current authenticated user profile"""
   currentUser: User!
+
+  """Get a single donation listing by id"""
+  donation(id: ID!): Donation!
 
   """
   Get statistics for donations (total active, flagged, pending approvals)
