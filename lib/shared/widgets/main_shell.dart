@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import '../../shared/theme/app_colors.dart';
@@ -178,26 +178,30 @@ class _NavItem extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: Container(
         color: Colors.transparent,
-        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? AuthColors.primary : const Color(0xFF94A3B8),
-              size: 24.sp,
-            ),
-            SizedBox(height: 4.h),
-            Text(
-              label.toUpperCase(),
-              style: TextStyle(
-                fontSize: 10.sp,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color:
-                    isSelected ? AuthColors.primary : const Color(0xFF94A3B8),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                color: isSelected ? AuthColors.primary : const Color(0xFF94A3B8),
+                size: isSelected ? 26.sp : 24.sp,
               ),
-            ),
-          ],
+              if (isSelected) ...[
+                SizedBox(height: 6.h),
+                Container(
+                  width: 4.w,
+                  height: 4.w,
+                  decoration: BoxDecoration(
+                    color: AuthColors.primary,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ],
+            ],
+          ),
         ),
       ),
     );
