@@ -44,6 +44,24 @@ class DonationAddSuccess extends DonationsState {
   List<Object?> get props => [donation];
 }
 
+class DonationImageUploadLoading extends DonationsState {}
+
+class DonationImageUploadSuccess extends DonationsState {
+  final String attachmentId;
+  const DonationImageUploadSuccess(this.attachmentId);
+
+  @override
+  List<Object?> get props => [attachmentId];
+}
+
+class DonationImageUploadError extends DonationsState {
+  final String message;
+  const DonationImageUploadError(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
 class DonationAddLoading extends DonationsState {}
 class DonationAddError extends DonationsState {
   final String message;

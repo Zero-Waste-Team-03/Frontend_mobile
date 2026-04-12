@@ -10,7 +10,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../core/di/injection.dart';
-import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../domain/entities/category.dart';
 import '../bloc/donations_bloc.dart';
 import '../bloc/donations_event.dart';
@@ -33,7 +32,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
   List<Category> _categories = const [];
   final ImagePicker _picker = ImagePicker();
   XFile? _pickedImage;
-  bool _isUploadingImage = false;
+  String? _uploadedAttachmentId;
 
   // Step 2 Data
   final TextEditingController _amountController = TextEditingController();
@@ -72,6 +71,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
 
     setState(() {
       _pickedImage = image;
+      _uploadedAttachmentId = null;
     });
   }
 
@@ -225,6 +225,18 @@ class _AddDonationPageState extends State<AddDonationPage> {
                     ? _categories.first.id
                     : null;
               });
+            } else if (state is DonationImageUploadSuccess) {
+              setState(() {
+                _uploadedAttachmentId = state.attachmentId;
+              });
+              _nextStep();
+            } else if (state is DonationImageUploadError) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Photo upload failed: ${state.message}'),
+                  backgroundColor: Colors.red,
+                ),
+              );
             } else if (state is DonationAddSuccess) {
               context.pop();
               ScaffoldMessenger.of(context).showSnackBar(
@@ -236,7 +248,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
             } else if (state is DonationAddError) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Error: ${state.message}'),
+                  content: Text('Error publishing: ${state.message}'),
                   backgroundColor: Colors.red,
                 ),
               );
@@ -259,7 +271,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
         children: [
           // Photo Upload Area
           GestureDetector(
-            onTap: _isUploadingImage ? null : _pickImage,
+            onTap: context.read<DonationsBloc>().state is DonationImageUploadLoading ? null : _pickImage,
             child: Container(
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: 32.h),
@@ -455,60 +467,32 @@ class _AddDonationPageState extends State<AddDonationPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildLabel('Unit'),
-                    DropdownButtonFormField<String>(
-                      initialValue: _selectedUnit,
-                      icon: Icon(
-                        Icons.keyboard_arrow_down_rounded,
-                        color: AuthColors.subText,
-                      ),
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        color: AuthColors.headingText,
-                      ),
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: const Color(0xFFF8FAFC),
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 16.w,
-                          vertical: 14.h,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12.r),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFE2E8F0),
+                    Wrap(
+                      spacing: 8.w,
+                      runSpacing: 8.h,
+                      children: ['Items/Units', 'kg', 'Liters'].map((unit) {
+                        final isSelected = _selectedUnit == unit;
+                        return ChoiceChip(
+                          label: Text(unit),
+                          selected: isSelected,
+                          onSelected: (val) {
+                            if (val) setState(() => _selectedUnit = unit);
+                          },
+                          selectedColor: AuthColors.primary,
+                          backgroundColor: const Color(0xFFF1F5F9),
+                          labelStyle: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            color: isSelected ? Colors.white : AuthColors.subText,
                           ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12.r),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFE2E8F0),
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12.r),
-                          borderSide: BorderSide(
-                            color: AuthColors.primary,
-                            width: 1.5,
-                          ),
-                        ),
-                      ),
-                      items: ['Items/Units', 'kg', 'Liters'].map((
-                        String value,
-                      ) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(
-                            value,
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              color: AuthColors.headingText,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.r),
+                            side: BorderSide(
+                              color: isSelected ? AuthColors.primary : Colors.transparent,
                             ),
                           ),
                         );
                       }).toList(),
-                      onChanged: (val) {
-                        if (val != null) setState(() => _selectedUnit = val);
-                      },
                     ),
                   ],
                 ),
@@ -912,53 +896,59 @@ class _AddDonationPageState extends State<AddDonationPage> {
               child: SizedBox(
                 height: 52.h,
                 child: ElevatedButton(
-                  onPressed: state is DonationAddLoading
+                  onPressed: state is DonationAddLoading || state is DonationImageUploadLoading
                       ? null
                       : () {
-                          if (_currentStep < 2) {
-                            _nextStep();
-                          } else {
-                            final categoryId = _selectedCategoryId;
-                            if (categoryId == null || categoryId.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Please select a category.'),
-                                ),
-                              );
+                          if (_currentStep == 0) {
+                            if (_pickedImage == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please upload an image first.')));
                               return;
                             }
-                            if (_pickedImage == null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Please upload an image first.',
-                                  ),
-                                ),
-                              );
+                            if (_itemNameController.text.trim().isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter an item name.')));
+                              return;
+                            }
+                            if (_selectedCategoryId == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a category.')));
                               return;
                             }
                             
+                            if (_uploadedAttachmentId == null) {
+                              context.read<DonationsBloc>().add(UploadDonationImageEvent(File(_pickedImage!.path)));
+                            } else {
+                              _nextStep();
+                            }
+                          } else if (_currentStep == 1) {
+                            if (_amountController.text.isEmpty || (double.tryParse(_amountController.text) == null)) {
+                               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter a valid amount.')));
+                               return;
+                            }
+                            if (_expirationDate == null) {
+                               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please set an expiration date.')));
+                               return;
+                            }
+                            _nextStep();
+                          } else if (_currentStep == 2) {
+                            if (!_safety1 || !_safety2 || !_safety3) {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please confirm all safety checklists to proceed.')));
+                              return;
+                            }
                             final amountStr = _amountController.text;
                             final quantity = int.tryParse(amountStr) ?? 1;
                             final double weight = _selectedUnit == 'kg' ? (double.tryParse(amountStr) ?? 1.0) : 1.0;
 
                             context.read<DonationsBloc>().add(
                               AddDonationEvent(
-                                title: _itemNameController.text.isNotEmpty
-                                    ? _itemNameController.text
-                                    : 'Donation',
-                                description: _notesController.text.isNotEmpty
-                                    ? _notesController.text
-                                    : 'No additional details provided.',
-                                categoryId: categoryId,
+                                title: _itemNameController.text,
+                                description: _notesController.text.isNotEmpty ? _notesController.text : 'No additional details provided.',
+                                categoryId: _selectedCategoryId!,
                                 quantity: quantity,
                                 foodWeightKg: weight,
                                 urgency: 'HIGH',
-                                imageFile: File(_pickedImage!.path),
+                                mainAttachmentId: _uploadedAttachmentId!,
                                 attachmentIds: [],
-                                expiryDate:
-                                    _expirationDate ??
-                                    DateTime.now().add(const Duration(days: 1)),
+                                expiryDate: _expirationDate!,
+                                safetyChecklistCompleted: true,
                                 latitude: _latitude,
                                 longitude: _longitude,
                               ),
@@ -972,7 +962,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
                       borderRadius: BorderRadius.circular(12.r),
                     ),
                   ),
-                  child: state is DonationAddLoading
+                  child: state is DonationAddLoading || state is DonationImageUploadLoading
                       ? const SizedBox(
                           width: 24,
                           height: 24,
@@ -982,7 +972,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
                           ),
                         )
                       : Text(
-                          _currentStep == 2 ? 'Publish Donation' : 'Next Step',
+                          _currentStep == 0 && _uploadedAttachmentId == null ? 'Upload & Continue' : (_currentStep == 2 ? 'Publish Donation' : 'Next Step'),
                           style: TextStyle(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.bold,
