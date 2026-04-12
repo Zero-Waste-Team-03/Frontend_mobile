@@ -8,7 +8,21 @@ class DonationsBloc extends Bloc<DonationsEvent, DonationsState> {
 
   DonationsBloc({required this.donationRepository}) : super(DonationsInitial()) {
     on<LoadDonationsEvent>(_onLoadDonations);
+    on<UploadDonationImageEvent>(_onUploadImage);
     on<AddDonationEvent>(_onAddDonation);
+  }
+
+  Future<void> _onUploadImage(
+    UploadDonationImageEvent event,
+    Emitter<DonationsState> emit,
+  ) async {
+    emit(DonationImageUploadLoading());
+    try {
+      final attachmentId = await donationRepository.uploadDonationImage(event.imageFile);
+      emit(DonationImageUploadSuccess(attachmentId));
+    } catch (e) {
+      emit(DonationImageUploadError(e.toString()));
+    }
   }
 
   Future<void> _onLoadDonations(
@@ -42,11 +56,6 @@ class DonationsBloc extends Bloc<DonationsEvent, DonationsState> {
   ) async {
     emit(DonationAddLoading());
     try {
-      String mainAttachmentId = '';
-      if (event.imageFile != null) {
-        mainAttachmentId = await donationRepository.uploadDonationImage(event.imageFile!);
-      }
-
       final newDonation = await donationRepository.createDonation(
         title: event.title,
         description: event.description,
@@ -54,9 +63,10 @@ class DonationsBloc extends Bloc<DonationsEvent, DonationsState> {
         quantity: event.quantity,
         foodWeightKg: event.foodWeightKg,
         urgency: event.urgency,
-        mainAttachmentId: mainAttachmentId,
+        mainAttachmentId: event.mainAttachmentId,
         attachmentIds: event.attachmentIds,
         expiryDate: event.expiryDate,
+        safetyChecklistCompleted: event.safetyChecklistCompleted,
         latitude: event.latitude,
         longitude: event.longitude,
       );

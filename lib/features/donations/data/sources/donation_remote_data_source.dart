@@ -11,7 +11,6 @@ abstract class DonationRemoteDataSource {
     String? searchQuery,
     double? latitude,
     double? longitude,
-    double? longitude,
     double? radius,
   });
   Future<String> uploadDonationImage(File file);
@@ -76,8 +75,8 @@ class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
     double? radius,
   }) async {
     final query = '''
-      query GetDonations(\$pagination: PaginationInput, \$filter: DonationsFilterInput, \$behaviorContext: DonationBehaviorContextInput) {
-        donations(pagination: \$pagination, filter: \$filter, behaviorContext: \$behaviorContext) {
+      query GetDonations(\$pagination: PaginationInput, \$filter: DonationsFilterInput) {
+        donations(pagination: \$pagination, filter: \$filter) {
           items {
             $_donationFields
           }
@@ -96,11 +95,8 @@ class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
       'filter': filter,
     };
     
-    if (latitude != null && longitude != null) {
-      variables['behaviorContext'] = {
-        'origin': '$latitude,$longitude',
-      };
-    }
+    // client-side filtering handles location/radius based requests, 
+    // unsupported behaviorContext removed.
 
     try {
       final response = await dio.post('/graphql', data: {

@@ -27,6 +27,14 @@ class LoadDonationsEvent extends DonationsEvent {
   List<Object?> get props => [categoryId, searchQuery, latitude, longitude, radius];
 }
 
+class UploadDonationImageEvent extends DonationsEvent {
+  final File imageFile;
+  const UploadDonationImageEvent(this.imageFile);
+
+  @override
+  List<Object?> get props => [imageFile.path];
+}
+
 class AddDonationEvent extends DonationsEvent {
   final String title;
   final String description;
@@ -34,9 +42,10 @@ class AddDonationEvent extends DonationsEvent {
   final int quantity;
   final double foodWeightKg;
   final String urgency;
-  final File? imageFile;
+  final String mainAttachmentId;
   final List<String> attachmentIds;
   final DateTime expiryDate;
+  final bool safetyChecklistCompleted;
   final double? latitude;
   final double? longitude;
 
@@ -47,9 +56,10 @@ class AddDonationEvent extends DonationsEvent {
     required this.quantity,
     required this.foodWeightKg,
     required this.urgency,
-    this.imageFile,
+    required this.mainAttachmentId,
     required this.attachmentIds,
     required this.expiryDate,
+    required this.safetyChecklistCompleted,
     this.latitude,
     this.longitude,
   });
@@ -62,9 +72,10 @@ class AddDonationEvent extends DonationsEvent {
         quantity,
         foodWeightKg,
         urgency,
-        imageFile?.path,
+        mainAttachmentId,
         attachmentIds,
         expiryDate,
+        safetyChecklistCompleted,
         latitude,
         longitude,
       ];
