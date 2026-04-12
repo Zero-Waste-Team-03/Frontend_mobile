@@ -2,8 +2,19 @@ import 'package:dio/dio.dart';
 import '../../../../core/exceptions/exceptions.dart';
 import '../models/category_model.dart';
 import '../models/donation_model.dart';
+import 'dart:io';
 abstract class DonationRemoteDataSource {
-  Future<List<DonationModel>> getDonations({int page = 1, int limit = 20, String? categoryId});
+  Future<List<DonationModel>> getDonations({
+    int page = 1,
+    int limit = 50,
+    String? categoryId,
+    String? searchQuery,
+    double? latitude,
+    double? longitude,
+    double? longitude,
+    double? radius,
+  });
+  Future<String> uploadDonationImage(File file);
   Future<List<CategoryModel>> getCategories({int page = 1, int limit = 50});
   Future<DonationModel> getDonationDetails(String id);
   Future<DonationModel> createDonation({
@@ -11,11 +22,14 @@ abstract class DonationRemoteDataSource {
     required String description,
     required String categoryId,
     required int quantity,
+    required double foodWeightKg,
     required String urgency,
     required String mainAttachmentId,
     List<String> attachmentIds = const [],
     required DateTime expiryDate,
     bool safetyChecklistCompleted = true,
+    double? latitude,
+    double? longitude,
   });
 }
 
@@ -52,10 +66,18 @@ class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
   DonationRemoteDataSourceImpl(this.dio);
 
   @override
-  Future<List<DonationModel>> getDonations({int page = 1, int limit = 20, String? categoryId}) async {
+  Future<List<DonationModel>> getDonations({
+    int page = 1,
+    int limit = 50,
+    String? categoryId,
+    String? searchQuery,
+    double? latitude,
+    double? longitude,
+    double? radius,
+  }) async {
     final query = '''
-      query GetDonations(\$pagination: PaginationInput, \$filter: DonationsFilterInput) {
-        donations(pagination: \$pagination, filter: \$filter) {
+      query GetDonations(\$pagination: PaginationInput, \$filter: DonationsFilterInput, \$behaviorContext: DonationBehaviorContextInput) {
+        donations(pagination: \$pagination, filter: \$filter, behaviorContext: \$behaviorContext) {
           items {
             $_donationFields
           }
@@ -63,13 +85,22 @@ class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
       }
     ''';
 
-    final variables = {
+    final filter = <String, dynamic>{};
+    if (categoryId != null) filter['categoryId'] = categoryId;
+
+    final variables = <String, dynamic>{
       'pagination': {
         'page': page,
         'limit': limit,
       },
-      'filter': categoryId != null ? {'categoryId': categoryId} : {},
+      'filter': filter,
     };
+    
+    if (latitude != null && longitude != null) {
+      variables['behaviorContext'] = {
+        'origin': '$latitude,$longitude',
+      };
+    }
 
     try {
       final response = await dio.post('/graphql', data: {
@@ -138,11 +169,14 @@ class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
     required String description,
     required String categoryId,
     required int quantity,
+    required double foodWeightKg,
     required String urgency,
     required String mainAttachmentId,
     List<String> attachmentIds = const [],
     required DateTime expiryDate,
     bool safetyChecklistCompleted = true,
+    double? latitude,
+    double? longitude,
   }) async {
     final query = '''
       mutation CreateDonation(\$input: CreateDonationInput!) {
@@ -152,18 +186,28 @@ class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
       }
     ''';
 
+    final inputParams = <String, dynamic>{
+      'title': title,
+      'description': description,
+      'categoryId': categoryId,
+      'quantity': quantity,
+      'foodWeightKg': foodWeightKg,
+      'urgency': urgency,
+      'mainAttachmentId': mainAttachmentId,
+      'attachmentIds': attachmentIds,
+      'expiryDate': expiryDate.toUtc().toIso8601String(),
+      'safetyChecklistCompleted': safetyChecklistCompleted,
+    };
+
+    if (latitude != null && longitude != null) {
+      inputParams['locationInput'] = {
+        'latitude': latitude,
+        'longitude': longitude,
+      };
+    }
+
     final variables = {
-      'input': {
-        'title': title,
-        'description': description,
-        'categoryId': categoryId,
-        'quantity': quantity,
-        'urgency': urgency,
-        'mainAttachmentId': mainAttachmentId,
-        'attachmentIds': attachmentIds,
-        'expiryDate': expiryDate.toUtc().toIso8601String(),
-        'safetyChecklistCompleted': safetyChecklistCompleted,
-      }
+      'input': inputParams
     };
 
     try {
@@ -179,6 +223,30 @@ class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
       return DonationModel.fromJson(response.data['data']['createDonation']);
     } on DioException catch (e) {
       throw ServerException(e.message ?? 'Failed to create donation');
+    }
+  }
+
+  @override
+  Future<String> uploadDonationImage(File file) async {
+    try {
+      final formData = FormData.fromMap({
+        'file': await MultipartFile.fromFile(file.path),
+      });
+      final response = await dio.post(
+        '/api/v1/upload/file?uploadType=DONATION',
+        data: formData,
+      );
+
+      // Depending on the backend route. Usually /api/v1/upload/file
+      // I'll use the file upload response model format
+      if (response.statusCode == 200 || response.statusCode == 201) {
+         final data = response.data['data'] as Map<String, dynamic>?;
+         return data?['attachmentId'] as String? ?? response.data['id'] as String;
+      } else {
+         throw ServerException('Failed to upload image');
+      }
+    } on DioException catch (e) {
+      throw ServerException(e.message ?? 'Failed to upload image');
     }
   }
 }

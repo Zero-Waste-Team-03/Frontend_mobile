@@ -6,6 +6,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../core/di/injection.dart';
+import '../../../auth/domain/repositories/auth_repository.dart';
 import '../bloc/profile_bloc.dart';
 import '../bloc/profile_event.dart';
 import '../bloc/profile_state.dart';
@@ -594,9 +596,12 @@ class _ProfilePageState extends State<ProfilePage> {
                                   size: AppDimensions.iconSize.sp,
                                   color: Colors.red,
                                 ),
-                                onPressed: () {
-                                  // TODO: Implement logout with confirmation
-                                  context.go('/login');
+                                onPressed: () async {
+                                  final repo = getIt<AuthRepository>();
+                                  await repo.logout();
+                                  if (context.mounted) {
+                                    context.go('/login');
+                                  }
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AuthColors.background,

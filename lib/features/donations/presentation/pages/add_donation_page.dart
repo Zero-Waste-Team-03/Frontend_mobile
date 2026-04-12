@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../core/di/injection.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
@@ -32,7 +33,6 @@ class _AddDonationPageState extends State<AddDonationPage> {
   List<Category> _categories = const [];
   final ImagePicker _picker = ImagePicker();
   XFile? _pickedImage;
-  String? _uploadedAttachmentId;
   bool _isUploadingImage = false;
 
   // Step 2 Data
@@ -46,6 +46,9 @@ class _AddDonationPageState extends State<AddDonationPage> {
   bool _safety2 = false;
   bool _safety3 = false;
   final TextEditingController _notesController = TextEditingController();
+
+  double? _latitude;
+  double? _longitude;
 
   final List<String> _categoryIcons = [
     'assets/icons/donations/category_fresh.svg',
@@ -63,48 +66,31 @@ class _AddDonationPageState extends State<AddDonationPage> {
     super.dispose();
   }
 
-  Future<void> _pickAndUploadImage() async {
+  Future<void> _pickImage() async {
     final image = await _picker.pickImage(source: ImageSource.gallery);
     if (image == null) return;
 
     setState(() {
       _pickedImage = image;
-      _isUploadingImage = true;
     });
+  }
 
+  @override
+  void initState() {
+    super.initState();
+    _determinePosition();
+  }
+
+  Future<void> _determinePosition() async {
     try {
-      final uploadResponse = await getIt<AuthRepository>().uploadProfileAvatar(
-        File(image.path),
-      );
-
-      String? attachmentId;
-      if (uploadResponse != null) {
-        try {
-          attachmentId = uploadResponse.id as String?;
-        } catch (_) {
-          attachmentId = null;
-        }
-      }
-
-      if (attachmentId == null || attachmentId.isEmpty) {
-        throw Exception('Attachment id missing in upload response');
-      }
-
-      setState(() {
-        _uploadedAttachmentId = attachmentId;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Image upload failed: $e')));
-    } finally {
+      Position position = await Geolocator.getCurrentPosition();
       if (mounted) {
         setState(() {
-          _isUploadingImage = false;
+          _latitude = position.latitude;
+          _longitude = position.longitude;
         });
       }
-    }
+    } catch (_) {}
   }
 
   void _nextStep() {
@@ -273,7 +259,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
         children: [
           // Photo Upload Area
           GestureDetector(
-            onTap: _isUploadingImage ? null : _pickAndUploadImage,
+            onTap: _isUploadingImage ? null : _pickImage,
             child: Container(
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: 32.h),
@@ -328,10 +314,8 @@ class _AddDonationPageState extends State<AddDonationPage> {
                     ),
                     SizedBox(height: 12.h),
                     Text(
-                      _isUploadingImage
-                          ? 'Uploading...'
-                          : _uploadedAttachmentId != null
-                          ? 'Photo Uploaded'
+                      _pickedImage != null
+                          ? 'Photo Selected'
                           : 'Upload Photo',
                       style: TextStyle(
                         fontSize: 16.sp,
@@ -341,8 +325,8 @@ class _AddDonationPageState extends State<AddDonationPage> {
                     ),
                     SizedBox(height: 4.h),
                     Text(
-                      _uploadedAttachmentId != null
-                          ? 'Attachment ready'
+                      _pickedImage != null
+                          ? 'Photo ready for upload'
                           : 'Add a clear photo of the food item',
                       style: TextStyle(
                         fontSize: 14.sp,
@@ -943,8 +927,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
                               );
                               return;
                             }
-                            if (_uploadedAttachmentId == null ||
-                                _uploadedAttachmentId!.isEmpty) {
+                            if (_pickedImage == null) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text(
@@ -954,6 +937,11 @@ class _AddDonationPageState extends State<AddDonationPage> {
                               );
                               return;
                             }
+                            
+                            final amountStr = _amountController.text;
+                            final quantity = int.tryParse(amountStr) ?? 1;
+                            final double weight = _selectedUnit == 'kg' ? (double.tryParse(amountStr) ?? 1.0) : 1.0;
+
                             context.read<DonationsBloc>().add(
                               AddDonationEvent(
                                 title: _itemNameController.text.isNotEmpty
@@ -963,14 +951,16 @@ class _AddDonationPageState extends State<AddDonationPage> {
                                     ? _notesController.text
                                     : 'No additional details provided.',
                                 categoryId: categoryId,
-                                quantity:
-                                    int.tryParse(_amountController.text) ?? 1,
+                                quantity: quantity,
+                                foodWeightKg: weight,
                                 urgency: 'HIGH',
-                                mainAttachmentId: _uploadedAttachmentId!,
+                                imageFile: File(_pickedImage!.path),
                                 attachmentIds: [],
                                 expiryDate:
                                     _expirationDate ??
                                     DateTime.now().add(const Duration(days: 1)),
+                                latitude: _latitude,
+                                longitude: _longitude,
                               ),
                             );
                           }
