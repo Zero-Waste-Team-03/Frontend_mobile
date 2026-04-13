@@ -15,16 +15,19 @@ class LoadDonationsEvent extends DonationsEvent {
   final double? longitude;
   final double? radius;
 
+  final bool append;
+
   const LoadDonationsEvent({
     this.categoryId,
     this.searchQuery,
     this.latitude,
     this.longitude,
     this.radius,
+    this.append = false,
   });
 
   @override
-  List<Object?> get props => [categoryId, searchQuery, latitude, longitude, radius];
+  List<Object?> get props => [categoryId, searchQuery, latitude, longitude, radius, append];
 }
 
 class UploadDonationImageEvent extends DonationsEvent {
