@@ -1,0 +1,7 @@
+# import './user_fields.graphql'
+
+query GetCurrentUser {
+  currentUser {
+    ...UserFields
+  }
+}

@@ -1,0 +1,6 @@
+mutation RefreshTokensForInterceptor {
+  refreshTokens {
+    accessToken
+    refreshToken
+  }
+}

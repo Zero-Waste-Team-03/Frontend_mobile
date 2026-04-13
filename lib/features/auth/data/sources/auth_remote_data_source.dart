@@ -1,12 +1,32 @@
-﻿import 'package:dio/dio.dart';
 import 'dart:io';
-import '../../../../core/exceptions/exceptions.dart';
-import '../models/auth_response_model.dart';
-import '../models/user_model.dart';
-import '../models/file_upload_response_model.dart';
+
+import 'package:dio/dio.dart';
+import 'package:ferry/ferry.dart' hide ServerException;
+import 'package:injectable/injectable.dart';
 import 'package:logger/logger.dart';
 
-import 'package:injectable/injectable.dart';
+import '../../../../core/exceptions/exceptions.dart';
+import '../models/auth_response_model.dart';
+import '../models/file_upload_response_model.dart';
+import '../models/user_model.dart';
+import 'graphql/__generated__/change_password.req.gql.dart';
+import 'graphql/__generated__/change_password.var.gql.dart';
+import 'graphql/__generated__/delete_account.req.gql.dart';
+import 'graphql/__generated__/forgot_password.req.gql.dart';
+import 'graphql/__generated__/forgot_password.var.gql.dart';
+import 'graphql/__generated__/get_current_user.req.gql.dart';
+import 'graphql/__generated__/login.req.gql.dart';
+import 'graphql/__generated__/login.var.gql.dart';
+import 'graphql/__generated__/logout_from_all_devices.req.gql.dart';
+import 'graphql/__generated__/refresh_tokens.req.gql.dart';
+import 'graphql/__generated__/register.req.gql.dart';
+import 'graphql/__generated__/register.var.gql.dart';
+import 'graphql/__generated__/reset_password.req.gql.dart';
+import 'graphql/__generated__/reset_password.var.gql.dart';
+import 'graphql/__generated__/send_verification.req.gql.dart';
+import 'graphql/__generated__/send_verification.var.gql.dart';
+import 'graphql/__generated__/update_profile.req.gql.dart';
+import 'graphql/__generated__/update_profile.var.gql.dart';
 
 abstract class AuthRemoteDataSource {
   Future<AuthResponseModel> login(String email, String password);
@@ -49,75 +69,51 @@ abstract class AuthRemoteDataSource {
 
 @LazySingleton(as: AuthRemoteDataSource)
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
+  AuthRemoteDataSourceImpl(this.dio, this._ferryClient);
+
   final Dio dio;
-  static const String _userFields = '''
-    id
-    email
-    displayName
-    role
-    description
-    isMailVerified
-    phoneNumber
-    reputationScore
-    locationId
-    location {
-      id
-      city
-      country
-      latitude
-      longitude
-      neighborhood
-    }
-    avatar {
-      id
-      url
-      fileType
-    }
-  ''';
+  final Client _ferryClient;
+
   final Logger _logger = Logger(
     printer: PrettyPrinter(
       methodCount: 0,
       errorMethodCount: 5,
       lineLength: 80,
       colors: true,
-      printEmojis: true,
+      printEmojis: false,
     ),
   );
 
-  AuthRemoteDataSourceImpl(this.dio);
-
   @override
   Future<AuthResponseModel> login(String email, String password) async {
-    const query =
-        '''
-      mutation Login(\$loginInput: LoginInput!) {
-        login(loginInput: \$loginInput) {
-          accessToken
-          refreshToken
-          user {
-            $_userFields
-          }
-        }
-      }
-    ''';
-
-    return _executeGraphqlMutation(query, {
+    final vars = GLoginVars.fromJson({
       'loginInput': {'email': email.trim(), 'password': password},
-    }, 'login');
+    });
+    if (vars == null) {
+      throw ServerException('Failed to build login request');
+    }
+
+    final data = await _executeRequest(
+      GLoginReq((b) => b.vars = vars.toBuilder()),
+      'login',
+    );
+
+    return AuthResponseModel.fromJson(
+      Map<String, dynamic>.from(data.login.toJson()),
+    );
   }
 
   @override
   Future<void> sendOtp(String email) async {
-    const query = '''
-      mutation SendVerification(\$email: String!) {
-        sendVerification(email: \$email) {
-          message
-        }
-      }
-    ''';
-    await _executeGraphqlVoidMutation(query, {
-      'email': email.trim(),
-    }, 'sendVerification');
+    final vars = GSendVerificationVars.fromJson({'email': email.trim()});
+    if (vars == null) {
+      throw ServerException('Failed to build sendVerification request');
+    }
+
+    await _executeRequest(
+      GSendVerificationReq((b) => b.vars = vars.toBuilder()),
+      'sendVerification',
+    );
   }
 
   @override
@@ -134,14 +130,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     double? longitude,
     String? neighborhood,
   }) async {
-    const query = '''
-      mutation Register(\$otp: String!, \$registerInput: RegisterInput!) {
-        register(otp: \$otp, registerInput: \$registerInput) {
-          message
-        }
-      }
-    ''';
-
     final registerInput = <String, dynamic>{
       'email': email.trim(),
       'password': password,
@@ -160,10 +148,18 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       registerInput['displayName'] = normalizedDisplayName;
     }
 
-    await _executeGraphqlVoidMutation(query, {
+    final vars = GRegisterVars.fromJson({
       'otp': otp,
       'registerInput': registerInput,
-    }, 'register');
+    });
+    if (vars == null) {
+      throw ServerException('Failed to build register request');
+    }
+
+    await _executeRequest(
+      GRegisterReq((b) => b.vars = vars.toBuilder()),
+      'register',
+    );
   }
 
   @override
@@ -172,7 +168,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     String accessToken,
   ) async {
     try {
-      // NOTE: Using REST for OAuth integration as structurally requested
       final response = await dio.post(
         '/api/auth/oauth/$provider',
         data: {'access_token': accessToken},
@@ -180,9 +175,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       if (response.statusCode == 200) {
         return AuthResponseModel.fromJson(response.data);
-      } else {
-        throw ServerException('OAuth login failed.');
       }
+      throw ServerException('OAuth login failed.');
     } on DioException catch (e) {
       final errorMessage =
           e.response?.data?['message'] ??
@@ -201,28 +195,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<UserModel> getCurrentUser() async {
-    const query =
-        '''
-      query GetCurrentUser {
-        currentUser {
-          $_userFields
-        }
-      }
-    ''';
-
-    try {
-      final response = await dio.post('/graphql', data: {'query': query});
-
-      if (response.data['errors'] != null) {
-        throw ServerException(response.data['errors'][0]['message']);
-      }
-
-      return UserModel.fromJson(response.data['data']['currentUser']);
-    } on DioException catch (e) {
-      final errorMessage =
-          e.message ?? e.error?.toString() ?? 'Failed to get user';
-      throw ServerException(errorMessage);
-    }
+    final data = await _executeRequest(GGetCurrentUserReq(), 'getCurrentUser');
+    return UserModel.fromJson(
+      Map<String, dynamic>.from(data.currentUser.toJson()),
+    );
   }
 
   @override
@@ -231,89 +207,67 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     String newPassword, {
     bool logoutFromOtherDevices = false,
   }) async {
-    const query = '''
-      mutation ChangePassword(\$changePasswordInput: ChangePasswordInput!) {
-        changePassword(changePasswordInput: \$changePasswordInput) {
-          message
-        }
-      }
-    ''';
-    await _executeGraphqlVoidMutation(query, {
+    final vars = GChangePasswordVars.fromJson({
       'changePasswordInput': {
         'currentPassword': oldPassword,
         'newPassword': newPassword,
         'logoutFromOtherDevices': logoutFromOtherDevices,
       },
-    }, 'changePassword');
+    });
+    if (vars == null) {
+      throw ServerException('Failed to build changePassword request');
+    }
+
+    await _executeRequest(
+      GChangePasswordReq((b) => b.vars = vars.toBuilder()),
+      'changePassword',
+    );
   }
 
   @override
   Future<void> forgotPassword(String email) async {
-    const query = '''
-      mutation ForgotPassword(\$email: String!) {
-        forgotPassword(email: \$email) {
-          message
-        }
-      }
-    ''';
-    await _executeGraphqlVoidMutation(query, {
-      'email': email.trim(),
-    }, 'forgotPassword');
+    final vars = GForgotPasswordVars.fromJson({'email': email.trim()});
+    if (vars == null) {
+      throw ServerException('Failed to build forgotPassword request');
+    }
+
+    await _executeRequest(
+      GForgotPasswordReq((b) => b.vars = vars.toBuilder()),
+      'forgotPassword',
+    );
   }
 
   @override
   Future<void> resetPassword(String token, String newPassword) async {
-    const query = '''
-      mutation ResetPassword(\$resetPasswordInput: ResetPasswordInput!) {
-        resetPassword(resetPasswordInput: \$resetPasswordInput) {
-          message
-        }
-      }
-    ''';
-    await _executeGraphqlVoidMutation(query, {
+    final vars = GResetPasswordVars.fromJson({
       'resetPasswordInput': {'token': token, 'password': newPassword},
-    }, 'resetPassword');
+    });
+    if (vars == null) {
+      throw ServerException('Failed to build resetPassword request');
+    }
+
+    await _executeRequest(
+      GResetPasswordReq((b) => b.vars = vars.toBuilder()),
+      'resetPassword',
+    );
   }
 
   @override
   Future<AuthResponseModel> refreshTokens() async {
-    const query =
-        '''
-      mutation RefreshTokens {
-        refreshTokens {
-          accessToken
-          refreshToken
-          user {
-            $_userFields
-          }
-        }
-      }
-    ''';
-    return _executeGraphqlMutation(query, {}, 'refreshTokens');
+    final data = await _executeRequest(GRefreshTokensReq(), 'refreshTokens');
+    return AuthResponseModel.fromJson(
+      Map<String, dynamic>.from(data.refreshTokens.toJson()),
+    );
   }
 
   @override
   Future<void> logoutFromAllDevices() async {
-    const query = '''
-      mutation LogoutFromAllDevices {
-        logoutFromAllDevices {
-          message
-        }
-      }
-    ''';
-    await _executeGraphqlVoidMutation(query, {}, 'logoutFromAllDevices');
+    await _executeRequest(GLogoutFromAllDevicesReq(), 'logoutFromAllDevices');
   }
 
   @override
   Future<void> deleteAccount() async {
-    const query = '''
-      mutation DeleteAccount {
-        deleteAccount {
-          message
-        }
-      }
-    ''';
-    await _executeGraphqlVoidMutation(query, {}, 'deleteAccount');
+    await _executeRequest(GDeleteAccountReq(), 'deleteAccount');
   }
 
   @override
@@ -323,50 +277,35 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     String? phoneNumber,
     Map<String, dynamic>? location,
   }) async {
-    const query =
-        '''
-      mutation UpdateProfile(\$updateProfileInput: UpdateProfileInput!) {
-        updateProfile(updateProfileInput: \$updateProfileInput) {
-          $_userFields
-        }
-      }
-    ''';
+    final updateProfileInput = <String, dynamic>{
+      if (displayName != null && displayName.trim().isNotEmpty)
+        'displayName': displayName.trim(),
+      if (email != null && email.trim().isNotEmpty) 'email': email.trim(),
+      if (phoneNumber != null && phoneNumber.trim().isNotEmpty)
+        'phoneNumber': phoneNumber.trim(),
+      if (location != null) 'location': Map<String, dynamic>.from(location),
+    };
 
-    _logger.i('ðŸš€ Executing GraphQL: updateProfile');
-    try {
-      final response = await dio.post(
-        '/graphql',
-        data: {
-          'query': query,
-          'variables': {
-            'updateProfileInput': {
-              if (displayName != null && displayName.trim().isNotEmpty)
-                'displayName': displayName.trim(),
-              if (email != null && email.trim().isNotEmpty)
-                'email': email.trim(),
-              if (phoneNumber != null && phoneNumber.trim().isNotEmpty)
-                'phoneNumber': phoneNumber.trim(),
-              if (location != null) 'location': location,
-            },
-          },
-        },
-      );
-
-      if (response.data['errors'] != null) {
-        throw ServerException(response.data['errors'][0]['message']);
-      }
-
-      return UserModel.fromJson(response.data['data']['updateProfile']);
-    } on DioException catch (e) {
-      final errorMessage =
-          e.message ?? e.error?.toString() ?? 'Failed to update profile';
-      throw ServerException(errorMessage);
+    final vars = GUpdateProfileVars.fromJson({
+      'updateProfileInput': updateProfileInput,
+    });
+    if (vars == null) {
+      throw ServerException('Failed to build updateProfile request');
     }
+
+    final data = await _executeRequest(
+      GUpdateProfileReq((b) => b.vars = vars.toBuilder()),
+      'updateProfile',
+    );
+
+    return UserModel.fromJson(
+      Map<String, dynamic>.from(data.updateProfile.toJson()),
+    );
   }
 
   @override
   Future<FileUploadResponseModel> uploadProfileAvatar(File file) async {
-    _logger.i('ðŸš€ Uploading profile avatar: ${file.path}');
+    _logger.i('Uploading profile avatar: ${file.path}');
     try {
       final formData = FormData.fromMap({
         'file': await MultipartFile.fromFile(
@@ -380,24 +319,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         data: formData,
       );
 
-      _logger.d('ðŸ"¥ Avatar upload response: ${response.statusCode}');
-      _logger.d('Avatar upload data: ${response.data}');
-
       if (response.statusCode == 200 || response.statusCode == 201) {
-        _logger.i('âœ… Avatar uploaded successfully');
-        final uploadResponse = FileUploadResponseModel.fromJson(response.data);
-        _logger.i(
-          'âœ… Parsed upload response - ID: ${uploadResponse.id}, JobID: ${uploadResponse.jobId}',
-        );
-        return uploadResponse;
-      } else {
-        _logger.e(
-          'âŒ Avatar upload failed with status: ${response.statusCode}',
-        );
-        throw ServerException('Avatar upload failed');
+        return FileUploadResponseModel.fromJson(response.data);
       }
+
+      throw ServerException('Avatar upload failed');
     } on DioException catch (e) {
-      _logger.e('âŒ DioException in avatar upload: ${e.message}');
       final errorMessage =
           e.response?.data?['message'] ??
           e.message ??
@@ -409,49 +336,31 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<UserModel> updateProfileWithAvatarId(String avatarAttachmentId) async {
-    const query =
-        '''
-      mutation UpdateProfile(\$updateProfileInput: UpdateProfileInput!) {
-        updateProfile(updateProfileInput: \$updateProfileInput) {
-          $_userFields
-        }
-      }
-    ''';
+    final vars = GUpdateProfileVars.fromJson({
+      'updateProfileInput': {'avatarAttachmentId': avatarAttachmentId},
+    });
+    if (vars == null) {
+      throw ServerException('Failed to build updateProfile avatar request');
+    }
 
-    _logger.i('🚀 Executing GraphQL: updateProfile with avatar ID');
-    try {
-      final response = await dio.post(
-        '/graphql',
-        data: {
-          'query': query,
-          'variables': {
-            'updateProfileInput': {'avatarAttachmentId': avatarAttachmentId},
-          },
-        },
+    final data = await _executeRequest(
+      GUpdateProfileReq((b) => b.vars = vars.toBuilder()),
+      'updateProfile',
+    );
+
+    var userModel = UserModel.fromJson(
+      Map<String, dynamic>.from(data.updateProfile.toJson()),
+    );
+
+    if (userModel.avatarUrl == null || userModel.avatarUrl!.isEmpty) {
+      final updateProfileJson = Map<String, dynamic>.from(
+        data.updateProfile.toJson(),
       );
-
-      if (response.data['errors'] != null) {
-        throw ServerException(response.data['errors'][0]['message']);
-      }
-
-      _logger.i('✅ Profile avatar updated successfully');
-      var userModel = UserModel.fromJson(
-        response.data['data']['updateProfile'],
-      );
-
-      // If avatar URL is null but we have an ID, construct the full URL
-      if (userModel.avatarUrl == null || userModel.avatarUrl!.isEmpty) {
-        final avatarMap =
-            response.data['data']['updateProfile']['avatar']
-                as Map<String, dynamic>?;
-        final avatarId = avatarMap?['id'] as String?;
-
+      final avatarMap = updateProfileJson['avatar'] as Map<String, dynamic>?;
+      if (avatarMap != null) {
+        final avatarId = avatarMap['id'] as String?;
         if (avatarId != null && avatarId.isNotEmpty) {
           final baseUrl = dio.options.baseUrl;
-          final fullAvatarUrl = '$baseUrl/api/v1/files/$avatarId';
-          _logger.i('🔧 Constructed full avatar URL: $fullAvatarUrl');
-
-          // Create a new UserModel with the constructed avatar URL
           userModel = UserModel(
             id: userModel.id,
             email: userModel.email,
@@ -463,62 +372,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
             reputationScore: userModel.reputationScore,
             locationId: userModel.locationId,
             location: userModel.location,
-            avatarUrl: fullAvatarUrl,
+            avatarUrl: '$baseUrl/api/v1/files/$avatarId',
           );
         }
       }
-
-      return userModel;
-    } on DioException catch (e) {
-      _logger.e('❌ DioException in updateProfileWithAvatarId: ${e.message}');
-      final errorMessage =
-          e.message ?? e.error?.toString() ?? 'Failed to update profile avatar';
-      throw ServerException(errorMessage);
     }
-  }
 
-  Future<AuthResponseModel> _executeGraphqlMutation(
-    String query,
-    Map<String, dynamic> variables,
-    String operationName,
-  ) async {
-    _logger.i('ðŸš€ Executing GraphQL: $operationName\nVariables: $variables');
-    try {
-      final response = await dio.post(
-        '/graphql',
-        data: {'query': query, 'variables': variables},
-      );
-
-      _logger.d(
-        'ðŸ“¥ GraphQL Response [$operationName]: ${response.statusCode}\nData: ${response.data}',
-      );
-
-      if (response.statusCode == 200) {
-        if (response.data['errors'] != null) {
-          _logger.e(
-            'âŒ GraphQL Error: ${response.data['errors'][0]['message']}',
-          );
-          throw ServerException(response.data['errors'][0]['message']);
-        }
-        _logger.i('âœ… GraphQL Success: $operationName');
-        return AuthResponseModel.fromJson(response.data['data'][operationName]);
-      } else {
-        _logger.e('âŒ GraphQL Failed with status: ${response.statusCode}');
-        throw ServerException(
-          'Action failed with status: ${response.statusCode}',
-        );
-      }
-    } on DioException catch (e) {
-      _logger.e(
-        'âŒ DioException in $operationName: ${e.message} | Error: ${e.error} | Type: ${e.type}\nResponse Data: ${e.response?.data}',
-      );
-      final errorMessage =
-          e.response?.data?['errors']?[0]?['message'] ??
-          e.message ??
-          e.error?.toString() ??
-          'GraphQL request failed';
-      throw ServerException(errorMessage);
-    }
+    return userModel;
   }
 
   Map<String, dynamic> _buildRegisterLocationInput({
@@ -530,56 +390,59 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }) {
     final location = <String, dynamic>{};
     if (city != null && city.trim().isNotEmpty) location['city'] = city.trim();
-    if (country != null && country.trim().isNotEmpty)
+    if (country != null && country.trim().isNotEmpty) {
       location['country'] = country.trim();
+    }
     if (latitude != null) location['latitude'] = latitude;
     if (longitude != null) location['longitude'] = longitude;
-    if (neighborhood != null && neighborhood.trim().isNotEmpty)
+    if (neighborhood != null && neighborhood.trim().isNotEmpty) {
       location['neighborhood'] = neighborhood.trim();
+    }
     return location;
   }
 
-  /// Execute a GraphQL mutation that returns void (MessageResponse)
-  Future<void> _executeGraphqlVoidMutation(
-    String query,
-    Map<String, dynamic> variables,
+  Future<TData> _executeRequest<TData, TVars>(
+    OperationRequest<TData, TVars> request,
     String operationName,
   ) async {
-    _logger.i('ðŸš€ Executing GraphQL: $operationName\nVariables: $variables');
+    _logger.i('Executing GraphQL operation: $operationName');
+
     try {
-      final response = await dio.post(
-        '/graphql',
-        data: {'query': query, 'variables': variables},
-      );
-
-      _logger.d(
-        'ðŸ“¥ GraphQL Response [$operationName]: ${response.statusCode}\nData: ${response.data}',
-      );
-
-      if (response.statusCode == 200) {
-        if (response.data['errors'] != null) {
-          _logger.e(
-            'âŒ GraphQL Error: ${response.data['errors'][0]['message']}',
+      final response = await _ferryClient
+          .request(request)
+          .firstWhere(
+            (event) =>
+                event.data != null ||
+                event.hasErrors ||
+                event.linkException != null,
           );
-          throw ServerException(response.data['errors'][0]['message']);
-        }
-        _logger.i('âœ… GraphQL Success: $operationName');
-      } else {
-        _logger.e('âŒ GraphQL Failed with status: ${response.statusCode}');
-        throw ServerException(
-          'Action failed with status: ${response.statusCode}',
-        );
+
+      if (response.hasErrors || response.linkException != null) {
+        final graphQLErrors = response.graphqlErrors;
+        final graphQLErrorMessage =
+            graphQLErrors != null && graphQLErrors.isNotEmpty
+            ? graphQLErrors.first.message
+            : null;
+
+        final message =
+            graphQLErrorMessage ??
+            response.linkException?.originalException?.toString() ??
+            response.linkException.toString();
+
+        throw ServerException(message);
       }
-    } on DioException catch (e) {
-      _logger.e(
-        'âŒ DioException in $operationName: ${e.message} | Error: ${e.error} | Type: ${e.type}\nResponse Data: ${e.response?.data}',
-      );
-      final errorMessage =
-          e.response?.data?['errors']?[0]?['message'] ??
-          e.message ??
-          e.error?.toString() ??
-          'GraphQL request failed';
-      throw ServerException(errorMessage);
+
+      final data = response.data;
+      if (data == null) {
+        throw ServerException('No data returned for $operationName');
+      }
+
+      return data;
+    } catch (e) {
+      if (e is ServerException) {
+        rethrow;
+      }
+      throw ServerException('GraphQL request failed: $e');
     }
   }
 }

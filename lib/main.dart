@@ -1,13 +1,14 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'core/router/app_router.dart';
 import 'core/di/injection.dart';
+import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/bloc/auth_event.dart';
 import 'features/auth/presentation/bloc/auth_state.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,15 +39,9 @@ class GaspZeroApp extends StatelessWidget {
         return MaterialApp.router(
           title: "Gasp'Zero",
           debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            useMaterial3: true,
-            primaryColor: const Color(0xFF2D6C50),
-            textTheme: GoogleFonts.interTextTheme(Theme.of(context).textTheme),
-            appBarTheme: const AppBarTheme(
-              backgroundColor: Color(0xFF2D6C50),
-              foregroundColor: Colors.white,
-            ),
-          ),
+          theme: AppTheme.light,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           builder: (context, child) {
             return BlocProvider(
               create: (_) => getIt<AuthBloc>()..add(AuthCheckRequested()),

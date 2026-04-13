@@ -1,0 +1,5 @@
+mutation Register($otp: String!, $registerInput: RegisterInput!) {
+  register(otp: $otp, registerInput: $registerInput) {
+    message
+  }
+}

@@ -44,3 +44,6 @@ app.*.map.json
 
 # OpenCode local config
 opencode.json
+
+.github/skills/*
+lib/**/__generated__/*

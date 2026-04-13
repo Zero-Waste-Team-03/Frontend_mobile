@@ -2,6 +2,7 @@
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../core/app_icons.dart';
 import '../../shared/theme/app_colors.dart';
 import '../../core/di/injection.dart';
 import '../../features/donations/presentation/bloc/donations_bloc.dart';
@@ -23,6 +24,7 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     if (_chatPos == const Offset(300, 500)) {
       final size = MediaQuery.of(context).size;
       _chatPos = Offset(size.width - 72.w, size.height - 180.h);
@@ -62,10 +64,10 @@ class _MainShellState extends State<MainShell> {
         ),
         bottomNavigationBar: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: colorScheme.surface,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.06),
+                color: AuthColors.headingText.withValues(alpha: 0.06),
                 blurRadius: 16,
                 offset: const Offset(0, -4),
               ),
@@ -78,13 +80,13 @@ class _MainShellState extends State<MainShell> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _NavItem(
-                    icon: Icons.home_rounded,
+                    icon: AppIcons.home,
                     label: 'Home',
                     isSelected: widget.navigationShell.currentIndex == 0,
                     onTap: () => widget.navigationShell.goBranch(0),
                   ),
                   _NavItem(
-                    icon: Icons.search_rounded,
+                    icon: AppIcons.search,
                     label: 'Browse',
                     isSelected: widget.navigationShell.currentIndex == 1,
                     onTap: () => widget.navigationShell.goBranch(1),
@@ -105,20 +107,20 @@ class _MainShellState extends State<MainShell> {
                         ],
                       ),
                       child: Icon(
-                        Icons.add_rounded,
-                        color: Colors.white,
+                        AppIcons.add,
+                        color: colorScheme.onPrimary,
                         size: 28.sp,
                       ),
                     ),
                   ),
                   _NavItem(
-                    icon: Icons.chat_bubble_rounded,
+                    icon: AppIcons.chat,
                     label: 'Chat',
                     isSelected: widget.navigationShell.currentIndex == 2,
                     onTap: () => widget.navigationShell.goBranch(2),
                   ),
                   _NavItem(
-                    icon: Icons.person_rounded,
+                    icon: AppIcons.profile,
                     label: 'Profile',
                     isSelected: widget.navigationShell.currentIndex == 3,
                     onTap: () => widget.navigationShell.goBranch(3),
@@ -133,12 +135,13 @@ class _MainShellState extends State<MainShell> {
   }
 
   Widget _buildChatButtonUI({required bool isDragging}) {
+    final colorScheme = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: () {
         widget.navigationShell.goBranch(2);
       },
       child: Material(
-        color: Colors.transparent,
+        color: colorScheme.surface.withValues(alpha: 0),
         elevation: isDragging ? 10 : 6,
         shape: const CircleBorder(),
         child: Container(
@@ -157,8 +160,8 @@ class _MainShellState extends State<MainShell> {
           ),
           child: Center(
             child: Icon(
-              Icons.chat_bubble_rounded,
-              color: Colors.white,
+              AppIcons.chat,
+              color: colorScheme.onPrimary,
               size: 26.sp,
             ),
           ),
@@ -187,7 +190,7 @@ class _NavItem extends StatelessWidget {
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        color: Colors.transparent,
+        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0),
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),

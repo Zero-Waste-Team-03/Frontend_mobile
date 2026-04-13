@@ -1,8 +1,10 @@
 import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
+import 'package:ferry/ferry.dart';
 import '../env.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../network/auth_interceptor.dart';
+import '../graphql/client.dart';
 import '../../features/auth/data/sources/auth_local_data_source.dart';
 import '../../features/auth/data/sources/auth_remote_data_source.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
@@ -47,6 +49,13 @@ Future<void> configureDependencies() async {
     () => AuthLocalDataSourceImpl(getIt(), getIt()),
   );
 
+  getIt.registerLazySingleton<GraphQLClientFactory>(
+    () => GraphQLClientFactory(getIt<AuthLocalDataSource>()),
+  );
+  getIt.registerLazySingleton<Client>(
+    () => getIt<GraphQLClientFactory>().create(),
+  );
+
   // â”€â”€ Dio with Auth Interceptor â”€â”€
   getIt.registerLazySingleton(() {
     final baseUrl = const String.fromEnvironment(
@@ -71,7 +80,11 @@ Future<void> configureDependencies() async {
 
     // Auth interceptor â€” attaches Bearer token & handles 401 refresh
     dio.interceptors.add(
-      AuthInterceptor(localDataSource: getIt<AuthLocalDataSource>(), dio: dio),
+      AuthInterceptor(
+        localDataSource: getIt<AuthLocalDataSource>(),
+        dio: dio,
+        ferryClient: getIt<Client>(),
+      ),
     );
 
     // Logging interceptor (keep last so it logs the final request)
@@ -91,7 +104,7 @@ Future<void> configureDependencies() async {
 
   // â”€â”€ Remote Data Source â”€â”€
   getIt.registerLazySingleton<AuthRemoteDataSource>(
-    () => AuthRemoteDataSourceImpl(getIt()),
+    () => AuthRemoteDataSourceImpl(getIt(), getIt()),
   );
 
   // ── Repository ──
@@ -111,11 +124,9 @@ Future<void> configureDependencies() async {
   // ── Profile BLoC ──
   getIt.registerFactory(() => ProfileBloc(profileRepository: getIt()));
 
-  
-
   // ── Donations ──
   getIt.registerLazySingleton<DonationRemoteDataSource>(
-    () => DonationRemoteDataSourceImpl(getIt()),
+    () => DonationRemoteDataSourceImpl(getIt(), getIt()),
   );
   getIt.registerLazySingleton<DonationRepository>(
     () => DonationRepositoryImpl(remoteDataSource: getIt()),

@@ -1,0 +1,8 @@
+query GetCategories($pagination: PaginationInput) {
+  categories(pagination: $pagination) {
+    items {
+      id
+      name
+    }
+  }
+}

@@ -1,0 +1,28 @@
+mutation CreateDonation($input: CreateDonationInput!) {
+  createDonation(input: $input) {
+    id
+    title
+    description
+    quantity
+    categoryId
+    category {
+      id
+      name
+    }
+    status
+    urgency
+    mainAttachmentId
+    mainAttachment {
+      url
+    }
+    locationId
+    location {
+      latitude
+      longitude
+    }
+    user {
+      displayName
+      email
+    }
+  }
+}

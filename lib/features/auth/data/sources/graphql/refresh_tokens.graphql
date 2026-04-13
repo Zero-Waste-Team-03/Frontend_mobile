@@ -1,0 +1,11 @@
+# import './user_fields.graphql'
+
+mutation RefreshTokens {
+  refreshTokens {
+    accessToken
+    refreshToken
+    user {
+      ...UserFields
+    }
+  }
+}

@@ -1,0 +1,11 @@
+# import './user_fields.graphql'
+
+mutation Login($loginInput: LoginInput!) {
+  login(loginInput: $loginInput) {
+    accessToken
+    refreshToken
+    user {
+      ...UserFields
+    }
+  }
+}
