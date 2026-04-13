@@ -9,7 +9,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../../../shared/theme/app_colors.dart';
-import '../../../../core/di/injection.dart';
 import '../../domain/entities/category.dart';
 import '../bloc/donations_bloc.dart';
 import '../bloc/donations_event.dart';
@@ -128,136 +127,131 @@ class _AddDonationPageState extends State<AddDonationPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) =>
-          getIt<DonationsBloc>()..add(const LoadDonationsEvent()),
-      child: Scaffold(
+    // Build the donation form UI with 3 steps
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          scrolledUnderElevation: 0,
-          leading: IconButton(
-            icon: Icon(
-              Icons.arrow_back_rounded,
-              color: AuthColors.headingText,
-              size: 24.sp,
-            ),
-            onPressed: _prevStep,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_rounded,
+            color: AuthColors.headingText,
+            size: 24.sp,
           ),
-          title: Text(
-            'Add Donation',
-            style: GoogleFonts.inter(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w700,
-              color: AuthColors.headingText,
-              letterSpacing: -0.5,
-            ),
-          ),
-          centerTitle: true,
+          onPressed: _prevStep,
         ),
-        body: Column(
-          children: [
-            // Header with Title and Step Count
-            Padding(
-              padding: EdgeInsets.fromLTRB(24.w, 8.h, 24.w, 16.h),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        _getStepTitle(),
-                        style: GoogleFonts.inter(
-                          fontSize: 24.sp,
-                          fontWeight: FontWeight.w700,
-                          color: AuthColors.headingText,
-                        ),
+        title: Text(
+          'Add Donation',
+          style: GoogleFonts.inter(
+            fontSize: 18.sp,
+            fontWeight: FontWeight.w700,
+            color: AuthColors.headingText,
+            letterSpacing: -0.5,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: Column(
+        children: [
+          // Header with Title and Step Count
+          Padding(
+            padding: EdgeInsets.fromLTRB(24.w, 8.h, 24.w, 16.h),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      _getStepTitle(),
+                      style: GoogleFonts.inter(
+                        fontSize: 24.sp,
+                        fontWeight: FontWeight.w700,
+                        color: AuthColors.headingText,
                       ),
-                      Text(
-                        'STEP ${_currentStep + 1} OF 3',
-                        style: GoogleFonts.inter(
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w700,
-                          color: AuthColors.primary,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 16.h),
-                  // Progress Bar
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(9999.r),
-                    child: LinearProgressIndicator(
-                      value: (_currentStep + 1) / 3,
-                      backgroundColor: const Color(0xFFE2E8F0),
-                      color: AuthColors.primary,
-                      minHeight: 8.h,
-                      borderRadius: BorderRadius.circular(9999.r),
                     ),
+                    Text(
+                      'STEP ${_currentStep + 1} OF 3',
+                      style: GoogleFonts.inter(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w700,
+                        color: AuthColors.primary,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 16.h),
+                // Progress Bar
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(9999.r),
+                  child: LinearProgressIndicator(
+                    value: (_currentStep + 1) / 3,
+                    backgroundColor: const Color(0xFFE2E8F0),
+                    color: AuthColors.primary,
+                    minHeight: 8.h,
+                    borderRadius: BorderRadius.circular(9999.r),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-
-            Expanded(
-              child: PageView(
-                controller: _pageController,
-                physics:
-                    const NeverScrollableScrollPhysics(), // Disable swipe to force using buttons
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentStep = index;
-                  });
-                },
-                children: [_buildStep1(), _buildStep2(), _buildStep3()],
-              ),
+          ),
+          Expanded(
+            child: PageView(
+              controller: _pageController,
+              physics: const NeverScrollableScrollPhysics(),
+              onPageChanged: (index) {
+                setState(() {
+                  _currentStep = index;
+                });
+              },
+              children: [_buildStep1(), _buildStep2(), _buildStep3()],
             ),
-          ],
-        ),
-        bottomNavigationBar: BlocConsumer<DonationsBloc, DonationsState>(
-          listener: (context, state) {
-            if (state is DonationsLoaded) {
-              setState(() {
-                _categories = state.categories;
-                _selectedCategoryId ??= _categories.isNotEmpty
-                    ? _categories.first.id
-                    : null;
-              });
-            } else if (state is DonationImageUploadSuccess) {
-              setState(() {
-                _uploadedAttachmentId = state.attachmentId;
-              });
-              _nextStep();
-            } else if (state is DonationImageUploadError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Photo upload failed: ${state.message}'),
-                  backgroundColor: Colors.red,
-                ),
-              );
-            } else if (state is DonationAddSuccess) {
-              context.pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: const Text('Donation published successfully!'),
-                  backgroundColor: AuthColors.primary,
-                ),
-              );
-            } else if (state is DonationAddError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Error publishing: ${state.message}'),
-                  backgroundColor: Colors.red,
-                ),
-              );
-            }
-          },
-          builder: (context, state) {
-            return _buildBottomActions(context, state);
-          },
-        ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: BlocConsumer<DonationsBloc, DonationsState>(
+        listener: (context, state) {
+          if (state is DonationsLoaded) {
+            setState(() {
+              _categories = state.categories;
+              _selectedCategoryId ??= _categories.isNotEmpty
+                  ? _categories.first.id
+                  : null;
+            });
+          } else if (state is DonationImageUploadSuccess) {
+            setState(() {
+              _uploadedAttachmentId = state.attachmentId;
+            });
+            _nextStep();
+          } else if (state is DonationImageUploadError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Photo upload failed: ${state.message}'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          } else if (state is DonationAddSuccess) {
+            context.pop();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('Donation published successfully!'),
+                backgroundColor: AuthColors.primary,
+              ),
+            );
+          } else if (state is DonationAddError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Error publishing: ${state.message}'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        },
+        builder: (context, state) {
+          return _buildBottomActions(context, state);
+        },
       ),
     );
   }
@@ -271,7 +265,11 @@ class _AddDonationPageState extends State<AddDonationPage> {
         children: [
           // Photo Upload Area
           GestureDetector(
-            onTap: context.read<DonationsBloc>().state is DonationImageUploadLoading ? null : _pickImage,
+            onTap:
+                context.read<DonationsBloc>().state
+                    is DonationImageUploadLoading
+                ? null
+                : _pickImage,
             child: Container(
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: 32.h),
@@ -326,9 +324,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
                     ),
                     SizedBox(height: 12.h),
                     Text(
-                      _pickedImage != null
-                          ? 'Photo Selected'
-                          : 'Upload Photo',
+                      _pickedImage != null ? 'Photo Selected' : 'Upload Photo',
                       style: TextStyle(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w700,
@@ -482,13 +478,19 @@ class _AddDonationPageState extends State<AddDonationPage> {
                           backgroundColor: const Color(0xFFF1F5F9),
                           labelStyle: TextStyle(
                             fontSize: 14.sp,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                            color: isSelected ? Colors.white : AuthColors.subText,
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                            color: isSelected
+                                ? Colors.white
+                                : AuthColors.subText,
                           ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12.r),
                             side: BorderSide(
-                              color: isSelected ? AuthColors.primary : Colors.transparent,
+                              color: isSelected
+                                  ? AuthColors.primary
+                                  : Colors.transparent,
                             ),
                           ),
                         );
@@ -896,51 +898,93 @@ class _AddDonationPageState extends State<AddDonationPage> {
               child: SizedBox(
                 height: 52.h,
                 child: ElevatedButton(
-                  onPressed: state is DonationAddLoading || state is DonationImageUploadLoading
+                  onPressed:
+                      state is DonationAddLoading ||
+                          state is DonationImageUploadLoading
                       ? null
                       : () {
                           if (_currentStep == 0) {
                             if (_pickedImage == null) {
-                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please upload an image first.')));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Please upload an image first.',
+                                  ),
+                                ),
+                              );
                               return;
                             }
                             if (_itemNameController.text.trim().isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter an item name.')));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Please enter an item name.'),
+                                ),
+                              );
                               return;
                             }
                             if (_selectedCategoryId == null) {
-                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a category.')));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Please select a category.'),
+                                ),
+                              );
                               return;
                             }
-                            
+
                             if (_uploadedAttachmentId == null) {
-                              context.read<DonationsBloc>().add(UploadDonationImageEvent(File(_pickedImage!.path)));
+                              context.read<DonationsBloc>().add(
+                                UploadDonationImageEvent(
+                                  File(_pickedImage!.path),
+                                ),
+                              );
                             } else {
                               _nextStep();
                             }
                           } else if (_currentStep == 1) {
-                            if (_amountController.text.isEmpty || (double.tryParse(_amountController.text) == null)) {
-                               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter a valid amount.')));
-                               return;
+                            if (_amountController.text.isEmpty ||
+                                (double.tryParse(_amountController.text) ==
+                                    null)) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Please enter a valid amount.'),
+                                ),
+                              );
+                              return;
                             }
                             if (_expirationDate == null) {
-                               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please set an expiration date.')));
-                               return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Please set an expiration date.',
+                                  ),
+                                ),
+                              );
+                              return;
                             }
                             _nextStep();
                           } else if (_currentStep == 2) {
                             if (!_safety1 || !_safety2 || !_safety3) {
-                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please confirm all safety checklists to proceed.')));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Please confirm all safety checklists to proceed.',
+                                  ),
+                                ),
+                              );
                               return;
                             }
                             final amountStr = _amountController.text;
                             final quantity = int.tryParse(amountStr) ?? 1;
-                            final double weight = _selectedUnit == 'kg' ? (double.tryParse(amountStr) ?? 1.0) : 1.0;
+                            final double weight = _selectedUnit == 'kg'
+                                ? (double.tryParse(amountStr) ?? 1.0)
+                                : 1.0;
 
                             context.read<DonationsBloc>().add(
                               AddDonationEvent(
                                 title: _itemNameController.text,
-                                description: _notesController.text.isNotEmpty ? _notesController.text : 'No additional details provided.',
+                                description: _notesController.text.isNotEmpty
+                                    ? _notesController.text
+                                    : 'No additional details provided.',
                                 categoryId: _selectedCategoryId!,
                                 quantity: quantity,
                                 foodWeightKg: weight,
@@ -962,7 +1006,9 @@ class _AddDonationPageState extends State<AddDonationPage> {
                       borderRadius: BorderRadius.circular(12.r),
                     ),
                   ),
-                  child: state is DonationAddLoading || state is DonationImageUploadLoading
+                  child:
+                      state is DonationAddLoading ||
+                          state is DonationImageUploadLoading
                       ? const SizedBox(
                           width: 24,
                           height: 24,
@@ -972,7 +1018,11 @@ class _AddDonationPageState extends State<AddDonationPage> {
                           ),
                         )
                       : Text(
-                          _currentStep == 0 && _uploadedAttachmentId == null ? 'Upload & Continue' : (_currentStep == 2 ? 'Publish Donation' : 'Next Step'),
+                          _currentStep == 0 && _uploadedAttachmentId == null
+                              ? 'Upload & Continue'
+                              : (_currentStep == 2
+                                    ? 'Publish Donation'
+                                    : 'Next Step'),
                           style: TextStyle(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.bold,

@@ -99,23 +99,41 @@ class _DonationsListPageState extends State<DonationsListPage> {
               color: AuthColors.primary,
             ),
           ),
-          Stack(
+          Row(
             children: [
-              Icon(
-                Icons.notifications_none_rounded,
-                size: 28.sp,
-                color: AuthColors.primary,
+              // My Reservations Button
+              GestureDetector(
+                onTap: () => context.push('/my-reservations'),
+                child: Icon(
+                  Icons.shopping_bag_outlined,
+                  size: 28.sp,
+                  color: AuthColors.primary,
+                ),
               ),
-              Positioned(
-                right: 2,
-                top: 2,
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
-                  ),
+              SizedBox(width: 12.w),
+              // Notifications Icon
+              GestureDetector(
+                onTap: () => context.push('/notifications'),
+                child: Stack(
+                  children: [
+                    Icon(
+                      Icons.notifications_none_rounded,
+                      size: 28.sp,
+                      color: AuthColors.primary,
+                    ),
+                    Positioned(
+                      right: 2,
+                      top: 2,
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -267,7 +285,9 @@ class _DonationsListPageState extends State<DonationsListPage> {
     return RefreshIndicator(
       onRefresh: () async {
         if (!mounted) return;
-        context.read<DonationsBloc>().add(LoadDonationsEvent(categoryId: _selectedCategoryId));
+        context.read<DonationsBloc>().add(
+          LoadDonationsEvent(categoryId: _selectedCategoryId),
+        );
         await Future.delayed(const Duration(milliseconds: 500));
       },
       color: AuthColors.primary,
@@ -441,5 +461,4 @@ class _DonationsListPageState extends State<DonationsListPage> {
       },
     );
   }
-
 }

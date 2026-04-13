@@ -1,0 +1,136 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../../../shared/theme/app_colors.dart';
+import '../../../donations/domain/entities/donation.dart';
+import 'status_badge.dart';
+
+class DonationCard extends StatelessWidget {
+  final Donation donation;
+  final VoidCallback onTap;
+  final String imageUrl;
+
+  const DonationCard({
+    super.key,
+    required this.donation,
+    required this.onTap,
+    String? imageUrl,
+  }) : imageUrl = imageUrl ?? '';
+
+  String _getStatusLabel(String status) {
+    switch (status.toUpperCase()) {
+      case 'ACTIVE':
+      case 'PUBLISHED':
+        return 'ACTIVE';
+      case 'RESERVED':
+        return 'RESERVED';
+      case 'COMPLETED':
+        return 'COMPLETED';
+      case 'EXPIRED':
+      case 'DRAFT':
+        return 'EXPIRED';
+      default:
+        return status;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final imageToUse = donation.imageUrl;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: EdgeInsets.symmetric(
+          horizontal: AppDimensions.paddingMedium.w,
+          vertical: AppDimensions.paddingSmall.h,
+        ),
+        padding: EdgeInsets.all(AppDimensions.paddingMedium.w),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(AppDimensions.borderRadiusMedium),
+          border: Border.all(color: AuthColors.dividerColor, width: 1),
+        ),
+        child: Row(
+          children: [
+            // Image
+            Container(
+              width: 80.w,
+              height: 80.w,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(
+                  AppDimensions.borderRadiusMedium,
+                ),
+                image: DecorationImage(
+                  image: NetworkImage(imageToUse),
+                  fit: BoxFit.cover,
+                  onError: (_, __) {
+                    // Fallback if image fails to load
+                  },
+                ),
+              ),
+              child: imageToUse.isEmpty
+                  ? Container(
+                      color: AuthColors.lightGrayBackground,
+                      child: Icon(
+                        Icons.image_not_supported,
+                        color: AuthColors.inputText,
+                      ),
+                    )
+                  : null,
+            ),
+            SizedBox(width: AppDimensions.paddingMedium.w),
+
+            // Content
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title
+                  Text(
+                    donation.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: AppDimensions.subtitleSize.sp,
+                      fontWeight: FontWeight.bold,
+                      color: AuthColors.headingText,
+                      fontFamily: AppFonts.primaryFont,
+                    ),
+                  ),
+                  SizedBox(height: AppDimensions.paddingSmall.h),
+
+                  // Date
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.calendar_today,
+                        size: 14.sp,
+                        color: AuthColors.subText,
+                      ),
+                      SizedBox(width: 4.w),
+                      Text(
+                        'Oct 24, 2023',
+                        style: TextStyle(
+                          fontSize: AppDimensions.bodySize.sp,
+                          color: AuthColors.subText,
+                          fontFamily: AppFonts.primaryFont,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(width: AppDimensions.paddingSmall.w),
+
+            // Status Badge
+            StatusBadge(
+              status: donation.status,
+              label: _getStatusLabel(donation.status),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
