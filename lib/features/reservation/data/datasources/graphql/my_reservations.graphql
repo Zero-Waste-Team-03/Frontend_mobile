@@ -1,0 +1,12 @@
+# import './reservation_fields.graphql'
+
+query MyReservations($pagination: PaginationInput) {
+  myReservations(pagination: $pagination) {
+    items {
+      ...ReservationFields
+    }
+    page
+    limit
+    totalCount
+  }
+}

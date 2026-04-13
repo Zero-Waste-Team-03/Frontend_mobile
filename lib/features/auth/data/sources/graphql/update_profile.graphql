@@ -1,0 +1,7 @@
+# import './user_fields.graphql'
+
+mutation UpdateProfile($updateProfileInput: UpdateProfileInput!) {
+  updateProfile(updateProfileInput: $updateProfileInput) {
+    ...UserFields
+  }
+}

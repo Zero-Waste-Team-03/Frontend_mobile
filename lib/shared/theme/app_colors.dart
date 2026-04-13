@@ -1,52 +1,38 @@
 ﻿import 'package:flutter/material.dart';
+import '../../core/theme/app_colors.dart' as core_theme;
 
 class AuthColors {
-  static const Color background = Color(0xFFF6F7F7); // Light Gray Background
-  static const Color primary = Color(0xFF2D6C50); // Deep Green
-  static const Color headingText = Color(
-    0xFF131615,
-  ); // Dark Slate (Figma #131615)
-  static const Color subText = Color(
-    0xFF4A5550,
-  ); // Medium Slate (Figma #4A5550)
-  static const Color labelText = Color(0xFF334155); // Slate
-  static const Color inputBackground = Color(0xFFFFFFFF); // White
-  static const Color inputBorder = Color(
-    0x332D6C50,
-  ); // Light Border (Figma rgba(45, 108, 80, 0.2))
+  static const Color background = core_theme.AppColors.background;
+  static const Color primary = core_theme.AppColors.primary;
+  static const Color headingText = core_theme.AppColors.textPrimary;
+  static const Color subText = core_theme.AppColors.textSecondary;
+  static const Color labelText = core_theme.AppColors.secondary;
+  static const Color inputBackground = core_theme.AppColors.surface;
+  static const Color inputBorder = core_theme.AppColors.border;
   static const Color iconsColor = Color.fromARGB(51, 28, 95, 65);
-  static const Color inputText = Color(0xFF94A3B8); // Slate 400
-  static const Color lightGreenBackground = Color(
-    0xFFDFF4F0,
-  ); // Light green for buttons
-  static const Color badgeBackground = Color(
-    0xFF2D6C50,
-  ); // Status badge background
-  static const Color dividerColor = Color(0xFFE2E8F0); // Divider color
-  static const Color lightGreenText = Color(
-    0xFF4A5550,
-  ); // Light green text for email
-  static const Color lightGrayBackground = Color(
-    0xFFF0F1F2,
-  ); // Light gray for buttons
-  static const Color buttonBorder = Color(0xFFDDDFE1); // Light gray border
-  static const Color statBackground = Color(
-    0xFFF5F5F5,
-  ); // Light background for stats
+  static const Color inputText = core_theme.AppColors.textMuted;
+  static const Color lightGreenBackground = Color(0xFFDFF4F0);
+  static const Color badgeBackground = core_theme.AppColors.primary;
+  static const Color dividerColor = core_theme.AppColors.divider;
+  static const Color lightGreenText = core_theme.AppColors.textSecondary;
+  static const Color lightGrayBackground = Color(0xFFF0F1F2);
+  static const Color buttonBorder = core_theme.AppColors.border;
+  static const Color statBackground = Color(0xFFF5F5F5);
 
-  // Status Colors for Reservations and Donations
-  static const Color statusActiveBackground = Color(0xFFD1FAE5); // Light green
-  static const Color statusActiveText = Color(0xFF065F46); // Dark green
-  static const Color statusReservedBackground = Color(
-    0xFFFEF3C7,
-  ); // Light orange
-  static const Color statusReservedText = Color(0xFF92400E); // Dark orange
-  static const Color statusCompletedBackground = Color(
-    0xFFD1FAE5,
-  ); // Light green
-  static const Color statusCompletedText = Color(0xFF065F46); // Dark green
-  static const Color statusExpiredBackground = Color(0xFFE5E7EB); // Light gray
-  static const Color statusExpiredText = Color(0xFF6B7280); // Dark gray
+  static const Color statusActiveBackground =
+      core_theme.AppColors.statusActiveBackground;
+  static const Color statusActiveText = core_theme.AppColors.statusActiveText;
+  static const Color statusReservedBackground =
+      core_theme.AppColors.statusReservedBackground;
+  static const Color statusReservedText =
+      core_theme.AppColors.statusReservedText;
+  static const Color statusCompletedBackground =
+      core_theme.AppColors.statusCompletedBackground;
+  static const Color statusCompletedText =
+      core_theme.AppColors.statusCompletedText;
+  static const Color statusExpiredBackground =
+      core_theme.AppColors.statusExpiredBackground;
+  static const Color statusExpiredText = core_theme.AppColors.statusExpiredText;
 }
 
 class AppDimensions {
@@ -60,13 +46,12 @@ class AppDimensions {
   static const double borderRadiusLarge = 16.0;
   static const double borderRadiusExtraLarge = 24.0;
 
-  static const double headingSize = 32.0; // "Share Food, Save the Planet."
-  static const double titleSize = 30.0; // "Welcome Back" / "Join the Community"
+  static const double headingSize = 32.0;
+  static const double titleSize = 30.0;
   static const double appBarTitleSize = 20.0;
-  static const double subtitleSize = 18.0; // Description texts and Main buttons
-  static const double primaryButtonTextSize =
-      18.0; // "Sign In" & "Join the Community"
-  static const double buttonTextSize = 16.0; // Google "Verify & Continue" sizes
+  static const double subtitleSize = 18.0;
+  static const double primaryButtonTextSize = 18.0;
+  static const double buttonTextSize = 16.0;
   static const double bodySize = 14.0;
   static const double captionSize = 12.0;
   static const double logoTextSize = 24.0;

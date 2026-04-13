@@ -1,0 +1,30 @@
+query GetDonations($pagination: PaginationInput, $filter: DonationsFilterInput) {
+  donations(pagination: $pagination, filter: $filter) {
+    items {
+      id
+      title
+      description
+      quantity
+      categoryId
+      category {
+        id
+        name
+      }
+      status
+      urgency
+      mainAttachmentId
+      mainAttachment {
+        url
+      }
+      locationId
+      location {
+        latitude
+        longitude
+      }
+      user {
+        displayName
+        email
+      }
+    }
+  }
+}

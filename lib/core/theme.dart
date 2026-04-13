@@ -1,17 +1,7 @@
 ﻿import 'package:flutter/material.dart';
+import 'theme/app_theme.dart';
 
 class ThemeConfig {
-  static final ThemeData light = ThemeData(
-    brightness: Brightness.light,
-    primarySwatch: Colors.blue,
-    scaffoldBackgroundColor: Colors.white,
-    appBarTheme: AppBarTheme(centerTitle: true),
-  );
-
-  static final ThemeData dark = ThemeData(
-    brightness: Brightness.dark,
-    primarySwatch: Colors.blueGrey,
-    scaffoldBackgroundColor: Colors.black,
-    appBarTheme: AppBarTheme(centerTitle: true),
-  );
+  static ThemeData get light => AppTheme.light;
+  static ThemeData get dark => AppTheme.light;
 }

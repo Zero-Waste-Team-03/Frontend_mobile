@@ -1,0 +1,5 @@
+mutation LogoutFromAllDevices {
+  logoutFromAllDevices {
+    message
+  }
+}

@@ -1,6 +1,16 @@
 import 'package:dio/dio.dart';
+import 'package:ferry/ferry.dart' hide ServerException;
 import '../../../../core/exceptions/exceptions.dart';
+import '../../domain/entities/reservation.dart';
 import '../models/reservation_model.dart';
+import 'graphql/__generated__/confirm_reservation.req.gql.dart';
+import 'graphql/__generated__/confirm_reservation.var.gql.dart';
+import 'graphql/__generated__/my_reservation.req.gql.dart';
+import 'graphql/__generated__/my_reservation.var.gql.dart';
+import 'graphql/__generated__/my_reservations.req.gql.dart';
+import 'graphql/__generated__/my_reservations.var.gql.dart';
+import 'graphql/__generated__/reserve_donation.req.gql.dart';
+import 'graphql/__generated__/reserve_donation.var.gql.dart';
 
 abstract class ReservationRemoteDataSource {
   /// Create a reservation for a donation (GraphQL mutation)
@@ -17,77 +27,36 @@ abstract class ReservationRemoteDataSource {
   /// Mark reservation as confirmed (Donor action)
   Future<ReservationModel> confirmReservation(String reservationId);
 
+  /// Get a single reservation details by id.
+  Future<ReservationModel> getReservationDetails(String reservationId);
+
   /// Mark reservation as picked up
   Future<ReservationModel> markAsPickedUp(String reservationId);
 }
 
 class ReservationRemoteDataSourceImpl implements ReservationRemoteDataSource {
   final Dio dio;
+  final Client _ferryClient;
 
-  static const String _reservationFields = '''
-    id
-    donationId
-    beneficiaryId
-    status
-    createdAt
-    confirmedAt
-    updatedAt
-  ''';
-
-  ReservationRemoteDataSourceImpl(this.dio);
+  ReservationRemoteDataSourceImpl(this.dio, this._ferryClient);
 
   @override
   Future<ReservationModel> createReservation({
     required String donationId,
   }) async {
-    final mutation =
-        '''
-      mutation ReserveDonation(\$donationId: ID!) {
-        reserveDonation(donationId: \$donationId) {
-          $_reservationFields
-        }
-      }
-    ''';
-
-    try {
-      var data = {
-        'query': mutation,
-        'variables': {'donationId': donationId},
-      };
-      final response = await dio.post('/graphql', data: data);
-
-      if (response.statusCode != 200) {
-        throw ServerException(
-          'Failed to create reservation (${response.statusCode})',
-        );
-      }
-
-      // Handle GraphQL errors
-      if (response.data['errors'] != null) {
-        final errors = response.data['errors'] as List;
-        final errorMessage = errors.isNotEmpty
-            ? errors.first['message'] ?? 'Failed to create reservation'
-            : 'Unknown error occurred';
-        throw ServerException(errorMessage);
-      }
-
-      if (response.data['data'] == null ||
-          response.data['data']['reserveDonation'] == null) {
-        throw ServerException('Invalid response: Missing reservation data');
-      }
-
-      return ReservationModel.fromJson(
-        response.data['data']['reserveDonation'] as Map<String, dynamic>,
-      );
-    } on DioException catch (e) {
-      throw ServerException(
-        e.message ?? 'Network error while creating reservation',
-      );
-    } on ServerException {
-      rethrow;
-    } catch (e) {
-      throw ServerException(e.toString());
+    final vars = GReserveDonationVars.fromJson({'donationId': donationId});
+    if (vars == null) {
+      throw ServerException('Failed to build reserveDonation request');
     }
+
+    final data = await _executeRequest(
+      GReserveDonationReq((b) => b.vars = vars.toBuilder()),
+      'reserveDonation',
+    );
+
+    return ReservationModel.fromJson(
+      Map<String, dynamic>.from(data.reserveDonation.toJson()),
+    );
   }
 
   @override
@@ -97,137 +66,89 @@ class ReservationRemoteDataSourceImpl implements ReservationRemoteDataSource {
     int page = 1,
     int limit = 20,
   }) async {
-    final query =
-        '''
-      query GetUserReservations(\$userId: ID!, \$status: String, \$page: Int!, \$limit: Int!) {
-        userReservations(
-          userId: \$userId
-          status: \$status
-          page: \$page
-          limit: \$limit
-        ) {
-          items {
-            $_reservationFields
-          }
-          page
-          limit
-          total
-        }
-      }
-    ''';
-
-    try {
-      final variables = <String, dynamic>{
-        'userId': userId,
-        'page': page,
-        'limit': limit,
-      };
-
-      if (statusFilter != null) {
-        variables['status'] = statusFilter;
-      }
-
-      final response = await dio.post(
-        '/graphql',
-        data: {'query': query, 'variables': variables},
-      );
-
-      if (response.statusCode != 200) {
-        throw ServerException(
-          'Failed to fetch reservations (${response.statusCode})',
-        );
-      }
-
-      if (response.data['errors'] != null) {
-        final errors = response.data['errors'] as List;
-        final errorMessage = errors.isNotEmpty
-            ? errors.first['message'] ?? 'Failed to fetch reservations'
-            : 'Unknown error occurred';
-        throw ServerException(errorMessage);
-      }
-
-      if (response.data['data'] == null ||
-          response.data['data']['userReservations'] == null) {
-        throw ServerException('Invalid response format');
-      }
-
-      final items = response.data['data']['userReservations']['items'] as List;
-      return items
-          .map(
-            (item) => ReservationModel.fromJson(item as Map<String, dynamic>),
-          )
-          .toList();
-    } on DioException catch (e) {
-      throw ServerException(
-        e.message ?? 'Network error while fetching reservations',
-      );
-    } on ServerException {
-      rethrow;
-    } catch (e) {
-      throw ServerException(e.toString());
+    final vars = GMyReservationsVars.fromJson({
+      'pagination': {'page': page, 'limit': limit},
+    });
+    if (vars == null) {
+      throw ServerException('Failed to build myReservations request');
     }
+
+    final data = await _executeRequest(
+      GMyReservationsReq((b) => b.vars = vars.toBuilder()),
+      'myReservations',
+    );
+
+    final items = data.myReservations.items;
+    if (items == null || items.isEmpty) {
+      return [];
+    }
+
+    var reservations = items
+        .map(
+          (item) => ReservationModel.fromJson(
+            Map<String, dynamic>.from(item.toJson()),
+          ),
+        )
+        .toList();
+
+    final normalizedStatus = statusFilter?.trim().toUpperCase();
+    if (normalizedStatus != null && normalizedStatus.isNotEmpty) {
+      final status = ReservationStatusExt.fromString(normalizedStatus);
+      reservations = reservations
+          .where((reservation) => reservation.status == status)
+          .toList();
+    }
+
+    return reservations;
   }
 
   @override
   Future<ReservationModel> confirmReservation(String reservationId) async {
-    final mutation =
-        '''
-      mutation ConfirmReservation(\$reservationId: ID!) {
-        confirmReservation(reservationId: \$reservationId) {
-          $_reservationFields
-        }
-      }
-    ''';
-
-    try {
-      final response = await dio.post(
-        '/graphql',
-        data: {
-          'query': mutation,
-          'variables': {'reservationId': reservationId},
-        },
-      );
-
-      if (response.statusCode != 200) {
-        throw ServerException(
-          'Failed to confirm reservation (${response.statusCode})',
-        );
-      }
-
-      if (response.data['errors'] != null) {
-        final errors = response.data['errors'] as List;
-        final errorMessage = errors.isNotEmpty
-            ? errors.first['message'] ?? 'Failed to confirm reservation'
-            : 'Unknown error occurred';
-        throw ServerException(errorMessage);
-      }
-
-      if (response.data['data'] == null ||
-          response.data['data']['confirmReservation'] == null) {
-        throw ServerException('Invalid response format');
-      }
-
-      return ReservationModel.fromJson(
-        response.data['data']['confirmReservation'] as Map<String, dynamic>,
-      );
-    } on DioException catch (e) {
-      throw ServerException(
-        e.message ?? 'Network error while confirming reservation',
-      );
-    } on ServerException {
-      rethrow;
-    } catch (e) {
-      throw ServerException(e.toString());
+    final vars = GConfirmReservationVars.fromJson({'id': reservationId});
+    if (vars == null) {
+      throw ServerException('Failed to build confirmReservation request');
     }
+
+    final data = await _executeRequest(
+      GConfirmReservationReq((b) => b.vars = vars.toBuilder()),
+      'confirmReservation',
+    );
+
+    return ReservationModel.fromJson(
+      Map<String, dynamic>.from(data.confirmReservation.toJson()),
+    );
+  }
+
+  @override
+  Future<ReservationModel> getReservationDetails(String reservationId) async {
+    final vars = GMyReservationVars.fromJson({'id': reservationId});
+    if (vars == null) {
+      throw ServerException('Failed to build myReservation request');
+    }
+
+    final data = await _executeRequest(
+      GMyReservationReq((b) => b.vars = vars.toBuilder()),
+      'myReservation',
+    );
+
+    return ReservationModel.fromJson(
+      Map<String, dynamic>.from(data.myReservation.toJson()),
+    );
   }
 
   @override
   Future<ReservationModel> markAsPickedUp(String reservationId) async {
-    final mutation =
-        '''
+    // Temporary fallback until a dedicated pickup mutation is available in schema.
+    final mutation = '''
       mutation MarkReservationAsPickedUp(\$reservationId: ID!) {
         markReservationAsPickedUp(reservationId: \$reservationId) {
-          $_reservationFields
+          id
+          donationId
+          beneficiaryId
+          status
+          createdAt
+          confirmedAt
+          updatedAt
         }
       }
     ''';
@@ -270,6 +191,48 @@ class ReservationRemoteDataSourceImpl implements ReservationRemoteDataSource {
       rethrow;
     } catch (e) {
       throw ServerException(e.toString());
+    }
+  }
+
+  Future<TData> _executeRequest<TData, TVars>(
+    OperationRequest<TData, TVars> request,
+    String operationName,
+  ) async {
+    try {
+      final response = await _ferryClient
+          .request(request)
+          .firstWhere(
+            (event) =>
+                event.data != null ||
+                event.hasErrors ||
+                event.linkException != null,
+          );
+
+      if (response.hasErrors || response.linkException != null) {
+        final graphQLErrorMessage =
+            response.graphqlErrors != null && response.graphqlErrors!.isNotEmpty
+            ? response.graphqlErrors!.first.message
+            : null;
+
+        final message =
+            graphQLErrorMessage ??
+            response.linkException?.originalException?.toString() ??
+            response.linkException.toString();
+
+        throw ServerException(message);
+      }
+
+      final data = response.data;
+      if (data == null) {
+        throw ServerException('No data returned for $operationName');
+      }
+
+      return data;
+    } catch (e) {
+      if (e is ServerException) {
+        rethrow;
+      }
+      throw ServerException('GraphQL request failed: $e');
     }
   }
 }

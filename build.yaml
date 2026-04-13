@@ -1,0 +1,17 @@
+targets:
+  $default:
+    builders:
+      ferry_generator|graphql_builder:
+        enabled: true
+        options:
+          schema: gaspzero|lib/core/graphql/schema.graphql
+          output_dir: __generated__
+        generate_for:
+          - lib/**/*.graphql
+      ferry_generator|serializer_builder:
+        enabled: true
+        options:
+          schema: gaspzero|lib/core/graphql/schema.graphql
+          output_dir: __generated__
+        generate_for:
+          - lib/$lib$

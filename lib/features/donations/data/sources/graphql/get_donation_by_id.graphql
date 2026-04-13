@@ -1,0 +1,28 @@
+query GetDonationById($id: ID!) {
+  donation(id: $id) {
+    id
+    title
+    description
+    quantity
+    categoryId
+    category {
+      id
+      name
+    }
+    status
+    urgency
+    mainAttachmentId
+    mainAttachment {
+      url
+    }
+    locationId
+    location {
+      latitude
+      longitude
+    }
+    user {
+      displayName
+      email
+    }
+  }
+}

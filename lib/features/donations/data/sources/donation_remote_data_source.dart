@@ -1,8 +1,20 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
+import 'package:ferry/ferry.dart' hide ServerException;
+
 import '../../../../core/exceptions/exceptions.dart';
 import '../models/category_model.dart';
 import '../models/donation_model.dart';
-import 'dart:io';
+import 'graphql/__generated__/create_donation.req.gql.dart';
+import 'graphql/__generated__/create_donation.var.gql.dart';
+import 'graphql/__generated__/get_categories.req.gql.dart';
+import 'graphql/__generated__/get_categories.var.gql.dart';
+import 'graphql/__generated__/get_donation_by_id.req.gql.dart';
+import 'graphql/__generated__/get_donation_by_id.var.gql.dart';
+import 'graphql/__generated__/get_donations.req.gql.dart';
+import 'graphql/__generated__/get_donations.var.gql.dart';
+
 abstract class DonationRemoteDataSource {
   Future<List<DonationModel>> getDonations({
     int page = 1,
@@ -33,36 +45,10 @@ abstract class DonationRemoteDataSource {
 }
 
 class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
+  DonationRemoteDataSourceImpl(this.dio, this._ferryClient);
+
   final Dio dio;
-
-  static const String _donationFields = '''
-    id
-    title
-    description
-    quantity
-    categoryId
-    category {
-      id
-      name
-    }
-    status
-    urgency
-    mainAttachmentId
-    mainAttachment {
-      url
-    }
-    locationId
-    location {
-      latitude
-      longitude
-    }
-    user {
-      displayName
-      email
-    }
-  ''';
-
-  DonationRemoteDataSourceImpl(this.dio);
+  final Client _ferryClient;
 
   @override
   Future<List<DonationModel>> getDonations({
@@ -74,89 +60,84 @@ class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
     double? longitude,
     double? radius,
   }) async {
-    final query = '''
-      query GetDonations(\$pagination: PaginationInput, \$filter: DonationsFilterInput) {
-        donations(pagination: \$pagination, filter: \$filter) {
-          items {
-            $_donationFields
-          }
-        }
-      }
-    ''';
-
     final filter = <String, dynamic>{};
-    if (categoryId != null) filter['categoryId'] = categoryId;
-
-    final variables = <String, dynamic>{
-      'pagination': {
-        'page': page,
-        'limit': limit,
-      },
-      'filter': filter,
-    };
-    
-    // client-side filtering handles location/radius based requests, 
-    // unsupported behaviorContext removed.
-
-    try {
-      final response = await dio.post('/graphql', data: {
-        'query': query,
-        'variables': variables,
-      });
-
-      if (response.data['errors'] != null) {
-        throw ServerException(response.data['errors'][0]['message']);
-      }
-
-      final items = response.data['data']['donations']['items'] as List;
-      return items.map((json) => DonationModel.fromJson(json)).toList();
-    } on DioException catch (e) {
-      throw ServerException(e.message ?? 'Failed to get donations');
+    if (categoryId != null && categoryId.isNotEmpty) {
+      filter['categoryId'] = categoryId;
     }
+
+    final varsMap = <String, dynamic>{
+      'pagination': {'page': page, 'limit': limit},
+      if (filter.isNotEmpty) 'filter': filter,
+    };
+
+    final vars = GGetDonationsVars.fromJson(varsMap);
+    if (vars == null) {
+      throw ServerException('Failed to build getDonations request');
+    }
+
+    final data = await _executeRequest(
+      GGetDonationsReq((b) => b.vars = vars.toBuilder()),
+      'getDonations',
+    );
+
+    final items = data.donations.items;
+    if (items == null || items.isEmpty) {
+      return const [];
+    }
+
+    return items
+        .map(
+          (item) =>
+              DonationModel.fromJson(Map<String, dynamic>.from(item.toJson())),
+        )
+        .toList();
   }
 
   @override
-  Future<List<CategoryModel>> getCategories({int page = 1, int limit = 50}) async {
-    const query = '''
-      query GetCategories(\$pagination: PaginationInput) {
-        categories(pagination: \$pagination) {
-          items {
-            id
-            name
-          }
-        }
-      }
-    ''';
-
-    try {
-      final response = await dio.post('/graphql', data: {
-        'query': query,
-        'variables': {
-          'pagination': {
-            'page': page,
-            'limit': limit,
-          }
-        },
-      });
-
-      if (response.data['errors'] != null) {
-        throw ServerException(response.data['errors'][0]['message']);
-      }
-
-      final items = response.data['data']['categories']['items'] as List;
-      return items.map((json) => CategoryModel.fromJson(json)).toList();
-    } on DioException catch (e) {
-      throw ServerException(e.message ?? 'Failed to get categories');
+  Future<List<CategoryModel>> getCategories({
+    int page = 1,
+    int limit = 50,
+  }) async {
+    final vars = GGetCategoriesVars.fromJson({
+      'pagination': {'page': page, 'limit': limit},
+    });
+    if (vars == null) {
+      throw ServerException('Failed to build getCategories request');
     }
+
+    final data = await _executeRequest(
+      GGetCategoriesReq((b) => b.vars = vars.toBuilder()),
+      'getCategories',
+    );
+
+    final items = data.categories.items;
+    if (items == null || items.isEmpty) {
+      return const [];
+    }
+
+    return items
+        .map(
+          (item) =>
+              CategoryModel.fromJson(Map<String, dynamic>.from(item.toJson())),
+        )
+        .toList();
   }
 
   @override
   Future<DonationModel> getDonationDetails(String id) async {
-    // Actually the backend might not have getDonationDetails by id query explicitly 
-    // unless we use `donations(filter...)` or if there's a specific one. Let's use donations array filtering.
-    // However, I observed donations filter might not support ID. For now I just fetch it from getDonations by passing ID if possible,
-    // or we assume it's pre-fetched and passed via route extra in Flutter (which it is currently doing).
-    throw UnimplementedError('Details are usually passed from list');
+    final vars = GGetDonationByIdVars.fromJson({'id': id});
+    if (vars == null) {
+      throw ServerException('Failed to build getDonationById request');
+    }
+
+    final data = await _executeRequest(
+      GGetDonationByIdReq((b) => b.vars = vars.toBuilder()),
+      'getDonationById',
+    );
+
+    return DonationModel.fromJson(
+      Map<String, dynamic>.from(data.donation.toJson()),
+    );
   }
 
   @override
@@ -174,21 +155,17 @@ class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
     double? latitude,
     double? longitude,
   }) async {
-    final query = '''
-      mutation CreateDonation(\$input: CreateDonationInput!) {
-        createDonation(input: \$input) {
-          $_donationFields
-        }
-      }
-    ''';
+    final normalizedUrgency = urgency.trim().toUpperCase();
+    const allowedUrgency = {'LOW', 'MEDIUM', 'HIGH'};
 
     final inputParams = <String, dynamic>{
       'title': title,
       'description': description,
       'categoryId': categoryId,
       'quantity': quantity,
-      'foodWeightKg': foodWeightKg,
-      'urgency': urgency,
+      'urgency': allowedUrgency.contains(normalizedUrgency)
+          ? normalizedUrgency
+          : 'MEDIUM',
       'mainAttachmentId': mainAttachmentId,
       'attachmentIds': attachmentIds,
       'expiryDate': expiryDate.toUtc().toIso8601String(),
@@ -202,24 +179,19 @@ class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
       };
     }
 
-    final variables = {
-      'input': inputParams
-    };
-
-    try {
-      final response = await dio.post('/graphql', data: {
-        'query': query,
-        'variables': variables,
-      });
-
-      if (response.data['errors'] != null) {
-        throw ServerException(response.data['errors'][0]['message']);
-      }
-
-      return DonationModel.fromJson(response.data['data']['createDonation']);
-    } on DioException catch (e) {
-      throw ServerException(e.message ?? 'Failed to create donation');
+    final vars = GCreateDonationVars.fromJson({'input': inputParams});
+    if (vars == null) {
+      throw ServerException('Failed to build createDonation request');
     }
+
+    final data = await _executeRequest(
+      GCreateDonationReq((b) => b.vars = vars.toBuilder()),
+      'createDonation',
+    );
+
+    return DonationModel.fromJson(
+      Map<String, dynamic>.from(data.createDonation.toJson()),
+    );
   }
 
   @override
@@ -233,16 +205,57 @@ class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
         data: formData,
       );
 
-      // Depending on the backend route. Usually /api/v1/upload/file
-      // I'll use the file upload response model format
       if (response.statusCode == 200 || response.statusCode == 201) {
-         final data = response.data['data'] as Map<String, dynamic>?;
-         return data?['attachmentId'] as String? ?? response.data['id'] as String;
-      } else {
-         throw ServerException('Failed to upload image');
+        final data = response.data['data'] as Map<String, dynamic>?;
+        return data?['attachmentId'] as String? ??
+            response.data['id'] as String;
       }
+      throw ServerException('Failed to upload image');
     } on DioException catch (e) {
       throw ServerException(e.message ?? 'Failed to upload image');
+    }
+  }
+
+  Future<TData> _executeRequest<TData, TVars>(
+    OperationRequest<TData, TVars> request,
+    String operationName,
+  ) async {
+    try {
+      final response = await _ferryClient
+          .request(request)
+          .firstWhere(
+            (event) =>
+                event.data != null ||
+                event.hasErrors ||
+                event.linkException != null,
+          );
+
+      if (response.hasErrors || response.linkException != null) {
+        final graphQLErrors = response.graphqlErrors;
+        final graphQLErrorMessage =
+            graphQLErrors != null && graphQLErrors.isNotEmpty
+            ? graphQLErrors.first.message
+            : null;
+
+        final message =
+            graphQLErrorMessage ??
+            response.linkException?.originalException?.toString() ??
+            response.linkException.toString();
+
+        throw ServerException(message);
+      }
+
+      final data = response.data;
+      if (data == null) {
+        throw ServerException('No data returned for $operationName');
+      }
+
+      return data;
+    } catch (e) {
+      if (e is ServerException) {
+        rethrow;
+      }
+      throw ServerException('GraphQL request failed: $e');
     }
   }
 }
