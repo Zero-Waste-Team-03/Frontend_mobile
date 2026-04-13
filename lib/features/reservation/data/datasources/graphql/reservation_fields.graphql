@@ -1,0 +1,56 @@
+fragment ReservationFields on Reservation {
+  id
+  donationId
+  beneficiaryId
+  status
+  createdAt
+  confirmedAt
+  updatedAt
+  donation {
+    id
+    title
+    description
+    quantity
+    categoryId
+    category {
+      id
+      name
+    }
+    status
+    urgency
+    mainAttachmentId
+    mainAttachment {
+      url
+    }
+    location {
+      latitude
+      longitude
+    }
+    user {
+      displayName
+      email
+    }
+  }
+  beneficiary {
+    id
+    email
+    displayName
+    phoneNumber
+    role
+    description
+    isMailVerified
+    reputationScore
+    locationId
+    location {
+      city
+      country
+      latitude
+      longitude
+      neighborhood
+    }
+    avatar {
+      id
+      url
+    }
+  }
+}

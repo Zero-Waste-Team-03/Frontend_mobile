@@ -1,6 +1,4 @@
 import 'package:equatable/equatable.dart';
-import '../../../donations/domain/entities/donation.dart';
-import '../../domain/entities/reservation.dart';
 
 abstract class ReservationEvent extends Equatable {
   const ReservationEvent();
@@ -50,9 +48,7 @@ class FetchReservationDetailsEvent extends ReservationEvent {
 class CreateReservationEvent extends ReservationEvent {
   final String donationId;
 
-  const CreateReservationEvent({
-    required this.donationId,
-  });
+  const CreateReservationEvent({required this.donationId});
 
   @override
   List<Object?> get props => [donationId];

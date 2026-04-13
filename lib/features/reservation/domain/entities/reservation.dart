@@ -32,10 +32,21 @@ extension ReservationStatusExt on ReservationStatus {
   }
 
   static ReservationStatus fromString(String value) {
-    return ReservationStatus.values.firstWhere(
-      (e) => e.value == value,
-      orElse: () => ReservationStatus.reserved,
-    );
+    switch (value.toUpperCase()) {
+      case 'RESERVED':
+      case 'PENDING':
+        return ReservationStatus.reserved;
+      case 'CONFIRMED':
+        return ReservationStatus.confirmed;
+      case 'PICKED_UP':
+      case 'COMPLETED':
+        return ReservationStatus.pickedUp;
+      case 'EXPIRED':
+      case 'CANCELLED':
+        return ReservationStatus.expired;
+      default:
+        return ReservationStatus.reserved;
+    }
   }
 }
 

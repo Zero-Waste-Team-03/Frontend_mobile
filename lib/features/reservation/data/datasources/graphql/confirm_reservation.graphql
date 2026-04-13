@@ -1,0 +1,7 @@
+# import './reservation_fields.graphql'
+
+mutation ConfirmReservation($id: ID!) {
+  confirmReservation(id: $id) {
+    ...ReservationFields
+  }
+}

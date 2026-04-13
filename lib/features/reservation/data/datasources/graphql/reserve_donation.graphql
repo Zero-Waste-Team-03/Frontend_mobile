@@ -1,0 +1,7 @@
+# import './reservation_fields.graphql'
+
+mutation ReserveDonation($donationId: ID!) {
+  reserveDonation(donationId: $donationId) {
+    ...ReservationFields
+  }
+}

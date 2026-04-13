@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 
+import '../../../../core/exceptions/exceptions.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../donations/domain/entities/donation.dart';
 import '../../../donations/domain/entities/category.dart';
@@ -12,6 +13,54 @@ class ReservationRepositoryImpl implements ReservationRepository {
   final ReservationRemoteDataSource? remoteDataSource;
 
   ReservationRepositoryImpl({this.remoteDataSource});
+
+  String _reservationToDonationStatus(ReservationStatus status) {
+    switch (status) {
+      case ReservationStatus.reserved:
+        return 'RESERVED';
+      case ReservationStatus.confirmed:
+        return 'RESERVED';
+      case ReservationStatus.pickedUp:
+        return 'COMPLETED';
+      case ReservationStatus.expired:
+        return 'EXPIRED';
+    }
+  }
+
+  Donation _reservationToDonation(Reservation reservation) {
+    final donation = reservation.donation;
+    if (donation != null) {
+      return Donation(
+        id: reservation.id,
+        title: donation.title,
+        description: donation.description,
+        quantity: donation.quantity,
+        categoryId: donation.categoryId,
+        category: donation.category,
+        condition: donation.condition,
+        status: _reservationToDonationStatus(reservation.status),
+        author: donation.author,
+        imageUrl: donation.imageUrl,
+        latitude: donation.latitude,
+        longitude: donation.longitude,
+      );
+    }
+
+    return Donation(
+      id: reservation.id,
+      title: 'Reserved donation',
+      description: 'Reservation ${reservation.id}',
+      quantity: 1,
+      categoryId: 'unknown',
+      category: const Category(id: 'unknown', name: 'Unknown'),
+      condition: 'MEDIUM',
+      status: _reservationToDonationStatus(reservation.status),
+      author: reservation.beneficiary?.name ?? 'Unknown',
+      imageUrl: 'https://ui-avatars.com/api/?name=Donation&background=random',
+      latitude: donation?.latitude,
+      longitude: donation?.longitude,
+    );
+  }
 
   // Placeholder data - will be replaced with actual GraphQL/API calls
   static final _placeholderDonations = [
@@ -103,6 +152,27 @@ class ReservationRepositoryImpl implements ReservationRepository {
     required String userId,
     String? status,
   }) async {
+    if (remoteDataSource != null) {
+      try {
+        final reservations = await remoteDataSource!.getUserReservations(
+          userId: userId,
+          statusFilter: status,
+        );
+
+        final mapped = reservations
+            .map(
+              (reservation) => _reservationToDonation(reservation.toEntity()),
+            )
+            .toList();
+
+        return Right(mapped);
+      } on ServerException catch (e) {
+        print('API Error: ${e.message}');
+      } catch (e) {
+        print('Unexpected error during API call: ${e.toString()}');
+      }
+    }
+
     try {
       // Simulate API delay
       await Future.delayed(const Duration(milliseconds: 500));
@@ -143,6 +213,19 @@ class ReservationRepositoryImpl implements ReservationRepository {
   Future<Either<Failure, Reservation>> getReservationDetails(
     String reservationId,
   ) async {
+    if (remoteDataSource != null) {
+      try {
+        final reservation = await remoteDataSource!.getReservationDetails(
+          reservationId,
+        );
+        return Right(reservation.toEntity());
+      } on ServerException catch (e) {
+        print('API Error: ${e.message}');
+      } catch (e) {
+        print('Unexpected error during API call: ${e.toString()}');
+      }
+    }
+
     try {
       await Future.delayed(const Duration(milliseconds: 500));
 
@@ -222,6 +305,29 @@ class ReservationRepositoryImpl implements ReservationRepository {
     required String reservationId,
     required String newStatus,
   }) async {
+    if (remoteDataSource != null) {
+      try {
+        final normalizedStatus = newStatus.trim().toUpperCase();
+        if (normalizedStatus == 'CONFIRMED') {
+          final reservation = await remoteDataSource!.confirmReservation(
+            reservationId,
+          );
+          return Right(reservation.toEntity());
+        }
+        if (normalizedStatus == 'PICKED_UP' ||
+            normalizedStatus == 'COMPLETED') {
+          final reservation = await remoteDataSource!.markAsPickedUp(
+            reservationId,
+          );
+          return Right(reservation.toEntity());
+        }
+      } on ServerException catch (e) {
+        print('API Error: ${e.message}');
+      } catch (e) {
+        print('Unexpected error during API call: ${e.toString()}');
+      }
+    }
+
     try {
       await Future.delayed(const Duration(milliseconds: 500));
 
@@ -231,7 +337,7 @@ class ReservationRepositoryImpl implements ReservationRepository {
           id: reservationId,
           donationId: 'donation-1',
           beneficiaryId: 'beneficiary-1',
-          status: ReservationStatus.confirmed,
+          status: ReservationStatusExt.fromString(newStatus),
           createdAt: DateTime.now(),
         ),
       );
@@ -244,6 +350,27 @@ class ReservationRepositoryImpl implements ReservationRepository {
   Future<Either<Failure, List<Reservation>>> getDonationReservations(
     String donationId,
   ) async {
+    if (remoteDataSource != null) {
+      try {
+        final reservations = await remoteDataSource!.getUserReservations(
+          userId: '',
+          page: 1,
+          limit: 100,
+        );
+
+        final filtered = reservations
+            .map((reservation) => reservation.toEntity())
+            .where((reservation) => reservation.donationId == donationId)
+            .toList();
+
+        return Right(filtered);
+      } on ServerException catch (e) {
+        print('API Error: ${e.message}');
+      } catch (e) {
+        print('Unexpected error during API call: ${e.toString()}');
+      }
+    }
+
     try {
       await Future.delayed(const Duration(milliseconds: 500));
 
@@ -261,9 +388,4 @@ class ReservationRepositoryImpl implements ReservationRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
-}
-
-class ServerException implements Exception {
-  final String message;
-  ServerException(this.message);
 }

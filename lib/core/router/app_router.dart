@@ -92,10 +92,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/reservation-details',
       builder: (context, state) {
-        final donationId = state.extra as String;
+        final reservationId = state.extra as String;
         return BlocProvider(
           create: (context) => getIt<ReservationBloc>(),
-          child: ReservationDetailsPage(donationId: donationId),
+          child: ReservationDetailsPage(reservationId: reservationId),
         );
       },
     ),

@@ -1,0 +1,7 @@
+# import './reservation_fields.graphql'
+
+query MyReservation($id: ID!) {
+  myReservation(id: $id) {
+    ...ReservationFields
+  }
+}

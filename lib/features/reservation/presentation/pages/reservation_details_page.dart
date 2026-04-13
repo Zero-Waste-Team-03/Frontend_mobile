@@ -12,9 +12,9 @@ import '../widgets/reservation_timeline.dart';
 import '../widgets/user_contact_card.dart';
 
 class ReservationDetailsPage extends StatefulWidget {
-  final String donationId;
+  final String reservationId;
 
-  const ReservationDetailsPage({super.key, required this.donationId});
+  const ReservationDetailsPage({super.key, required this.reservationId});
 
   @override
   State<ReservationDetailsPage> createState() => _ReservationDetailsPageState();
@@ -26,7 +26,7 @@ class _ReservationDetailsPageState extends State<ReservationDetailsPage> {
     super.initState();
     // Fetch reservation details
     context.read<ReservationBloc>().add(
-      FetchReservationDetailsEvent('res-${widget.donationId}'),
+      FetchReservationDetailsEvent(widget.reservationId),
     );
   }
 

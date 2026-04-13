@@ -135,7 +135,7 @@ Future<void> configureDependencies() async {
 
   // ── Reservation ──
   getIt.registerLazySingleton<ReservationRemoteDataSource>(
-    () => ReservationRemoteDataSourceImpl(getIt()),
+    () => ReservationRemoteDataSourceImpl(getIt(), getIt()),
   );
   getIt.registerLazySingleton<ReservationRepository>(
     () => ReservationRepositoryImpl(remoteDataSource: getIt()),

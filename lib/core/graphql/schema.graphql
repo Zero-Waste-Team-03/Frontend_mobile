@@ -317,6 +317,9 @@ type Mutation {
   """
   changePassword(changePasswordInput: ChangePasswordInput!): MessageResponse!
 
+  """Confirm a pending reservation within the deadline"""
+  confirmReservation(id: ID!): Reservation!
+
   """Create a new category (Administrator only)."""
   createCategory(input: CreateCategoryInput!): Category!
 
@@ -363,6 +366,9 @@ type Mutation {
     registerInput: RegisterInput!
   ): MessageResponse!
   registerFcmToken(fcmToken: String!): MessageResponse!
+
+  """Create a new reservation for a donation"""
+  reserveDonation(donationId: ID!): Reservation!
 
   """Delete user account permanently"""
   resetPassword(resetPasswordInput: ResetPasswordInput!): MessageResponse!
@@ -413,6 +419,15 @@ type PaginatedDonations {
   hasNextPage: Boolean!
   hasPreviousPage: Boolean!
   items: [Donation!]
+  limit: Int!
+  page: Int!
+  totalCount: Int!
+}
+
+type PaginatedReservations {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  items: [Reservation!]
   limit: Int!
   page: Int!
   totalCount: Int!
@@ -478,6 +493,12 @@ type Query {
 
   """Get all donation listings with optional filters and donor access"""
   donations(filter: DonationsFilterInput, pagination: PaginationInput): PaginatedDonations!
+
+  """Get a single reservation by ID if current user is donor or beneficiary"""
+  myReservation(id: ID!): Reservation!
+
+  """Get reservations where the current user is donor or beneficiary"""
+  myReservations(pagination: PaginationInput): PaginatedReservations!
   notifications(pagination: PaginationQueryInput): [Notification!]!
 }
 
@@ -515,6 +536,26 @@ input RegisterLocationInput {
 
   """Neighborhood for user location"""
   neighborhood: String
+}
+
+type Reservation {
+  beneficiary: User
+  beneficiaryId: ID!
+  confirmedAt: DateTime
+  createdAt: DateTime!
+  donation: Donation
+  donationId: ID!
+  id: ID!
+  status: ReservationStatus!
+  updatedAt: DateTime!
+}
+
+"""The possible statuses of a reservation"""
+enum ReservationStatus {
+  CANCELLED
+  COMPLETED
+  CONFIRMED
+  PENDING
 }
 
 input ResetPasswordInput {
