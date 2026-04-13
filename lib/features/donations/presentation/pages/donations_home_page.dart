@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -25,6 +26,7 @@ class DonationsHomePage extends StatefulWidget {
 class _DonationsHomePageState extends State<DonationsHomePage> with TickerProviderStateMixin {
   final MapController _mapController = MapController();
   final TextEditingController _searchController = TextEditingController();
+  Timer? _debounceTimer;
   late final DonationsBloc _donationsBloc;
   LatLng? _currentPosition;
   bool _isLoadingMap = true;
@@ -41,22 +43,37 @@ class _DonationsHomePageState extends State<DonationsHomePage> with TickerProvid
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
     _searchController.dispose();
     _donationsBloc.close();
     super.dispose();
   }
 
-  void _fetchDonationsInArea() {
+  void _fetchDonationsInArea({bool append = false, LatLng? center}) {
     if (_currentPosition == null) return;
+    
+    final fetchCenter = center ?? _currentPosition!;
+    
     _donationsBloc.add(
       LoadDonationsEvent(
         categoryId: _selectedCategoryId,
         searchQuery: _searchController.text,
-        latitude: _currentPosition!.latitude,
-        longitude: _currentPosition!.longitude,
+        latitude: fetchCenter.latitude,
+        longitude: fetchCenter.longitude,
         radius: 20.0, // 20 km default visible radius
+        append: append,
       ),
     );
+  }
+
+  void _onMapPositionChanged(MapCamera camera, bool hasGesture) {
+    if (!hasGesture) return;
+    if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 600), () {
+      if (mounted) {
+        _fetchDonationsInArea(append: true, center: camera.center);
+      }
+    });
   }
 
   void _animatedMapMove(LatLng destLocation, double destZoom) {
@@ -361,6 +378,7 @@ class _DonationsHomePageState extends State<DonationsHomePage> with TickerProvid
         options: MapOptions(
           initialCenter: _currentPosition!,
           initialZoom: 13.2,
+          onPositionChanged: _onMapPositionChanged,
         ),
         children: [
           TileLayer(

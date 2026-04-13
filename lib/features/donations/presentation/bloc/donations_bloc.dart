@@ -1,5 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/repositories/donation_repository.dart';
+import '../../domain/entities/donation.dart';
+import '../../domain/entities/category.dart';
 import 'donations_event.dart';
 import 'donations_state.dart';
 
@@ -29,9 +31,18 @@ class DonationsBloc extends Bloc<DonationsEvent, DonationsState> {
     LoadDonationsEvent event,
     Emitter<DonationsState> emit,
   ) async {
-    emit(DonationsLoading());
+    List<Donation> existingDonations = [];
+    List<Category>? existingCategories;
+
+    if (event.append && state is DonationsLoaded) {
+      existingDonations = List.from((state as DonationsLoaded).donations);
+      existingCategories = (state as DonationsLoaded).categories;
+    } else {
+      emit(DonationsLoading());
+    }
+
     try {
-      final categories = await donationRepository.getCategories();
+      final categories = existingCategories ?? await donationRepository.getCategories();
       final donations = await donationRepository.getDonations(
         categoryId: event.categoryId,
         searchQuery: event.searchQuery,
@@ -40,13 +51,27 @@ class DonationsBloc extends Bloc<DonationsEvent, DonationsState> {
         radius: event.radius,
       );
 
-      emit(DonationsLoaded(
-        donations: donations,
-        categories: categories,
-        selectedCategoryId: event.categoryId,
-      ));
+      if (event.append) {
+        final Map<String, Donation> merged = {
+          for (var d in existingDonations) d.id: d,
+          for (var d in donations) d.id: d,
+        };
+        emit(DonationsLoaded(
+          donations: merged.values.toList(),
+          categories: categories,
+          selectedCategoryId: event.categoryId,
+        ));
+      } else {
+        emit(DonationsLoaded(
+          donations: donations,
+          categories: categories,
+          selectedCategoryId: event.categoryId,
+        ));
+      }
     } catch (e) {
-      emit(DonationsError(e.toString()));
+      if (!event.append) {
+        emit(DonationsError(e.toString()));
+      }
     }
   }
 

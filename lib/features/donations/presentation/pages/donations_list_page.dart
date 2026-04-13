@@ -3,6 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:latlong2/latlong.dart';
 import '../../../../shared/theme/app_colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection.dart';
@@ -23,10 +25,33 @@ class _DonationsListPageState extends State<DonationsListPage> {
   List<Donation> _donations = [];
   String _selectedCategory = 'All';
   String? _selectedCategoryId;
+  LatLng? _currentPosition;
 
   @override
   void initState() {
     super.initState();
+    _determinePosition();
+  }
+
+  Future<void> _determinePosition() async {
+    try {
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) return;
+
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) return;
+      }
+      if (permission == LocationPermission.deniedForever) return;
+
+      final position = await Geolocator.getCurrentPosition();
+      if (mounted) {
+        setState(() {
+          _currentPosition = LatLng(position.latitude, position.longitude);
+        });
+      }
+    } catch (_) {}
   }
 
   @override
@@ -237,27 +262,27 @@ class _DonationsListPageState extends State<DonationsListPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            '24 donations nearby',
+            '${_donations.length} donations nearby',
             style: TextStyle(
               fontSize: 13.sp,
               color: const Color(0xFF64748B),
               fontWeight: FontWeight.w500,
             ),
           ),
-          Row(
-            children: [
-              Icon(Icons.sort_rounded, size: 16.sp, color: AuthColors.primary),
-              SizedBox(width: 4.w),
-              Text(
-                'Nearest',
-                style: TextStyle(
-                  fontSize: 13.sp,
-                  color: AuthColors.primary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
+          // Row(
+          //   children: [
+          //     Icon(Icons.sort_rounded, size: 16.sp, color: AuthColors.primary),
+          //     SizedBox(width: 4.w),
+          //     Text(
+          //       'Nearest',
+          //       style: TextStyle(
+          //         fontSize: 13.sp,
+          //         color: AuthColors.primary,
+          //         fontWeight: FontWeight.w600,
+          //       ),
+          //     ),
+          //   ],
+          // ),
         ],
       ),
     );
@@ -284,15 +309,19 @@ class _DonationsListPageState extends State<DonationsListPage> {
   }
 
   Widget _buildDonationCard(Donation donation, int index) {
-    // Generate mock distance
-    final distances = [
-      '0.5 km away',
-      '1.2 km away',
-      '2.0 km away',
-      '0.8 km away',
-      '3.5 km away',
-    ];
-    final distance = distances[index % distances.length];
+    String distanceStr = 'Distance unknown';
+    if (_currentPosition != null && donation.latitude != null && donation.longitude != null) {
+      final distanceInMeters = const Distance().as(
+        LengthUnit.Meter,
+        _currentPosition!,
+        LatLng(donation.latitude!, donation.longitude!),
+      );
+      if (distanceInMeters < 1000) {
+        distanceStr = '${distanceInMeters.round()} m away';
+      } else {
+        distanceStr = '${(distanceInMeters / 1000).toStringAsFixed(1)} km away';
+      }
+    }
 
     // Determine condition tag colors
     Color tagBgColor;
@@ -402,7 +431,7 @@ class _DonationsListPageState extends State<DonationsListPage> {
                         ),
                         SizedBox(width: 4.w),
                         Text(
-                          distance,
+                          distanceStr,
                           style: TextStyle(
                             fontSize: 12.sp,
                             color: const Color(0xFF64748B),
