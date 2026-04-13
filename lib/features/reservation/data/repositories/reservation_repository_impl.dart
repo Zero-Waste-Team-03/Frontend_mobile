@@ -4,6 +4,7 @@ import '../../../../core/exceptions/exceptions.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../donations/domain/entities/donation.dart';
 import '../../../donations/domain/entities/category.dart';
+import '../../../donations/data/sources/donation_remote_data_source.dart';
 import '../../../auth/domain/entities/user.dart';
 import '../../domain/entities/reservation.dart';
 import '../../domain/repositories/reservation_repository.dart';
@@ -11,8 +12,12 @@ import '../datasources/reservation_remote_data_source.dart';
 
 class ReservationRepositoryImpl implements ReservationRepository {
   final ReservationRemoteDataSource? remoteDataSource;
+  final DonationRemoteDataSource? donationRemoteDataSource;
 
-  ReservationRepositoryImpl({this.remoteDataSource});
+  ReservationRepositoryImpl({
+    this.remoteDataSource,
+    this.donationRemoteDataSource,
+  });
 
   String _reservationToDonationStatus(ReservationStatus status) {
     switch (status) {
@@ -62,7 +67,7 @@ class ReservationRepositoryImpl implements ReservationRepository {
     );
   }
 
-  // Placeholder data - will be replaced with actual GraphQL/API calls
+  // Fallback data used when remote endpoints are unavailable.
   static final _placeholderDonations = [
     Donation(
       id: '1',
@@ -131,6 +136,29 @@ class ReservationRepositoryImpl implements ReservationRepository {
     required String userId,
     String? status,
   }) async {
+    if (donationRemoteDataSource != null) {
+      try {
+        final donations = await donationRemoteDataSource!.getDonations(
+          page: 1,
+          limit: 100,
+        );
+
+        var filtered = List<Donation>.from(donations);
+        final normalizedStatus = status?.trim().toUpperCase();
+        if (normalizedStatus != null && normalizedStatus.isNotEmpty) {
+          filtered = filtered
+              .where((donation) => donation.status == normalizedStatus)
+              .toList();
+        }
+
+        return Right(filtered);
+      } on ServerException catch (e) {
+        print('API Error: ${e.message}');
+      } catch (e) {
+        print('Unexpected error during API call: ${e.toString()}');
+      }
+    }
+
     try {
       // Simulate API delay
       await Future.delayed(const Duration(milliseconds: 500));
@@ -167,9 +195,9 @@ class ReservationRepositoryImpl implements ReservationRepository {
 
         return Right(mapped);
       } on ServerException catch (e) {
-        print('API Error: ${e.message}');
+        return Left(ServerFailure(e.message));
       } catch (e) {
-        print('Unexpected error during API call: ${e.toString()}');
+        return Left(ServerFailure(e.toString()));
       }
     }
 
@@ -196,6 +224,19 @@ class ReservationRepositoryImpl implements ReservationRepository {
   Future<Either<Failure, Donation>> getDonationDetails(
     String donationId,
   ) async {
+    if (donationRemoteDataSource != null) {
+      try {
+        final donation = await donationRemoteDataSource!.getDonationDetails(
+          donationId,
+        );
+        return Right(donation);
+      } on ServerException catch (e) {
+        print('API Error: ${e.message}');
+      } catch (e) {
+        print('Unexpected error during API call: ${e.toString()}');
+      }
+    }
+
     try {
       final donation = _placeholderDonations.firstWhere(
         (d) => d.id == donationId,
@@ -220,9 +261,9 @@ class ReservationRepositoryImpl implements ReservationRepository {
         );
         return Right(reservation.toEntity());
       } on ServerException catch (e) {
-        print('API Error: ${e.message}');
+        return Left(ServerFailure(e.message));
       } catch (e) {
-        print('Unexpected error during API call: ${e.toString()}');
+        return Left(ServerFailure(e.toString()));
       }
     }
 
@@ -259,7 +300,6 @@ class ReservationRepositoryImpl implements ReservationRepository {
   Future<Either<Failure, Reservation>> createReservation({
     required String donationId,
   }) async {
-    // Try to use actual API if remote data source is available and endpoint is configured
     if (remoteDataSource != null) {
       try {
         final result = await remoteDataSource!.createReservation(
@@ -267,17 +307,12 @@ class ReservationRepositoryImpl implements ReservationRepository {
         );
         return Right(result.toEntity());
       } on ServerException catch (e) {
-        // Log API error but fallback to placeholder data
-        print('API Error: ${e.message}');
-        // Continue to fallback instead of returning error
+        return Left(ServerFailure(e.message));
       } catch (e) {
-        // Log any other error and fallback
-        print('Unexpected error during API call: ${e.toString()}');
-        // Continue to fallback instead of returning error
+        return Left(ServerFailure(e.toString()));
       }
     }
 
-    // Fallback to placeholder data (always works)
     try {
       await Future.delayed(const Duration(milliseconds: 500));
 
@@ -321,10 +356,16 @@ class ReservationRepositoryImpl implements ReservationRepository {
           );
           return Right(reservation.toEntity());
         }
+
+        return Left(
+          ServerFailure(
+            'Unsupported reservation status transition: $newStatus',
+          ),
+        );
       } on ServerException catch (e) {
-        print('API Error: ${e.message}');
+        return Left(ServerFailure(e.message));
       } catch (e) {
-        print('Unexpected error during API call: ${e.toString()}');
+        return Left(ServerFailure(e.toString()));
       }
     }
 
@@ -365,9 +406,9 @@ class ReservationRepositoryImpl implements ReservationRepository {
 
         return Right(filtered);
       } on ServerException catch (e) {
-        print('API Error: ${e.message}');
+        return Left(ServerFailure(e.message));
       } catch (e) {
-        print('Unexpected error during API call: ${e.toString()}');
+        return Left(ServerFailure(e.toString()));
       }
     }
 

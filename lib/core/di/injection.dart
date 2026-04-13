@@ -138,7 +138,10 @@ Future<void> configureDependencies() async {
     () => ReservationRemoteDataSourceImpl(getIt(), getIt()),
   );
   getIt.registerLazySingleton<ReservationRepository>(
-    () => ReservationRepositoryImpl(remoteDataSource: getIt()),
+    () => ReservationRepositoryImpl(
+      remoteDataSource: getIt(),
+      donationRemoteDataSource: getIt(),
+    ),
   );
   getIt.registerLazySingleton<GetUserDonationsUseCase>(
     () => GetUserDonationsUseCase(getIt()),
