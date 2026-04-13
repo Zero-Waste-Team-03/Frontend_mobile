@@ -53,7 +53,10 @@ jobs:
 
       - name: Install Flutter dependencies
         run: flutter pub get
-
+      
+      - name: generate freezed entities
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+        
       # ── Create .env (app/test runtime config) ─────────────────
       - name: Create .env file
         run: |
