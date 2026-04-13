@@ -53,9 +53,18 @@ jobs:
 
       - name: Install Flutter dependencies
         run: flutter pub get
-      
-      - name: generate freezed entities
-        run: flutter pub run build_runner build --delete-conflicting-outputs
+
+      - name: Run code generation (Freezed + GraphQL)
+        run: |
+          dart run build_runner clean
+          dart run build_runner build --delete-conflicting-outputs --verbose
+
+      - name: Verify generated files exist
+        run: |
+          if [ ! -d "lib/graphql/__generated__" ]; then
+            echo "::error::GraphQL generated files are missing!"
+            exit 1
+          fi
         
       # ── Create .env (app/test runtime config) ─────────────────
       - name: Create .env file
