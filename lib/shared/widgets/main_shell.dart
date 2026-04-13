@@ -1,7 +1,11 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../shared/theme/app_colors.dart';
+import '../../core/di/injection.dart';
+import '../../features/donations/presentation/bloc/donations_bloc.dart';
+import '../../features/donations/presentation/bloc/donations_event.dart';
 
 /// Main shell widget that wraps authenticated screens with a bottom nav bar.
 class MainShell extends StatefulWidget {
@@ -23,98 +27,104 @@ class _MainShellState extends State<MainShell> {
       final size = MediaQuery.of(context).size;
       _chatPos = Offset(size.width - 72.w, size.height - 180.h);
     }
-    return Scaffold(
-      body: Stack(
-        children: [
-          widget.navigationShell,
-          if (widget.navigationShell.currentIndex != 2)
-            Positioned(
-              left: _chatPos.dx,
-              top: _chatPos.dy,
-              child: Draggable(
-                feedback: _buildChatButtonUI(isDragging: true),
-                childWhenDragging: const SizedBox.shrink(),
-                onDragEnd: (details) {
-                  setState(() {
-                    double dx = details.offset.dx;
-                    double dy = details.offset.dy;
-                    final screenSize = MediaQuery.of(context).size;
-                    if (dx < 0) dx = 0;
-                    if (dx > screenSize.width - 64) dx = screenSize.width - 64;
-                    if (dy < kToolbarHeight) dy = kToolbarHeight;
-                    if (dy > screenSize.height - 100) dy = screenSize.height - 100;
-                    _chatPos = Offset(dx, dy);
-                  });
-                },
-                child: _buildChatButtonUI(isDragging: false),
+    return BlocProvider(
+      create: (context) =>
+          getIt<DonationsBloc>()..add(const LoadDonationsEvent()),
+      child: Scaffold(
+        body: Stack(
+          children: [
+            widget.navigationShell,
+            if (widget.navigationShell.currentIndex != 2)
+              Positioned(
+                left: _chatPos.dx,
+                top: _chatPos.dy,
+                child: Draggable(
+                  feedback: _buildChatButtonUI(isDragging: true),
+                  childWhenDragging: const SizedBox.shrink(),
+                  onDragEnd: (details) {
+                    setState(() {
+                      double dx = details.offset.dx;
+                      double dy = details.offset.dy;
+                      final screenSize = MediaQuery.of(context).size;
+                      if (dx < 0) dx = 0;
+                      if (dx > screenSize.width - 64)
+                        dx = screenSize.width - 64;
+                      if (dy < kToolbarHeight) dy = kToolbarHeight;
+                      if (dy > screenSize.height - 100)
+                        dy = screenSize.height - 100;
+                      _chatPos = Offset(dx, dy);
+                    });
+                  },
+                  child: _buildChatButtonUI(isDragging: false),
+                ),
               ),
-            ),
-        ],
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 16,
-              offset: const Offset(0, -4),
-            ),
           ],
         ),
-        child: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _NavItem(
-                  icon: Icons.home_rounded,
-                  label: 'Home',
-                  isSelected: widget.navigationShell.currentIndex == 0,
-                  onTap: () => widget.navigationShell.goBranch(0),
-                ),
-                _NavItem(
-                  icon: Icons.search_rounded,
-                  label: 'Browse',
-                  isSelected: widget.navigationShell.currentIndex == 1,
-                  onTap: () => widget.navigationShell.goBranch(1),
-                ),
-                GestureDetector(
-                  onTap: () => context.push('/add-donation'),
-                  child: Container(
-                    padding: EdgeInsets.all(10.w),
-                    decoration: BoxDecoration(
-                      color: AuthColors.primary,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: AuthColors.primary.withValues(alpha: 0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Icon(
-                      Icons.add_rounded,
-                      color: Colors.white,
-                      size: 28.sp,
+        bottomNavigationBar: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.06),
+                blurRadius: 16,
+                offset: const Offset(0, -4),
+              ),
+            ],
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _NavItem(
+                    icon: Icons.home_rounded,
+                    label: 'Home',
+                    isSelected: widget.navigationShell.currentIndex == 0,
+                    onTap: () => widget.navigationShell.goBranch(0),
+                  ),
+                  _NavItem(
+                    icon: Icons.search_rounded,
+                    label: 'Browse',
+                    isSelected: widget.navigationShell.currentIndex == 1,
+                    onTap: () => widget.navigationShell.goBranch(1),
+                  ),
+                  GestureDetector(
+                    onTap: () => context.push('/add-donation'),
+                    child: Container(
+                      padding: EdgeInsets.all(10.w),
+                      decoration: BoxDecoration(
+                        color: AuthColors.primary,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: AuthColors.primary.withValues(alpha: 0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        Icons.add_rounded,
+                        color: Colors.white,
+                        size: 28.sp,
+                      ),
                     ),
                   ),
-                ),
-                _NavItem(
-                  icon: Icons.chat_bubble_rounded,
-                  label: 'Chat',
-                  isSelected: widget.navigationShell.currentIndex == 2,
-                  onTap: () => widget.navigationShell.goBranch(2),
-                ),
-                _NavItem(
-                  icon: Icons.person_rounded,
-                  label: 'Profile',
-                  isSelected: widget.navigationShell.currentIndex == 3,
-                  onTap: () => widget.navigationShell.goBranch(3),
-                ),
-              ],
+                  _NavItem(
+                    icon: Icons.chat_bubble_rounded,
+                    label: 'Chat',
+                    isSelected: widget.navigationShell.currentIndex == 2,
+                    onTap: () => widget.navigationShell.goBranch(2),
+                  ),
+                  _NavItem(
+                    icon: Icons.person_rounded,
+                    label: 'Profile',
+                    isSelected: widget.navigationShell.currentIndex == 3,
+                    onTap: () => widget.navigationShell.goBranch(3),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -186,7 +196,9 @@ class _NavItem extends StatelessWidget {
             children: [
               Icon(
                 icon,
-                color: isSelected ? AuthColors.primary : const Color(0xFF94A3B8),
+                color: isSelected
+                    ? AuthColors.primary
+                    : const Color(0xFF94A3B8),
                 size: isSelected ? 26.sp : 24.sp,
               ),
               if (isSelected) ...[

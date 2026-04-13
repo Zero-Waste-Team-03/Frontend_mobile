@@ -3,9 +3,17 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:latlong2/latlong.dart';
+import 'dart:convert';
 import '../../../../shared/theme/app_colors.dart';
 import '../../domain/entities/donation.dart';
+import '../../../reservation/presentation/widgets/reservation_pending_dialog.dart';
+import '../../../reservation/presentation/widgets/api_error_dialog.dart';
+import '../../../reservation/presentation/bloc/reservation_bloc.dart';
+import '../../../reservation/presentation/bloc/reservation_event.dart';
+import '../../../reservation/presentation/bloc/reservation_state.dart';
+import '../../../../core/di/injection.dart';
 
 class DonationDetailsPage extends StatefulWidget {
   final Donation donation;
@@ -46,126 +54,216 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
       final size = MediaQuery.of(context).size;
       _chatPos = Offset(size.width - 72.w, size.height - 180.h);
     }
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      body: Stack(
-        children: [
-          CustomScrollView(
-            slivers: [
-              _buildSliverAppBar(),
-              SliverToBoxAdapter(
-                child: Container(
-                  clipBehavior: Clip.antiAlias,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(32.r),
+    return BlocProvider(
+      create: (context) => getIt<ReservationBloc>(),
+      child: BlocListener<ReservationBloc, ReservationState>(
+        listener: (context, state) {
+          if (state is ReservationCreated) {
+            showReservationPendingDialog(
+              context,
+              onDismiss: () {
+                Navigator.of(context).pop();
+              },
+              donationTitle: widget.donation.title,
+            );
+          } else if (state is ReservationCreationError) {
+            _showErrorDialog(context, state.message);
+          }
+        },
+        child: Scaffold(
+          backgroundColor: const Color(0xFFF8F9FA),
+          body: Stack(
+            children: [
+              CustomScrollView(
+                slivers: [
+                  _buildSliverAppBar(),
+                  SliverToBoxAdapter(
+                    child: Container(
+                      clipBehavior: Clip.antiAlias,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(32.r),
+                        ),
+                      ),
+                      transform: Matrix4.translationValues(0, -32.h, 0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildMainInfoCard(),
+                          _buildKeyMetricsRow(),
+                          _buildDescriptionSection(),
+                          _buildPostedBySection(),
+                          _buildPickupLocationSection(),
+                          SizedBox(
+                            height: 120.h,
+                          ), // Spacing for bottom action bar
+                        ],
+                      ),
                     ),
                   ),
-                  transform: Matrix4.translationValues(0, -32.h, 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildMainInfoCard(),
-                      _buildKeyMetricsRow(),
-                      _buildDescriptionSection(),
-                      _buildPostedBySection(),
-                      _buildPickupLocationSection(),
-                      SizedBox(height: 120.h), // Spacing for bottom action bar
-                    ],
+                ],
+              ),
+
+              // Bottom Sticky Action Bar
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 20.w,
+                    vertical: 16.h,
                   ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border(
+                      top: BorderSide(color: Colors.grey.shade200, width: 1),
+                    ),
+                  ),
+                  child: SafeArea(
+                    top: false,
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 56.w,
+                          height: 56.w,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16.r),
+                            border: Border.all(
+                              color: AuthColors.primary,
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Center(
+                            child: Icon(
+                              Icons.chat_bubble_outline_rounded,
+                              color: AuthColors.primary,
+                              size: 24.sp,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 16.w),
+                        Expanded(
+                          child: BlocBuilder<ReservationBloc, ReservationState>(
+                            builder: (context, state) {
+                              final isReserving = state is ReservationCreating;
+                              return ElevatedButton(
+                                onPressed: isReserving
+                                    ? null
+                                    : () {
+                                        context.read<ReservationBloc>().add(
+                                          CreateReservationEvent(
+                                            donationId: widget.donation.id,
+                                          ),
+                                        );
+                                      },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AuthColors.primary,
+                                  padding: EdgeInsets.symmetric(vertical: 16.h),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16.r),
+                                  ),
+                                ),
+                                child: isReserving
+                                    ? SizedBox(
+                                        height: 20.h,
+                                        width: 20.w,
+                                        child: const CircularProgressIndicator(
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                Colors.white,
+                                              ),
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : Text(
+                                        'Reserve Now',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16.sp,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              // Global Chat Floating Button Layer (for consistency, over the nav bar)
+              Positioned(
+                left: _chatPos.dx,
+                top: _chatPos.dy,
+                child: Draggable(
+                  feedback: _buildChatButtonUI(isDragging: true),
+                  childWhenDragging: const SizedBox.shrink(),
+                  onDragEnd: (details) {
+                    setState(() {
+                      double dx = details.offset.dx;
+                      double dy = details.offset.dy;
+                      final screenSize = MediaQuery.of(context).size;
+                      if (dx < 0) dx = 0;
+                      if (dx > screenSize.width - 64)
+                        dx = screenSize.width - 64;
+                      if (dy < kToolbarHeight) dy = kToolbarHeight;
+                      if (dy > screenSize.height - 100)
+                        dy = screenSize.height - 100;
+                      _chatPos = Offset(dx, dy);
+                    });
+                  },
+                  child: _buildChatButtonUI(isDragging: false),
                 ),
               ),
             ],
           ),
-
-          // Bottom Sticky Action Bar
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border(
-                  top: BorderSide(color: Colors.grey.shade200, width: 1),
-                ),
-              ),
-              child: SafeArea(
-                top: false,
-                child: Row(
-                  children: [
-                    Container(
-                      width: 56.w,
-                      height: 56.w,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16.r),
-                        border: Border.all(
-                          color: AuthColors.primary,
-                          width: 1.5,
-                        ),
-                      ),
-                      child: Center(
-                        child: Icon(
-                          Icons.chat_bubble_outline_rounded,
-                          color: AuthColors.primary,
-                          size: 24.sp,
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 16.w),
-                    Expanded(
-                      child: Container(
-                        height: 56.h,
-                        decoration: BoxDecoration(
-                          color: AuthColors.primary,
-                          borderRadius: BorderRadius.circular(16.r),
-                        ),
-                        child: Center(
-                          child: Text(
-                            'Reserve Now',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-          // Global Chat Floating Button Layer (for consistency, over the nav bar)
-          Positioned(
-            left: _chatPos.dx,
-            top: _chatPos.dy,
-            child: Draggable(
-              feedback: _buildChatButtonUI(isDragging: true),
-              childWhenDragging: const SizedBox.shrink(),
-              onDragEnd: (details) {
-                setState(() {
-                  double dx = details.offset.dx;
-                  double dy = details.offset.dy;
-                  final screenSize = MediaQuery.of(context).size;
-                  if (dx < 0) dx = 0;
-                  if (dx > screenSize.width - 64) dx = screenSize.width - 64;
-                  if (dy < kToolbarHeight) dy = kToolbarHeight;
-                  if (dy > screenSize.height - 100)
-                    dy = screenSize.height - 100;
-                  _chatPos = Offset(dx, dy);
-                });
-              },
-              child: _buildChatButtonUI(isDragging: false),
-            ),
-          ),
-        ],
+        ),
       ),
+    );
+  }
+
+  void _showErrorDialog(BuildContext context, String errorMessage) {
+    // Try to parse error message if it's a JSON error response
+    String displayMessage = errorMessage;
+    String? statusCode;
+    String? timestamp;
+
+    try {
+      // Check if error message contains JSON
+      if (errorMessage.contains('{') && errorMessage.contains('}')) {
+        final jsonStr = errorMessage.substring(
+          errorMessage.indexOf('{'),
+          errorMessage.lastIndexOf('}') + 1,
+        );
+        final jsonData = jsonDecode(jsonStr);
+
+        displayMessage = jsonData['message'] ?? errorMessage;
+        statusCode = jsonData['statusCode']?.toString() ?? 'Unknown';
+        timestamp = jsonData['timestamp'];
+      }
+    } catch (e) {
+      // If parsing fails, use the original message
+      displayMessage = errorMessage;
+    }
+
+    showApiErrorDialog(
+      context,
+      message: displayMessage,
+      statusCode: statusCode,
+      timestamp: timestamp,
+      onRetry: () {
+        // Retry the reservation
+        context.read<ReservationBloc>().add(
+          CreateReservationEvent(
+            donationId: widget.donation.id,
+          ),
+        );
+      },
     );
   }
 
@@ -244,6 +342,26 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
         ),
       ),
       actions: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: GestureDetector(
+            onTap: () {
+              context.push('/notifications');
+            },
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF131615).withValues(alpha: 0.4),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.notifications_none_rounded,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+          ),
+        ),
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: GestureDetector(
@@ -591,7 +709,8 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
               ),
               children: [
                 TileLayer(
-                  urlTemplate: 'https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+                  urlTemplate:
+                      'https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
                 ),
                 MarkerLayer(
                   markers: [

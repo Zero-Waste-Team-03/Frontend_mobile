@@ -10,12 +10,21 @@ import '../../features/donations/presentation/pages/donations_home_page.dart';
 import '../../features/donations/presentation/pages/donation_details_page.dart';
 import '../../features/donations/domain/entities/donation.dart';
 import '../../features/donations/presentation/pages/donations_list_page.dart';
+import '../../features/donations/presentation/bloc/donations_bloc.dart';
+import '../../features/donations/presentation/bloc/donations_event.dart';
 import '../../features/chat/presentation/pages/chat_placeholder_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/donations/presentation/pages/add_donation_page.dart';
 import '../../features/profile/presentation/pages/edit_profile_page.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
 import '../../features/profile/presentation/bloc/profile_event.dart';
+import '../../features/reservation/presentation/pages/my_activities_page.dart';
+import '../../features/reservation/presentation/pages/my_reservations_page.dart';
+import '../../features/reservation/presentation/pages/donation_details_full_page.dart';
+import '../../features/reservation/presentation/pages/reservation_details_page.dart';
+import '../../features/reservation/presentation/bloc/reservation_bloc.dart';
+import '../../features/notification/presentation/pages/notifications_page.dart';
+import '../../features/notification/presentation/bloc/notification_bloc.dart';
 import '../../shared/widgets/main_shell.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -44,9 +53,61 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: '/add-donation',
-      builder: (context, state) => const AddDonationPage(),
+      builder: (context, state) {
+        return BlocProvider(
+          create: (context) =>
+              getIt<DonationsBloc>()..add(const LoadDonationsEvent()),
+          child: const AddDonationPage(),
+        );
+      },
     ),
-
+    GoRoute(
+      path: '/donation-details-full',
+      builder: (context, state) {
+        final donation = state.extra as Donation;
+        return BlocProvider(
+          create: (context) => getIt<ReservationBloc>(),
+          child: DonationDetailsFullPage(donation: donation),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/my-activities',
+      builder: (context, state) {
+        return BlocProvider(
+          create: (context) => getIt<ReservationBloc>(),
+          child: const MyActivitiesPage(),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/my-reservations',
+      builder: (context, state) {
+        return BlocProvider(
+          create: (context) => getIt<ReservationBloc>(),
+          child: const MyReservationsPage(),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/reservation-details',
+      builder: (context, state) {
+        final donationId = state.extra as String;
+        return BlocProvider(
+          create: (context) => getIt<ReservationBloc>(),
+          child: ReservationDetailsPage(donationId: donationId),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/notifications',
+      builder: (context, state) {
+        return BlocProvider(
+          create: (context) => getIt<NotificationBloc>(),
+          child: const NotificationsPage(),
+        );
+      },
+    ),
     // â”€â”€ Main app routes (with bottom nav) â”€â”€
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {

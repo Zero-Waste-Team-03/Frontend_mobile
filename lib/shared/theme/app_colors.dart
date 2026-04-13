@@ -33,6 +33,20 @@ class AuthColors {
   static const Color statBackground = Color(
     0xFFF5F5F5,
   ); // Light background for stats
+
+  // Status Colors for Reservations and Donations
+  static const Color statusActiveBackground = Color(0xFFD1FAE5); // Light green
+  static const Color statusActiveText = Color(0xFF065F46); // Dark green
+  static const Color statusReservedBackground = Color(
+    0xFFFEF3C7,
+  ); // Light orange
+  static const Color statusReservedText = Color(0xFF92400E); // Dark orange
+  static const Color statusCompletedBackground = Color(
+    0xFFD1FAE5,
+  ); // Light green
+  static const Color statusCompletedText = Color(0xFF065F46); // Dark green
+  static const Color statusExpiredBackground = Color(0xFFE5E7EB); // Light gray
+  static const Color statusExpiredText = Color(0xFF6B7280); // Dark gray
 }
 
 class AppDimensions {

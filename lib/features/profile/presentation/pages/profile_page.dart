@@ -164,7 +164,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                               ),
                               onPressed: () {
-                                // TODO: Handle notification tap
+                                context.push('/notifications');
                               },
                             ),
                           ],
@@ -186,7 +186,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                   height: 120.w,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: AuthColors.primary.withValues(alpha: 0.1),
+                                    color: AuthColors.primary.withValues(
+                                      alpha: 0.1,
+                                    ),
                                   ),
                                   child:
                                       user.avatarUrl != null &&
@@ -513,7 +515,6 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
                       */
-
                       SizedBox(height: AppDimensions.paddingLarge.h),
 
                       // Preferences and Buttons Section
@@ -586,6 +587,40 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
 
                             SizedBox(height: AppDimensions.paddingLarge.h),
+
+                            // My Activities Button
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                icon: Icon(
+                                  Icons.history,
+                                  size: AppDimensions.iconSize.sp,
+                                ),
+                                onPressed: () {
+                                  context.push('/my-activities');
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AuthColors.primary,
+                                  padding: EdgeInsets.symmetric(vertical: 12.h),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      AppDimensions.borderRadiusLarge.r,
+                                    ),
+                                  ),
+                                ),
+                                label: Text(
+                                  'My Activities',
+                                  style: TextStyle(
+                                    fontSize: AppDimensions.bodySize.sp,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                    fontFamily: AppFonts.primaryFont,
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            SizedBox(height: AppDimensions.paddingMedium.h),
 
                             // Logout Button
                             SizedBox(

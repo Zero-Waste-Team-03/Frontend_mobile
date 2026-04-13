@@ -18,6 +18,20 @@ import '../../features/donations/data/repositories/donation_repository_impl.dart
 import '../../features/donations/domain/repositories/donation_repository.dart';
 import '../../features/donations/presentation/bloc/donations_bloc.dart';
 
+import '../../features/reservation/data/repositories/reservation_repository_impl.dart';
+import '../../features/reservation/domain/repositories/reservation_repository.dart';
+import '../../features/reservation/domain/usecases/create_reservation_usecase.dart';
+import '../../features/reservation/domain/usecases/get_user_donations_usecase.dart';
+import '../../features/reservation/domain/usecases/get_user_reservations_usecase.dart';
+import '../../features/reservation/presentation/bloc/reservation_bloc.dart';
+import '../../features/reservation/data/datasources/reservation_remote_data_source.dart';
+
+import '../../features/notification/data/sources/notification_remote_data_source.dart';
+import '../../features/notification/data/repositories/notification_repository_impl.dart';
+import '../../features/notification/domain/repositories/notification_repository.dart';
+import '../../features/notification/domain/usecases/notification_usecases.dart';
+import '../../features/notification/presentation/bloc/notification_bloc.dart';
+
 final getIt = GetIt.instance;
 
 Future<void> configureDependencies() async {
@@ -97,10 +111,67 @@ Future<void> configureDependencies() async {
   // ── Profile BLoC ──
   getIt.registerFactory(() => ProfileBloc(profileRepository: getIt()));
 
+  
+
   // ── Donations ──
   getIt.registerLazySingleton<DonationRemoteDataSource>(
-      () => DonationRemoteDataSourceImpl(getIt()));
+    () => DonationRemoteDataSourceImpl(getIt()),
+  );
   getIt.registerLazySingleton<DonationRepository>(
-      () => DonationRepositoryImpl(remoteDataSource: getIt()));
+    () => DonationRepositoryImpl(remoteDataSource: getIt()),
+  );
   getIt.registerFactory(() => DonationsBloc(donationRepository: getIt()));
+
+  // ── Reservation ──
+  getIt.registerLazySingleton<ReservationRemoteDataSource>(
+    () => ReservationRemoteDataSourceImpl(getIt()),
+  );
+  getIt.registerLazySingleton<ReservationRepository>(
+    () => ReservationRepositoryImpl(remoteDataSource: getIt()),
+  );
+  getIt.registerLazySingleton<GetUserDonationsUseCase>(
+    () => GetUserDonationsUseCase(getIt()),
+  );
+  getIt.registerLazySingleton<GetUserReservationsUseCase>(
+    () => GetUserReservationsUseCase(getIt()),
+  );
+  getIt.registerLazySingleton<CreateReservationUseCase>(
+    () => CreateReservationUseCase(getIt()),
+  );
+  getIt.registerFactory(
+    () => ReservationBloc(
+      getUserDonationsUseCase: getIt(),
+      getUserReservationsUseCase: getIt(),
+      createReservationUseCase: getIt(),
+      repository: getIt(),
+    ),
+  );
+
+  // ── Notification ──
+  getIt.registerLazySingleton<NotificationRemoteDataSource>(
+    () => NotificationRemoteDataSourceImpl(),
+  );
+  getIt.registerLazySingleton<NotificationRepository>(
+    () => NotificationRepositoryImpl(remoteDataSource: getIt()),
+  );
+  getIt.registerLazySingleton<GetNotificationsUseCase>(
+    () => GetNotificationsUseCase(repository: getIt()),
+  );
+  getIt.registerLazySingleton<GetFilteredNotificationsUseCase>(
+    () => GetFilteredNotificationsUseCase(repository: getIt()),
+  );
+  getIt.registerLazySingleton<MarkNotificationAsReadUseCase>(
+    () => MarkNotificationAsReadUseCase(repository: getIt()),
+  );
+  getIt.registerLazySingleton<MarkAllNotificationsAsReadUseCase>(
+    () => MarkAllNotificationsAsReadUseCase(repository: getIt()),
+  );
+  getIt.registerFactory(
+    () => NotificationBloc(
+      getNotificationsUseCase: getIt(),
+      getFilteredNotificationsUseCase: getIt(),
+      markNotificationAsReadUseCase: getIt(),
+      markAllNotificationsAsReadUseCase: getIt(),
+    ),
+  );
 }
