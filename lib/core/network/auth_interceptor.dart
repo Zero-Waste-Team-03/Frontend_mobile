@@ -35,10 +35,11 @@ class AuthInterceptor extends Interceptor {
     RequestInterceptorHandler handler,
   ) async {
     try {
-<<<<<<< HEAD
       bool isRefreshRequest = false;
       if (options.data is Map && options.data?['query'] != null) {
-        if (options.data['query'].toString().contains('mutation RefreshTokens')) {
+        if (options.data['query'].toString().contains(
+          'mutation RefreshTokens',
+        )) {
           isRefreshRequest = true;
         }
       }
@@ -47,28 +48,26 @@ class AuthInterceptor extends Interceptor {
         final refreshToken = await localDataSource.getRefreshToken();
         if (refreshToken != null && refreshToken.isNotEmpty) {
           options.headers['Authorization'] = 'Bearer $refreshToken';
-          _logger.i('🔑 [AuthInterceptor] Bearer refresh token attached to ${options.path}');
+          _logger.i(
+            '[AuthInterceptor] Bearer refresh token attached to ${options.path}',
+          );
         } else {
-          _logger.w('⚠️ [AuthInterceptor] Could not read refresh token for refresh request');
+          _logger.w(
+            '[AuthInterceptor] Could not read refresh token for refresh request',
+          );
         }
       } else {
         final accessToken = await localDataSource.getAccessToken();
         if (accessToken != null && accessToken.isNotEmpty) {
           options.headers['Authorization'] = 'Bearer $accessToken';
-          _logger.i('🔑 [AuthInterceptor] Bearer access token attached to ${options.path}');
+          _logger.i(
+            '[AuthInterceptor] Bearer access token attached to ${options.path}',
+          );
         }
-=======
-      final accessToken = await localDataSource.getAccessToken();
-      if (accessToken != null && accessToken.isNotEmpty) {
-        options.headers['Authorization'] = 'Bearer $accessToken';
-        _logger.i(
-          'ðŸ”‘ [AuthInterceptor] Bearer token attached to ${options.path}',
-        );
->>>>>>> 7ca6c88 (refactor: migrate GraphQL flows to Ferry and stabilize theme foundation)
       }
     } catch (_) {
       // If we can't read the token, just proceed without it
-      _logger.w('⚠️ [AuthInterceptor] Could not read token');
+      _logger.w('[AuthInterceptor] Could not read token');
     }
     handler.next(options);
   }
