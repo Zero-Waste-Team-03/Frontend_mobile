@@ -8,11 +8,10 @@ class ReservationTimeline extends StatelessWidget {
 
   const ReservationTimeline({super.key, required this.reservation});
 
-  bool get isReserved => reservation.status == ReservationStatus.reserved;
+  bool get isReserved => reservation.status == ReservationStatus.confirmed;
   bool get isConfirmed =>
-      reservation.status == ReservationStatus.confirmed ||
-      reservation.status == ReservationStatus.pickedUp;
-  bool get isPickedUp => reservation.status == ReservationStatus.pickedUp;
+      reservation.status == ReservationStatus.confirmed;
+  bool get isPickedUp => reservation.status == ReservationStatus.completed;
 
   @override
   Widget build(BuildContext context) {

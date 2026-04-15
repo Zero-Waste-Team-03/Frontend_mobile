@@ -1,143 +1,227 @@
-import 'package:gaspzero/features/notification/domain/entities/notification.dart' show NotificationType, NotificationTypeExt;
+import 'package:ferry/ferry.dart' hide ServerException;
+import 'package:injectable/injectable.dart';
+import 'package:logger/logger.dart';
 
+import '../../../../core/exceptions/exceptions.dart';
 import '../models/notification_model.dart';
-
+import 'graphql/__generated__/delete_notification.req.gql.dart';
+import 'graphql/__generated__/delete_notification.var.gql.dart';
+import 'graphql/__generated__/get_notifications.req.gql.dart';
+import 'graphql/__generated__/get_notifications.var.gql.dart';
+import 'graphql/__generated__/mark_notifications_as_read.req.gql.dart';
+import 'graphql/__generated__/mark_notifications_as_read.var.gql.dart';
 
 abstract class NotificationRemoteDataSource {
   Future<List<NotificationModel>> getNotifications({
-    required String userId,
     int page = 1,
     int limit = 20,
   });
 
-  Future<List<NotificationModel>> getFilteredNotifications({
-    required String userId,
-    String? typeFilter,
-    bool? isReadFilter,
-    int page = 1,
-    int limit = 20,
-  });
+  Future<void> markNotificationsAsRead(List<String> notificationIds);
 
-  Future<NotificationModel> markAsRead(String notificationId);
-
-  Future<void> markAllAsRead(String userId);
+  Future<void> deleteNotification(String notificationId);
 }
 
+@LazySingleton(as: NotificationRemoteDataSource)
 class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
-  // TODO: Replace with actual HTTP client (Dio, etc.) when API is ready
+  NotificationRemoteDataSourceImpl(this._ferryClient);
+
+  final Client _ferryClient;
+
+  final Logger _logger = Logger(
+    printer: PrettyPrinter(
+      methodCount: 0,
+      errorMethodCount: 5,
+      lineLength: 80,
+      colors: true,
+      printEmojis: false,
+    ),
+  );
 
   @override
   Future<List<NotificationModel>> getNotifications({
-    required String userId,
     int page = 1,
     int limit = 20,
   }) async {
-    // PLACEHOLDER: Replace with actual API call
-    // Example: final response = await dio.get('/users/$userId/notifications');
+    _logger.i('getNotifications called with page=$page, limit=$limit');
 
-    // Mock data for now
-    await Future.delayed(const Duration(milliseconds: 500));
+    try {
+      final varsMap = <String, dynamic>{
+        'pagination': {'page': page, 'limit': limit},
+      };
 
-    return _generateMockNotifications(userId, limit);
-  }
+      _logger.d('Building getNotifications variables: $varsMap');
 
-  @override
-  Future<List<NotificationModel>> getFilteredNotifications({
-    required String userId,
-    String? typeFilter,
-    bool? isReadFilter,
-    int page = 1,
-    int limit = 20,
-  }) async {
-    // PLACEHOLDER: Replace with actual API call when ready
-    // Example: final response = await dio.get(
-    //   '/users/$userId/notifications',
-    //   queryParameters: {
-    //     'type': typeFilter,
-    //     'isRead': isReadFilter,
-    //     'page': page,
-    //     'limit': limit,
-    //   },
-    // );
+      final vars = GGetNotificationsVars.fromJson(varsMap);
+      if (vars == null) {
+        _logger.e('Failed to build getNotifications variables from: $varsMap');
+        throw ServerException('Failed to build getNotifications request');
+      }
 
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    var notifications = _generateMockNotifications(userId, limit);
-
-    // Apply filters locally until API is integrated
-    if (typeFilter != null) {
-      notifications = notifications
-          .where((n) => n.type.value == typeFilter.toUpperCase())
-          .toList();
-    }
-
-    if (isReadFilter != null) {
-      notifications = notifications
-          .where((n) => n.isRead == isReadFilter)
-          .toList();
-    }
-
-    return notifications;
-  }
-
-  @override
-  Future<NotificationModel> markAsRead(String notificationId) async {
-    // PLACEHOLDER: Replace with actual API call
-    // Example: final response = await dio.patch('/notifications/$notificationId/read');
-
-    await Future.delayed(const Duration(milliseconds: 300));
-
-    // Return updated notification (mock)
-    return NotificationModel(
-      id: notificationId,
-      receiverId: 'user_123',
-      title: 'Updated Notification',
-      body: 'This is a test notification',
-      type: NotificationType.alert,
-      isRead: true,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    );
-  }
-
-  @override
-  Future<void> markAllAsRead(String userId) async {
-    // PLACEHOLDER: Replace with actual API call
-    // Example: await dio.patch('/users/$userId/notifications/read-all');
-
-    await Future.delayed(const Duration(milliseconds: 300));
-  }
-
-  // Helper method to generate mock notifications
-  List<NotificationModel> _generateMockNotifications(String userId, int count) {
-    final now = DateTime.now();
-
-    final types = ['ALERT', 'CONFIRMATION', 'DONATION', 'IMPACT'];
-    final titles = [
-      'URGENT ALERT',
-      'Reservation Confirmed',
-      'New Donation Nearby',
-      'Impact Reached!',
-    ];
-    final bodies = [
-      '3 items expiring soon! Save food in your area before it goes to waste.',
-      'Your pickup at Baker\'s Delight is ready. Please arrive by 6:00 PM.',
-      '5kg of apples available 200m away at Green Market.',
-      'Amazing! You\'ve saved 10kg of CO2 this week by rescuing food.',
-    ];
-
-    return List.generate(count, (index) {
-      final typeIndex = index % types.length;
-      return NotificationModel(
-        id: 'notif_$index',
-        receiverId: userId,
-        title: titles[typeIndex],
-        body: bodies[typeIndex],
-        type: NotificationTypeExt.fromString(types[typeIndex]),
-        isRead: index > 2,
-        createdAt: now.subtract(Duration(minutes: index * 15)),
-        updatedAt: now.subtract(Duration(minutes: index * 15)),
+      final data = await _executeRequest(
+        GGetNotificationsReq((b) => b.vars = vars.toBuilder()),
+        'getNotifications',
       );
-    });
+
+      final items = data.notifications;
+      _logger.i('getNotifications returned ${items.length} items');
+
+      if (items.isEmpty) {
+        return const [];
+      }
+
+      return items
+          .map(
+            (item) => NotificationModel.fromJson(
+              Map<String, dynamic>.from(item.toJson()),
+            ),
+          )
+          .toList();
+    } catch (e) {
+      _logger.e('getNotifications error: $e', error: e);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> markNotificationsAsRead(List<String> notificationIds) async {
+    _logger.i(
+      'markNotificationsAsRead called with ${notificationIds.length} notification(s)',
+    );
+
+    if (notificationIds.isEmpty) {
+      _logger.w('markNotificationsAsRead called with empty notification list');
+      return;
+    }
+
+    try {
+      final varsMap = <String, dynamic>{
+        'input': {'ids': notificationIds},
+      };
+
+      _logger.d(
+        'Building markNotificationsAsRead variables with ${notificationIds.length} IDs: '
+        '$notificationIds',
+      );
+
+      final vars = GMarkNotificationsAsReadVars.fromJson(varsMap);
+      if (vars == null) {
+        _logger.e(
+          'Failed to build markNotificationsAsRead variables from: $varsMap',
+        );
+        throw ServerException(
+          'Failed to build markNotificationsAsRead request',
+        );
+      }
+
+      await _executeRequest(
+        GMarkNotificationsAsReadReq((b) => b.vars = vars.toBuilder()),
+        'markNotificationsAsRead',
+      );
+
+      _logger.i(
+        'Successfully marked ${notificationIds.length} notification(s) as read',
+      );
+    } catch (e) {
+      _logger.e('markNotificationsAsRead error: $e', error: e);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> deleteNotification(String notificationId) async {
+    _logger.i('deleteNotification called with id=$notificationId');
+
+    if (notificationId.isEmpty) {
+      _logger.w('deleteNotification called with empty notification ID');
+      throw ServerException('Notification ID cannot be empty');
+    }
+
+    try {
+      final varsMap = <String, dynamic>{'id': notificationId};
+
+      _logger.d('Building deleteNotification variables: $varsMap');
+
+      final vars = GDeleteNotificationVars.fromJson(varsMap);
+      if (vars == null) {
+        _logger.e(
+          'Failed to build deleteNotification variables from: $varsMap',
+        );
+        throw ServerException('Failed to build deleteNotification request');
+      }
+
+      await _executeRequest(
+        GDeleteNotificationReq((b) => b.vars = vars.toBuilder()),
+        'deleteNotification',
+      );
+
+      _logger.i('Successfully deleted notification with id=$notificationId');
+    } catch (e) {
+      _logger.e('deleteNotification error: $e', error: e);
+      rethrow;
+    }
+  }
+
+  Future<TData> _executeRequest<TData, TVars>(
+    OperationRequest<TData, TVars> request,
+    String operationName,
+  ) async {
+    _logger.i('Executing GraphQL operation: $operationName');
+
+    try {
+      final response = await _ferryClient
+          .request(request)
+          .firstWhere(
+            (event) =>
+                event.data != null ||
+                event.hasErrors ||
+                event.linkException != null,
+          );
+
+      if (response.hasErrors || response.linkException != null) {
+        final graphQLErrors = response.graphqlErrors;
+        final graphQLErrorMessage =
+            graphQLErrors != null && graphQLErrors.isNotEmpty
+            ? graphQLErrors.first.message
+            : null;
+
+        String linkExceptionMsg = 'Unknown link exception';
+        if (response.linkException != null) {
+          final originalMsg = response.linkException!.originalException
+              ?.toString();
+          linkExceptionMsg = originalMsg ?? response.linkException!.toString();
+        }
+
+        final errorMessage =
+            graphQLErrorMessage ?? linkExceptionMsg ?? 'Unknown error';
+
+        _logger.e(
+          'GraphQL error in $operationName: $errorMessage\n'
+          'Has GraphQL errors: ${response.hasErrors}\n'
+          'Has link exception: ${response.linkException != null}\n'
+          'GraphQL error details: ${graphQLErrors?.map((e) => 'Message: ${e.message}, Extensions: ${e.extensions}').toList()}',
+        );
+
+        throw ServerException('GraphQL error in $operationName: $errorMessage');
+      }
+
+      final data = response.data;
+      if (data == null) {
+        _logger.e('No data returned for $operationName');
+        throw ServerException('No data returned for $operationName');
+      }
+
+      _logger.i('$operationName completed successfully');
+      return data;
+    } catch (e) {
+      if (e is ServerException) {
+        rethrow;
+      }
+      _logger.e(
+        'Unexpected error in GraphQL request for $operationName: $e',
+        error: e,
+      );
+      throw ServerException('GraphQL request failed for $operationName: $e');
+    }
   }
 }

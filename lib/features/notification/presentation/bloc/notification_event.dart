@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import '../../domain/entities/notification.dart';
 
 abstract class NotificationEvent extends Equatable {
   const NotificationEvent();
@@ -9,58 +8,36 @@ abstract class NotificationEvent extends Equatable {
 }
 
 class FetchNotificationsEvent extends NotificationEvent {
-  final String userId;
   final int page;
   final int limit;
 
-  const FetchNotificationsEvent(this.userId, {this.page = 1, this.limit = 20});
+  const FetchNotificationsEvent({this.page = 1, this.limit = 10});
 
   @override
-  List<Object?> get props => [userId, page, limit];
+  List<Object?> get props => [page, limit];
 }
 
-class FilterNotificationsEvent extends NotificationEvent {
-  final String userId;
-  final String? typeFilter;
-  final bool? isReadFilter;
-  final int page;
-  final int limit;
+class MarkNotificationsAsReadEvent extends NotificationEvent {
+  final List<String> notificationIds;
 
-  const FilterNotificationsEvent(
-    this.userId, {
-    this.typeFilter,
-    this.isReadFilter,
-    this.page = 1,
-    this.limit = 20,
-  });
+  const MarkNotificationsAsReadEvent(this.notificationIds);
 
   @override
-  List<Object?> get props => [userId, typeFilter, isReadFilter, page, limit];
+  List<Object?> get props => [notificationIds];
 }
 
-class MarkNotificationAsReadEvent extends NotificationEvent {
+class DeleteNotificationEvent extends NotificationEvent {
   final String notificationId;
 
-  const MarkNotificationAsReadEvent(this.notificationId);
+  const DeleteNotificationEvent(this.notificationId);
 
   @override
   List<Object?> get props => [notificationId];
 }
 
-class MarkAllNotificationsAsReadEvent extends NotificationEvent {
-  final String userId;
-
-  const MarkAllNotificationsAsReadEvent(this.userId);
+class RefreshNotificationsEvent extends NotificationEvent {
+  const RefreshNotificationsEvent();
 
   @override
-  List<Object?> get props => [userId];
-}
-
-class ClearNotificationFilterEvent extends NotificationEvent {
-  final String userId;
-
-  const ClearNotificationFilterEvent(this.userId);
-
-  @override
-  List<Object?> get props => [userId];
+  List<Object?> get props => [];
 }

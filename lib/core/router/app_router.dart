@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart' hide Notification;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gaspzero/core/di/injection.dart';
 import 'package:go_router/go_router.dart';
@@ -24,6 +24,8 @@ import '../../features/reservation/presentation/pages/donation_details_full_page
 import '../../features/reservation/presentation/pages/reservation_details_page.dart';
 import '../../features/reservation/presentation/bloc/reservation_bloc.dart';
 import '../../features/notification/presentation/pages/notifications_page.dart';
+import '../../features/notification/presentation/pages/notification_details_page.dart';
+import '../../features/notification/domain/entities/notification.dart' ;
 import '../../features/notification/presentation/bloc/notification_bloc.dart';
 import '../../shared/widgets/main_shell.dart';
 
@@ -106,6 +108,13 @@ final appRouter = GoRouter(
           create: (context) => getIt<NotificationBloc>(),
           child: const NotificationsPage(),
         );
+      },
+    ),
+    GoRoute(
+      path: '/notification-details',
+      builder: (context, state) {
+        final notification = state.extra as Notification;
+        return NotificationDetailsPage(notification: notification);
       },
     ),
     // â”€â”€ Main app routes (with bottom nav) â”€â”€

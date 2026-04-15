@@ -63,6 +63,10 @@ Serializers _$serializers =
           ..add(GDeleteAccountData_deleteAccount.serializer)
           ..add(GDeleteAccountReq.serializer)
           ..add(GDeleteAccountVars.serializer)
+          ..add(GDeleteNotificationData.serializer)
+          ..add(GDeleteNotificationData_deleteNotification.serializer)
+          ..add(GDeleteNotificationReq.serializer)
+          ..add(GDeleteNotificationVars.serializer)
           ..add(GDonationStatusValues.serializer)
           ..add(GDonationUrgencyValues.serializer)
           ..add(GDonationsFilterInput.serializer)
@@ -98,6 +102,10 @@ Serializers _$serializers =
           ..add(GGetDonationsData_donations_items_user.serializer)
           ..add(GGetDonationsReq.serializer)
           ..add(GGetDonationsVars.serializer)
+          ..add(GGetNotificationsData.serializer)
+          ..add(GGetNotificationsData_notifications.serializer)
+          ..add(GGetNotificationsReq.serializer)
+          ..add(GGetNotificationsVars.serializer)
           ..add(GJSON.serializer)
           ..add(GJSONObject.serializer)
           ..add(GLocationInput.serializer)
@@ -113,49 +121,29 @@ Serializers _$serializers =
           ..add(GLogoutFromAllDevicesData_logoutFromAllDevices.serializer)
           ..add(GLogoutFromAllDevicesReq.serializer)
           ..add(GLogoutFromAllDevicesVars.serializer)
+          ..add(GMarkNotificationsAsReadData.serializer)
+          ..add(GMarkNotificationsAsReadData_markNotificationsAsRead.serializer)
+          ..add(GMarkNotificationsAsReadReq.serializer)
+          ..add(GMarkNotificationsAsReadVars.serializer)
           ..add(GMyReservationData.serializer)
           ..add(GMyReservationData_myReservation.serializer)
-          ..add(GMyReservationData_myReservation_beneficiary.serializer)
-          ..add(GMyReservationData_myReservation_beneficiary_avatar.serializer)
-          ..add(
-            GMyReservationData_myReservation_beneficiary_location.serializer,
-          )
           ..add(GMyReservationData_myReservation_donation.serializer)
-          ..add(GMyReservationData_myReservation_donation_category.serializer)
-          ..add(GMyReservationData_myReservation_donation_location.serializer)
           ..add(
             GMyReservationData_myReservation_donation_mainAttachment.serializer,
           )
           ..add(GMyReservationData_myReservation_donation_user.serializer)
+          ..add(
+            GMyReservationData_myReservation_donation_user_avatar.serializer,
+          )
           ..add(GMyReservationReq.serializer)
           ..add(GMyReservationVars.serializer)
           ..add(GMyReservationsData.serializer)
           ..add(GMyReservationsData_myReservations.serializer)
           ..add(GMyReservationsData_myReservations_items.serializer)
-          ..add(GMyReservationsData_myReservations_items_beneficiary.serializer)
-          ..add(
-            GMyReservationsData_myReservations_items_beneficiary_avatar
-                .serializer,
-          )
-          ..add(
-            GMyReservationsData_myReservations_items_beneficiary_location
-                .serializer,
-          )
           ..add(GMyReservationsData_myReservations_items_donation.serializer)
-          ..add(
-            GMyReservationsData_myReservations_items_donation_category
-                .serializer,
-          )
-          ..add(
-            GMyReservationsData_myReservations_items_donation_location
-                .serializer,
-          )
           ..add(
             GMyReservationsData_myReservations_items_donation_mainAttachment
                 .serializer,
-          )
-          ..add(
-            GMyReservationsData_myReservations_items_donation_user.serializer,
           )
           ..add(GMyReservationsReq.serializer)
           ..add(GMyReservationsVars.serializer)
@@ -256,9 +244,23 @@ Serializers _$serializers =
           )
           ..addBuilderFactory(
             const FullType(BuiltList, const [
+              const FullType(GGetNotificationsData_notifications),
+            ]),
+            () => ListBuilder<GGetNotificationsData_notifications>(),
+          )
+          ..addBuilderFactory(
+            const FullType(BuiltList, const [
               const FullType(GMyReservationsData_myReservations_items),
             ]),
             () => ListBuilder<GMyReservationsData_myReservations_items>(),
+          )
+          ..addBuilderFactory(
+            const FullType(BuiltList, const [const FullType(String)]),
+            () => ListBuilder<String>(),
+          )
+          ..addBuilderFactory(
+            const FullType(BuiltList, const [const FullType(String)]),
+            () => ListBuilder<String>(),
           )
           ..addBuilderFactory(
             const FullType(BuiltList, const [const FullType(String)]),

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../bloc/profile_bloc.dart';
 import '../bloc/profile_event.dart';
@@ -64,7 +65,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
       }
     }
   }
-
 
   String? _validatePhoneNumber(String? value) {
     if (value == null || value.isEmpty) {
@@ -175,7 +175,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                               height: 100.w,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: AuthColors.primary.withValues(alpha: 0.1),
+                                color: AuthColors.primary.withValues(
+                                  alpha: 0.1,
+                                ),
                                 border: Border.all(
                                   color: AuthColors.primary,
                                   width: 2.w,
@@ -186,35 +188,29 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                       user.avatarUrl != null &&
                                       user.avatarUrl!.isNotEmpty)
                                   ? ClipOval(
-                                      child: Image.network(
-                                        user.avatarUrl!,
+                                      child: CachedNetworkImage(
+                                        imageUrl: user.avatarUrl!,
                                         key: ValueKey(user.avatarUrl),
                                         fit: BoxFit.cover,
-                                        cacheHeight:
-                                            (120 *
-                                                    (MediaQuery.of(
-                                                      context,
-                                                    ).devicePixelRatio))
-                                                .toInt(),
-                                        cacheWidth:
-                                            (120 *
-                                                    (MediaQuery.of(
-                                                      context,
-                                                    ).devicePixelRatio))
-                                                .toInt(),
-                                        errorBuilder:
-                                            (context, error, stackTrace) {
-                                              return Center(
-                                                child: Text(
-                                                  getInitials(user.name),
-                                                  style: TextStyle(
-                                                    fontSize: 40.sp,
-                                                    fontWeight: FontWeight.w700,
-                                                    color: AuthColors.primary,
-                                                  ),
-                                                ),
-                                              );
-                                            },
+                                        placeholder: (context, url) {
+                                          return Center(
+                                            child: CircularProgressIndicator(
+                                              color: AuthColors.primary,
+                                            ),
+                                          );
+                                        },
+                                        errorWidget: (context, url, error) {
+                                          return Center(
+                                            child: Text(
+                                              getInitials(user.name),
+                                              style: TextStyle(
+                                                fontSize: 40.sp,
+                                                fontWeight: FontWeight.w700,
+                                                color: AuthColors.primary,
+                                              ),
+                                            ),
+                                          );
+                                        },
                                       ),
                                     )
                                   : Center(
@@ -294,7 +290,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         keyboardType: TextInputType.name,
                       ),
                       SizedBox(height: AppDimensions.paddingLarge.h),
-
 
                       // Phone Number Field
                       _buildLabel('Phone Number'),
