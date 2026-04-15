@@ -125,13 +125,6 @@ const CreateDonation = _i1.OperationDefinitionNode(
           ]),
         ),
         _i1.FieldNode(
-          name: _i1.NameNode(value: 'imageUrl'),
-          alias: null,
-          arguments: [],
-          directives: [],
-          selectionSet: null,
-        ),
-        _i1.FieldNode(
           name: _i1.NameNode(value: 'locationId'),
           alias: null,
           arguments: [],

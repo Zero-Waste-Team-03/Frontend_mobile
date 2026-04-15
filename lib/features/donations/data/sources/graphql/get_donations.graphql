@@ -19,7 +19,6 @@ query GetDonations(
       mainAttachment {
         url
       }
-      imageUrl
       locationId
       location {
         latitude

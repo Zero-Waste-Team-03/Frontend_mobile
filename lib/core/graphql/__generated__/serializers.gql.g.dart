@@ -63,6 +63,10 @@ Serializers _$serializers =
           ..add(GDeleteAccountData_deleteAccount.serializer)
           ..add(GDeleteAccountReq.serializer)
           ..add(GDeleteAccountVars.serializer)
+          ..add(GDeleteNotificationData.serializer)
+          ..add(GDeleteNotificationData_deleteNotification.serializer)
+          ..add(GDeleteNotificationReq.serializer)
+          ..add(GDeleteNotificationVars.serializer)
           ..add(GDonationStatusValues.serializer)
           ..add(GDonationUrgencyValues.serializer)
           ..add(GDonationsFilterInput.serializer)
@@ -98,6 +102,10 @@ Serializers _$serializers =
           ..add(GGetDonationsData_donations_items_user.serializer)
           ..add(GGetDonationsReq.serializer)
           ..add(GGetDonationsVars.serializer)
+          ..add(GGetNotificationsData.serializer)
+          ..add(GGetNotificationsData_notifications.serializer)
+          ..add(GGetNotificationsReq.serializer)
+          ..add(GGetNotificationsVars.serializer)
           ..add(GJSON.serializer)
           ..add(GJSONObject.serializer)
           ..add(GLocationInput.serializer)
@@ -113,6 +121,10 @@ Serializers _$serializers =
           ..add(GLogoutFromAllDevicesData_logoutFromAllDevices.serializer)
           ..add(GLogoutFromAllDevicesReq.serializer)
           ..add(GLogoutFromAllDevicesVars.serializer)
+          ..add(GMarkNotificationsAsReadData.serializer)
+          ..add(GMarkNotificationsAsReadData_markNotificationsAsRead.serializer)
+          ..add(GMarkNotificationsAsReadReq.serializer)
+          ..add(GMarkNotificationsAsReadVars.serializer)
           ..add(GMyReservationData.serializer)
           ..add(GMyReservationData_myReservation.serializer)
           ..add(GMyReservationData_myReservation_donation.serializer)
@@ -229,6 +241,12 @@ Serializers _$serializers =
               const FullType(GGetDonationsData_donations_items),
             ]),
             () => ListBuilder<GGetDonationsData_donations_items>(),
+          )
+          ..addBuilderFactory(
+            const FullType(BuiltList, const [
+              const FullType(GGetNotificationsData_notifications),
+            ]),
+            () => ListBuilder<GGetNotificationsData_notifications>(),
           )
           ..addBuilderFactory(
             const FullType(BuiltList, const [

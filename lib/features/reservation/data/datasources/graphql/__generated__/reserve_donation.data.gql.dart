@@ -135,8 +135,6 @@ abstract class GReserveDonationData_reserveDonation_donation
   GReserveDonationData_reserveDonation_donation_mainAttachment?
       get mainAttachment;
   @override
-  String? get imageUrl;
-  @override
   GReserveDonationData_reserveDonation_donation_location? get location;
   @override
   GReserveDonationData_reserveDonation_donation_user get user;

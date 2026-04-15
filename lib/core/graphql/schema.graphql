@@ -270,10 +270,7 @@ type Donation {
   """
   mainAttachmentId: String
 
-  """
-  Direct URL to the donation's image
-  """
-  imageUrl: String
+
 
   """
   Date when listing was published

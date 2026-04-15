@@ -37,7 +37,6 @@ abstract class GReservationFields_donation {
   _i1.GDonationUrgencyValues get urgency;
   String? get mainAttachmentId;
   GReservationFields_donation_mainAttachment? get mainAttachment;
-  String? get imageUrl;
   GReservationFields_donation_location? get location;
   GReservationFields_donation_user get user;
   Map<String, dynamic> toJson();
@@ -190,8 +189,6 @@ abstract class GReservationFieldsData_donation
   String? get mainAttachmentId;
   @override
   GReservationFieldsData_donation_mainAttachment? get mainAttachment;
-  @override
-  String? get imageUrl;
   @override
   GReservationFieldsData_donation_location? get location;
   @override

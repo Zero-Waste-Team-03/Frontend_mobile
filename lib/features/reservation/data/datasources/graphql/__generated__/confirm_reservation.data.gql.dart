@@ -136,8 +136,6 @@ abstract class GConfirmReservationData_confirmReservation_donation
   GConfirmReservationData_confirmReservation_donation_mainAttachment?
       get mainAttachment;
   @override
-  String? get imageUrl;
-  @override
   GConfirmReservationData_confirmReservation_donation_location? get location;
   @override
   GConfirmReservationData_confirmReservation_donation_user get user;

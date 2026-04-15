@@ -96,7 +96,6 @@ abstract class GGetDonationsData_donations_items
   _i2.GDonationUrgencyValues get urgency;
   String? get mainAttachmentId;
   GGetDonationsData_donations_items_mainAttachment? get mainAttachment;
-  String? get imageUrl;
   String? get locationId;
   GGetDonationsData_donations_items_location? get location;
   GGetDonationsData_donations_items_user get user;

@@ -15,7 +15,6 @@ query GetDonationById($id: ID!) {
     mainAttachment {
       url
     }
-    imageUrl
     locationId
     location {
       latitude

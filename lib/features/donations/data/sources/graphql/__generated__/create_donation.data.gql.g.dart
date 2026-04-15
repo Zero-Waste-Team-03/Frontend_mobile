@@ -191,14 +191,6 @@ class _$GCreateDonationData_createDonationSerializer
           ),
         );
     }
-    value = object.imageUrl;
-    if (value != null) {
-      result
-        ..add('imageUrl')
-        ..add(
-          serializers.serialize(value, specifiedType: const FullType(String)),
-        );
-    }
     value = object.locationId;
     if (value != null) {
       result
@@ -330,14 +322,6 @@ class _$GCreateDonationData_createDonationSerializer
                 )!
                 as GCreateDonationData_createDonation_mainAttachment,
           );
-          break;
-        case 'imageUrl':
-          result.imageUrl =
-              serializers.deserialize(
-                    value,
-                    specifiedType: const FullType(String),
-                  )
-                  as String?;
           break;
         case 'locationId':
           result.locationId =
@@ -850,8 +834,6 @@ class _$GCreateDonationData_createDonation
   @override
   final GCreateDonationData_createDonation_mainAttachment? mainAttachment;
   @override
-  final String? imageUrl;
-  @override
   final String? locationId;
   @override
   final GCreateDonationData_createDonation_location? location;
@@ -874,7 +856,6 @@ class _$GCreateDonationData_createDonation
     required this.urgency,
     this.mainAttachmentId,
     this.mainAttachment,
-    this.imageUrl,
     this.locationId,
     this.location,
     required this.user,
@@ -903,7 +884,6 @@ class _$GCreateDonationData_createDonation
         urgency == other.urgency &&
         mainAttachmentId == other.mainAttachmentId &&
         mainAttachment == other.mainAttachment &&
-        imageUrl == other.imageUrl &&
         locationId == other.locationId &&
         location == other.location &&
         user == other.user;
@@ -923,7 +903,6 @@ class _$GCreateDonationData_createDonation
     _$hash = $jc(_$hash, urgency.hashCode);
     _$hash = $jc(_$hash, mainAttachmentId.hashCode);
     _$hash = $jc(_$hash, mainAttachment.hashCode);
-    _$hash = $jc(_$hash, imageUrl.hashCode);
     _$hash = $jc(_$hash, locationId.hashCode);
     _$hash = $jc(_$hash, location.hashCode);
     _$hash = $jc(_$hash, user.hashCode);
@@ -945,7 +924,6 @@ class _$GCreateDonationData_createDonation
           ..add('urgency', urgency)
           ..add('mainAttachmentId', mainAttachmentId)
           ..add('mainAttachment', mainAttachment)
-          ..add('imageUrl', imageUrl)
           ..add('locationId', locationId)
           ..add('location', location)
           ..add('user', user))
@@ -1012,10 +990,6 @@ class GCreateDonationData_createDonationBuilder
     GCreateDonationData_createDonation_mainAttachmentBuilder? mainAttachment,
   ) => _$this._mainAttachment = mainAttachment;
 
-  String? _imageUrl;
-  String? get imageUrl => _$this._imageUrl;
-  set imageUrl(String? imageUrl) => _$this._imageUrl = imageUrl;
-
   String? _locationId;
   String? get locationId => _$this._locationId;
   set locationId(String? locationId) => _$this._locationId = locationId;
@@ -1050,7 +1024,6 @@ class GCreateDonationData_createDonationBuilder
       _urgency = $v.urgency;
       _mainAttachmentId = $v.mainAttachmentId;
       _mainAttachment = $v.mainAttachment?.toBuilder();
-      _imageUrl = $v.imageUrl;
       _locationId = $v.locationId;
       _location = $v.location?.toBuilder();
       _user = $v.user.toBuilder();
@@ -1123,7 +1096,6 @@ class GCreateDonationData_createDonationBuilder
             ),
             mainAttachmentId: mainAttachmentId,
             mainAttachment: _mainAttachment?.build(),
-            imageUrl: imageUrl,
             locationId: locationId,
             location: _location?.build(),
             user: user.build(),

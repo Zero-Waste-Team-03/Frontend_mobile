@@ -22,7 +22,6 @@ fragment ReservationFields on Reservation {
     mainAttachment {
       url
     }
-    imageUrl
     location {
       latitude
       longitude
