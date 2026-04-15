@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -36,30 +36,28 @@ class _MainShellState extends State<MainShell> {
         body: Stack(
           children: [
             widget.navigationShell,
-            if (widget.navigationShell.currentIndex != 2)
-              Positioned(
-                left: _chatPos.dx,
-                top: _chatPos.dy,
-                child: Draggable(
-                  feedback: _buildChatButtonUI(isDragging: true),
-                  childWhenDragging: const SizedBox.shrink(),
-                  onDragEnd: (details) {
-                    setState(() {
-                      double dx = details.offset.dx;
-                      double dy = details.offset.dy;
-                      final screenSize = MediaQuery.of(context).size;
-                      if (dx < 0) dx = 0;
-                      if (dx > screenSize.width - 64)
-                        dx = screenSize.width - 64;
-                      if (dy < kToolbarHeight) dy = kToolbarHeight;
-                      if (dy > screenSize.height - 100)
-                        dy = screenSize.height - 100;
-                      _chatPos = Offset(dx, dy);
-                    });
-                  },
-                  child: _buildChatButtonUI(isDragging: false),
-                ),
+            Positioned(
+              left: _chatPos.dx,
+              top: _chatPos.dy,
+              child: Draggable(
+                feedback: _buildChatButtonUI(isDragging: true),
+                childWhenDragging: const SizedBox.shrink(),
+                onDragEnd: (details) {
+                  setState(() {
+                    double dx = details.offset.dx;
+                    double dy = details.offset.dy;
+                    final screenSize = MediaQuery.of(context).size;
+                    if (dx < 0) dx = 0;
+                    if (dx > screenSize.width - 64) dx = screenSize.width - 64;
+                    if (dy < kToolbarHeight) dy = kToolbarHeight;
+                    if (dy > screenSize.height - 100)
+                      dy = screenSize.height - 100;
+                    _chatPos = Offset(dx, dy);
+                  });
+                },
+                child: _buildChatButtonUI(isDragging: false),
               ),
+            ),
           ],
         ),
         bottomNavigationBar: Container(
@@ -91,31 +89,15 @@ class _MainShellState extends State<MainShell> {
                     isSelected: widget.navigationShell.currentIndex == 1,
                     onTap: () => widget.navigationShell.goBranch(1),
                   ),
-                  GestureDetector(
+                  _NavItem(
+                    icon: AppIcons.add,
+                    label: 'Donate',
+                    isSelected: false,
                     onTap: () => context.push('/add-donation'),
-                    child: Container(
-                      padding: EdgeInsets.all(10.w),
-                      decoration: BoxDecoration(
-                        color: AuthColors.primary,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: AuthColors.primary.withValues(alpha: 0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Icon(
-                        AppIcons.add,
-                        color: colorScheme.onPrimary,
-                        size: 28.sp,
-                      ),
-                    ),
                   ),
                   _NavItem(
-                    icon: AppIcons.chat,
-                    label: 'Chat',
+                    icon: AppIcons.ranks,
+                    label: 'Ranks',
                     isSelected: widget.navigationShell.currentIndex == 2,
                     onTap: () => widget.navigationShell.goBranch(2),
                   ),
@@ -137,9 +119,7 @@ class _MainShellState extends State<MainShell> {
   Widget _buildChatButtonUI({required bool isDragging}) {
     final colorScheme = Theme.of(context).colorScheme;
     return GestureDetector(
-      onTap: () {
-        widget.navigationShell.goBranch(2);
-      },
+      onTap: () => context.push('/chat'),
       child: Material(
         color: colorScheme.surface.withValues(alpha: 0),
         elevation: isDragging ? 10 : 6,

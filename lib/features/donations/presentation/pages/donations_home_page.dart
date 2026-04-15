@@ -23,7 +23,8 @@ class DonationsHomePage extends StatefulWidget {
   State<DonationsHomePage> createState() => _DonationsHomePageState();
 }
 
-class _DonationsHomePageState extends State<DonationsHomePage> with TickerProviderStateMixin {
+class _DonationsHomePageState extends State<DonationsHomePage>
+    with TickerProviderStateMixin {
   final MapController _mapController = MapController();
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounceTimer;
@@ -51,16 +52,28 @@ class _DonationsHomePageState extends State<DonationsHomePage> with TickerProvid
 
   void _fetchDonationsInArea({bool append = false, LatLng? center}) {
     if (_currentPosition == null) return;
-    
+
     final fetchCenter = center ?? _currentPosition!;
-    
+
+    // Dynamic radius from visible bounds
+    double fetchRadius = 30.0;
+    try {
+      final bounds = _mapController.camera.visibleBounds;
+      final dist = const Distance().as(
+        LengthUnit.Kilometer,
+        bounds.center,
+        LatLng(bounds.north, bounds.east),
+      );
+      fetchRadius = dist.toDouble().clamp(1.0, 5000.0); // max 5000 km
+    } catch (_) {}
+
     _donationsBloc.add(
       LoadDonationsEvent(
         categoryId: _selectedCategoryId,
         searchQuery: _searchController.text,
         latitude: fetchCenter.latitude,
         longitude: fetchCenter.longitude,
-        radius: 20.0, // 20 km default visible radius
+        radius: fetchRadius,
         append: append,
       ),
     );
@@ -77,28 +90,42 @@ class _DonationsHomePageState extends State<DonationsHomePage> with TickerProvid
   }
 
   void _animatedMapMove(LatLng destLocation, double destZoom) {
-    if (_mapController.camera.center == destLocation && _mapController.camera.zoom == destZoom) return;
+    if (_mapController.camera.center == destLocation &&
+        _mapController.camera.zoom == destZoom)
+      return;
 
     final latTween = Tween<double>(
-        begin: _mapController.camera.center.latitude, end: destLocation.latitude);
+      begin: _mapController.camera.center.latitude,
+      end: destLocation.latitude,
+    );
     final lngTween = Tween<double>(
-        begin: _mapController.camera.center.longitude, end: destLocation.longitude);
+      begin: _mapController.camera.center.longitude,
+      end: destLocation.longitude,
+    );
     final zoomTween = Tween<double>(
-        begin: _mapController.camera.zoom, end: destZoom);
+      begin: _mapController.camera.zoom,
+      end: destZoom,
+    );
 
     final animationController = AnimationController(
-        duration: const Duration(milliseconds: 500), vsync: this);
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
     final Animation<double> animation = CurvedAnimation(
-        parent: animationController, curve: Curves.fastOutSlowIn);
+      parent: animationController,
+      curve: Curves.fastOutSlowIn,
+    );
 
     animationController.addListener(() {
       _mapController.move(
-          LatLng(latTween.evaluate(animation), lngTween.evaluate(animation)),
-          zoomTween.evaluate(animation));
+        LatLng(latTween.evaluate(animation), lngTween.evaluate(animation)),
+        zoomTween.evaluate(animation),
+      );
     });
 
     animation.addStatusListener((status) {
-      if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
+      if (status == AnimationStatus.completed ||
+          status == AnimationStatus.dismissed) {
         animationController.dispose();
       }
     });
@@ -240,7 +267,10 @@ class _DonationsHomePageState extends State<DonationsHomePage> with TickerProvid
                                       _animatedMapMove(_currentPosition!, 14.5);
                                     }
                                   },
-                                  child: Icon(Icons.my_location, color: AuthColors.primary),
+                                  child: Icon(
+                                    Icons.my_location,
+                                    color: AuthColors.primary,
+                                  ),
                                 ),
                               ),
                               Positioned(
@@ -279,7 +309,11 @@ class _DonationsHomePageState extends State<DonationsHomePage> with TickerProvid
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
         child: Row(
           children: [
-            Icon(Icons.search_rounded, color: const Color(0xFF94A3B8), size: 24.sp),
+            Icon(
+              Icons.search_rounded,
+              color: const Color(0xFF94A3B8),
+              size: 24.sp,
+            ),
             SizedBox(width: 12.w),
             Expanded(
               child: TextField(
@@ -305,7 +339,11 @@ class _DonationsHomePageState extends State<DonationsHomePage> with TickerProvid
                 color: AuthColors.background,
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.tune_rounded, color: AuthColors.primary, size: 20.sp),
+              child: Icon(
+                Icons.tune_rounded,
+                color: AuthColors.primary,
+                size: 20.sp,
+              ),
             ),
           ],
         ),
@@ -378,6 +416,7 @@ class _DonationsHomePageState extends State<DonationsHomePage> with TickerProvid
         options: MapOptions(
           initialCenter: _currentPosition!,
           initialZoom: 13.2,
+          minZoom: 3.5, // Prevent infinite zoom out which repeats world pins
           onPositionChanged: _onMapPositionChanged,
         ),
         children: [
@@ -427,7 +466,9 @@ class _DonationsHomePageState extends State<DonationsHomePage> with TickerProvid
                           duration: const Duration(milliseconds: 200),
                           padding: EdgeInsets.all(isSelected ? 8.w : 6.w),
                           decoration: BoxDecoration(
-                            color: isSelected ? AuthColors.primary : Colors.white,
+                            color: isSelected
+                                ? AuthColors.primary
+                                : Colors.white,
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
@@ -439,7 +480,9 @@ class _DonationsHomePageState extends State<DonationsHomePage> with TickerProvid
                           ),
                           child: Icon(
                             Icons.location_on_rounded,
-                            color: isSelected ? Colors.white : AuthColors.primary,
+                            color: isSelected
+                                ? Colors.white
+                                : AuthColors.primary,
                             size: isSelected ? 24.sp : 20.sp,
                           ),
                         ),
