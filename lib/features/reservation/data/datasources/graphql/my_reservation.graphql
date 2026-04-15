@@ -1,7 +1,67 @@
-# import './reservation_fields.graphql'
-
 query MyReservation($id: ID!) {
   myReservation(id: $id) {
-    ...ReservationFields
+    id
+    status
+    createdAt
+    confirmedAt
+    updatedAt
+    donation {
+      id
+      title
+      description
+      quantity
+      categoryId
+      status
+      urgency
+      expiryDate
+      publishedAt
+      locationId
+      mainAttachmentId
+      attachmentIds
+      userId
+      safetyChecklistCompleted
+      listingExpiresAt
+      updatedAt
+      mainAttachment {
+        id
+        url
+        fileName
+        fileType
+        fileSize
+        createdAt
+        updatedAt
+        uploadStatus
+        jobId
+        uploadedById
+      }
+      user {
+        avatarAttachmentId
+        createdAt
+        description
+        displayName
+        email
+        id
+        isMailVerified
+        lastChangedPasswordDate
+        locationId
+        phoneNumber
+        reputationScore
+        role
+        status
+        updatedAt
+        avatar {
+          createdAt
+          fileName
+          fileSize
+          fileType
+          id
+          jobId
+          updatedAt
+          uploadStatus
+          uploadedById
+          url
+        }
+      }
+    }
   }
 }

@@ -115,47 +115,23 @@ Serializers _$serializers =
           ..add(GLogoutFromAllDevicesVars.serializer)
           ..add(GMyReservationData.serializer)
           ..add(GMyReservationData_myReservation.serializer)
-          ..add(GMyReservationData_myReservation_beneficiary.serializer)
-          ..add(GMyReservationData_myReservation_beneficiary_avatar.serializer)
-          ..add(
-            GMyReservationData_myReservation_beneficiary_location.serializer,
-          )
           ..add(GMyReservationData_myReservation_donation.serializer)
-          ..add(GMyReservationData_myReservation_donation_category.serializer)
-          ..add(GMyReservationData_myReservation_donation_location.serializer)
           ..add(
             GMyReservationData_myReservation_donation_mainAttachment.serializer,
           )
           ..add(GMyReservationData_myReservation_donation_user.serializer)
+          ..add(
+            GMyReservationData_myReservation_donation_user_avatar.serializer,
+          )
           ..add(GMyReservationReq.serializer)
           ..add(GMyReservationVars.serializer)
           ..add(GMyReservationsData.serializer)
           ..add(GMyReservationsData_myReservations.serializer)
           ..add(GMyReservationsData_myReservations_items.serializer)
-          ..add(GMyReservationsData_myReservations_items_beneficiary.serializer)
-          ..add(
-            GMyReservationsData_myReservations_items_beneficiary_avatar
-                .serializer,
-          )
-          ..add(
-            GMyReservationsData_myReservations_items_beneficiary_location
-                .serializer,
-          )
           ..add(GMyReservationsData_myReservations_items_donation.serializer)
-          ..add(
-            GMyReservationsData_myReservations_items_donation_category
-                .serializer,
-          )
-          ..add(
-            GMyReservationsData_myReservations_items_donation_location
-                .serializer,
-          )
           ..add(
             GMyReservationsData_myReservations_items_donation_mainAttachment
                 .serializer,
-          )
-          ..add(
-            GMyReservationsData_myReservations_items_donation_user.serializer,
           )
           ..add(GMyReservationsReq.serializer)
           ..add(GMyReservationsVars.serializer)
@@ -259,6 +235,14 @@ Serializers _$serializers =
               const FullType(GMyReservationsData_myReservations_items),
             ]),
             () => ListBuilder<GMyReservationsData_myReservations_items>(),
+          )
+          ..addBuilderFactory(
+            const FullType(BuiltList, const [const FullType(String)]),
+            () => ListBuilder<String>(),
+          )
+          ..addBuilderFactory(
+            const FullType(BuiltList, const [const FullType(String)]),
+            () => ListBuilder<String>(),
           )
           ..addBuilderFactory(
             const FullType(BuiltList, const [const FullType(String)]),

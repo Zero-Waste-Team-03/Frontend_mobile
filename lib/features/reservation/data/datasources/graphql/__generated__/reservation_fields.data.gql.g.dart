@@ -325,6 +325,14 @@ class _$GReservationFieldsData_donationSerializer
           ),
         );
     }
+    value = object.imageUrl;
+    if (value != null) {
+      result
+        ..add('imageUrl')
+        ..add(
+          serializers.serialize(value, specifiedType: const FullType(String)),
+        );
+    }
     value = object.location;
     if (value != null) {
       result
@@ -448,6 +456,14 @@ class _$GReservationFieldsData_donationSerializer
                 )!
                 as GReservationFieldsData_donation_mainAttachment,
           );
+          break;
+        case 'imageUrl':
+          result.imageUrl =
+              serializers.deserialize(
+                    value,
+                    specifiedType: const FullType(String),
+                  )
+                  as String?;
           break;
         case 'location':
           result.location.replace(
@@ -1525,6 +1541,8 @@ class _$GReservationFieldsData_donation
   @override
   final GReservationFieldsData_donation_mainAttachment? mainAttachment;
   @override
+  final String? imageUrl;
+  @override
   final GReservationFieldsData_donation_location? location;
   @override
   final GReservationFieldsData_donation_user user;
@@ -1545,6 +1563,7 @@ class _$GReservationFieldsData_donation
     required this.urgency,
     this.mainAttachmentId,
     this.mainAttachment,
+    this.imageUrl,
     this.location,
     required this.user,
   }) : super._();
@@ -1572,6 +1591,7 @@ class _$GReservationFieldsData_donation
         urgency == other.urgency &&
         mainAttachmentId == other.mainAttachmentId &&
         mainAttachment == other.mainAttachment &&
+        imageUrl == other.imageUrl &&
         location == other.location &&
         user == other.user;
   }
@@ -1590,6 +1610,7 @@ class _$GReservationFieldsData_donation
     _$hash = $jc(_$hash, urgency.hashCode);
     _$hash = $jc(_$hash, mainAttachmentId.hashCode);
     _$hash = $jc(_$hash, mainAttachment.hashCode);
+    _$hash = $jc(_$hash, imageUrl.hashCode);
     _$hash = $jc(_$hash, location.hashCode);
     _$hash = $jc(_$hash, user.hashCode);
     _$hash = $jf(_$hash);
@@ -1610,6 +1631,7 @@ class _$GReservationFieldsData_donation
           ..add('urgency', urgency)
           ..add('mainAttachmentId', mainAttachmentId)
           ..add('mainAttachment', mainAttachment)
+          ..add('imageUrl', imageUrl)
           ..add('location', location)
           ..add('user', user))
         .toString();
@@ -1675,6 +1697,10 @@ class GReservationFieldsData_donationBuilder
     GReservationFieldsData_donation_mainAttachmentBuilder? mainAttachment,
   ) => _$this._mainAttachment = mainAttachment;
 
+  String? _imageUrl;
+  String? get imageUrl => _$this._imageUrl;
+  set imageUrl(String? imageUrl) => _$this._imageUrl = imageUrl;
+
   GReservationFieldsData_donation_locationBuilder? _location;
   GReservationFieldsData_donation_locationBuilder get location =>
       _$this._location ??= GReservationFieldsData_donation_locationBuilder();
@@ -1705,6 +1731,7 @@ class GReservationFieldsData_donationBuilder
       _urgency = $v.urgency;
       _mainAttachmentId = $v.mainAttachmentId;
       _mainAttachment = $v.mainAttachment?.toBuilder();
+      _imageUrl = $v.imageUrl;
       _location = $v.location?.toBuilder();
       _user = $v.user.toBuilder();
       _$v = null;
@@ -1774,6 +1801,7 @@ class GReservationFieldsData_donationBuilder
             ),
             mainAttachmentId: mainAttachmentId,
             mainAttachment: _mainAttachment?.build(),
+            imageUrl: imageUrl,
             location: _location?.build(),
             user: user.build(),
           );
@@ -1785,6 +1813,7 @@ class GReservationFieldsData_donationBuilder
 
         _$failedField = 'mainAttachment';
         _mainAttachment?.build();
+
         _$failedField = 'location';
         _location?.build();
         _$failedField = 'user';

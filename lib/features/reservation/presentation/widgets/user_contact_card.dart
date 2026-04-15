@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gaspzero/features/auth/data/models/user_model.dart';
 import '../../../../shared/theme/app_colors.dart';
-import '../../../auth/domain/entities/user.dart';
 
 class UserContactCard extends StatelessWidget {
-  final User user;
+  final UserModel user;
   final String title;
   final VoidCallback? onChatPressed;
   final VoidCallback? onCallPressed;
@@ -73,7 +73,7 @@ class UserContactCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      user.name ?? 'Unknown User',
+                      user.displayName ?? 'Unknown User',
                       style: TextStyle(
                         fontSize: AppDimensions.bodySize.sp,
                         fontWeight: FontWeight.w600,
@@ -82,16 +82,14 @@ class UserContactCard extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 2.h),
-                    if (user.phoneNumber != null)
-                      Text(
-                        'TYPICALLY\nREPLIES IN 2M',
-                        style: TextStyle(
-                          fontSize: AppDimensions.captionSize.sp,
-                          color: AuthColors.subText,
-                          fontFamily: AppFonts.primaryFont,
-                          height: 1.3,
-                        ),
+                    Text(
+                      user.phoneNumber ?? 'No phone number',
+                      style: TextStyle(
+                        fontSize: AppDimensions.captionSize.sp,
+                        color: AuthColors.subText,
+                        fontFamily: AppFonts.primaryFont,
                       ),
+                    ),
                   ],
                 ),
               ),

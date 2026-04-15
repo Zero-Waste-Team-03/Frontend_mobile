@@ -162,6 +162,13 @@ const ReservationFields = _i1.FragmentDefinitionNode(
           ]),
         ),
         _i1.FieldNode(
+          name: _i1.NameNode(value: 'imageUrl'),
+          alias: null,
+          arguments: [],
+          directives: [],
+          selectionSet: null,
+        ),
+        _i1.FieldNode(
           name: _i1.NameNode(value: 'location'),
           alias: null,
           arguments: [],

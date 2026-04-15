@@ -3,17 +3,25 @@ Indicates exactly one field must be supplied and this field must not be `null`.
 """
 directive @oneOf on INPUT_OBJECT
 
-"""Exposes a URL that specifies the behavior of this scalar."""
+"""
+Exposes a URL that specifies the behavior of this scalar.
+"""
 directive @specifiedBy(
-  """The URL that specifies the behavior of this scalar."""
+  """
+  The URL that specifies the behavior of this scalar.
+  """
   url: String!
 ) on SCALAR
 
 input AdminCreateAccountInput {
-  """Full display name of the new account holder"""
+  """
+  Full display name of the new account holder
+  """
   displayName: String!
 
-  """Email address for the new account (must be unique)"""
+  """
+  Email address for the new account (must be unique)
+  """
   email: String!
 
   """
@@ -22,7 +30,9 @@ input AdminCreateAccountInput {
   role: UserRole!
 }
 
-"""Available UI themes for the application"""
+"""
+Available UI themes for the application
+"""
 enum AppearanceTheme {
   DARK
   LIGHT
@@ -30,45 +40,71 @@ enum AppearanceTheme {
 }
 
 type Attachment {
-  """Date the attachment was created"""
+  """
+  Date the attachment was created
+  """
   createdAt: DateTime!
 
-  """Original file name of the attachment"""
+  """
+  Original file name of the attachment
+  """
   fileName: String!
 
-  """Size of the attachment in bytes"""
+  """
+  Size of the attachment in bytes
+  """
   fileSize: Float!
 
-  """MIME type of the attachment"""
+  """
+  MIME type of the attachment
+  """
   fileType: String!
 
-  """Attachment unique identifier"""
+  """
+  Attachment unique identifier
+  """
   id: String!
 
-  """ID of the background job processing the upload"""
+  """
+  ID of the background job processing the upload
+  """
   jobId: String
 
-  """Date the attachment was last updated"""
+  """
+  Date the attachment was last updated
+  """
   updatedAt: DateTime
 
-  """Current upload status of the attachment"""
+  """
+  Current upload status of the attachment
+  """
   uploadStatus: UploadStatusValues
 
-  """ID of the user who uploaded the attachment"""
+  """
+  ID of the user who uploaded the attachment
+  """
   uploadedById: String!
 
-  """URL of the attachment"""
+  """
+  URL of the attachment
+  """
   url: String
 }
 
 type AuthResponse {
-  """JWT access token for authentication"""
+  """
+  JWT access token for authentication
+  """
   accessToken: String!
 
-  """JWT refresh token for renewing access"""
+  """
+  JWT refresh token for renewing access
+  """
   refreshToken: String!
 
-  """Authenticated user details"""
+  """
+  Authenticated user details
+  """
   user: User!
 }
 
@@ -87,16 +123,20 @@ enum CategorySensitivityValues {
 }
 
 input ChangePasswordInput {
-  """Current password of the user"""
+  """
+  Current password of the user
+  """
   currentPassword: String!
 
   """
   If the user whishes to logout from all other devics after password changes
-  this will eventually log out all the users up to 5 mins interval 
+  this will eventually log out all the users up to 5 mins interval
   """
   logoutFromOtherDevices: Boolean = false
 
-  """New password to set for the user"""
+  """
+  New password to set for the user
+  """
   newPassword: String!
 }
 
@@ -106,22 +146,34 @@ input CreateCategoryInput {
 }
 
 input CreateDonationInput {
-  """Optional additional attachment ids returned by upload endpoint"""
+  """
+  Optional additional attachment ids returned by upload endpoint
+  """
   attachmentIds: [String!]
 
-  """Category id for this donation listing"""
+  """
+  Category id for this donation listing
+  """
   categoryId: String!
 
-  """Detailed donation description"""
+  """
+  Detailed donation description
+  """
   description: String!
 
-  """Expiry date/time for this donation"""
+  """
+  Expiry date/time for this donation
+  """
   expiryDate: DateTime!
 
-  """Optional listing expiration date/time"""
+  """
+  Optional listing expiration date/time
+  """
   listingExpiresAt: DateTime
 
-  """Optional pickup location id. On update, explicit null clears location."""
+  """
+  Optional pickup location id. On update, explicit null clears location.
+  """
   locationId: String
 
   """
@@ -129,22 +181,34 @@ input CreateDonationInput {
   """
   locationInput: LocationInput
 
-  """Main attachment id used as cover photo"""
+  """
+  Main attachment id used as cover photo
+  """
   mainAttachmentId: String!
 
-  """Available quantity in integer units"""
+  """
+  Available quantity in integer units
+  """
   quantity: Int!
 
-  """Whether safety checklist was completed"""
+  """
+  Whether safety checklist was completed
+  """
   safetyChecklistCompleted: Boolean
 
-  """Structured specification payload (e.g. packaging, allergens)"""
+  """
+  Structured specification payload (e.g. packaging, allergens)
+  """
   specification: JSONObject
 
-  """Donation title"""
+  """
+  Donation title
+  """
   title: String!
 
-  """Urgency level for the listing"""
+  """
+  Urgency level for the listing
+  """
   urgency: DonationUrgencyValues
 }
 
@@ -154,64 +218,107 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 type Donation {
-  """Attachment ids for donation photos"""
+  """
+  Attachment ids for donation photos
+  """
   attachmentIds: [String!]!
 
-  """Category details"""
+  """
+  Category details
+  """
   category: Category
 
-  """Category id"""
+  """
+  Category id
+  """
   categoryId: String!
   createdAt: DateTime!
 
-  """Donation description"""
+  """
+  Donation description
+  """
   description: String!
 
-  """Donation expiry date"""
+  """
+  Donation expiry date
+  """
   expiryDate: DateTime!
   id: ID!
 
-  """Date when listing expires for visibility"""
+  """
+  Date when listing expires for visibility
+  """
   listingExpiresAt: DateTime
 
-  """Pickup location details"""
+  """
+  Pickup location details
+  """
   location: Location
 
-  """Optional pickup location id"""
+  """
+  Optional pickup location id
+  """
   locationId: String
 
-  """The Main attahcment used as cover photo"""
+  """
+  The Main attahcment used as cover photo
+  """
   mainAttachment: Attachment
 
-  """Main attachment id used as cover photo"""
+  """
+  Main attachment id used as cover photo
+  """
   mainAttachmentId: String
 
-  """Date when listing was published"""
+  """
+  Direct URL to the donation's image
+  """
+  imageUrl: String
+
+  """
+  Date when listing was published
+  """
   publishedAt: DateTime
 
-  """Available quantity"""
+  """
+  Available quantity
+  """
   quantity: Int!
 
-  """Whether safety checklist is completed"""
+  """
+  Whether safety checklist is completed
+  """
   safetyChecklistCompleted: Boolean!
 
-  """Structured specification data"""
+  """
+  Structured specification data
+  """
   specification: JSON
 
-  """Donation status"""
+  """
+  Donation status
+  """
   status: DonationStatusValues!
 
-  """Donation title"""
+  """
+  Donation title
+  """
   title: String!
   updatedAt: DateTime!
 
-  """Urgency level for this listing"""
+  """
+  Urgency level for this listing
+  """
   urgency: DonationUrgencyValues!
 
-  """The donor of this item"""
+  """
+  The donor of this item
+  """
   user: User!
 
-  """Owner user id (donor)"""
+  """
+  Owner user id (donor)
+  """
   userId: String!
 }
 
@@ -222,17 +329,25 @@ input DonationsFilterInput {
 }
 
 type DonationStatistics {
-  """Total number of flagged donations"""
+  """
+  Total number of flagged donations
+  """
   flaggedItems: Int!
 
-  """Total number of donations pending approval"""
+  """
+  Total number of donations pending approval
+  """
   pendingApprovals: Int!
 
-  """Total number of active (published) donations"""
+  """
+  Total number of active (published) donations
+  """
   totalActiveDonations: Int!
 }
 
-"""Possible statuses for a donation listing"""
+"""
+Possible statuses for a donation listing
+"""
 enum DonationStatusValues {
   COMPLETED
   DRAFT
@@ -241,7 +356,9 @@ enum DonationStatusValues {
   RESERVED
 }
 
-"""Available urgency levels for donations"""
+"""
+Available urgency levels for donations
+"""
 enum DonationUrgencyValues {
   HIGH
   LOW
@@ -259,22 +376,34 @@ The `JSONObject` scalar type represents JSON objects as specified by [ECMA-404](
 scalar JSONObject
 
 type Location {
-  """Location city"""
+  """
+  Location city
+  """
   city: String
 
-  """Location country"""
+  """
+  Location country
+  """
   country: String
 
-  """Location unique identifier"""
+  """
+  Location unique identifier
+  """
   id: String!
 
-  """Location latitude"""
+  """
+  Location latitude
+  """
   latitude: Float
 
-  """Location longitude"""
+  """
+  Location longitude
+  """
   longitude: Float
 
-  """Location neighborhood"""
+  """
+  Location neighborhood
+  """
   neighborhood: String
 }
 
@@ -287,15 +416,21 @@ input LocationInput {
 }
 
 input LoginInput {
-  """User email address"""
+  """
+  User email address
+  """
   email: String!
 
-  """User password"""
+  """
+  User password
+  """
   password: String!
 }
 
 type MessageResponse {
-  """Response message"""
+  """
+  Response message
+  """
   message: String!
 }
 
@@ -317,19 +452,29 @@ type Mutation {
   """
   changePassword(changePasswordInput: ChangePasswordInput!): MessageResponse!
 
-  """Confirm a pending reservation within the deadline"""
+  """
+  Confirm a pending reservation within the deadline
+  """
   confirmReservation(id: ID!): Reservation!
 
-  """Create a new category (Administrator only)."""
+  """
+  Create a new category (Administrator only).
+  """
   createCategory(input: CreateCategoryInput!): Category!
 
-  """Create a donation listing for the authenticated user"""
+  """
+  Create a donation listing for the authenticated user
+  """
   createDonation(input: CreateDonationInput!): Donation!
 
-  """Delete current user account permanently"""
+  """
+  Delete current user account permanently
+  """
   deleteAccount: MessageResponse!
 
-  """Delete a category by its ID (Administrator only)."""
+  """
+  Delete a category by its ID (Administrator only).
+  """
   deleteCategory(id: ID!): MessageResponse!
 
   """
@@ -338,15 +483,23 @@ type Mutation {
   deleteDonation(id: ID!): MessageResponse!
   deleteNotification(id: ID!): MessageResponse!
 
-  """Send password reset email to user"""
+  """
+  Send password reset email to user
+  """
   forgotPassword(email: String!): MessageResponse!
 
-  """Login user and issue access and refresh tokens"""
+  """
+  Login user and issue access and refresh tokens
+  """
   login(loginInput: LoginInput!): AuthResponse!
 
-  """Logout from all devices by invalidating all active sessions"""
+  """
+  Logout from all devices by invalidating all active sessions
+  """
   logoutFromAllDevices: MessageResponse!
-  markNotificationsAsRead(input: UpdateReadNotificationsInput!): MessageResponse!
+  markNotificationsAsRead(
+    input: UpdateReadNotificationsInput!
+  ): MessageResponse!
 
   """
   Refresh access and refresh tokens using a valid refresh token, the refresh
@@ -367,14 +520,20 @@ type Mutation {
   ): MessageResponse!
   registerFcmToken(fcmToken: String!): MessageResponse!
 
-  """Create a new reservation for a donation"""
+  """
+  Create a new reservation for a donation
+  """
   reserveDonation(donationId: ID!): Reservation!
 
-  """Delete user account permanently"""
+  """
+  Delete user account permanently
+  """
   resetPassword(resetPasswordInput: ResetPasswordInput!): MessageResponse!
   sendFcmNotification(input: SendNotificationInput!): SendNotificationResponse!
 
-  """Send verification email for registration flow"""
+  """
+  Send verification email for registration flow
+  """
   sendVerification(email: String!): MessageResponse!
 
   """
@@ -382,7 +541,9 @@ type Mutation {
   """
   suspendUser(userId: String!): User!
 
-  """Update an existing category (Administrator only)."""
+  """
+  Update an existing category (Administrator only).
+  """
   updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
 
   """
@@ -390,7 +551,9 @@ type Mutation {
   """
   updateDonation(id: ID!, input: UpdateDonationInput!): Donation!
 
-  """Update current user profile information"""
+  """
+  Update current user profile information
+  """
   updateProfile(updateProfileInput: UpdateProfileInput!): User!
 }
 
@@ -453,37 +616,59 @@ input PaginationQueryInput {
 }
 
 type Query {
-  """Get user statistics for admin dashboard"""
+  """
+  Get user statistics for admin dashboard
+  """
   adminGetUserStats: UserStats!
 
-  """Get paginated list of users for admin panel"""
+  """
+  Get paginated list of users for admin panel
+  """
   adminGetUsers(
-    """Items per page"""
+    """
+    Items per page
+    """
     limit: Int! = 10
 
-    """Page number"""
+    """
+    Page number
+    """
     page: Int! = 1
 
-    """Filter by user role"""
+    """
+    Filter by user role
+    """
     role: UserRole
 
-    """Search by name or email"""
+    """
+    Search by name or email
+    """
     search: String
 
-    """Filter by user status"""
+    """
+    Filter by user status
+    """
     status: String
   ): PaginatedUsers!
 
-  """Retrieve a paginated list of all categories."""
+  """
+  Retrieve a paginated list of all categories.
+  """
   categories(pagination: PaginationInput): PaginatedCategories!
 
-  """Retrieve a single category by its ID."""
+  """
+  Retrieve a single category by its ID.
+  """
   category(id: ID!): Category!
 
-  """Get current authenticated user profile"""
+  """
+  Get current authenticated user profile
+  """
   currentUser: User!
 
-  """Get a single donation listing by id"""
+  """
+  Get a single donation listing by id
+  """
   donation(id: ID!): Donation!
 
   """
@@ -491,28 +676,45 @@ type Query {
   """
   donationStatistics: DonationStatistics!
 
-  """Get all donation listings with optional filters and donor access"""
-  donations(filter: DonationsFilterInput, pagination: PaginationInput): PaginatedDonations!
+  """
+  Get all donation listings with optional filters and donor access
+  """
+  donations(
+    filter: DonationsFilterInput
+    pagination: PaginationInput
+  ): PaginatedDonations!
 
-  """Get a single reservation by ID if current user is donor or beneficiary"""
+  """
+  Get a single reservation by ID if current user is donor or beneficiary
+  """
   myReservation(id: ID!): Reservation!
 
-  """Get reservations where the current user is donor or beneficiary"""
+  """
+  Get reservations where the current user is donor or beneficiary
+  """
   myReservations(pagination: PaginationInput): PaginatedReservations!
   notifications(pagination: PaginationQueryInput): [Notification!]!
 }
 
 input RegisterInput {
-  """Display name for the new user"""
+  """
+  Display name for the new user
+  """
   displayName: String
 
-  """Email address for the new user"""
+  """
+  Email address for the new user
+  """
   email: String!
 
-  """Location payload for user registration"""
+  """
+  Location payload for user registration
+  """
   location: RegisterLocationInput!
 
-  """Password for the new user, must be strong and secure"""
+  """
+  Password for the new user, must be strong and secure
+  """
   password: String!
 
   """
@@ -522,19 +724,29 @@ input RegisterInput {
 }
 
 input RegisterLocationInput {
-  """City for user location"""
+  """
+  City for user location
+  """
   city: String
 
-  """Country for user location"""
+  """
+  Country for user location
+  """
   country: String
 
-  """Latitude for user location"""
+  """
+  Latitude for user location
+  """
   latitude: Float
 
-  """Longitude for user location"""
+  """
+  Longitude for user location
+  """
   longitude: Float
 
-  """Neighborhood for user location"""
+  """
+  Neighborhood for user location
+  """
   neighborhood: String
 }
 
@@ -550,7 +762,9 @@ type Reservation {
   updatedAt: DateTime!
 }
 
-"""The possible statuses of a reservation"""
+"""
+The possible statuses of a reservation
+"""
 enum ReservationStatus {
   CANCELLED
   COMPLETED
@@ -559,10 +773,14 @@ enum ReservationStatus {
 }
 
 input ResetPasswordInput {
-  """New password, must be strong and secure"""
+  """
+  New password, must be strong and secure
+  """
   password: String!
 
-  """Password reset token from email"""
+  """
+  Password reset token from email
+  """
   token: String!
 }
 
@@ -584,22 +802,34 @@ input UpdateCategoryInput {
 }
 
 input UpdateDonationInput {
-  """Optional additional attachment ids returned by upload endpoint"""
+  """
+  Optional additional attachment ids returned by upload endpoint
+  """
   attachmentIds: [String!]
 
-  """Category id for this donation listing"""
+  """
+  Category id for this donation listing
+  """
   categoryId: String
 
-  """Detailed donation description"""
+  """
+  Detailed donation description
+  """
   description: String
 
-  """Expiry date/time for this donation"""
+  """
+  Expiry date/time for this donation
+  """
   expiryDate: DateTime
 
-  """Optional listing expiration date/time"""
+  """
+  Optional listing expiration date/time
+  """
   listingExpiresAt: DateTime
 
-  """Optional pickup location id. On update, explicit null clears location."""
+  """
+  Optional pickup location id. On update, explicit null clears location.
+  """
   locationId: String
 
   """
@@ -607,47 +837,73 @@ input UpdateDonationInput {
   """
   locationInput: LocationInput
 
-  """Main attachment id used as cover photo"""
+  """
+  Main attachment id used as cover photo
+  """
   mainAttachmentId: String
 
-  """Available quantity in integer units"""
+  """
+  Available quantity in integer units
+  """
   quantity: Int
 
-  """Whether safety checklist was completed"""
+  """
+  Whether safety checklist was completed
+  """
   safetyChecklistCompleted: Boolean
 
-  """Structured specification payload (e.g. packaging, allergens)"""
+  """
+  Structured specification payload (e.g. packaging, allergens)
+  """
   specification: JSONObject
 
-  """Donation title"""
+  """
+  Donation title
+  """
   title: String
 
-  """Urgency level for the listing"""
+  """
+  Urgency level for the listing
+  """
   urgency: DonationUrgencyValues
 }
 
 input UpdateProfileInput {
-  """Avatar attachment ID"""
+  """
+  Avatar attachment ID
+  """
   avatarAttachmentId: String
 
-  """New display name for the user"""
+  """
+  New display name for the user
+  """
   displayName: String
 
-  """User email address"""
+  """
+  User email address
+  """
   email: String
 
-  """User location details"""
+  """
+  User location details
+  """
   location: LocationInput
 
-  """Phone number of the user"""
+  """
+  Phone number of the user
+  """
   phoneNumber: String
 
-  """User account settings"""
+  """
+  User account settings
+  """
   settings: UserSettingsInput
 }
 
 input UpdateReadNotificationsInput {
-  """Array of notification IDs to mark as read"""
+  """
+  Array of notification IDs to mark as read
+  """
   ids: [ID!]!
 }
 
@@ -659,62 +915,100 @@ enum UploadStatusValues {
 }
 
 type User {
-  """Alias for avatar attachment details"""
+  """
+  Alias for avatar attachment details
+  """
   attachment: Attachment
 
-  """User avatar attachment details"""
+  """
+  User avatar attachment details
+  """
   avatar: Attachment
 
-  """Attachment ID reference"""
+  """
+  Attachment ID reference
+  """
   avatarAttachmentId: String
 
-  """Date the user was created"""
+  """
+  Date the user was created
+  """
   createdAt: DateTime!
 
-  """User biography/description"""
+  """
+  User biography/description
+  """
   description: String
 
-  """User display name"""
+  """
+  User display name
+  """
   displayName: String
 
-  """User email address"""
+  """
+  User email address
+  """
   email: String!
 
-  """User unique identifier"""
+  """
+  User unique identifier
+  """
   id: String!
 
-  """Whether the user has verified their email"""
+  """
+  Whether the user has verified their email
+  """
   isMailVerified: Boolean!
 
-  """Date the user last changed password"""
+  """
+  Date the user last changed password
+  """
   lastChangedPasswordDate: DateTime
 
-  """Location details associated with user"""
+  """
+  Location details associated with user
+  """
   location: Location
 
-  """Location ID reference"""
+  """
+  Location ID reference
+  """
   locationId: String
 
-  """User phone number"""
+  """
+  User phone number
+  """
   phoneNumber: String
 
-  """User reputation score"""
+  """
+  User reputation score
+  """
   reputationScore: Int!
 
-  """User role"""
+  """
+  User role
+  """
   role: UserRole!
 
-  """User account settings"""
+  """
+  User account settings
+  """
   settings: UserSettings
 
-  """User account status"""
+  """
+  User account status
+  """
   status: String!
 
-  """Date the user was last updated"""
+  """
+  Date the user was last updated
+  """
   updatedAt: DateTime!
 }
 
-"""Available user roles"""
+"""
+Available user roles
+"""
 enum UserRole {
   ADMINISTRATOR
   LOCAL_AUTHORITY
@@ -740,22 +1034,33 @@ input UserSettingsInput {
 }
 
 type UserStats {
-  """Number of active accounts"""
+  """
+  Number of active accounts
+  """
   activeAccounts: Int!
 
-  """Percentage increase of active accounts since last month"""
+  """
+  Percentage increase of active accounts since last month
+  """
   activeAccountsIncrease: Float!
 
-  """Number of reported issues"""
+  """
+  Number of reported issues
+  """
   reportedIssues: Int!
 
-  """Percentage increase of reported issues since last month"""
+  """
+  Percentage increase of reported issues since last month
+  """
   reportedIssuesIncrease: Float!
 
-  """Total number of users"""
+  """
+  Total number of users
+  """
   totalUsers: Int!
 
-  """Percentage increase of total users since last month"""
+  """
+  Percentage increase of total users since last month
+  """
   totalUsersIncrease: Float!
 }
-

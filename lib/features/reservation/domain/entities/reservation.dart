@@ -2,50 +2,50 @@ import 'package:equatable/equatable.dart';
 import '../../../auth/domain/entities/user.dart';
 import '../../../donations/domain/entities/donation.dart';
 
-enum ReservationStatus { reserved, confirmed, pickedUp, expired }
+enum ReservationStatus { pending, confirmed, completed, cancelled }
 
 extension ReservationStatusExt on ReservationStatus {
   String get value {
     switch (this) {
-      case ReservationStatus.reserved:
-        return 'RESERVED';
+      case ReservationStatus.pending:
+        return 'PENDING';
       case ReservationStatus.confirmed:
         return 'CONFIRMED';
-      case ReservationStatus.pickedUp:
-        return 'PICKED_UP';
-      case ReservationStatus.expired:
-        return 'EXPIRED';
+      case ReservationStatus.completed:
+        return 'COMPLETED';
+      case ReservationStatus.cancelled:
+        return 'CANCELLED';
     }
   }
 
   String get displayName {
     switch (this) {
-      case ReservationStatus.reserved:
-        return 'Reserved';
+      case ReservationStatus.pending:
+        return 'Pending';
       case ReservationStatus.confirmed:
         return 'Confirmed';
-      case ReservationStatus.pickedUp:
-        return 'Picked up';
-      case ReservationStatus.expired:
-        return 'Expired';
+      case ReservationStatus.completed:
+        return 'Completed';
+      case ReservationStatus.cancelled:
+        return 'Cancelled';
     }
   }
 
   static ReservationStatus fromString(String value) {
     switch (value.toUpperCase()) {
-      case 'RESERVED':
       case 'PENDING':
-        return ReservationStatus.reserved;
+      case 'RESERVED':
+        return ReservationStatus.pending;
       case 'CONFIRMED':
         return ReservationStatus.confirmed;
-      case 'PICKED_UP':
       case 'COMPLETED':
-        return ReservationStatus.pickedUp;
-      case 'EXPIRED':
+      case 'PICKED_UP':
+        return ReservationStatus.completed;
       case 'CANCELLED':
-        return ReservationStatus.expired;
+      case 'EXPIRED':
+        return ReservationStatus.cancelled;
       default:
-        return ReservationStatus.reserved;
+        return ReservationStatus.pending;
     }
   }
 }
@@ -61,6 +61,7 @@ class Reservation extends Equatable {
   final DateTime? confirmedAt;
   final DateTime? pickedUpAt;
   final DateTime? expiresAt;
+  final DateTime? updatedAt;
 
   const Reservation({
     required this.id,
@@ -73,13 +74,14 @@ class Reservation extends Equatable {
     this.confirmedAt,
     this.pickedUpAt,
     this.expiresAt,
+    this.updatedAt,
   });
 
   bool get isActive =>
-      status == ReservationStatus.reserved ||
+      status == ReservationStatus.pending ||
       status == ReservationStatus.confirmed;
-  bool get isCompleted => status == ReservationStatus.pickedUp;
-  bool get isExpired => status == ReservationStatus.expired;
+  bool get isCompleted => status == ReservationStatus.completed;
+  bool get isCancelled => status == ReservationStatus.cancelled;
 
   Reservation copyWith({
     String? id,
@@ -92,6 +94,7 @@ class Reservation extends Equatable {
     DateTime? confirmedAt,
     DateTime? pickedUpAt,
     DateTime? expiresAt,
+    DateTime? updatedAt,
   }) {
     return Reservation(
       id: id ?? this.id,
@@ -104,9 +107,11 @@ class Reservation extends Equatable {
       confirmedAt: confirmedAt ?? this.confirmedAt,
       pickedUpAt: pickedUpAt ?? this.pickedUpAt,
       expiresAt: expiresAt ?? this.expiresAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
+  @override
   @override
   List<Object?> get props => [
     id,
@@ -119,5 +124,6 @@ class Reservation extends Equatable {
     confirmedAt,
     pickedUpAt,
     expiresAt,
+    updatedAt,
   ];
 }

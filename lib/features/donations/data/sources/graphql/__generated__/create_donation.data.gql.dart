@@ -65,6 +65,7 @@ abstract class GCreateDonationData_createDonation
   _i2.GDonationUrgencyValues get urgency;
   String? get mainAttachmentId;
   GCreateDonationData_createDonation_mainAttachment? get mainAttachment;
+  String? get imageUrl;
   String? get locationId;
   GCreateDonationData_createDonation_location? get location;
   GCreateDonationData_createDonation_user get user;

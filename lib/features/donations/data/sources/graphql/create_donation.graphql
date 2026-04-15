@@ -15,6 +15,7 @@ mutation CreateDonation($input: CreateDonationInput!) {
     mainAttachment {
       url
     }
+    imageUrl
     locationId
     location {
       latitude

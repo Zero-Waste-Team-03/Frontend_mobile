@@ -43,7 +43,7 @@ class UserReservationsLoading extends ReservationState {
 }
 
 class UserReservationsLoaded extends ReservationState {
-  final List<Donation> reservations;
+  final List<Reservation> reservations;
   final String? activeFilter;
 
   const UserReservationsLoaded(this.reservations, {this.activeFilter});

@@ -201,14 +201,10 @@ import 'package:gaspzero/features/reservation/data/datasources/graphql/__generat
     show
         GMyReservationData,
         GMyReservationData_myReservation,
-        GMyReservationData_myReservation_beneficiary,
-        GMyReservationData_myReservation_beneficiary_avatar,
-        GMyReservationData_myReservation_beneficiary_location,
         GMyReservationData_myReservation_donation,
-        GMyReservationData_myReservation_donation_category,
-        GMyReservationData_myReservation_donation_location,
         GMyReservationData_myReservation_donation_mainAttachment,
-        GMyReservationData_myReservation_donation_user;
+        GMyReservationData_myReservation_donation_user,
+        GMyReservationData_myReservation_donation_user_avatar;
 import 'package:gaspzero/features/reservation/data/datasources/graphql/__generated__/my_reservation.req.gql.dart'
     show GMyReservationReq;
 import 'package:gaspzero/features/reservation/data/datasources/graphql/__generated__/my_reservation.var.gql.dart'
@@ -218,14 +214,8 @@ import 'package:gaspzero/features/reservation/data/datasources/graphql/__generat
         GMyReservationsData,
         GMyReservationsData_myReservations,
         GMyReservationsData_myReservations_items,
-        GMyReservationsData_myReservations_items_beneficiary,
-        GMyReservationsData_myReservations_items_beneficiary_avatar,
-        GMyReservationsData_myReservations_items_beneficiary_location,
         GMyReservationsData_myReservations_items_donation,
-        GMyReservationsData_myReservations_items_donation_category,
-        GMyReservationsData_myReservations_items_donation_location,
-        GMyReservationsData_myReservations_items_donation_mainAttachment,
-        GMyReservationsData_myReservations_items_donation_user;
+        GMyReservationsData_myReservations_items_donation_mainAttachment;
 import 'package:gaspzero/features/reservation/data/datasources/graphql/__generated__/my_reservations.req.gql.dart'
     show GMyReservationsReq;
 import 'package:gaspzero/features/reservation/data/datasources/graphql/__generated__/my_reservations.var.gql.dart'
@@ -357,27 +347,17 @@ final SerializersBuilder _serializersBuilder = _$serializers.toBuilder()
   GLogoutFromAllDevicesVars,
   GMyReservationData,
   GMyReservationData_myReservation,
-  GMyReservationData_myReservation_beneficiary,
-  GMyReservationData_myReservation_beneficiary_avatar,
-  GMyReservationData_myReservation_beneficiary_location,
   GMyReservationData_myReservation_donation,
-  GMyReservationData_myReservation_donation_category,
-  GMyReservationData_myReservation_donation_location,
   GMyReservationData_myReservation_donation_mainAttachment,
   GMyReservationData_myReservation_donation_user,
+  GMyReservationData_myReservation_donation_user_avatar,
   GMyReservationReq,
   GMyReservationVars,
   GMyReservationsData,
   GMyReservationsData_myReservations,
   GMyReservationsData_myReservations_items,
-  GMyReservationsData_myReservations_items_beneficiary,
-  GMyReservationsData_myReservations_items_beneficiary_avatar,
-  GMyReservationsData_myReservations_items_beneficiary_location,
   GMyReservationsData_myReservations_items_donation,
-  GMyReservationsData_myReservations_items_donation_category,
-  GMyReservationsData_myReservations_items_donation_location,
   GMyReservationsData_myReservations_items_donation_mainAttachment,
-  GMyReservationsData_myReservations_items_donation_user,
   GMyReservationsReq,
   GMyReservationsVars,
   GPaginationInput,
