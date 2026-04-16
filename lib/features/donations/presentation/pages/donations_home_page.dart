@@ -23,7 +23,8 @@ class DonationsHomePage extends StatefulWidget {
   State<DonationsHomePage> createState() => _DonationsHomePageState();
 }
 
-class _DonationsHomePageState extends State<DonationsHomePage> with TickerProviderStateMixin {
+class _DonationsHomePageState extends State<DonationsHomePage>
+    with TickerProviderStateMixin {
   final MapController _mapController = MapController();
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounceTimer;
@@ -51,9 +52,9 @@ class _DonationsHomePageState extends State<DonationsHomePage> with TickerProvid
 
   void _fetchDonationsInArea({bool append = false, LatLng? center}) {
     if (_currentPosition == null) return;
-    
+
     final fetchCenter = center ?? _currentPosition!;
-    
+
     _donationsBloc.add(
       LoadDonationsEvent(
         categoryId: _selectedCategoryId,
@@ -77,28 +78,42 @@ class _DonationsHomePageState extends State<DonationsHomePage> with TickerProvid
   }
 
   void _animatedMapMove(LatLng destLocation, double destZoom) {
-    if (_mapController.camera.center == destLocation && _mapController.camera.zoom == destZoom) return;
+    if (_mapController.camera.center == destLocation &&
+        _mapController.camera.zoom == destZoom)
+      return;
 
     final latTween = Tween<double>(
-        begin: _mapController.camera.center.latitude, end: destLocation.latitude);
+      begin: _mapController.camera.center.latitude,
+      end: destLocation.latitude,
+    );
     final lngTween = Tween<double>(
-        begin: _mapController.camera.center.longitude, end: destLocation.longitude);
+      begin: _mapController.camera.center.longitude,
+      end: destLocation.longitude,
+    );
     final zoomTween = Tween<double>(
-        begin: _mapController.camera.zoom, end: destZoom);
+      begin: _mapController.camera.zoom,
+      end: destZoom,
+    );
 
     final animationController = AnimationController(
-        duration: const Duration(milliseconds: 500), vsync: this);
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
     final Animation<double> animation = CurvedAnimation(
-        parent: animationController, curve: Curves.fastOutSlowIn);
+      parent: animationController,
+      curve: Curves.fastOutSlowIn,
+    );
 
     animationController.addListener(() {
       _mapController.move(
-          LatLng(latTween.evaluate(animation), lngTween.evaluate(animation)),
-          zoomTween.evaluate(animation));
+        LatLng(latTween.evaluate(animation), lngTween.evaluate(animation)),
+        zoomTween.evaluate(animation),
+      );
     });
 
     animation.addStatusListener((status) {
-      if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
+      if (status == AnimationStatus.completed ||
+          status == AnimationStatus.dismissed) {
         animationController.dispose();
       }
     });
@@ -160,7 +175,7 @@ class _DonationsHomePageState extends State<DonationsHomePage> with TickerProvid
       value: _donationsBloc,
       child: Scaffold(
         backgroundColor: AuthColors.background,
-        body: SafeArea(
+        body: Container(
           child: _isLoadingMap
               ? const Center(child: CircularProgressIndicator())
               : BlocBuilder<DonationsBloc, DonationsState>(
@@ -219,12 +234,8 @@ class _DonationsHomePageState extends State<DonationsHomePage> with TickerProvid
                       _selectedDonation = null;
                     }
 
-                    return Column(
+                    return Stack(
                       children: [
-                        _buildSearchBar(context),
-                        SizedBox(height: 12.h),
-                        _buildCategoryFilters(context, categories),
-                        SizedBox(height: 12.h),
                         Expanded(
                           child: Stack(
                             children: [
@@ -240,7 +251,10 @@ class _DonationsHomePageState extends State<DonationsHomePage> with TickerProvid
                                       _animatedMapMove(_currentPosition!, 14.5);
                                     }
                                   },
-                                  child: Icon(Icons.my_location, color: AuthColors.primary),
+                                  child: Icon(
+                                    Icons.my_location,
+                                    color: AuthColors.primary,
+                                  ),
                                 ),
                               ),
                               Positioned(
@@ -249,6 +263,15 @@ class _DonationsHomePageState extends State<DonationsHomePage> with TickerProvid
                                 bottom: 16.h,
                                 child: _buildBottomCard(donationsWithLocation),
                               ),
+                            ],
+                          ),
+                        ),
+                        SafeArea(
+                          child: Column(
+                            spacing: 4.h,
+                            children: [
+                              _buildSearchBar(context),
+                              _buildCategoryFilters(context, categories),
                             ],
                           ),
                         ),
@@ -262,53 +285,50 @@ class _DonationsHomePageState extends State<DonationsHomePage> with TickerProvid
   }
 
   Widget _buildSearchBar(BuildContext context) {
+    // _selectedDonation = null;
+    // _fetchDonationsInArea();
     return Padding(
-      padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 4.h),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(30.r),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+      padding: const EdgeInsets.all(8.0),
+      child: SearchAnchor(
+        builder: (BuildContext context, SearchController controller) {
+          return SearchBar(
+            controller: controller,
+            padding: const WidgetStatePropertyAll<EdgeInsets>(
+              EdgeInsets.only(left: 16.0, right: 8.0),
             ),
-          ],
-        ),
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
-        child: Row(
-          children: [
-            Icon(Icons.search_rounded, color: const Color(0xFF94A3B8), size: 24.sp),
-            SizedBox(width: 12.w),
-            Expanded(
-              child: TextField(
-                controller: _searchController,
-                textInputAction: TextInputAction.search,
-                onSubmitted: (_) {
-                  _selectedDonation = null;
-                  _fetchDonationsInArea();
-                },
-                decoration: InputDecoration(
-                  hintText: 'Search donations or locations...',
-                  hintStyle: TextStyle(
-                    color: const Color(0xFF94A3B8),
-                    fontSize: 14.sp,
-                  ),
-                  border: InputBorder.none,
+            onTap: () {
+              controller.openView();
+            },
+            onChanged: (_) {
+              controller.openView();
+            },
+            hintText: 'Search donations...',
+            leading: const Icon(Icons.search),
+            trailing: <Widget>[
+              Tooltip(
+                message: 'Filters (coming soon)',
+                child: IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Icons.tune_rounded),
                 ),
               ),
-            ),
-            Container(
-              padding: EdgeInsets.all(8.w),
-              decoration: BoxDecoration(
-                color: AuthColors.background,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(Icons.tune_rounded, color: AuthColors.primary, size: 20.sp),
-            ),
-          ],
-        ),
+            ],
+          );
+        },
+        suggestionsBuilder:
+            (BuildContext context, SearchController controller) {
+              return List<ListTile>.generate(5, (int index) {
+                final String item = 'item $index';
+                return ListTile(
+                  title: Text(item),
+                  onTap: () {
+                    setState(() {
+                      controller.closeView(item);
+                    });
+                  },
+                );
+              });
+            },
       ),
     );
   }
@@ -427,7 +447,9 @@ class _DonationsHomePageState extends State<DonationsHomePage> with TickerProvid
                           duration: const Duration(milliseconds: 200),
                           padding: EdgeInsets.all(isSelected ? 8.w : 6.w),
                           decoration: BoxDecoration(
-                            color: isSelected ? AuthColors.primary : Colors.white,
+                            color: isSelected
+                                ? AuthColors.primary
+                                : Colors.white,
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
@@ -439,7 +461,9 @@ class _DonationsHomePageState extends State<DonationsHomePage> with TickerProvid
                           ),
                           child: Icon(
                             Icons.location_on_rounded,
-                            color: isSelected ? Colors.white : AuthColors.primary,
+                            color: isSelected
+                                ? Colors.white
+                                : AuthColors.primary,
                             size: isSelected ? 24.sp : 20.sp,
                           ),
                         ),
