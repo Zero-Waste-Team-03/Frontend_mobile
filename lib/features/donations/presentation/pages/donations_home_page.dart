@@ -30,7 +30,6 @@ class _DonationsHomePageState extends State<DonationsHomePage>
   Timer? _debounceTimer;
   late final DonationsBloc _donationsBloc;
   LatLng? _currentPosition;
-  bool _isLoadingMap = true;
   String _selectedCategory = 'All';
   String? _selectedCategoryId;
   Donation? _selectedDonation;
@@ -151,7 +150,6 @@ class _DonationsHomePageState extends State<DonationsHomePage>
       if (mounted) {
         setState(() {
           _currentPosition = LatLng(position.latitude, position.longitude);
-          _isLoadingMap = false;
         });
         _fetchDonationsInArea();
       }
@@ -164,7 +162,6 @@ class _DonationsHomePageState extends State<DonationsHomePage>
     if (mounted) {
       setState(() {
         _currentPosition = const LatLng(21.4225, 39.8262); // Mecca fallback
-        _isLoadingMap = false;
       });
       _fetchDonationsInArea();
     }
