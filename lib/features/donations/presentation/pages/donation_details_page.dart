@@ -75,6 +75,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
           body: Stack(
             children: [
               CustomScrollView(
+                paintOrder: SliverPaintOrder.lastIsTop,
                 slivers: [
                   _buildSliverAppBar(),
                   SliverToBoxAdapter(
@@ -83,7 +84,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(32.r),
+                          top: Radius.circular(24.r),
                         ),
                       ),
                       transform: Matrix4.translationValues(0, -32.h, 0),
@@ -402,27 +403,10 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
 
   Widget _buildMainInfoCard() {
     return Padding(
-      padding: EdgeInsets.fromLTRB(20.w, 32.h, 20.w, 0),
+      padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-            decoration: BoxDecoration(
-              color: tagBgColor,
-              borderRadius: BorderRadius.circular(12.r),
-            ),
-            child: Text(
-              widget.donation.condition.toUpperCase(),
-              style: TextStyle(
-                fontSize: 10.sp,
-                color: tagTextColor,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.5,
-              ),
-            ),
-          ),
-          SizedBox(height: 12.h),
           Text(
             widget.donation.title,
             style: TextStyle(
