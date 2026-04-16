@@ -91,7 +91,7 @@ class _MainShellState extends State<MainShell> {
                   ),
                   Expanded(
                     child: NavItem(
-                      icon: AppIcons.search,
+                      icon: AppIcons.explore,
                       label: 'Browse',
                       isSelected: widget.navigationShell.currentIndex == 1,
                       onTap: () => widget.navigationShell.goBranch(1),

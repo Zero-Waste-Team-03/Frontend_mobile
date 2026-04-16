@@ -49,6 +49,8 @@ class NavItem extends StatelessWidget {
                       : const Color(0xFF94A3B8),
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
