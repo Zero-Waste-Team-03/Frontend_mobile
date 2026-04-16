@@ -51,7 +51,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
   @override
   Widget build(BuildContext context) {
     if (_chatPos == const Offset(300, 500)) {
-      final size = MediaQuery.of(context).size;
+      final size = MediaQuery.sizeOf(context);
       _chatPos = Offset(size.width - 72.w, size.height - 180.h);
     }
     return BlocProvider(
@@ -207,7 +207,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                     setState(() {
                       double dx = details.offset.dx;
                       double dy = details.offset.dy;
-                      final screenSize = MediaQuery.of(context).size;
+                      final screenSize = MediaQuery.sizeOf(context);
                       if (dx < 0) dx = 0;
                       if (dx > screenSize.width - 64)
                         dx = screenSize.width - 64;
@@ -259,9 +259,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
       onRetry: () {
         // Retry the reservation
         context.read<ReservationBloc>().add(
-          CreateReservationEvent(
-            donationId: widget.donation.id,
-          ),
+          CreateReservationEvent(donationId: widget.donation.id),
         );
       },
     );
