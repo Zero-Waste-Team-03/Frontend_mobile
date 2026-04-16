@@ -13,7 +13,6 @@ import '../../features/donations/domain/entities/donation.dart';
 import '../../features/donations/presentation/pages/donations_list_page.dart';
 import '../../features/donations/presentation/bloc/donations_bloc.dart';
 import '../../features/donations/presentation/bloc/donations_event.dart';
-import '../../features/chat/presentation/pages/chat_placeholder_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/donations/presentation/pages/add_donation_page.dart';
 import '../../features/profile/presentation/pages/edit_profile_page.dart';
