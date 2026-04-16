@@ -267,7 +267,7 @@ class _DonationsHomePageState extends State<DonationsHomePage>
 
               return Stack(
                 children: [
-                  Expanded(
+                  Positioned.fill(
                     child: Stack(
                       children: [
                         _buildMap(donationsWithLocation),
