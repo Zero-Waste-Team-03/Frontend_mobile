@@ -84,9 +84,6 @@ class NotificationRepositoryImpl implements NotificationRepository {
       );
       return Left(ServerFailure(e.message));
     } catch (e) {
-      _logger.e(
-        'NotificationRepository: Unexpected error in markNotificationsAsRead: $e',
-      );
       return Left(ServerFailure(e.toString()));
     }
   }
@@ -96,23 +93,17 @@ class NotificationRepositoryImpl implements NotificationRepository {
     String notificationId,
   ) async {
     try {
-      _logger.i(
-        'NotificationRepository: deleteNotification called with id=$notificationId',
-      );
+      final notification = await remoteDataSource.markAsRead(notificationId);
+      return Right(notification.toEntity());
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
 
-      if (notificationId.isEmpty) {
-        _logger.e(
-          'NotificationRepository: deleteNotification called with empty ID',
-        );
-        return Left(ServerFailure('Notification ID cannot be empty'));
-      }
-
-      await remoteDataSource.deleteNotification(notificationId);
-
-      _logger.i(
-        'NotificationRepository: Successfully deleted notification with id=$notificationId',
-      );
-
+  @override
+  Future<Either<Failure, void>> markAllAsRead(String userId) async {
+    try {
+      await remoteDataSource.markAllAsRead(userId);
       return const Right(null);
     } on ServerException catch (e) {
       _logger.e(
@@ -120,9 +111,6 @@ class NotificationRepositoryImpl implements NotificationRepository {
       );
       return Left(ServerFailure(e.message));
     } catch (e) {
-      _logger.e(
-        'NotificationRepository: Unexpected error in deleteNotification: $e',
-      );
       return Left(ServerFailure(e.toString()));
     }
   }
