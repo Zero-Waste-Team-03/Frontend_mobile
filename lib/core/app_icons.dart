@@ -5,6 +5,7 @@ class AppIcons {
   static const IconData search = Icons.search_rounded;
   static const IconData add = Icons.add_rounded;
   static const IconData chat = Icons.chat_bubble_rounded;
+  static const IconData leaderboard = Icons.leaderboard_rounded;
   static const IconData profile = Icons.person_rounded;
   static const IconData notifications = Icons.notifications_none_rounded;
   static const IconData location = Icons.location_on_outlined;
