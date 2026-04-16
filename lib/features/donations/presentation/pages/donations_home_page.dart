@@ -39,6 +39,7 @@ class _DonationsHomePageState extends State<DonationsHomePage>
   void initState() {
     super.initState();
     _donationsBloc = getIt<DonationsBloc>();
+    _donationsBloc.add(const LoadDonationCategoriesEvent());
     _determinePosition();
   }
 
@@ -176,109 +177,111 @@ class _DonationsHomePageState extends State<DonationsHomePage>
       child: Scaffold(
         backgroundColor: AuthColors.background,
         body: Container(
-          child: _isLoadingMap
-              ? const Center(child: CircularProgressIndicator())
-              : BlocBuilder<DonationsBloc, DonationsState>(
-                  builder: (context, state) {
-                    if (state is DonationsLoading ||
-                        state is DonationsInitial) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
+          child: BlocBuilder<DonationsBloc, DonationsState>(
+            builder: (context, state) {
+              // if (state is DonationsError) {
+              //   return Center(
+              //     child: Column(
+              //       mainAxisSize: MainAxisSize.min,
+              //       children: [
+              //         Text(
+              //           'Failed to load map donations',
+              //           style: TextStyle(
+              //             fontSize: 16.sp,
+              //             fontWeight: FontWeight.w600,
+              //             color: AuthColors.headingText,
+              //           ),
+              //         ),
+              //         SizedBox(height: 6.h),
+              //         Text(
+              //           state.message,
+              //           textAlign: TextAlign.center,
+              //           style: TextStyle(
+              //             fontSize: 13.sp,
+              //             color: AuthColors.subText,
+              //           ),
+              //         ),
+              //         SizedBox(height: 14.h),
+              //         ElevatedButton(
+              //           onPressed: _fetchDonationsInArea,
+              //           child: const Text('Retry'),
+              //         ),
+              //       ],
+              //     ),
+              //   );
+              // }
 
-                    if (state is DonationsError) {
-                      return Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'Failed to load map donations',
-                              style: TextStyle(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w600,
-                                color: AuthColors.headingText,
-                              ),
-                            ),
-                            SizedBox(height: 6.h),
-                            Text(
-                              state.message,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 13.sp,
-                                color: AuthColors.subText,
-                              ),
-                            ),
-                            SizedBox(height: 14.h),
-                            ElevatedButton(
-                              onPressed: _fetchDonationsInArea,
-                              child: const Text('Retry'),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
+              final categories = state is DonationsLoaded
+                  ? state.categories
+                  : <Category>[];
+              final donations = state is DonationsLoaded
+                  ? state.donations
+                  : <Donation>[];
+              final donationsWithLocation = donations
+                  .where((d) => d.latitude != null && d.longitude != null)
+                  .toList();
 
-                    if (state is! DonationsLoaded) {
-                      return const SizedBox.shrink();
-                    }
+              if (_selectedDonation != null &&
+                  !donationsWithLocation.any(
+                    (d) => d.id == _selectedDonation!.id,
+                  )) {
+                _selectedDonation = null;
+              }
 
-                    final categories = state.categories;
-                    final donations = state.donations;
-                    final donationsWithLocation = donations
-                        .where((d) => d.latitude != null && d.longitude != null)
-                        .toList();
-
-                    if (_selectedDonation != null &&
-                        !donationsWithLocation.any(
-                          (d) => d.id == _selectedDonation!.id,
-                        )) {
-                      _selectedDonation = null;
-                    }
-
-                    return Stack(
+              return Stack(
+                children: [
+                  Expanded(
+                    child: Stack(
                       children: [
-                        Expanded(
-                          child: Stack(
-                            children: [
-                              _buildMap(donationsWithLocation),
-                              Positioned(
-                                right: 16.w,
-                                bottom: 120.h,
-                                child: FloatingActionButton(
-                                  mini: true,
-                                  backgroundColor: Colors.white,
-                                  onPressed: () {
-                                    if (_currentPosition != null) {
-                                      _animatedMapMove(_currentPosition!, 14.5);
-                                    }
-                                  },
-                                  child: Icon(
-                                    Icons.my_location,
-                                    color: AuthColors.primary,
-                                  ),
-                                ),
-                              ),
-                              Positioned(
-                                left: 16.w,
-                                right: 16.w,
-                                bottom: 16.h,
-                                child: _buildBottomCard(donationsWithLocation),
-                              ),
-                            ],
+                        _buildMap(donationsWithLocation),
+                        Positioned(
+                          right: 16.w,
+                          bottom: 120.h,
+                          child: FloatingActionButton(
+                            mini: true,
+                            backgroundColor: Colors.white,
+                            onPressed: () {
+                              if (_currentPosition != null) {
+                                _animatedMapMove(_currentPosition!, 14.5);
+                              }
+                            },
+                            child: Icon(
+                              Icons.my_location,
+                              color: AuthColors.primary,
+                            ),
                           ),
                         ),
-                        SafeArea(
-                          child: Column(
-                            spacing: 4.h,
-                            children: [
-                              _buildSearchBar(context),
-                              _buildCategoryFilters(context, categories),
-                            ],
-                          ),
+                        Positioned(
+                          left: 16.w,
+                          right: 16.w,
+                          bottom: 16.h,
+                          child: _buildBottomCard(donationsWithLocation),
                         ),
                       ],
-                    );
-                  },
-                ),
+                    ),
+                  ),
+                  SafeArea(
+                    bottom: false,
+                    child: Column(
+                      spacing: 4.h,
+                      children: [
+                        _buildSearchBar(context),
+                        _buildCategoryFilters(context, categories),
+                        state is DonationsLoading
+                            ? LinearProgressIndicator(
+                                color: AuthColors.primary,
+                                backgroundColor: AuthColors.primary.withValues(
+                                  alpha: 0.3,
+                                ),
+                              )
+                            : const SizedBox.shrink(),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -310,25 +313,17 @@ class _DonationsHomePageState extends State<DonationsHomePage>
                 child: IconButton(
                   onPressed: () {},
                   icon: const Icon(Icons.tune_rounded),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
               ),
             ],
           );
         },
-        suggestionsBuilder:
-            (BuildContext context, SearchController controller) {
-              return List<ListTile>.generate(5, (int index) {
-                final String item = 'item $index';
-                return ListTile(
-                  title: Text(item),
-                  onTap: () {
-                    setState(() {
-                      controller.closeView(item);
-                    });
-                  },
-                );
-              });
-            },
+        suggestionsBuilder: (BuildContext context, SearchController controller) {
+          return []; // No dynamic suggestions for now, just rely on the search results page
+        },
       ),
     );
   }
@@ -407,23 +402,6 @@ class _DonationsHomePageState extends State<DonationsHomePage>
           ),
           MarkerLayer(
             markers: [
-              Marker(
-                point: _currentPosition!,
-                width: 34.w,
-                height: 34.w,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1D4ED8),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
-                  ),
-                  child: const Icon(
-                    Icons.my_location_rounded,
-                    color: Colors.white,
-                    size: 18,
-                  ),
-                ),
-              ),
               ...donationsWithLocation.map((donation) {
                 final isSelected = _selectedDonation?.id == donation.id;
                 return Marker(
@@ -472,6 +450,25 @@ class _DonationsHomePageState extends State<DonationsHomePage>
                   ),
                 );
               }),
+              Marker(
+                point: _currentPosition!,
+                width: 24.w,
+                height: 24.w,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1D4ED8),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 4),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF1D4ED8).withValues(alpha: 0.4),
+                        blurRadius: 12,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ],
