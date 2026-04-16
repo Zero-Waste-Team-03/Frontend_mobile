@@ -8,6 +8,15 @@ abstract class DonationsEvent extends Equatable {
   List<Object?> get props => [];
 }
 
+class LoadDonationCategoriesEvent extends DonationsEvent {
+  final bool forceRefresh;
+
+  const LoadDonationCategoriesEvent({this.forceRefresh = false});
+
+  @override
+  List<Object?> get props => [forceRefresh];
+}
+
 class LoadDonationsEvent extends DonationsEvent {
   final String? categoryId;
   final String? searchQuery;
@@ -27,7 +36,14 @@ class LoadDonationsEvent extends DonationsEvent {
   });
 
   @override
-  List<Object?> get props => [categoryId, searchQuery, latitude, longitude, radius, append];
+  List<Object?> get props => [
+    categoryId,
+    searchQuery,
+    latitude,
+    longitude,
+    radius,
+    append,
+  ];
 }
 
 class UploadDonationImageEvent extends DonationsEvent {
@@ -69,17 +85,17 @@ class AddDonationEvent extends DonationsEvent {
 
   @override
   List<Object?> get props => [
-        title,
-        description,
-        categoryId,
-        quantity,
-        foodWeightKg,
-        urgency,
-        mainAttachmentId,
-        attachmentIds,
-        expiryDate,
-        safetyChecklistCompleted,
-        latitude,
-        longitude,
-      ];
+    title,
+    description,
+    categoryId,
+    quantity,
+    foodWeightKg,
+    urgency,
+    mainAttachmentId,
+    attachmentIds,
+    expiryDate,
+    safetyChecklistCompleted,
+    latitude,
+    longitude,
+  ];
 }
