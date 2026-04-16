@@ -79,19 +79,23 @@ class _MainShellState extends State<MainShell> {
               padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: 8.w,
                 children: [
-                  NavItem(
-                    icon: AppIcons.home,
-                    label: 'Home',
-                    isSelected: widget.navigationShell.currentIndex == 0,
-                    onTap: () => widget.navigationShell.goBranch(0),
+                  Expanded(
+                    child: NavItem(
+                      icon: AppIcons.home,
+                      label: 'Home',
+                      isSelected: widget.navigationShell.currentIndex == 0,
+                      onTap: () => widget.navigationShell.goBranch(0),
+                    ),
                   ),
-                  NavItem(
-                    icon: AppIcons.search,
-                    label: 'Browse',
-                    isSelected: widget.navigationShell.currentIndex == 1,
-                    onTap: () => widget.navigationShell.goBranch(1),
+                  Expanded(
+                    child: NavItem(
+                      icon: AppIcons.search,
+                      label: 'Browse',
+                      isSelected: widget.navigationShell.currentIndex == 1,
+                      onTap: () => widget.navigationShell.goBranch(1),
+                    ),
                   ),
                   GestureDetector(
                     onTap: () => context.push('/add-donation'),
@@ -115,17 +119,21 @@ class _MainShellState extends State<MainShell> {
                       ),
                     ),
                   ),
-                  NavItem(
-                    icon: AppIcons.leaderboard,
-                    label: 'Leaderboard',
-                    isSelected: widget.navigationShell.currentIndex == 2,
-                    onTap: () => widget.navigationShell.goBranch(2),
+                  Expanded(
+                    child: NavItem(
+                      icon: AppIcons.leaderboard,
+                      label: 'Leaderboard',
+                      isSelected: widget.navigationShell.currentIndex == 2,
+                      onTap: () => widget.navigationShell.goBranch(2),
+                    ),
                   ),
-                  NavItem(
-                    icon: AppIcons.profile,
-                    label: 'Profile',
-                    isSelected: widget.navigationShell.currentIndex == 3,
-                    onTap: () => widget.navigationShell.goBranch(3),
+                  Expanded(
+                    child: NavItem(
+                      icon: AppIcons.profile,
+                      label: 'Profile',
+                      isSelected: widget.navigationShell.currentIndex == 3,
+                      onTap: () => widget.navigationShell.goBranch(3),
+                    ),
                   ),
                 ],
               ),
