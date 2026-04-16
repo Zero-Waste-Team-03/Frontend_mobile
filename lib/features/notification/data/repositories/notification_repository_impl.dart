@@ -93,23 +93,8 @@ class NotificationRepositoryImpl implements NotificationRepository {
     String notificationId,
   ) async {
     try {
-      final notification = await remoteDataSource.markAsRead(notificationId);
-      return Right(notification.toEntity());
-    } catch (e) {
-      return Left(ServerFailure(e.toString()));
-    }
-  }
-
-  @override
-  Future<Either<Failure, void>> markAllAsRead(String userId) async {
-    try {
-      await remoteDataSource.markAllAsRead(userId);
-      return const Right(null);
-    } on ServerException catch (e) {
-      _logger.e(
-        'NotificationRepository: ServerException in deleteNotification: $e',
-      );
-      return Left(ServerFailure(e.message));
+      await remoteDataSource.markNotificationsAsRead([notificationId]);
+      return Right(null);
     } catch (e) {
       return Left(ServerFailure(e.toString()));
     }
