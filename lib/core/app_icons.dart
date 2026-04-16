@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class AppIcons {
   static const IconData home = Icons.home_rounded;
   static const IconData search = Icons.search_rounded;
+  static const IconData explore = Icons.explore_rounded;
   static const IconData add = Icons.add_rounded;
   static const IconData chat = Icons.chat_bubble_rounded;
   static const IconData leaderboard = Icons.leaderboard_rounded;
