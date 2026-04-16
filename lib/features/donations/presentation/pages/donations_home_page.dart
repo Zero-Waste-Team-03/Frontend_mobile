@@ -33,6 +33,8 @@ class _DonationsHomePageState extends State<DonationsHomePage>
   LatLng? _currentPosition;
   String _selectedCategory = 'All';
   String? _selectedCategoryId;
+  String? _selectedCondition;
+  DateTime? _selectedExpiryDate;
   Donation? _selectedDonation;
   bool _gettingCurrentLocation = false;
   bool _suppressCameraFetch = false;
@@ -254,7 +256,8 @@ class _DonationsHomePageState extends State<DonationsHomePage>
               final donations = state is DonationsLoaded
                   ? state.donations
                   : <Donation>[];
-              final donationsWithLocation = donations
+              final filteredDonations = _applyLocalFilters(donations);
+              final donationsWithLocation = filteredDonations
                   .where((d) => d.latitude != null && d.longitude != null)
                   .toList();
 
@@ -273,7 +276,7 @@ class _DonationsHomePageState extends State<DonationsHomePage>
                         _buildMap(donationsWithLocation),
                         Positioned(
                           right: 16.w,
-                          bottom: 120.h,
+                          bottom: 130.h,
                           child: FloatingActionButton(
                             mini: true,
                             backgroundColor: Colors.white,
@@ -310,8 +313,7 @@ class _DonationsHomePageState extends State<DonationsHomePage>
                     child: Column(
                       spacing: 4.h,
                       children: [
-                        _buildSearchBar(context),
-                        _buildCategoryFilters(context, categories),
+                        _buildSearchBar(context, categories),
                         state is DonationsLoading
                             ? LinearProgressIndicator(
                                 color: AuthColors.primary,
@@ -332,7 +334,7 @@ class _DonationsHomePageState extends State<DonationsHomePage>
     );
   }
 
-  Widget _buildSearchBar(BuildContext context) {
+  Widget _buildSearchBar(BuildContext context, List<Category> categories) {
     // _selectedDonation = null;
     // _fetchDonationsInArea();
     return Padding(
@@ -354,9 +356,9 @@ class _DonationsHomePageState extends State<DonationsHomePage>
             leading: const Icon(Icons.search),
             trailing: <Widget>[
               Tooltip(
-                message: 'Filters (coming soon)',
+                message: 'Filters',
                 child: IconButton(
-                  onPressed: () {},
+                  onPressed: () => _openFiltersSheet(categories),
                   icon: const Icon(Icons.tune_rounded),
                   color: Theme.of(
                     context,
@@ -373,59 +375,287 @@ class _DonationsHomePageState extends State<DonationsHomePage>
     );
   }
 
-  Widget _buildCategoryFilters(
-    BuildContext context,
-    List<Category> categories,
-  ) {
-    final labels = ['All', ...categories.map((c) => c.name)];
-    return SizedBox(
-      height: 36.h,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: labels.length,
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
-        itemBuilder: (context, index) {
-          final category = labels[index];
-          final isSelected = category == _selectedCategory;
-          return Padding(
-            padding: EdgeInsets.only(right: 8.w),
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  _selectedCategory = category;
-                  _selectedCategoryId = index == 0
-                      ? null
-                      : categories[index - 1].id;
-                  _selectedDonation = null;
-                });
-                _fetchDonationsInArea();
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 180),
-                padding: EdgeInsets.symmetric(horizontal: 14.w),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: isSelected ? AuthColors.primary : Colors.white,
-                  borderRadius: BorderRadius.circular(20.r),
-                  border: Border.all(
-                    color: isSelected
-                        ? AuthColors.primary
-                        : const Color(0xFFD7DFDB),
-                    width: 1,
-                  ),
-                ),
-                child: Text(
-                  category,
-                  style: TextStyle(
-                    color: isSelected ? Colors.white : AuthColors.subText,
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
-                  ),
+  List<Donation> _applyLocalFilters(List<Donation> donations) {
+    return donations.where((donation) {
+      final matchesCondition =
+          _selectedCondition == null ||
+          donation.condition.toLowerCase() == _selectedCondition;
+
+      final matchesExpiry =
+          _selectedExpiryDate == null ||
+          (donation.expiryDate != null &&
+              _isSameDate(donation.expiryDate!, _selectedExpiryDate!));
+
+      return matchesCondition && matchesExpiry;
+    }).toList();
+  }
+
+  bool _isSameDate(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  String _resolveCategoryLabel(String? categoryId, List<Category> categories) {
+    if (categoryId == null) return 'All';
+    for (final category in categories) {
+      if (category.id == categoryId) return category.name;
+    }
+    return 'All';
+  }
+
+  Future<void> _openFiltersSheet(List<Category> categories) async {
+    String? tempCategoryId = _selectedCategoryId;
+    String? tempCondition = _selectedCondition;
+    DateTime? tempExpiryDate = _selectedExpiryDate;
+
+    final applied = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return SafeArea(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 24.h),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Filters',
+                          style: TextStyle(
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.w700,
+                            color: AuthColors.headingText,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            setModalState(() {
+                              tempCategoryId = null;
+                              tempCondition = null;
+                              tempExpiryDate = null;
+                            });
+                          },
+                          child: const Text('Reset'),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 14.h),
+                    Text(
+                      'Categories',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                        color: AuthColors.headingText,
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    Wrap(
+                      spacing: 6.w,
+                      runSpacing: 2.h,
+                      children: [
+                        ChoiceChip(
+                          label: const Text('All'),
+                          padding: EdgeInsets.all(8.w),
+                          selected: tempCategoryId == null,
+                          onSelected: (_) {
+                            setModalState(() {
+                              tempCategoryId = null;
+                            });
+                          },
+                        ),
+                        ...categories.map(
+                          (category) => ChoiceChip(
+                            label: Text(category.name),
+                            padding: EdgeInsets.all(8.w),
+                            selected: tempCategoryId == category.id,
+                            onSelected: (_) {
+                              setModalState(() {
+                                tempCategoryId = category.id;
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 16.h),
+                    Text(
+                      'Condition',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                        color: AuthColors.headingText,
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    Row(
+                      children: [
+                        _buildConditionButton(
+                          label: 'Low',
+                          value: 'low',
+                          selectedValue: tempCondition,
+                          onTap: () {
+                            setModalState(() {
+                              tempCondition = tempCondition == 'low'
+                                  ? null
+                                  : 'low';
+                            });
+                          },
+                        ),
+                        SizedBox(width: 8.w),
+                        _buildConditionButton(
+                          label: 'Medium',
+                          value: 'medium',
+                          selectedValue: tempCondition,
+                          onTap: () {
+                            setModalState(() {
+                              tempCondition = tempCondition == 'medium'
+                                  ? null
+                                  : 'medium';
+                            });
+                          },
+                        ),
+                        SizedBox(width: 8.w),
+                        _buildConditionButton(
+                          label: 'High',
+                          value: 'high',
+                          selectedValue: tempCondition,
+                          onTap: () {
+                            setModalState(() {
+                              tempCondition = tempCondition == 'high'
+                                  ? null
+                                  : 'high';
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 16.h),
+                    Text(
+                      'Expiry Date',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                        color: AuthColors.headingText,
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () async {
+                              final now = DateTime.now();
+                              final pickedDate = await showDatePicker(
+                                context: context,
+                                initialDate: tempExpiryDate ?? now,
+                                firstDate: DateTime(now.year - 1),
+                                lastDate: DateTime(now.year + 5),
+                              );
+                              if (pickedDate != null) {
+                                setModalState(() {
+                                  tempExpiryDate = DateTime(
+                                    pickedDate.year,
+                                    pickedDate.month,
+                                    pickedDate.day,
+                                  );
+                                });
+                              }
+                            },
+                            icon: const Icon(Icons.calendar_today_outlined),
+                            label: Text(
+                              tempExpiryDate == null
+                                  ? 'Pick date'
+                                  : '${tempExpiryDate!.year}-${tempExpiryDate!.month.toString().padLeft(2, '0')}-${tempExpiryDate!.day.toString().padLeft(2, '0')}',
+                            ),
+                          ),
+                        ),
+                        if (tempExpiryDate != null) ...[
+                          SizedBox(width: 8.w),
+                          IconButton(
+                            onPressed: () {
+                              setModalState(() {
+                                tempExpiryDate = null;
+                              });
+                            },
+                            icon: const Icon(Icons.close_rounded),
+                          ),
+                        ],
+                      ],
+                    ),
+                    SizedBox(height: 20.h),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AuthColors.primary,
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(vertical: 12.h),
+                        ),
+                        child: const Text('Apply Filters'),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        );
+      },
+    );
+
+    if (applied != true || !mounted) return;
+
+    final bool categoryChanged = tempCategoryId != _selectedCategoryId;
+    setState(() {
+      _selectedCategoryId = tempCategoryId;
+      _selectedCategory = _resolveCategoryLabel(
+        _selectedCategoryId,
+        categories,
+      );
+      _selectedCondition = tempCondition;
+      _selectedExpiryDate = tempExpiryDate;
+      _selectedDonation = null;
+    });
+
+    if (categoryChanged) {
+      _fetchDonationsInArea();
+    }
+  }
+
+  Widget _buildConditionButton({
+    required String label,
+    required String value,
+    required String? selectedValue,
+    required VoidCallback onTap,
+  }) {
+    final isSelected = selectedValue == value;
+    return Expanded(
+      child: OutlinedButton(
+        onPressed: onTap,
+        style: OutlinedButton.styleFrom(
+          backgroundColor: isSelected
+              ? AuthColors.primary.withValues(alpha: 0.1)
+              : Colors.white,
+          side: BorderSide(
+            color: isSelected ? AuthColors.primary : const Color(0xFFD7DFDB),
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? AuthColors.primary : AuthColors.subText,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
     );
   }
@@ -487,9 +717,9 @@ class _DonationsHomePageState extends State<DonationsHomePage>
           borderRadius: BorderRadius.circular(14.r),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 16,
-              offset: const Offset(0, 8),
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
             ),
           ],
         ),
@@ -500,34 +730,35 @@ class _DonationsHomePageState extends State<DonationsHomePage>
       );
     }
 
-    final donation = _selectedDonation ?? donationsWithLocation.first;
-    final distance = _formatDistanceKm(donation);
+    if (_selectedDonation == null) return const SizedBox.shrink();
+    final donation = _selectedDonation;
+    final distance = _formatDistanceKm(donation!);
 
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(24.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
         ],
       ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(24.r),
         onTap: () => context.push('/donation-details', extra: donation),
         child: Padding(
-          padding: EdgeInsets.all(10.w),
+          padding: EdgeInsets.all(8.w),
           child: Row(
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(10.r),
+                borderRadius: BorderRadius.circular(16.r),
                 child: CachedNetworkImage(
                   imageUrl: donation.imageUrl,
-                  width: 62.w,
-                  height: 62.w,
+                  width: 80.w,
+                  height: 80.w,
                   fit: BoxFit.cover,
                   placeholder: (context, url) =>
                       Container(color: const Color(0xFFE2E8F0)),
