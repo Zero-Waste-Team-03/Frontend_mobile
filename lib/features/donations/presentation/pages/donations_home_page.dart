@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -34,6 +35,9 @@ class _DonationsHomePageState extends State<DonationsHomePage>
   String? _selectedCategoryId;
   Donation? _selectedDonation;
   bool _gettingCurrentLocation = false;
+  bool _suppressCameraFetch = false;
+  LatLng? _lastGestureCameraCenter;
+  double? _lastGestureCameraZoom;
   Position? position;
 
   @override
@@ -52,10 +56,20 @@ class _DonationsHomePageState extends State<DonationsHomePage>
     super.dispose();
   }
 
-  void _fetchDonationsInArea({bool append = false, LatLng? center}) {
+  void _fetchDonationsInArea({
+    bool append = false,
+    LatLng? center,
+    double? zoom,
+    LatLngBounds? visibleBounds,
+  }) {
     if (_currentPosition == null) return;
 
     final fetchCenter = center ?? _currentPosition!;
+    final radiusKm = _calculateFetchRadiusKm(
+      center: fetchCenter,
+      zoom: zoom,
+      visibleBounds: visibleBounds,
+    );
 
     _donationsBloc.add(
       LoadDonationsEvent(
@@ -63,26 +77,70 @@ class _DonationsHomePageState extends State<DonationsHomePage>
         searchQuery: _searchController.text,
         latitude: fetchCenter.latitude,
         longitude: fetchCenter.longitude,
-        radius: 20.0, // 20 km default visible radius
+        radius: radiusKm,
         append: append,
       ),
     );
   }
 
   void _onMapPositionChanged(MapCamera camera, bool hasGesture) {
-    if (!hasGesture) return;
+    if (_suppressCameraFetch) return;
+
+    final previousCenter = _lastGestureCameraCenter;
+    final previousZoom = _lastGestureCameraZoom;
+    final hasMeaningfulCenterChange =
+        previousCenter == null ||
+        const Distance().as(LengthUnit.Meter, previousCenter, camera.center) >
+            5;
+    final hasMeaningfulZoomChange =
+        previousZoom == null || (previousZoom - camera.zoom).abs() > 0.01;
+
+    if (!hasMeaningfulCenterChange && !hasMeaningfulZoomChange) return;
+
+    _lastGestureCameraCenter = camera.center;
+    _lastGestureCameraZoom = camera.zoom;
+
     if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
     _debounceTimer = Timer(const Duration(milliseconds: 600), () {
       if (mounted) {
-        _fetchDonationsInArea(append: true, center: camera.center);
+        _fetchDonationsInArea(
+          append: true,
+          center: camera.center,
+          zoom: camera.zoom,
+          visibleBounds: camera.visibleBounds,
+        );
       }
     });
+  }
+
+  double _calculateFetchRadiusKm({
+    required LatLng center,
+    double? zoom,
+    LatLngBounds? visibleBounds,
+  }) {
+    final distance = const Distance();
+
+    if (visibleBounds != null) {
+      final northEast = LatLng(visibleBounds.north, visibleBounds.east);
+      final radiusInMeters = distance.as(LengthUnit.Meter, center, northEast);
+      return (radiusInMeters / 1000).clamp(0.5, 300.0).toDouble();
+    }
+
+    final effectiveZoom = zoom ?? _mapController.camera.zoom;
+    final metersPerPixel =
+        156543.03392 *
+        (math.cos(center.latitude * math.pi / 180).abs()) /
+        math.pow(2, effectiveZoom);
+    final approxRadiusInMeters = metersPerPixel * 500;
+    return (approxRadiusInMeters / 1000).clamp(0.5, 300.0).toDouble();
   }
 
   void _animatedMapMove(LatLng destLocation, double destZoom) {
     if (_mapController.camera.center == destLocation &&
         _mapController.camera.zoom == destZoom)
       return;
+
+    _suppressCameraFetch = true;
 
     final latTween = Tween<double>(
       begin: _mapController.camera.center.latitude,
@@ -116,6 +174,7 @@ class _DonationsHomePageState extends State<DonationsHomePage>
     animation.addStatusListener((status) {
       if (status == AnimationStatus.completed ||
           status == AnimationStatus.dismissed) {
+        _suppressCameraFetch = false;
         animationController.dispose();
       }
     });
