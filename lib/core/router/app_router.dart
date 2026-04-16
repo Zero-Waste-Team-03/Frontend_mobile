@@ -1,6 +1,7 @@
 ﻿import 'package:flutter/material.dart' hide Notification;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gaspzero/core/di/injection.dart';
+import 'package:gaspzero/features/leaderboard/presentation/pages/leaderboard_page.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/pages/intro_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
@@ -145,8 +146,8 @@ final appRouter = GoRouter(
         StatefulShellBranch(
           routes: [
             GoRoute(
-              path: '/chat',
-              builder: (context, state) => const ChatPlaceholderPage(),
+              path: '/leaderboard',
+              builder: (context, state) => const LeaderboardPage(),
             ),
           ],
         ),
