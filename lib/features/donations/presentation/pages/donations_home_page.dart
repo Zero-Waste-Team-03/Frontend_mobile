@@ -33,6 +33,8 @@ class _DonationsHomePageState extends State<DonationsHomePage>
   String _selectedCategory = 'All';
   String? _selectedCategoryId;
   Donation? _selectedDonation;
+  bool _gettingCurrentLocation = false;
+  Position? position;
 
   @override
   void initState() {
@@ -125,6 +127,10 @@ class _DonationsHomePageState extends State<DonationsHomePage>
     bool serviceEnabled;
     LocationPermission permission;
 
+    setState(() {
+      _gettingCurrentLocation = true;
+    });
+
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       _setDefaultPosition();
@@ -146,22 +152,29 @@ class _DonationsHomePageState extends State<DonationsHomePage>
     }
 
     try {
-      Position position = await Geolocator.getCurrentPosition();
-      if (mounted) {
+      if (position == null) {
+        position = await Geolocator.getCurrentPosition();
+      }
+      if (mounted && position != null) {
         setState(() {
-          _currentPosition = LatLng(position.latitude, position.longitude);
+          _currentPosition = LatLng(position!.latitude, position!.longitude);
+          _animatedMapMove(_currentPosition!, 14.5);
         });
         _fetchDonationsInArea();
       }
     } catch (e) {
       _setDefaultPosition();
     }
+    setState(() {
+      _gettingCurrentLocation = false;
+      _selectedDonation = null;
+    });
   }
 
   void _setDefaultPosition() {
     if (mounted) {
       setState(() {
-        _currentPosition = const LatLng(21.4225, 39.8262); // Mecca fallback
+        _currentPosition = const LatLng(36.737232, 3.086472);
       });
       _fetchDonationsInArea();
     }
@@ -176,38 +189,6 @@ class _DonationsHomePageState extends State<DonationsHomePage>
         body: Container(
           child: BlocBuilder<DonationsBloc, DonationsState>(
             builder: (context, state) {
-              // if (state is DonationsError) {
-              //   return Center(
-              //     child: Column(
-              //       mainAxisSize: MainAxisSize.min,
-              //       children: [
-              //         Text(
-              //           'Failed to load map donations',
-              //           style: TextStyle(
-              //             fontSize: 16.sp,
-              //             fontWeight: FontWeight.w600,
-              //             color: AuthColors.headingText,
-              //           ),
-              //         ),
-              //         SizedBox(height: 6.h),
-              //         Text(
-              //           state.message,
-              //           textAlign: TextAlign.center,
-              //           style: TextStyle(
-              //             fontSize: 13.sp,
-              //             color: AuthColors.subText,
-              //           ),
-              //         ),
-              //         SizedBox(height: 14.h),
-              //         ElevatedButton(
-              //           onPressed: _fetchDonationsInArea,
-              //           child: const Text('Retry'),
-              //         ),
-              //       ],
-              //     ),
-              //   );
-              // }
-
               final categories = state is DonationsLoaded
                   ? state.categories
                   : <Category>[];
@@ -238,14 +219,22 @@ class _DonationsHomePageState extends State<DonationsHomePage>
                             mini: true,
                             backgroundColor: Colors.white,
                             onPressed: () {
-                              if (_currentPosition != null) {
-                                _animatedMapMove(_currentPosition!, 14.5);
-                              }
+                              _determinePosition();
                             },
-                            child: Icon(
-                              Icons.my_location,
-                              color: AuthColors.primary,
-                            ),
+                            child: _gettingCurrentLocation
+                                ? SizedBox(
+                                    width: 20.w,
+                                    height: 20.w,
+                                    child: CircularProgressIndicator(
+                                      color: AuthColors.primary,
+                                      strokeWidth: 2.5,
+                                    ),
+                                  )
+                                : Icon(
+                                    Icons.my_location_rounded,
+                                    color: AuthColors.primary,
+                                    size: 20.sp,
+                                  ),
                           ),
                         ),
                         Positioned(
@@ -388,8 +377,8 @@ class _DonationsHomePageState extends State<DonationsHomePage>
       child: FlutterMap(
         mapController: _mapController,
         options: MapOptions(
-          initialCenter: _currentPosition!,
-          initialZoom: 13.2,
+          initialCenter: _currentPosition ?? LatLng(36.737232, 3.086472),
+          initialZoom: 14.5,
           onPositionChanged: _onMapPositionChanged,
         ),
         children: [
@@ -401,71 +390,28 @@ class _DonationsHomePageState extends State<DonationsHomePage>
             markers: [
               ...donationsWithLocation.map((donation) {
                 final isSelected = _selectedDonation?.id == donation.id;
-                return Marker(
-                  point: LatLng(donation.latitude!, donation.longitude!),
-                  width: 48.w,
-                  height: 48.w,
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _selectedDonation = donation;
-                      });
-                      _animatedMapMove(
-                        LatLng(donation.latitude!, donation.longitude!),
-                        14.5,
-                      );
-                    },
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          padding: EdgeInsets.all(isSelected ? 8.w : 6.w),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? AuthColors.primary
-                                : Colors.white,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.15),
-                                blurRadius: 8,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            Icons.location_on_rounded,
-                            color: isSelected
-                                ? Colors.white
-                                : AuthColors.primary,
-                            size: isSelected ? 24.sp : 20.sp,
-                          ),
+                return _buildDonationMarker(donation, isSelected);
+              }),
+              if (_currentPosition != null)
+                Marker(
+                  point: _currentPosition!,
+                  width: 24.w,
+                  height: 24.w,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1D4ED8),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 4),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF1D4ED8).withValues(alpha: 0.4),
+                          blurRadius: 12,
+                          offset: const Offset(0, 6),
                         ),
                       ],
                     ),
                   ),
-                );
-              }),
-              Marker(
-                point: _currentPosition!,
-                width: 24.w,
-                height: 24.w,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1D4ED8),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 4),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF1D4ED8).withValues(alpha: 0.4),
-                        blurRadius: 12,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
                 ),
-              ),
             ],
           ),
         ],
@@ -611,5 +557,63 @@ class _DonationsHomePageState extends State<DonationsHomePage>
     }
 
     return '${(distanceInMeters / 1000).toStringAsFixed(1)} km away';
+  }
+
+  Marker _buildDonationMarker(Donation donation, bool isSelected) {
+    final markerColor = switch (donation.condition.toLowerCase()) {
+      'low' => const Color(0xFF10B981),
+      'medium' => const Color(0xFFF59E0B),
+      'high' => const Color(0xFFEF4444),
+      _ => const Color(0xFF6B7280),
+    };
+    final markerIcon = switch (donation.condition.toLowerCase()) {
+      'low' || 'medium' => Icons.volunteer_activism_rounded,
+      'high' => Icons.warning_amber_rounded,
+      _ => Icons.help_outline_rounded,
+    };
+    return Marker(
+      point: LatLng(donation.latitude!, donation.longitude!),
+      width: 64.w,
+      height: 64.w,
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _selectedDonation = donation;
+          });
+          _animatedMapMove(
+            LatLng(donation.latitude!, donation.longitude!),
+            15.5,
+          );
+        },
+        child: Center(
+          child: AnimatedScale(
+            scale: isSelected ? 1.6 : 1.0,
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOutBack,
+            child: SizedBox(
+              width: 40.w,
+              height: 40.w,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: markerColor,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 4),
+                  boxShadow: [
+                    BoxShadow(
+                      color: markerColor.withValues(alpha: 0.4),
+                      blurRadius: 12,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: Icon(markerIcon, color: Colors.white, size: 16.sp),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
