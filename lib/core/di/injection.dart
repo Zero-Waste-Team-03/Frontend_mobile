@@ -11,6 +11,7 @@ import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/profile/data/repositories/profile_repository_impl.dart';
+import '../../features/profile/data/datasources/profile_activities_remote_data_source.dart';
 import '../../features/profile/domain/repositories/profile_repository.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -33,6 +34,11 @@ import '../../features/notification/data/repositories/notification_repository_im
 import '../../features/notification/domain/repositories/notification_repository.dart';
 import '../../features/notification/domain/usecases/notification_usecases.dart';
 import '../../features/notification/presentation/bloc/notification_bloc.dart';
+import '../../features/leaderboard/data/datasources/leaderboard_remote_data_source.dart';
+import '../../features/leaderboard/data/repositories/leaderboard_repository_impl.dart';
+import '../../features/leaderboard/domain/repositories/leaderboard_repository.dart';
+import '../../features/leaderboard/domain/usecases/get_leaderboard_usecase.dart';
+import '../../features/leaderboard/presentation/bloc/leaderboard_bloc.dart';
 
 final getIt = GetIt.instance;
 
@@ -114,8 +120,15 @@ Future<void> configureDependencies() async {
   );
 
   // ── Profile Repository ──
+  getIt.registerLazySingleton<ProfileActivitiesRemoteDataSource>(
+    () => ProfileActivitiesRemoteDataSourceImpl(getIt<Client>()),
+  );
+
   getIt.registerLazySingleton<ProfileRepository>(
-    () => ProfileRepositoryImpl(authRepository: getIt()),
+    () => ProfileRepositoryImpl(
+      authRepository: getIt(),
+      profileActivitiesRemoteDataSource: getIt(),
+    ),
   );
 
   // ── BLoC ──
@@ -184,4 +197,16 @@ Future<void> configureDependencies() async {
       deleteNotificationUseCase: getIt(),
     ),
   );
+
+  // ── Leaderboard ──
+  getIt.registerLazySingleton<LeaderboardRemoteDataSource>(
+    () => LeaderboardRemoteDataSourceImpl(),
+  );
+  getIt.registerLazySingleton<LeaderboardRepository>(
+    () => LeaderboardRepositoryImpl(remoteDataSource: getIt()),
+  );
+  getIt.registerLazySingleton<GetLeaderboardUseCase>(
+    () => GetLeaderboardUseCase(getIt()),
+  );
+  getIt.registerFactory(() => LeaderboardBloc(getLeaderboardUseCase: getIt()));
 }

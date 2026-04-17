@@ -22,19 +22,27 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   // Chat button position
   Offset _chatPos = const Offset(300, 500);
+  final GlobalKey _stackKey = GlobalKey();
+  static const double _chatButtonSize = 56;
+  static const double _chatTopLimit = 112;
+  static const double _chatBottomLimit = 106;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     if (_chatPos == const Offset(300, 500)) {
       final size = MediaQuery.sizeOf(context);
-      _chatPos = Offset(size.width - 72.w, size.height - 180.h);
+      _chatPos = _clampChatPosition(
+        Offset(size.width - 72.w, size.height - 180.h),
+        size,
+      );
     }
     return BlocProvider(
       create: (context) =>
           getIt<DonationsBloc>()..add(const LoadDonationsEvent()),
       child: Scaffold(
         body: Stack(
+          key: _stackKey,
           children: [
             widget.navigationShell,
             if (widget.navigationShell.currentIndex != 2)
@@ -46,16 +54,17 @@ class _MainShellState extends State<MainShell> {
                   childWhenDragging: const SizedBox.shrink(),
                   onDragEnd: (details) {
                     setState(() {
-                      double dx = details.offset.dx;
-                      double dy = details.offset.dy;
-                      final screenSize = MediaQuery.sizeOf(context);
-                      if (dx < 0) dx = 0;
-                      if (dx > screenSize.width - 64)
-                        dx = screenSize.width - 64;
-                      if (dy < kToolbarHeight) dy = kToolbarHeight;
-                      if (dy > screenSize.height - 100)
-                        dy = screenSize.height - 100;
-                      _chatPos = Offset(dx, dy);
+                      final stackBox =
+                          _stackKey.currentContext?.findRenderObject()
+                              as RenderBox?;
+                      final localOffset =
+                          stackBox?.globalToLocal(details.offset) ??
+                          details.offset;
+                      final size = stackBox?.size ?? MediaQuery.sizeOf(context);
+                      _chatPos = _clampChatPosition(
+                        Offset(localOffset.dx, localOffset.dy),
+                        size,
+                      );
                     });
                   },
                   child: _buildChatButtonUI(isDragging: false),
@@ -122,7 +131,7 @@ class _MainShellState extends State<MainShell> {
                   Expanded(
                     child: NavItem(
                       icon: AppIcons.leaderboard,
-                      label: 'Leaderboard',
+                      label: 'Ranks',
                       isSelected: widget.navigationShell.currentIndex == 2,
                       onTap: () => widget.navigationShell.goBranch(2),
                     ),
@@ -148,7 +157,7 @@ class _MainShellState extends State<MainShell> {
     final colorScheme = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: () {
-        widget.navigationShell.goBranch(2);
+        context.push('/chat');
       },
       child: Material(
         color: colorScheme.surface.withValues(alpha: 0),
@@ -178,5 +187,13 @@ class _MainShellState extends State<MainShell> {
         ),
       ),
     );
+  }
+
+  Offset _clampChatPosition(Offset raw, Size size) {
+    final maxX = size.width - _chatButtonSize;
+    final maxY = size.height - _chatBottomLimit;
+    final dx = raw.dx.clamp(0.0, maxX);
+    final dy = raw.dy.clamp(_chatTopLimit, maxY);
+    return Offset(dx, dy);
   }
 }

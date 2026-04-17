@@ -31,6 +31,10 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
 
   // Chat button position
   Offset _chatPos = const Offset(300, 500);
+  final GlobalKey _stackKey = GlobalKey();
+  static const double _chatButtonSize = 56;
+  static const double _chatTopLimit = 116;
+  static const double _chatBottomLimit = 118;
 
   @override
   void initState() {
@@ -52,7 +56,10 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
   Widget build(BuildContext context) {
     if (_chatPos == const Offset(300, 500)) {
       final size = MediaQuery.sizeOf(context);
-      _chatPos = Offset(size.width - 72.w, size.height - 180.h);
+      _chatPos = _clampChatPosition(
+        Offset(size.width - 72.w, size.height - 180.h),
+        size,
+      );
     }
     return BlocProvider(
       create: (context) => getIt<ReservationBloc>(),
@@ -73,6 +80,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
         child: Scaffold(
           backgroundColor: const Color(0xFFF8F9FA),
           body: Stack(
+            key: _stackKey,
             children: [
               CustomScrollView(
                 paintOrder: SliverPaintOrder.lastIsTop,
@@ -206,16 +214,18 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                   childWhenDragging: const SizedBox.shrink(),
                   onDragEnd: (details) {
                     setState(() {
-                      double dx = details.offset.dx;
-                      double dy = details.offset.dy;
-                      final screenSize = MediaQuery.sizeOf(context);
-                      if (dx < 0) dx = 0;
-                      if (dx > screenSize.width - 64)
-                        dx = screenSize.width - 64;
-                      if (dy < kToolbarHeight) dy = kToolbarHeight;
-                      if (dy > screenSize.height - 100)
-                        dy = screenSize.height - 100;
-                      _chatPos = Offset(dx, dy);
+                      final stackBox =
+                          _stackKey.currentContext?.findRenderObject()
+                              as RenderBox?;
+                      final localOffset =
+                          stackBox?.globalToLocal(details.offset) ??
+                          details.offset;
+                      final size = stackBox?.size ?? MediaQuery.sizeOf(context);
+
+                      _chatPos = _clampChatPosition(
+                        Offset(localOffset.dx, localOffset.dy),
+                        size,
+                      );
                     });
                   },
                   child: _buildChatButtonUI(isDragging: false),
@@ -299,6 +309,14 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
         ),
       ),
     );
+  }
+
+  Offset _clampChatPosition(Offset raw, Size size) {
+    final maxX = size.width - _chatButtonSize;
+    final maxY = size.height - _chatBottomLimit;
+    final dx = raw.dx.clamp(0.0, maxX);
+    final dy = raw.dy.clamp(_chatTopLimit, maxY);
+    return Offset(dx, dy);
   }
 
   Widget _buildSliverAppBar() {

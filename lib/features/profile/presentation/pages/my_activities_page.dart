@@ -3,13 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../shared/theme/app_colors.dart';
-import '../bloc/reservation_bloc.dart';
-import '../bloc/reservation_event.dart';
-import '../bloc/reservation_state.dart';
-import '../widgets/donation_card.dart';
-import '../widgets/status_filter_chip.dart';
-import '../../../auth/domain/repositories/auth_repository.dart';
-import '../../../../core/di/injection.dart';
+import '../bloc/profile_bloc.dart';
+import '../bloc/profile_event.dart';
+import '../bloc/profile_state.dart';
+import '../../../reservation/presentation/widgets/donation_card.dart';
+import '../../../reservation/presentation/widgets/status_filter_chip.dart';
 
 class MyActivitiesPage extends StatefulWidget {
   const MyActivitiesPage({super.key});
@@ -19,35 +17,32 @@ class MyActivitiesPage extends StatefulWidget {
 }
 
 class _MyActivitiesPageState extends State<MyActivitiesPage> {
+  late ScrollController _scrollController;
+  static const int _pageSize = 10;
   String? _selectedFilter;
-  late String _currentUserId;
 
   @override
   void initState() {
     super.initState();
-    _loadUserData();
-  }
-
-  void _loadUserData() async {
-    final authRepository = getIt<AuthRepository>();
-    final result = await authRepository.getCachedUser();
-    result.fold(
-      (failure) {
-        // Handle error silently, use placeholder
-        _currentUserId = 'user-1';
-        _fetchDonations();
-      },
-      (user) {
-        _currentUserId = user.id;
-        _fetchDonations();
-      },
+    _scrollController = ScrollController()..addListener(_onScroll);
+    context.read<ProfileBloc>().add(
+      const ProfileActivitiesLoadRequested(page: 1, limit: _pageSize),
     );
   }
 
-  void _fetchDonations() {
-    context.read<ReservationBloc>().add(
-      FetchUserDonationsEvent(_currentUserId, statusFilter: _selectedFilter),
-    );
+  void _onScroll() {
+    final currentState = context.read<ProfileBloc>().state;
+    if (currentState is! ProfileActivitiesLoaded) {
+      return;
+    }
+
+    if (_scrollController.position.extentAfter < 500 &&
+        !currentState.isLoadingMore &&
+        !currentState.hasReachedMax) {
+      context.read<ProfileBloc>().add(
+        const ProfileActivitiesLoadMoreRequested(limit: _pageSize),
+      );
+    }
   }
 
   @override
@@ -72,9 +67,9 @@ class _MyActivitiesPageState extends State<MyActivitiesPage> {
         ),
       ),
       body: SafeArea(
-        child: BlocListener<ReservationBloc, ReservationState>(
+        child: BlocListener<ProfileBloc, ProfileState>(
           listener: (context, state) {
-            if (state is UserDonationsLoaded) {
+            if (state is ProfileActivitiesLoaded) {
               _selectedFilter = state.activeFilter;
             }
           },
@@ -97,8 +92,8 @@ class _MyActivitiesPageState extends State<MyActivitiesPage> {
                             _selectedFilter == null || _selectedFilter!.isEmpty,
                         onTap: () {
                           setState(() => _selectedFilter = null);
-                          context.read<ReservationBloc>().add(
-                            const FilterDonationsEvent(null),
+                          context.read<ProfileBloc>().add(
+                            const ProfileActivitiesFilterRequested(null),
                           );
                         },
                       ),
@@ -108,8 +103,8 @@ class _MyActivitiesPageState extends State<MyActivitiesPage> {
                         isSelected: _selectedFilter == 'PUBLISHED',
                         onTap: () {
                           setState(() => _selectedFilter = 'PUBLISHED');
-                          context.read<ReservationBloc>().add(
-                            const FilterDonationsEvent('PUBLISHED'),
+                          context.read<ProfileBloc>().add(
+                            const ProfileActivitiesFilterRequested('PUBLISHED'),
                           );
                         },
                       ),
@@ -119,8 +114,8 @@ class _MyActivitiesPageState extends State<MyActivitiesPage> {
                         isSelected: _selectedFilter == 'RESERVED',
                         onTap: () {
                           setState(() => _selectedFilter = 'RESERVED');
-                          context.read<ReservationBloc>().add(
-                            const FilterDonationsEvent('RESERVED'),
+                          context.read<ProfileBloc>().add(
+                            const ProfileActivitiesFilterRequested('RESERVED'),
                           );
                         },
                       ),
@@ -130,8 +125,8 @@ class _MyActivitiesPageState extends State<MyActivitiesPage> {
                         isSelected: _selectedFilter == 'COMPLETED',
                         onTap: () {
                           setState(() => _selectedFilter = 'COMPLETED');
-                          context.read<ReservationBloc>().add(
-                            const FilterDonationsEvent('COMPLETED'),
+                          context.read<ProfileBloc>().add(
+                            const ProfileActivitiesFilterRequested('COMPLETED'),
                           );
                         },
                       ),
@@ -141,8 +136,8 @@ class _MyActivitiesPageState extends State<MyActivitiesPage> {
                         isSelected: _selectedFilter == 'EXPIRED',
                         onTap: () {
                           setState(() => _selectedFilter = 'EXPIRED');
-                          context.read<ReservationBloc>().add(
-                            const FilterDonationsEvent('EXPIRED'),
+                          context.read<ProfileBloc>().add(
+                            const ProfileActivitiesFilterRequested('EXPIRED'),
                           );
                         },
                       ),
@@ -153,9 +148,9 @@ class _MyActivitiesPageState extends State<MyActivitiesPage> {
 
               // Donations List
               Expanded(
-                child: BlocBuilder<ReservationBloc, ReservationState>(
+                child: BlocBuilder<ProfileBloc, ProfileState>(
                   builder: (context, state) {
-                    if (state is UserDonationsLoading) {
+                    if (state is ProfileActivitiesLoading) {
                       return Center(
                         child: CircularProgressIndicator(
                           color: AuthColors.primary,
@@ -163,7 +158,7 @@ class _MyActivitiesPageState extends State<MyActivitiesPage> {
                       );
                     }
 
-                    if (state is UserDonationsError) {
+                    if (state is ProfileActivitiesError) {
                       return Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -187,8 +182,8 @@ class _MyActivitiesPageState extends State<MyActivitiesPage> {
                       );
                     }
 
-                    if (state is UserDonationsLoaded) {
-                      if (state.donations.isEmpty) {
+                    if (state is ProfileActivitiesLoaded) {
+                      if (state.activities.isEmpty) {
                         return Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -213,23 +208,36 @@ class _MyActivitiesPageState extends State<MyActivitiesPage> {
                       }
 
                       return ListView.builder(
-                        itemCount: state.donations.length,
+                        controller: _scrollController,
+                        itemCount: state.activities.length,
                         padding: EdgeInsets.only(
                           bottom: AppDimensions.paddingMedium.h,
                         ),
                         itemBuilder: (context, index) {
-                          final donation = state.donations[index];
-                          return DonationCard(
-                            donation: donation,
-                            onTap: () {
-                              context.read<ReservationBloc>().add(
-                                FetchDonationDetailsEvent(donation.id),
-                              );
-                              context.push(
-                                '/donation-details-full',
-                                extra: donation,
-                              );
-                            },
+                          final donation = state.activities[index];
+                          return Column(
+                            children: [
+                              DonationCard(
+                                donation: donation,
+                                onTap: () {
+                                  context.push(
+                                    '/donation-details-full',
+                                    extra: donation,
+                                  );
+                                },
+                              ),
+                              if (index == state.activities.length - 1 &&
+                                  state.isLoadingMore)
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                    top: AppDimensions.paddingMedium.h,
+                                    bottom: AppDimensions.paddingMedium.h,
+                                  ),
+                                  child: CircularProgressIndicator(
+                                    color: AuthColors.primary,
+                                  ),
+                                ),
+                            ],
                           );
                         },
                       );
@@ -244,5 +252,11 @@ class _MyActivitiesPageState extends State<MyActivitiesPage> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 }

@@ -49,3 +49,36 @@ class ProfileAvatarUpdateRequested extends ProfileEvent {
   @override
   List<Object?> get props => [avatarAttachmentId];
 }
+
+class ProfileActivitiesLoadRequested extends ProfileEvent {
+  final int page;
+  final int limit;
+  final String? statusFilter;
+
+  const ProfileActivitiesLoadRequested({
+    this.page = 1,
+    this.limit = 10,
+    this.statusFilter,
+  });
+
+  @override
+  List<Object?> get props => [page, limit, statusFilter];
+}
+
+class ProfileActivitiesFilterRequested extends ProfileEvent {
+  final String? statusFilter;
+
+  const ProfileActivitiesFilterRequested(this.statusFilter);
+
+  @override
+  List<Object?> get props => [statusFilter];
+}
+
+class ProfileActivitiesLoadMoreRequested extends ProfileEvent {
+  final int limit;
+
+  const ProfileActivitiesLoadMoreRequested({this.limit = 10});
+
+  @override
+  List<Object?> get props => [limit];
+}

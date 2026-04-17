@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gaspzero/core/theme/app_colors.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -459,17 +460,17 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                             ),
                           ),
-                          SizedBox(height: AppDimensions.paddingMedium.h),
+                          
                           GestureDetector(
                             onTap: () {
                               context.push('/my-activities');
                             },
                             child: Container(
-                              padding: EdgeInsets.all(
-                                AppDimensions.paddingMedium.w,
-                              ),
+                              padding: EdgeInsets.symmetric(
+                              horizontal: AppDimensions.paddingLarge.w,
+                            ),
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: AppColors.background,
                                 borderRadius: BorderRadius.circular(
                                   AppDimensions.borderRadiusLarge.r,
                                 ),
@@ -533,6 +534,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                             ),
                           ),
+                          SizedBox(height: AppDimensions.paddingMedium.h),
                         ],
                       ),
 

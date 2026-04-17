@@ -10,6 +10,8 @@ import 'profile_state.dart';
 @injectable
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final ProfileRepository profileRepository;
+  String? _currentActivitiesUserId;
+  String? _currentActivitiesFilter;
   final Logger _logger = Logger(
     printer: PrettyPrinter(
       methodCount: 0,
@@ -27,6 +29,11 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     on<ProfileUpdateRequested>(_onProfileUpdateRequested);
     on<ProfileAvatarUploadRequested>(_onProfileAvatarUploadRequested);
     on<ProfileAvatarUpdateRequested>(_onProfileAvatarUpdateRequested);
+    on<ProfileActivitiesLoadRequested>(_onProfileActivitiesLoadRequested);
+    on<ProfileActivitiesFilterRequested>(_onProfileActivitiesFilterRequested);
+    on<ProfileActivitiesLoadMoreRequested>(
+      _onProfileActivitiesLoadMoreRequested,
+    );
   }
 
   Future<void> _onProfileLoadRequested(
@@ -142,5 +149,156 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         },
       );
     }
+  }
+
+  Future<void> _onProfileActivitiesLoadRequested(
+    ProfileActivitiesLoadRequested event,
+    Emitter<ProfileState> emit,
+  ) async {
+    final currentState = state;
+    final isFirstPage = event.page == 1;
+
+    if (isFirstPage) {
+      emit(const ProfileActivitiesLoading());
+    } else if (currentState is ProfileActivitiesLoaded) {
+      if (currentState.hasReachedMax || currentState.isLoadingMore) {
+        return;
+      }
+
+      emit(
+        ProfileActivitiesLoaded(
+          currentState.activities,
+          activeFilter: currentState.activeFilter,
+          currentPage: currentState.currentPage,
+          totalCount: currentState.totalCount,
+          isLoadingMore: true,
+          hasReachedMax: currentState.hasReachedMax,
+        ),
+      );
+    }
+
+    _currentActivitiesFilter = event.statusFilter ?? _currentActivitiesFilter;
+
+    if (_currentActivitiesUserId == null) {
+      final userResult = await profileRepository.getCachedOrRemoteUser();
+      final userIdResult = userResult.fold<String?>(
+        (_) => null,
+        (user) => user.id,
+      );
+      if (userIdResult == null || userIdResult.isEmpty) {
+        if (!isFirstPage && currentState is ProfileActivitiesLoaded) {
+          emit(
+            ProfileActivitiesLoaded(
+              currentState.activities,
+              activeFilter: currentState.activeFilter,
+              currentPage: currentState.currentPage,
+              totalCount: currentState.totalCount,
+              isLoadingMore: false,
+              hasReachedMax: currentState.hasReachedMax,
+            ),
+          );
+        } else {
+          emit(const ProfileActivitiesError('Failed to resolve current user'));
+        }
+        return;
+      }
+      _currentActivitiesUserId = userIdResult;
+    }
+
+    final result = await profileRepository.getUserActivities(
+      userId: _currentActivitiesUserId!,
+      statusFilter: _currentActivitiesFilter,
+      page: event.page,
+      limit: event.limit,
+    );
+
+    result.fold(
+      (failure) {
+        if (!isFirstPage && currentState is ProfileActivitiesLoaded) {
+          emit(
+            ProfileActivitiesLoaded(
+              currentState.activities,
+              activeFilter: currentState.activeFilter,
+              currentPage: currentState.currentPage,
+              totalCount: currentState.totalCount,
+              isLoadingMore: false,
+              hasReachedMax: currentState.hasReachedMax,
+            ),
+          );
+        } else {
+          emit(ProfileActivitiesError(failure.message));
+        }
+      },
+      (activitiesPage) {
+        if (isFirstPage || currentState is! ProfileActivitiesLoaded) {
+          emit(
+            ProfileActivitiesLoaded(
+              activitiesPage.activities,
+              activeFilter: _currentActivitiesFilter,
+              currentPage: activitiesPage.page,
+              totalCount: activitiesPage.totalCount,
+              isLoadingMore: false,
+              hasReachedMax: !activitiesPage.hasNextPage,
+            ),
+          );
+          return;
+        }
+
+        final existingById = {
+          for (final donation in currentState.activities) donation.id: donation,
+        };
+        for (final donation in activitiesPage.activities) {
+          existingById[donation.id] = donation;
+        }
+
+        emit(
+          ProfileActivitiesLoaded(
+            existingById.values.toList(),
+            activeFilter: _currentActivitiesFilter,
+            currentPage: activitiesPage.page,
+            totalCount: activitiesPage.totalCount,
+            isLoadingMore: false,
+            hasReachedMax: !activitiesPage.hasNextPage,
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _onProfileActivitiesFilterRequested(
+    ProfileActivitiesFilterRequested event,
+    Emitter<ProfileState> emit,
+  ) async {
+    _currentActivitiesFilter = event.statusFilter;
+
+    add(
+      ProfileActivitiesLoadRequested(
+        page: 1,
+        limit: 10,
+        statusFilter: _currentActivitiesFilter,
+      ),
+    );
+  }
+
+  Future<void> _onProfileActivitiesLoadMoreRequested(
+    ProfileActivitiesLoadMoreRequested event,
+    Emitter<ProfileState> emit,
+  ) async {
+    final currentState = state;
+    if (currentState is! ProfileActivitiesLoaded) {
+      return;
+    }
+
+    if (currentState.hasReachedMax || currentState.isLoadingMore) {
+      return;
+    }
+
+    add(
+      ProfileActivitiesLoadRequested(
+        page: currentState.currentPage + 1,
+        limit: event.limit,
+        statusFilter: _currentActivitiesFilter,
+      ),
+    );
   }
 }

@@ -689,6 +689,14 @@ type Query {
   ): PaginatedDonations!
 
   """
+  Get donation listings owned by the current authenticated user
+  """
+  myDonations(
+    filter: DonationsFilterInput
+    pagination: PaginationInput
+  ): PaginatedDonations!
+
+  """
   Get a single reservation by ID if current user is donor or beneficiary
   """
   myReservation(id: ID!): Reservation!

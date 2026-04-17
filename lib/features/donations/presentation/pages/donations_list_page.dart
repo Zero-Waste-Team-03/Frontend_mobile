@@ -62,40 +62,46 @@ class _DonationsListPageState extends State<DonationsListPage> {
       child: Scaffold(
         backgroundColor: const Color(0xFFF8F9FA),
         body: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Stack(
             children: [
-              SizedBox(height: 16.h),
-              _buildSearchBar(),
-              SizedBox(height: 16.h),
-              BlocBuilder<DonationsBloc, DonationsState>(
-                builder: (context, state) {
-                  final categories = state is DonationsLoaded
-                      ? state.categories
-                      : const <Category>[];
-                  return _buildCategoryFilters(categories);
-                },
-              ),
-              SizedBox(height: 16.h),
-              _buildListMetadata(),
-              Expanded(
-                child: BlocBuilder<DonationsBloc, DonationsState>(
-                  builder: (context, state) {
-                    if (state is DonationsLoading ||
-                        state is DonationsInitial) {
-                      return _buildLoadingSkeleton();
-                    } else if (state is DonationsLoaded) {
-                      _donations = state.donations;
-                      if (_donations.isEmpty) {
-                        return const Center(child: Text('No donations found.'));
-                      }
-                      return _buildDonationsList();
-                    } else if (state is DonationsError) {
-                      return Center(child: Text('Error: ${state.message}'));
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeader(),
+                  _buildSearchBar(),
+                  SizedBox(height: 16.h),
+                  BlocBuilder<DonationsBloc, DonationsState>(
+                    builder: (context, state) {
+                      final categories = state is DonationsLoaded
+                          ? state.categories
+                          : const <Category>[];
+                      return _buildCategoryFilters(categories);
+                    },
+                  ),
+                  SizedBox(height: 16.h),
+                  _buildListMetadata(),
+                  Expanded(
+                    child: BlocBuilder<DonationsBloc, DonationsState>(
+                      builder: (context, state) {
+                        if (state is DonationsLoading ||
+                            state is DonationsInitial) {
+                          return _buildLoadingSkeleton();
+                        } else if (state is DonationsLoaded) {
+                          _donations = state.donations;
+                          if (_donations.isEmpty) {
+                            return const Center(
+                              child: Text('No donations found.'),
+                            );
+                          }
+                          return _buildDonationsList();
+                        } else if (state is DonationsError) {
+                          return Center(child: Text('Error: ${state.message}'));
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -165,52 +171,49 @@ class _DonationsListPageState extends State<DonationsListPage> {
   Widget _buildSearchBar() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
-      child: SearchAnchor(
-        builder: (BuildContext context, SearchController controller) {
-          return SearchBar(
-            controller: controller,
-            padding: const WidgetStatePropertyAll<EdgeInsets>(
-              EdgeInsets.only(left: 16.0, right: 8.0),
+      child: Container(
+        height: 48.h,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
             ),
-            onTap: () {
-              controller.openView();
-            },
-            onChanged: (_) {
-              controller.openView();
-            },
-            hintText: 'Search donations...',
-            leading: const Icon(Icons.search),
-            trailing: <Widget>[
-              Tooltip(
-                message: 'Reservations',
-                child: IconButton(
-                  onPressed: () {
-                    context.push('/my-reservations');
-                  },
-                  icon: const Icon(Icons.shopping_bag_outlined),
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.7),
+          ],
+        ),
+        child: Row(
+          children: [
+            SizedBox(width: 16.w),
+            Icon(
+              Icons.search_rounded,
+              color: const Color(0xFF94A3B8),
+              size: 22.sp,
+            ),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: 'Search food donations...',
+                  hintStyle: TextStyle(
+                    color: const Color(0xFF94A3B8),
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                ),
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: const Color(0xFF131615),
                 ),
               ),
-              Tooltip(
-                message: 'Notifications',
-                child: IconButton(
-                  onPressed: () {
-                    context.push('/notifications');
-                  },
-                  icon: const Icon(Icons.notifications_none_rounded),
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.7),
-                ),
-              ),
-            ],
-          );
-        },
-        suggestionsBuilder: (BuildContext context, SearchController controller) {
-          return []; // No dynamic suggestions for now, just rely on the search results page
-        },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -327,9 +330,7 @@ class _DonationsListPageState extends State<DonationsListPage> {
 
   Widget _buildDonationCard(Donation donation, int index) {
     String distanceStr = 'Distance unknown';
-    if (_currentPosition != null &&
-        donation.latitude != null &&
-        donation.longitude != null) {
+    if (_currentPosition != null && donation.latitude != null && donation.longitude != null) {
       final distanceInMeters = const Distance().as(
         LengthUnit.Meter,
         _currentPosition!,

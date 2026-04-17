@@ -1,0 +1,1 @@
+enum LeaderboardPeriod { monthly, allTime }

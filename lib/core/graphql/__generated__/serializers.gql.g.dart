@@ -126,6 +126,15 @@ Serializers _$serializers =
           ..add(GMarkNotificationsAsReadData_markNotificationsAsRead.serializer)
           ..add(GMarkNotificationsAsReadReq.serializer)
           ..add(GMarkNotificationsAsReadVars.serializer)
+          ..add(GMyDonationsData.serializer)
+          ..add(GMyDonationsData_myDonations.serializer)
+          ..add(GMyDonationsData_myDonations_items.serializer)
+          ..add(GMyDonationsData_myDonations_items_category.serializer)
+          ..add(GMyDonationsData_myDonations_items_location.serializer)
+          ..add(GMyDonationsData_myDonations_items_mainAttachment.serializer)
+          ..add(GMyDonationsData_myDonations_items_user.serializer)
+          ..add(GMyDonationsReq.serializer)
+          ..add(GMyDonationsVars.serializer)
           ..add(GMyReservationData.serializer)
           ..add(GMyReservationData_myReservation.serializer)
           ..add(GMyReservationData_myReservation_donation.serializer)
@@ -248,6 +257,12 @@ Serializers _$serializers =
               const FullType(GGetNotificationsData_getNotifications_items),
             ]),
             () => ListBuilder<GGetNotificationsData_getNotifications_items>(),
+          )
+          ..addBuilderFactory(
+            const FullType(BuiltList, const [
+              const FullType(GMyDonationsData_myDonations_items),
+            ]),
+            () => ListBuilder<GMyDonationsData_myDonations_items>(),
           )
           ..addBuilderFactory(
             const FullType(BuiltList, const [

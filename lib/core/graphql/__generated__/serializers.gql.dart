@@ -204,6 +204,19 @@ import 'package:gaspzero/features/notification/data/sources/graphql/__generated_
     show GMarkNotificationsAsReadReq;
 import 'package:gaspzero/features/notification/data/sources/graphql/__generated__/mark_notifications_as_read.var.gql.dart'
     show GMarkNotificationsAsReadVars;
+import 'package:gaspzero/features/profile/data/datasources/graphql/__generated__/get_myDonations.data.gql.dart'
+    show
+        GMyDonationsData,
+        GMyDonationsData_myDonations,
+        GMyDonationsData_myDonations_items,
+        GMyDonationsData_myDonations_items_category,
+        GMyDonationsData_myDonations_items_location,
+        GMyDonationsData_myDonations_items_mainAttachment,
+        GMyDonationsData_myDonations_items_user;
+import 'package:gaspzero/features/profile/data/datasources/graphql/__generated__/get_myDonations.req.gql.dart'
+    show GMyDonationsReq;
+import 'package:gaspzero/features/profile/data/datasources/graphql/__generated__/get_myDonations.var.gql.dart'
+    show GMyDonationsVars;
 import 'package:gaspzero/features/reservation/data/datasources/graphql/__generated__/confirm_reservation.data.gql.dart'
     show
         GConfirmReservationData,
@@ -381,6 +394,15 @@ final SerializersBuilder _serializersBuilder = _$serializers.toBuilder()
   GMarkNotificationsAsReadData_markNotificationsAsRead,
   GMarkNotificationsAsReadReq,
   GMarkNotificationsAsReadVars,
+  GMyDonationsData,
+  GMyDonationsData_myDonations,
+  GMyDonationsData_myDonations_items,
+  GMyDonationsData_myDonations_items_category,
+  GMyDonationsData_myDonations_items_location,
+  GMyDonationsData_myDonations_items_mainAttachment,
+  GMyDonationsData_myDonations_items_user,
+  GMyDonationsReq,
+  GMyDonationsVars,
   GMyReservationData,
   GMyReservationData_myReservation,
   GMyReservationData_myReservation_donation,

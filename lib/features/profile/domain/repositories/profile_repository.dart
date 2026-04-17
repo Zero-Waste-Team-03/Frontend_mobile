@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'dart:io';
 import '../../../../core/errors/failures.dart';
 import '../../../auth/domain/entities/user.dart';
+import '../entities/profile_activities_page.dart';
 
 abstract class ProfileRepository {
   /// Get cached user profile, fallback to remote if cache is empty
@@ -25,4 +26,12 @@ abstract class ProfileRepository {
   Future<Either<Failure, User>> updateProfileWithAvatarId(
     String avatarAttachmentId,
   );
+
+  /// Get user donations to display profile activity history
+  Future<Either<Failure, ProfileActivitiesPage>> getUserActivities({
+    required String userId,
+    String? statusFilter,
+    int page = 1,
+    int limit = 10,
+  });
 }
