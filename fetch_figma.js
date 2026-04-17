@@ -4,7 +4,7 @@ async function fetchFigma() {
     try {
         const res = await fetch('https://api.figma.com/v1/files/8K144CSriRH1PQrYezkJVz/nodes?ids=849-2087', {
             headers: {
-                'X-Figma-Token': 'figd_68cufufWiBnFgRocja2zGTl3rILeM20CW7RBXPcG'
+                'X-Figma-Token': process.env.FIGMA_TOKEN || 'YOUR_FIGMA_TOKEN'
             }
         });
         const data = await res.json();
