@@ -2,6 +2,7 @@
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import './nav_item.dart';
 import '../../core/app_icons.dart';
 import '../../shared/theme/app_colors.dart';
 import '../../core/di/injection.dart';
@@ -26,7 +27,7 @@ class _MainShellState extends State<MainShell> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     if (_chatPos == const Offset(300, 500)) {
-      final size = MediaQuery.of(context).size;
+      final size = MediaQuery.sizeOf(context);
       _chatPos = Offset(size.width - 72.w, size.height - 180.h);
     }
     return BlocProvider(
@@ -47,7 +48,7 @@ class _MainShellState extends State<MainShell> {
                     setState(() {
                       double dx = details.offset.dx;
                       double dy = details.offset.dy;
-                      final screenSize = MediaQuery.of(context).size;
+                      final screenSize = MediaQuery.sizeOf(context);
                       if (dx < 0) dx = 0;
                       if (dx > screenSize.width - 64)
                         dx = screenSize.width - 64;
@@ -78,18 +79,23 @@ class _MainShellState extends State<MainShell> {
               padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
+                spacing: 8.w,
                 children: [
-                  _NavItem(
-                    icon: AppIcons.home,
-                    label: 'Home',
-                    isSelected: widget.navigationShell.currentIndex == 0,
-                    onTap: () => widget.navigationShell.goBranch(0),
+                  Expanded(
+                    child: NavItem(
+                      icon: AppIcons.home,
+                      label: 'Home',
+                      isSelected: widget.navigationShell.currentIndex == 0,
+                      onTap: () => widget.navigationShell.goBranch(0),
+                    ),
                   ),
-                  _NavItem(
-                    icon: AppIcons.search,
-                    label: 'Browse',
-                    isSelected: widget.navigationShell.currentIndex == 1,
-                    onTap: () => widget.navigationShell.goBranch(1),
+                  Expanded(
+                    child: NavItem(
+                      icon: AppIcons.explore,
+                      label: 'Browse',
+                      isSelected: widget.navigationShell.currentIndex == 1,
+                      onTap: () => widget.navigationShell.goBranch(1),
+                    ),
                   ),
                   GestureDetector(
                     onTap: () => context.push('/add-donation'),
@@ -113,17 +119,21 @@ class _MainShellState extends State<MainShell> {
                       ),
                     ),
                   ),
-                  _NavItem(
-                    icon: AppIcons.chat,
-                    label: 'Chat',
-                    isSelected: widget.navigationShell.currentIndex == 2,
-                    onTap: () => widget.navigationShell.goBranch(2),
+                  Expanded(
+                    child: NavItem(
+                      icon: AppIcons.leaderboard,
+                      label: 'Leaderboard',
+                      isSelected: widget.navigationShell.currentIndex == 2,
+                      onTap: () => widget.navigationShell.goBranch(2),
+                    ),
                   ),
-                  _NavItem(
-                    icon: AppIcons.profile,
-                    label: 'Profile',
-                    isSelected: widget.navigationShell.currentIndex == 3,
-                    onTap: () => widget.navigationShell.goBranch(3),
+                  Expanded(
+                    child: NavItem(
+                      icon: AppIcons.profile,
+                      label: 'Profile',
+                      isSelected: widget.navigationShell.currentIndex == 3,
+                      onTap: () => widget.navigationShell.goBranch(3),
+                    ),
                   ),
                 ],
               ),
@@ -164,58 +174,6 @@ class _MainShellState extends State<MainShell> {
               color: colorScheme.onPrimary,
               size: 26.sp,
             ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _NavItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _NavItem({
-    required this.icon,
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0),
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
-                color: isSelected
-                    ? AuthColors.primary
-                    : const Color(0xFF94A3B8),
-                size: isSelected ? 26.sp : 24.sp,
-              ),
-              if (isSelected) ...[
-                SizedBox(height: 6.h),
-                Container(
-                  width: 4.w,
-                  height: 4.w,
-                  decoration: BoxDecoration(
-                    color: AuthColors.primary,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ],
-            ],
           ),
         ),
       ),

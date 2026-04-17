@@ -16,6 +16,8 @@ class DonationModel extends Donation {
     required super.imageUrl,
     super.latitude,
     super.longitude,
+    super.expiryDate,
+    super.urgency,
   });
 
   factory DonationModel.fromJson(Map<String, dynamic> json) {
@@ -59,6 +61,11 @@ class DonationModel extends Donation {
     final authorName = user != null
         ? (user['displayName'] ?? user['email'])
         : 'Unknown';
+    final expiryDateRaw = json['expiryDate'] as String?;
+    final expiryDate = expiryDateRaw != null
+        ? DateTime.tryParse(expiryDateRaw)
+        : null;
+    final urgency = json['urgency'] as String?;
 
     return DonationModel(
       id: json['id'] as String,
@@ -75,6 +82,8 @@ class DonationModel extends Donation {
       imageUrl: imageUrl,
       latitude: lat,
       longitude: lng,
+      expiryDate: expiryDate,
+      urgency: urgency,
     );
   }
 }
