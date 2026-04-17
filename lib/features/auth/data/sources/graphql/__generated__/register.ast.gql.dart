@@ -28,35 +28,31 @@ const Register = _i1.OperationDefinitionNode(
     ),
   ],
   directives: [],
-  selectionSet: _i1.SelectionSetNode(
-    selections: [
-      _i1.FieldNode(
-        name: _i1.NameNode(value: 'register'),
-        alias: null,
-        arguments: [
-          _i1.ArgumentNode(
-            name: _i1.NameNode(value: 'otp'),
-            value: _i1.VariableNode(name: _i1.NameNode(value: 'otp')),
-          ),
-          _i1.ArgumentNode(
-            name: _i1.NameNode(value: 'registerInput'),
-            value: _i1.VariableNode(name: _i1.NameNode(value: 'registerInput')),
-          ),
-        ],
-        directives: [],
-        selectionSet: _i1.SelectionSetNode(
-          selections: [
-            _i1.FieldNode(
-              name: _i1.NameNode(value: 'message'),
-              alias: null,
-              arguments: [],
-              directives: [],
-              selectionSet: null,
-            ),
-          ],
+  selectionSet: _i1.SelectionSetNode(selections: [
+    _i1.FieldNode(
+      name: _i1.NameNode(value: 'register'),
+      alias: null,
+      arguments: [
+        _i1.ArgumentNode(
+          name: _i1.NameNode(value: 'otp'),
+          value: _i1.VariableNode(name: _i1.NameNode(value: 'otp')),
         ),
-      ),
-    ],
-  ),
+        _i1.ArgumentNode(
+          name: _i1.NameNode(value: 'registerInput'),
+          value: _i1.VariableNode(name: _i1.NameNode(value: 'registerInput')),
+        ),
+      ],
+      directives: [],
+      selectionSet: _i1.SelectionSetNode(selections: [
+        _i1.FieldNode(
+          name: _i1.NameNode(value: 'message'),
+          alias: null,
+          arguments: [],
+          directives: [],
+          selectionSet: null,
+        )
+      ]),
+    )
+  ]),
 );
 const document = _i1.DocumentNode(definitions: [Register]);

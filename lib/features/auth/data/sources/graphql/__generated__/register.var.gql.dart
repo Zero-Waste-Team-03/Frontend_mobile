@@ -22,10 +22,14 @@ abstract class GRegisterVars
   _i1.GRegisterInput get registerInput;
   static Serializer<GRegisterVars> get serializer => _$gRegisterVarsSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i2.serializers.serializeWith(GRegisterVars.serializer, this)
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i2.serializers.serializeWith(
+        GRegisterVars.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GRegisterVars? fromJson(Map<String, dynamic> json) =>
-      _i2.serializers.deserializeWith(GRegisterVars.serializer, json);
+      _i2.serializers.deserializeWith(
+        GRegisterVars.serializer,
+        json,
+      );
 }

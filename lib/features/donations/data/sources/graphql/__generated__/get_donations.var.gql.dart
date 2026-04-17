@@ -15,19 +15,23 @@ abstract class GGetDonationsVars
     implements Built<GGetDonationsVars, GGetDonationsVarsBuilder> {
   GGetDonationsVars._();
 
-  factory GGetDonationsVars([
-    void Function(GGetDonationsVarsBuilder b) updates,
-  ]) = _$GGetDonationsVars;
+  factory GGetDonationsVars(
+          [void Function(GGetDonationsVarsBuilder b) updates]) =
+      _$GGetDonationsVars;
 
   _i1.GPaginationInput? get pagination;
   _i1.GDonationsFilterInput? get filter;
   static Serializer<GGetDonationsVars> get serializer =>
       _$gGetDonationsVarsSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i2.serializers.serializeWith(GGetDonationsVars.serializer, this)
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i2.serializers.serializeWith(
+        GGetDonationsVars.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GGetDonationsVars? fromJson(Map<String, dynamic> json) =>
-      _i2.serializers.deserializeWith(GGetDonationsVars.serializer, json);
+      _i2.serializers.deserializeWith(
+        GGetDonationsVars.serializer,
+        json,
+      );
 }

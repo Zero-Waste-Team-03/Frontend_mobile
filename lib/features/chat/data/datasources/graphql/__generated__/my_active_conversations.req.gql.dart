@@ -20,15 +20,13 @@ part 'my_active_conversations.req.gql.g.dart';
 abstract class GMyActiveConversationsReq
     implements
         Built<GMyActiveConversationsReq, GMyActiveConversationsReqBuilder>,
-        _i1.OperationRequest<
-          _i2.GMyActiveConversationsData,
-          _i3.GMyActiveConversationsVars
-        > {
+        _i1.OperationRequest<_i2.GMyActiveConversationsData,
+            _i3.GMyActiveConversationsVars> {
   GMyActiveConversationsReq._();
 
-  factory GMyActiveConversationsReq([
-    void Function(GMyActiveConversationsReqBuilder b) updates,
-  ]) = _$GMyActiveConversationsReq;
+  factory GMyActiveConversationsReq(
+          [void Function(GMyActiveConversationsReqBuilder b) updates]) =
+      _$GMyActiveConversationsReq;
 
   static void _initializeBuilder(GMyActiveConversationsReqBuilder b) => b
     ..operation = _i4.Operation(
@@ -43,10 +41,10 @@ abstract class GMyActiveConversationsReq
   _i4.Operation get operation;
   @override
   _i4.Request get execRequest => _i4.Request(
-    operation: operation,
-    variables: vars.toJson(),
-    context: context ?? const _i4.Context(),
-  );
+        operation: operation,
+        variables: vars.toJson(),
+        context: context ?? const _i4.Context(),
+      );
 
   @override
   String? get requestId;
@@ -55,8 +53,7 @@ abstract class GMyActiveConversationsReq
   _i2.GMyActiveConversationsData? Function(
     _i2.GMyActiveConversationsData?,
     _i2.GMyActiveConversationsData?,
-  )?
-  get updateResult;
+  )? get updateResult;
   @override
   _i2.GMyActiveConversationsData? get optimisticResponse;
   @override
@@ -82,21 +79,22 @@ abstract class GMyActiveConversationsReq
       data.toJson();
 
   @override
-  _i1.OperationRequest<
-    _i2.GMyActiveConversationsData,
-    _i3.GMyActiveConversationsVars
-  >
-  transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
+  _i1.OperationRequest<_i2.GMyActiveConversationsData,
+      _i3.GMyActiveConversationsVars> transformOperation(
+          _i4.Operation Function(_i4.Operation) transform) =>
       this.rebuild((b) => b..operation = transform(operation));
 
   static Serializer<GMyActiveConversationsReq> get serializer =>
       _$gMyActiveConversationsReqSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i6.serializers.serializeWith(GMyActiveConversationsReq.serializer, this)
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i6.serializers.serializeWith(
+        GMyActiveConversationsReq.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
-  static GMyActiveConversationsReq? fromJson(Map<String, dynamic> json) => _i6
-      .serializers
-      .deserializeWith(GMyActiveConversationsReq.serializer, json);
+  static GMyActiveConversationsReq? fromJson(Map<String, dynamic> json) =>
+      _i6.serializers.deserializeWith(
+        GMyActiveConversationsReq.serializer,
+        json,
+      );
 }

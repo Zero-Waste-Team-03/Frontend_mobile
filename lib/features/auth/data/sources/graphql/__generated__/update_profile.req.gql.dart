@@ -23,9 +23,9 @@ abstract class GUpdateProfileReq
         _i1.OperationRequest<_i2.GUpdateProfileData, _i3.GUpdateProfileVars> {
   GUpdateProfileReq._();
 
-  factory GUpdateProfileReq([
-    void Function(GUpdateProfileReqBuilder b) updates,
-  ]) = _$GUpdateProfileReq;
+  factory GUpdateProfileReq(
+          [void Function(GUpdateProfileReqBuilder b) updates]) =
+      _$GUpdateProfileReq;
 
   static void _initializeBuilder(GUpdateProfileReqBuilder b) => b
     ..operation = _i4.Operation(
@@ -40,10 +40,10 @@ abstract class GUpdateProfileReq
   _i4.Operation get operation;
   @override
   _i4.Request get execRequest => _i4.Request(
-    operation: operation,
-    variables: vars.toJson(),
-    context: context ?? const _i4.Context(),
-  );
+        operation: operation,
+        variables: vars.toJson(),
+        context: context ?? const _i4.Context(),
+      );
 
   @override
   String? get requestId;
@@ -52,8 +52,7 @@ abstract class GUpdateProfileReq
   _i2.GUpdateProfileData? Function(
     _i2.GUpdateProfileData?,
     _i2.GUpdateProfileData?,
-  )?
-  get updateResult;
+  )? get updateResult;
   @override
   _i2.GUpdateProfileData? get optimisticResponse;
   @override
@@ -79,16 +78,20 @@ abstract class GUpdateProfileReq
 
   @override
   _i1.OperationRequest<_i2.GUpdateProfileData, _i3.GUpdateProfileVars>
-  transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
-      this.rebuild((b) => b..operation = transform(operation));
+      transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
+          this.rebuild((b) => b..operation = transform(operation));
 
   static Serializer<GUpdateProfileReq> get serializer =>
       _$gUpdateProfileReqSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i6.serializers.serializeWith(GUpdateProfileReq.serializer, this)
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i6.serializers.serializeWith(
+        GUpdateProfileReq.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GUpdateProfileReq? fromJson(Map<String, dynamic> json) =>
-      _i6.serializers.deserializeWith(GUpdateProfileReq.serializer, json);
+      _i6.serializers.deserializeWith(
+        GUpdateProfileReq.serializer,
+        json,
+      );
 }

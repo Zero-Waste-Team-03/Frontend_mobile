@@ -14,15 +14,13 @@ part 'conversation_messages.data.gql.g.dart';
 
 abstract class GGetConversationMessagesData
     implements
-        Built<
-          GGetConversationMessagesData,
-          GGetConversationMessagesDataBuilder
-        > {
+        Built<GGetConversationMessagesData,
+            GGetConversationMessagesDataBuilder> {
   GGetConversationMessagesData._();
 
-  factory GGetConversationMessagesData([
-    void Function(GGetConversationMessagesDataBuilder b) updates,
-  ]) = _$GGetConversationMessagesData;
+  factory GGetConversationMessagesData(
+          [void Function(GGetConversationMessagesDataBuilder b) updates]) =
+      _$GGetConversationMessagesData;
 
   static void _initializeBuilder(GGetConversationMessagesDataBuilder b) =>
       b..G__typename = 'Query';
@@ -33,12 +31,10 @@ abstract class GGetConversationMessagesData
   static Serializer<GGetConversationMessagesData> get serializer =>
       _$gGetConversationMessagesDataSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(
-            GGetConversationMessagesData.serializer,
-            this,
-          )
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GGetConversationMessagesData.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GGetConversationMessagesData? fromJson(Map<String, dynamic> json) =>
       _i1.serializers.deserializeWith(
@@ -49,20 +45,17 @@ abstract class GGetConversationMessagesData
 
 abstract class GGetConversationMessagesData_conversationMessages
     implements
-        Built<
-          GGetConversationMessagesData_conversationMessages,
-          GGetConversationMessagesData_conversationMessagesBuilder
-        > {
+        Built<GGetConversationMessagesData_conversationMessages,
+            GGetConversationMessagesData_conversationMessagesBuilder> {
   GGetConversationMessagesData_conversationMessages._();
 
-  factory GGetConversationMessagesData_conversationMessages([
-    void Function(GGetConversationMessagesData_conversationMessagesBuilder b)
-    updates,
-  ]) = _$GGetConversationMessagesData_conversationMessages;
+  factory GGetConversationMessagesData_conversationMessages(
+      [void Function(GGetConversationMessagesData_conversationMessagesBuilder b)
+          updates]) = _$GGetConversationMessagesData_conversationMessages;
 
   static void _initializeBuilder(
-    GGetConversationMessagesData_conversationMessagesBuilder b,
-  ) => b..G__typename = 'PaginatedMessages';
+          GGetConversationMessagesData_conversationMessagesBuilder b) =>
+      b..G__typename = 'PaginatedMessages';
 
   @BuiltValueField(wireName: '__typename')
   String get G__typename;
@@ -73,42 +66,36 @@ abstract class GGetConversationMessagesData_conversationMessages
   bool get hasPreviousPage;
   BuiltList<GGetConversationMessagesData_conversationMessages_items> get items;
   static Serializer<GGetConversationMessagesData_conversationMessages>
-  get serializer =>
-      _$gGetConversationMessagesDataConversationMessagesSerializer;
+      get serializer =>
+          _$gGetConversationMessagesDataConversationMessagesSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(
-            GGetConversationMessagesData_conversationMessages.serializer,
-            this,
-          )
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GGetConversationMessagesData_conversationMessages.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GGetConversationMessagesData_conversationMessages? fromJson(
-    Map<String, dynamic> json,
-  ) => _i1.serializers.deserializeWith(
-    GGetConversationMessagesData_conversationMessages.serializer,
-    json,
-  );
+          Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GGetConversationMessagesData_conversationMessages.serializer,
+        json,
+      );
 }
 
 abstract class GGetConversationMessagesData_conversationMessages_items
     implements
-        Built<
-          GGetConversationMessagesData_conversationMessages_items,
-          GGetConversationMessagesData_conversationMessages_itemsBuilder
-        > {
+        Built<GGetConversationMessagesData_conversationMessages_items,
+            GGetConversationMessagesData_conversationMessages_itemsBuilder> {
   GGetConversationMessagesData_conversationMessages_items._();
 
-  factory GGetConversationMessagesData_conversationMessages_items([
-    void Function(
-      GGetConversationMessagesData_conversationMessages_itemsBuilder b,
-    )
-    updates,
-  ]) = _$GGetConversationMessagesData_conversationMessages_items;
+  factory GGetConversationMessagesData_conversationMessages_items(
+      [void Function(
+              GGetConversationMessagesData_conversationMessages_itemsBuilder b)
+          updates]) = _$GGetConversationMessagesData_conversationMessages_items;
 
   static void _initializeBuilder(
-    GGetConversationMessagesData_conversationMessages_itemsBuilder b,
-  ) => b..G__typename = 'ChatMessage';
+          GGetConversationMessagesData_conversationMessages_itemsBuilder b) =>
+      b..G__typename = 'ChatMessage';
 
   @BuiltValueField(wireName: '__typename')
   String get G__typename;
@@ -119,20 +106,18 @@ abstract class GGetConversationMessagesData_conversationMessages_items
   String get senderId;
   String get conversationId;
   static Serializer<GGetConversationMessagesData_conversationMessages_items>
-  get serializer =>
-      _$gGetConversationMessagesDataConversationMessagesItemsSerializer;
+      get serializer =>
+          _$gGetConversationMessagesDataConversationMessagesItemsSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(
-            GGetConversationMessagesData_conversationMessages_items.serializer,
-            this,
-          )
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GGetConversationMessagesData_conversationMessages_items.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GGetConversationMessagesData_conversationMessages_items? fromJson(
-    Map<String, dynamic> json,
-  ) => _i1.serializers.deserializeWith(
-    GGetConversationMessagesData_conversationMessages_items.serializer,
-    json,
-  );
+          Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GGetConversationMessagesData_conversationMessages_items.serializer,
+        json,
+      );
 }

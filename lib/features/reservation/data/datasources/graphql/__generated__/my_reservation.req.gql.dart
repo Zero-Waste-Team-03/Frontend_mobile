@@ -23,9 +23,9 @@ abstract class GMyReservationReq
         _i1.OperationRequest<_i2.GMyReservationData, _i3.GMyReservationVars> {
   GMyReservationReq._();
 
-  factory GMyReservationReq([
-    void Function(GMyReservationReqBuilder b) updates,
-  ]) = _$GMyReservationReq;
+  factory GMyReservationReq(
+          [void Function(GMyReservationReqBuilder b) updates]) =
+      _$GMyReservationReq;
 
   static void _initializeBuilder(GMyReservationReqBuilder b) => b
     ..operation = _i4.Operation(
@@ -40,10 +40,10 @@ abstract class GMyReservationReq
   _i4.Operation get operation;
   @override
   _i4.Request get execRequest => _i4.Request(
-    operation: operation,
-    variables: vars.toJson(),
-    context: context ?? const _i4.Context(),
-  );
+        operation: operation,
+        variables: vars.toJson(),
+        context: context ?? const _i4.Context(),
+      );
 
   @override
   String? get requestId;
@@ -52,8 +52,7 @@ abstract class GMyReservationReq
   _i2.GMyReservationData? Function(
     _i2.GMyReservationData?,
     _i2.GMyReservationData?,
-  )?
-  get updateResult;
+  )? get updateResult;
   @override
   _i2.GMyReservationData? get optimisticResponse;
   @override
@@ -79,16 +78,20 @@ abstract class GMyReservationReq
 
   @override
   _i1.OperationRequest<_i2.GMyReservationData, _i3.GMyReservationVars>
-  transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
-      this.rebuild((b) => b..operation = transform(operation));
+      transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
+          this.rebuild((b) => b..operation = transform(operation));
 
   static Serializer<GMyReservationReq> get serializer =>
       _$gMyReservationReqSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i6.serializers.serializeWith(GMyReservationReq.serializer, this)
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i6.serializers.serializeWith(
+        GMyReservationReq.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GMyReservationReq? fromJson(Map<String, dynamic> json) =>
-      _i6.serializers.deserializeWith(GMyReservationReq.serializer, json);
+      _i6.serializers.deserializeWith(
+        GMyReservationReq.serializer,
+        json,
+      );
 }

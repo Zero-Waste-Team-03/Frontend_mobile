@@ -17,9 +17,9 @@ abstract class GRefreshTokensData
     implements Built<GRefreshTokensData, GRefreshTokensDataBuilder> {
   GRefreshTokensData._();
 
-  factory GRefreshTokensData([
-    void Function(GRefreshTokensDataBuilder b) updates,
-  ]) = _$GRefreshTokensData;
+  factory GRefreshTokensData(
+          [void Function(GRefreshTokensDataBuilder b) updates]) =
+      _$GRefreshTokensData;
 
   static void _initializeBuilder(GRefreshTokensDataBuilder b) =>
       b..G__typename = 'Mutation';
@@ -30,25 +30,27 @@ abstract class GRefreshTokensData
   static Serializer<GRefreshTokensData> get serializer =>
       _$gRefreshTokensDataSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(GRefreshTokensData.serializer, this)
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GRefreshTokensData.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GRefreshTokensData? fromJson(Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(GRefreshTokensData.serializer, json);
+      _i1.serializers.deserializeWith(
+        GRefreshTokensData.serializer,
+        json,
+      );
 }
 
 abstract class GRefreshTokensData_refreshTokens
     implements
-        Built<
-          GRefreshTokensData_refreshTokens,
-          GRefreshTokensData_refreshTokensBuilder
-        > {
+        Built<GRefreshTokensData_refreshTokens,
+            GRefreshTokensData_refreshTokensBuilder> {
   GRefreshTokensData_refreshTokens._();
 
-  factory GRefreshTokensData_refreshTokens([
-    void Function(GRefreshTokensData_refreshTokensBuilder b) updates,
-  ]) = _$GRefreshTokensData_refreshTokens;
+  factory GRefreshTokensData_refreshTokens(
+          [void Function(GRefreshTokensData_refreshTokensBuilder b) updates]) =
+      _$GRefreshTokensData_refreshTokens;
 
   static void _initializeBuilder(GRefreshTokensData_refreshTokensBuilder b) =>
       b..G__typename = 'AuthResponse';
@@ -61,37 +63,33 @@ abstract class GRefreshTokensData_refreshTokens
   static Serializer<GRefreshTokensData_refreshTokens> get serializer =>
       _$gRefreshTokensDataRefreshTokensSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(
-            GRefreshTokensData_refreshTokens.serializer,
-            this,
-          )
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GRefreshTokensData_refreshTokens.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GRefreshTokensData_refreshTokens? fromJson(
-    Map<String, dynamic> json,
-  ) => _i1.serializers.deserializeWith(
-    GRefreshTokensData_refreshTokens.serializer,
-    json,
-  );
+          Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GRefreshTokensData_refreshTokens.serializer,
+        json,
+      );
 }
 
 abstract class GRefreshTokensData_refreshTokens_user
     implements
-        Built<
-          GRefreshTokensData_refreshTokens_user,
-          GRefreshTokensData_refreshTokens_userBuilder
-        >,
+        Built<GRefreshTokensData_refreshTokens_user,
+            GRefreshTokensData_refreshTokens_userBuilder>,
         _i2.GUserFields {
   GRefreshTokensData_refreshTokens_user._();
 
-  factory GRefreshTokensData_refreshTokens_user([
-    void Function(GRefreshTokensData_refreshTokens_userBuilder b) updates,
-  ]) = _$GRefreshTokensData_refreshTokens_user;
+  factory GRefreshTokensData_refreshTokens_user(
+      [void Function(GRefreshTokensData_refreshTokens_userBuilder b)
+          updates]) = _$GRefreshTokensData_refreshTokens_user;
 
   static void _initializeBuilder(
-    GRefreshTokensData_refreshTokens_userBuilder b,
-  ) => b..G__typename = 'User';
+          GRefreshTokensData_refreshTokens_userBuilder b) =>
+      b..G__typename = 'User';
 
   @override
   @BuiltValueField(wireName: '__typename')
@@ -122,38 +120,33 @@ abstract class GRefreshTokensData_refreshTokens_user
       _$gRefreshTokensDataRefreshTokensUserSerializer;
 
   @override
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(
-            GRefreshTokensData_refreshTokens_user.serializer,
-            this,
-          )
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GRefreshTokensData_refreshTokens_user.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GRefreshTokensData_refreshTokens_user? fromJson(
-    Map<String, dynamic> json,
-  ) => _i1.serializers.deserializeWith(
-    GRefreshTokensData_refreshTokens_user.serializer,
-    json,
-  );
+          Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GRefreshTokensData_refreshTokens_user.serializer,
+        json,
+      );
 }
 
 abstract class GRefreshTokensData_refreshTokens_user_location
     implements
-        Built<
-          GRefreshTokensData_refreshTokens_user_location,
-          GRefreshTokensData_refreshTokens_user_locationBuilder
-        >,
+        Built<GRefreshTokensData_refreshTokens_user_location,
+            GRefreshTokensData_refreshTokens_user_locationBuilder>,
         _i2.GUserFields_location {
   GRefreshTokensData_refreshTokens_user_location._();
 
-  factory GRefreshTokensData_refreshTokens_user_location([
-    void Function(GRefreshTokensData_refreshTokens_user_locationBuilder b)
-    updates,
-  ]) = _$GRefreshTokensData_refreshTokens_user_location;
+  factory GRefreshTokensData_refreshTokens_user_location(
+      [void Function(GRefreshTokensData_refreshTokens_user_locationBuilder b)
+          updates]) = _$GRefreshTokensData_refreshTokens_user_location;
 
   static void _initializeBuilder(
-    GRefreshTokensData_refreshTokens_user_locationBuilder b,
-  ) => b..G__typename = 'Location';
+          GRefreshTokensData_refreshTokens_user_locationBuilder b) =>
+      b..G__typename = 'Location';
 
   @override
   @BuiltValueField(wireName: '__typename')
@@ -171,41 +164,36 @@ abstract class GRefreshTokensData_refreshTokens_user_location
   @override
   String? get neighborhood;
   static Serializer<GRefreshTokensData_refreshTokens_user_location>
-  get serializer => _$gRefreshTokensDataRefreshTokensUserLocationSerializer;
+      get serializer => _$gRefreshTokensDataRefreshTokensUserLocationSerializer;
 
   @override
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(
-            GRefreshTokensData_refreshTokens_user_location.serializer,
-            this,
-          )
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GRefreshTokensData_refreshTokens_user_location.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GRefreshTokensData_refreshTokens_user_location? fromJson(
-    Map<String, dynamic> json,
-  ) => _i1.serializers.deserializeWith(
-    GRefreshTokensData_refreshTokens_user_location.serializer,
-    json,
-  );
+          Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GRefreshTokensData_refreshTokens_user_location.serializer,
+        json,
+      );
 }
 
 abstract class GRefreshTokensData_refreshTokens_user_avatar
     implements
-        Built<
-          GRefreshTokensData_refreshTokens_user_avatar,
-          GRefreshTokensData_refreshTokens_user_avatarBuilder
-        >,
+        Built<GRefreshTokensData_refreshTokens_user_avatar,
+            GRefreshTokensData_refreshTokens_user_avatarBuilder>,
         _i2.GUserFields_avatar {
   GRefreshTokensData_refreshTokens_user_avatar._();
 
-  factory GRefreshTokensData_refreshTokens_user_avatar([
-    void Function(GRefreshTokensData_refreshTokens_user_avatarBuilder b)
-    updates,
-  ]) = _$GRefreshTokensData_refreshTokens_user_avatar;
+  factory GRefreshTokensData_refreshTokens_user_avatar(
+      [void Function(GRefreshTokensData_refreshTokens_user_avatarBuilder b)
+          updates]) = _$GRefreshTokensData_refreshTokens_user_avatar;
 
   static void _initializeBuilder(
-    GRefreshTokensData_refreshTokens_user_avatarBuilder b,
-  ) => b..G__typename = 'Attachment';
+          GRefreshTokensData_refreshTokens_user_avatarBuilder b) =>
+      b..G__typename = 'Attachment';
 
   @override
   @BuiltValueField(wireName: '__typename')
@@ -217,20 +205,18 @@ abstract class GRefreshTokensData_refreshTokens_user_avatar
   @override
   String get fileType;
   static Serializer<GRefreshTokensData_refreshTokens_user_avatar>
-  get serializer => _$gRefreshTokensDataRefreshTokensUserAvatarSerializer;
+      get serializer => _$gRefreshTokensDataRefreshTokensUserAvatarSerializer;
 
   @override
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(
-            GRefreshTokensData_refreshTokens_user_avatar.serializer,
-            this,
-          )
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GRefreshTokensData_refreshTokens_user_avatar.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GRefreshTokensData_refreshTokens_user_avatar? fromJson(
-    Map<String, dynamic> json,
-  ) => _i1.serializers.deserializeWith(
-    GRefreshTokensData_refreshTokens_user_avatar.serializer,
-    json,
-  );
+          Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GRefreshTokensData_refreshTokens_user_avatar.serializer,
+        json,
+      );
 }

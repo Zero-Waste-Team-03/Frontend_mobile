@@ -23,9 +23,9 @@ abstract class GChangePasswordReq
         _i1.OperationRequest<_i2.GChangePasswordData, _i3.GChangePasswordVars> {
   GChangePasswordReq._();
 
-  factory GChangePasswordReq([
-    void Function(GChangePasswordReqBuilder b) updates,
-  ]) = _$GChangePasswordReq;
+  factory GChangePasswordReq(
+          [void Function(GChangePasswordReqBuilder b) updates]) =
+      _$GChangePasswordReq;
 
   static void _initializeBuilder(GChangePasswordReqBuilder b) => b
     ..operation = _i4.Operation(
@@ -40,10 +40,10 @@ abstract class GChangePasswordReq
   _i4.Operation get operation;
   @override
   _i4.Request get execRequest => _i4.Request(
-    operation: operation,
-    variables: vars.toJson(),
-    context: context ?? const _i4.Context(),
-  );
+        operation: operation,
+        variables: vars.toJson(),
+        context: context ?? const _i4.Context(),
+      );
 
   @override
   String? get requestId;
@@ -52,8 +52,7 @@ abstract class GChangePasswordReq
   _i2.GChangePasswordData? Function(
     _i2.GChangePasswordData?,
     _i2.GChangePasswordData?,
-  )?
-  get updateResult;
+  )? get updateResult;
   @override
   _i2.GChangePasswordData? get optimisticResponse;
   @override
@@ -80,16 +79,20 @@ abstract class GChangePasswordReq
 
   @override
   _i1.OperationRequest<_i2.GChangePasswordData, _i3.GChangePasswordVars>
-  transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
-      this.rebuild((b) => b..operation = transform(operation));
+      transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
+          this.rebuild((b) => b..operation = transform(operation));
 
   static Serializer<GChangePasswordReq> get serializer =>
       _$gChangePasswordReqSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i6.serializers.serializeWith(GChangePasswordReq.serializer, this)
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i6.serializers.serializeWith(
+        GChangePasswordReq.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GChangePasswordReq? fromJson(Map<String, dynamic> json) =>
-      _i6.serializers.deserializeWith(GChangePasswordReq.serializer, json);
+      _i6.serializers.deserializeWith(
+        GChangePasswordReq.serializer,
+        json,
+      );
 }

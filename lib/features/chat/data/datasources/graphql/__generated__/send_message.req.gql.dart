@@ -39,17 +39,19 @@ abstract class GSendMessageReq
   _i4.Operation get operation;
   @override
   _i4.Request get execRequest => _i4.Request(
-    operation: operation,
-    variables: vars.toJson(),
-    context: context ?? const _i4.Context(),
-  );
+        operation: operation,
+        variables: vars.toJson(),
+        context: context ?? const _i4.Context(),
+      );
 
   @override
   String? get requestId;
   @override
   @BuiltValueField(serialize: false)
-  _i2.GSendMessageData? Function(_i2.GSendMessageData?, _i2.GSendMessageData?)?
-  get updateResult;
+  _i2.GSendMessageData? Function(
+    _i2.GSendMessageData?,
+    _i2.GSendMessageData?,
+  )? get updateResult;
   @override
   _i2.GSendMessageData? get optimisticResponse;
   @override
@@ -75,16 +77,20 @@ abstract class GSendMessageReq
 
   @override
   _i1.OperationRequest<_i2.GSendMessageData, _i3.GSendMessageVars>
-  transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
-      this.rebuild((b) => b..operation = transform(operation));
+      transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
+          this.rebuild((b) => b..operation = transform(operation));
 
   static Serializer<GSendMessageReq> get serializer =>
       _$gSendMessageReqSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i6.serializers.serializeWith(GSendMessageReq.serializer, this)
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i6.serializers.serializeWith(
+        GSendMessageReq.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GSendMessageReq? fromJson(Map<String, dynamic> json) =>
-      _i6.serializers.deserializeWith(GSendMessageReq.serializer, json);
+      _i6.serializers.deserializeWith(
+        GSendMessageReq.serializer,
+        json,
+      );
 }

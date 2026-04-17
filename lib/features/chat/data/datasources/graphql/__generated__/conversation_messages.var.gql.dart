@@ -13,26 +13,22 @@ part 'conversation_messages.var.gql.g.dart';
 
 abstract class GGetConversationMessagesVars
     implements
-        Built<
-          GGetConversationMessagesVars,
-          GGetConversationMessagesVarsBuilder
-        > {
+        Built<GGetConversationMessagesVars,
+            GGetConversationMessagesVarsBuilder> {
   GGetConversationMessagesVars._();
 
-  factory GGetConversationMessagesVars([
-    void Function(GGetConversationMessagesVarsBuilder b) updates,
-  ]) = _$GGetConversationMessagesVars;
+  factory GGetConversationMessagesVars(
+          [void Function(GGetConversationMessagesVarsBuilder b) updates]) =
+      _$GGetConversationMessagesVars;
 
   _i1.GConversationMessagesInput get input;
   static Serializer<GGetConversationMessagesVars> get serializer =>
       _$gGetConversationMessagesVarsSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i2.serializers.serializeWith(
-            GGetConversationMessagesVars.serializer,
-            this,
-          )
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i2.serializers.serializeWith(
+        GGetConversationMessagesVars.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GGetConversationMessagesVars? fromJson(Map<String, dynamic> json) =>
       _i2.serializers.deserializeWith(

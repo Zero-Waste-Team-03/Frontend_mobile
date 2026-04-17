@@ -14,9 +14,9 @@ abstract class GLogoutFromAllDevicesData
         Built<GLogoutFromAllDevicesData, GLogoutFromAllDevicesDataBuilder> {
   GLogoutFromAllDevicesData._();
 
-  factory GLogoutFromAllDevicesData([
-    void Function(GLogoutFromAllDevicesDataBuilder b) updates,
-  ]) = _$GLogoutFromAllDevicesData;
+  factory GLogoutFromAllDevicesData(
+          [void Function(GLogoutFromAllDevicesDataBuilder b) updates]) =
+      _$GLogoutFromAllDevicesData;
 
   static void _initializeBuilder(GLogoutFromAllDevicesDataBuilder b) =>
       b..G__typename = 'Mutation';
@@ -27,49 +27,48 @@ abstract class GLogoutFromAllDevicesData
   static Serializer<GLogoutFromAllDevicesData> get serializer =>
       _$gLogoutFromAllDevicesDataSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(GLogoutFromAllDevicesData.serializer, this)
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GLogoutFromAllDevicesData.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
-  static GLogoutFromAllDevicesData? fromJson(Map<String, dynamic> json) => _i1
-      .serializers
-      .deserializeWith(GLogoutFromAllDevicesData.serializer, json);
+  static GLogoutFromAllDevicesData? fromJson(Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GLogoutFromAllDevicesData.serializer,
+        json,
+      );
 }
 
 abstract class GLogoutFromAllDevicesData_logoutFromAllDevices
     implements
-        Built<
-          GLogoutFromAllDevicesData_logoutFromAllDevices,
-          GLogoutFromAllDevicesData_logoutFromAllDevicesBuilder
-        > {
+        Built<GLogoutFromAllDevicesData_logoutFromAllDevices,
+            GLogoutFromAllDevicesData_logoutFromAllDevicesBuilder> {
   GLogoutFromAllDevicesData_logoutFromAllDevices._();
 
-  factory GLogoutFromAllDevicesData_logoutFromAllDevices([
-    void Function(GLogoutFromAllDevicesData_logoutFromAllDevicesBuilder b)
-    updates,
-  ]) = _$GLogoutFromAllDevicesData_logoutFromAllDevices;
+  factory GLogoutFromAllDevicesData_logoutFromAllDevices(
+      [void Function(GLogoutFromAllDevicesData_logoutFromAllDevicesBuilder b)
+          updates]) = _$GLogoutFromAllDevicesData_logoutFromAllDevices;
 
   static void _initializeBuilder(
-    GLogoutFromAllDevicesData_logoutFromAllDevicesBuilder b,
-  ) => b..G__typename = 'MessageResponse';
+          GLogoutFromAllDevicesData_logoutFromAllDevicesBuilder b) =>
+      b..G__typename = 'MessageResponse';
 
   @BuiltValueField(wireName: '__typename')
   String get G__typename;
   String get message;
   static Serializer<GLogoutFromAllDevicesData_logoutFromAllDevices>
-  get serializer => _$gLogoutFromAllDevicesDataLogoutFromAllDevicesSerializer;
+      get serializer =>
+          _$gLogoutFromAllDevicesDataLogoutFromAllDevicesSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(
-            GLogoutFromAllDevicesData_logoutFromAllDevices.serializer,
-            this,
-          )
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GLogoutFromAllDevicesData_logoutFromAllDevices.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GLogoutFromAllDevicesData_logoutFromAllDevices? fromJson(
-    Map<String, dynamic> json,
-  ) => _i1.serializers.deserializeWith(
-    GLogoutFromAllDevicesData_logoutFromAllDevices.serializer,
-    json,
-  );
+          Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GLogoutFromAllDevicesData_logoutFromAllDevices.serializer,
+        json,
+      );
 }

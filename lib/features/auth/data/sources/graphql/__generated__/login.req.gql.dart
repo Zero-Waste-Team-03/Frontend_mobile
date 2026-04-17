@@ -26,7 +26,10 @@ abstract class GLoginReq
   factory GLoginReq([void Function(GLoginReqBuilder b) updates]) = _$GLoginReq;
 
   static void _initializeBuilder(GLoginReqBuilder b) => b
-    ..operation = _i4.Operation(document: _i5.document, operationName: 'Login')
+    ..operation = _i4.Operation(
+      document: _i5.document,
+      operationName: 'Login',
+    )
     ..executeOnListen = true;
 
   @override
@@ -35,16 +38,19 @@ abstract class GLoginReq
   _i4.Operation get operation;
   @override
   _i4.Request get execRequest => _i4.Request(
-    operation: operation,
-    variables: vars.toJson(),
-    context: context ?? const _i4.Context(),
-  );
+        operation: operation,
+        variables: vars.toJson(),
+        context: context ?? const _i4.Context(),
+      );
 
   @override
   String? get requestId;
   @override
   @BuiltValueField(serialize: false)
-  _i2.GLoginData? Function(_i2.GLoginData?, _i2.GLoginData?)? get updateResult;
+  _i2.GLoginData? Function(
+    _i2.GLoginData?,
+    _i2.GLoginData?,
+  )? get updateResult;
   @override
   _i2.GLoginData? get optimisticResponse;
   @override
@@ -70,15 +76,19 @@ abstract class GLoginReq
 
   @override
   _i1.OperationRequest<_i2.GLoginData, _i3.GLoginVars> transformOperation(
-    _i4.Operation Function(_i4.Operation) transform,
-  ) => this.rebuild((b) => b..operation = transform(operation));
+          _i4.Operation Function(_i4.Operation) transform) =>
+      this.rebuild((b) => b..operation = transform(operation));
 
   static Serializer<GLoginReq> get serializer => _$gLoginReqSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i6.serializers.serializeWith(GLoginReq.serializer, this)
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i6.serializers.serializeWith(
+        GLoginReq.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GLoginReq? fromJson(Map<String, dynamic> json) =>
-      _i6.serializers.deserializeWith(GLoginReq.serializer, json);
+      _i6.serializers.deserializeWith(
+        GLoginReq.serializer,
+        json,
+      );
 }

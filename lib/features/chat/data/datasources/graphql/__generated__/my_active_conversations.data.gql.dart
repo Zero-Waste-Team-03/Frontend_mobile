@@ -17,9 +17,9 @@ abstract class GMyActiveConversationsData
         Built<GMyActiveConversationsData, GMyActiveConversationsDataBuilder> {
   GMyActiveConversationsData._();
 
-  factory GMyActiveConversationsData([
-    void Function(GMyActiveConversationsDataBuilder b) updates,
-  ]) = _$GMyActiveConversationsData;
+  factory GMyActiveConversationsData(
+          [void Function(GMyActiveConversationsDataBuilder b) updates]) =
+      _$GMyActiveConversationsData;
 
   static void _initializeBuilder(GMyActiveConversationsDataBuilder b) =>
       b..G__typename = 'Query';
@@ -27,38 +27,35 @@ abstract class GMyActiveConversationsData
   @BuiltValueField(wireName: '__typename')
   String get G__typename;
   BuiltList<GMyActiveConversationsData_myActiveConversations>
-  get myActiveConversations;
+      get myActiveConversations;
   static Serializer<GMyActiveConversationsData> get serializer =>
       _$gMyActiveConversationsDataSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(
-            GMyActiveConversationsData.serializer,
-            this,
-          )
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GMyActiveConversationsData.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
-  static GMyActiveConversationsData? fromJson(Map<String, dynamic> json) => _i1
-      .serializers
-      .deserializeWith(GMyActiveConversationsData.serializer, json);
+  static GMyActiveConversationsData? fromJson(Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GMyActiveConversationsData.serializer,
+        json,
+      );
 }
 
 abstract class GMyActiveConversationsData_myActiveConversations
     implements
-        Built<
-          GMyActiveConversationsData_myActiveConversations,
-          GMyActiveConversationsData_myActiveConversationsBuilder
-        > {
+        Built<GMyActiveConversationsData_myActiveConversations,
+            GMyActiveConversationsData_myActiveConversationsBuilder> {
   GMyActiveConversationsData_myActiveConversations._();
 
-  factory GMyActiveConversationsData_myActiveConversations([
-    void Function(GMyActiveConversationsData_myActiveConversationsBuilder b)
-    updates,
-  ]) = _$GMyActiveConversationsData_myActiveConversations;
+  factory GMyActiveConversationsData_myActiveConversations(
+      [void Function(GMyActiveConversationsData_myActiveConversationsBuilder b)
+          updates]) = _$GMyActiveConversationsData_myActiveConversations;
 
   static void _initializeBuilder(
-    GMyActiveConversationsData_myActiveConversationsBuilder b,
-  ) => b..G__typename = 'ConversationPreview';
+          GMyActiveConversationsData_myActiveConversationsBuilder b) =>
+      b..G__typename = 'ConversationPreview';
 
   @BuiltValueField(wireName: '__typename')
   String get G__typename;
@@ -69,64 +66,58 @@ abstract class GMyActiveConversationsData_myActiveConversations
   _i2.GDateTime get createdAt;
   GMyActiveConversationsData_myActiveConversations_counterpart get counterpart;
   static Serializer<GMyActiveConversationsData_myActiveConversations>
-  get serializer => _$gMyActiveConversationsDataMyActiveConversationsSerializer;
+      get serializer =>
+          _$gMyActiveConversationsDataMyActiveConversationsSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(
-            GMyActiveConversationsData_myActiveConversations.serializer,
-            this,
-          )
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GMyActiveConversationsData_myActiveConversations.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GMyActiveConversationsData_myActiveConversations? fromJson(
-    Map<String, dynamic> json,
-  ) => _i1.serializers.deserializeWith(
-    GMyActiveConversationsData_myActiveConversations.serializer,
-    json,
-  );
+          Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GMyActiveConversationsData_myActiveConversations.serializer,
+        json,
+      );
 }
 
 abstract class GMyActiveConversationsData_myActiveConversations_counterpart
     implements
-        Built<
-          GMyActiveConversationsData_myActiveConversations_counterpart,
-          GMyActiveConversationsData_myActiveConversations_counterpartBuilder
-        > {
+        Built<GMyActiveConversationsData_myActiveConversations_counterpart,
+            GMyActiveConversationsData_myActiveConversations_counterpartBuilder> {
   GMyActiveConversationsData_myActiveConversations_counterpart._();
 
-  factory GMyActiveConversationsData_myActiveConversations_counterpart([
-    void Function(
-      GMyActiveConversationsData_myActiveConversations_counterpartBuilder b,
-    )
-    updates,
-  ]) = _$GMyActiveConversationsData_myActiveConversations_counterpart;
+  factory GMyActiveConversationsData_myActiveConversations_counterpart(
+          [void Function(
+                  GMyActiveConversationsData_myActiveConversations_counterpartBuilder
+                      b)
+              updates]) =
+      _$GMyActiveConversationsData_myActiveConversations_counterpart;
 
   static void _initializeBuilder(
-    GMyActiveConversationsData_myActiveConversations_counterpartBuilder b,
-  ) => b..G__typename = 'ChatCounterpartPreview';
+          GMyActiveConversationsData_myActiveConversations_counterpartBuilder
+              b) =>
+      b..G__typename = 'ChatCounterpartPreview';
 
   @BuiltValueField(wireName: '__typename')
   String get G__typename;
   String get displayName;
   String? get avatarUrl;
   static Serializer<
-    GMyActiveConversationsData_myActiveConversations_counterpart
-  >
-  get serializer =>
-      _$gMyActiveConversationsDataMyActiveConversationsCounterpartSerializer;
+          GMyActiveConversationsData_myActiveConversations_counterpart>
+      get serializer =>
+          _$gMyActiveConversationsDataMyActiveConversationsCounterpartSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(
-            GMyActiveConversationsData_myActiveConversations_counterpart
-                .serializer,
-            this,
-          )
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GMyActiveConversationsData_myActiveConversations_counterpart.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GMyActiveConversationsData_myActiveConversations_counterpart? fromJson(
-    Map<String, dynamic> json,
-  ) => _i1.serializers.deserializeWith(
-    GMyActiveConversationsData_myActiveConversations_counterpart.serializer,
-    json,
-  );
+          Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GMyActiveConversationsData_myActiveConversations_counterpart.serializer,
+        json,
+      );
 }

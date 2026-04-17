@@ -13,9 +13,9 @@ abstract class GForgotPasswordData
     implements Built<GForgotPasswordData, GForgotPasswordDataBuilder> {
   GForgotPasswordData._();
 
-  factory GForgotPasswordData([
-    void Function(GForgotPasswordDataBuilder b) updates,
-  ]) = _$GForgotPasswordData;
+  factory GForgotPasswordData(
+          [void Function(GForgotPasswordDataBuilder b) updates]) =
+      _$GForgotPasswordData;
 
   static void _initializeBuilder(GForgotPasswordDataBuilder b) =>
       b..G__typename = 'Mutation';
@@ -26,25 +26,27 @@ abstract class GForgotPasswordData
   static Serializer<GForgotPasswordData> get serializer =>
       _$gForgotPasswordDataSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(GForgotPasswordData.serializer, this)
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GForgotPasswordData.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GForgotPasswordData? fromJson(Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(GForgotPasswordData.serializer, json);
+      _i1.serializers.deserializeWith(
+        GForgotPasswordData.serializer,
+        json,
+      );
 }
 
 abstract class GForgotPasswordData_forgotPassword
     implements
-        Built<
-          GForgotPasswordData_forgotPassword,
-          GForgotPasswordData_forgotPasswordBuilder
-        > {
+        Built<GForgotPasswordData_forgotPassword,
+            GForgotPasswordData_forgotPasswordBuilder> {
   GForgotPasswordData_forgotPassword._();
 
-  factory GForgotPasswordData_forgotPassword([
-    void Function(GForgotPasswordData_forgotPasswordBuilder b) updates,
-  ]) = _$GForgotPasswordData_forgotPassword;
+  factory GForgotPasswordData_forgotPassword(
+      [void Function(GForgotPasswordData_forgotPasswordBuilder b)
+          updates]) = _$GForgotPasswordData_forgotPassword;
 
   static void _initializeBuilder(GForgotPasswordData_forgotPasswordBuilder b) =>
       b..G__typename = 'MessageResponse';
@@ -55,17 +57,15 @@ abstract class GForgotPasswordData_forgotPassword
   static Serializer<GForgotPasswordData_forgotPassword> get serializer =>
       _$gForgotPasswordDataForgotPasswordSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(
-            GForgotPasswordData_forgotPassword.serializer,
-            this,
-          )
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GForgotPasswordData_forgotPassword.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GForgotPasswordData_forgotPassword? fromJson(
-    Map<String, dynamic> json,
-  ) => _i1.serializers.deserializeWith(
-    GForgotPasswordData_forgotPassword.serializer,
-    json,
-  );
+          Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GForgotPasswordData_forgotPassword.serializer,
+        json,
+      );
 }

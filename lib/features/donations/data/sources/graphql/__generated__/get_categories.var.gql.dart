@@ -15,18 +15,22 @@ abstract class GGetCategoriesVars
     implements Built<GGetCategoriesVars, GGetCategoriesVarsBuilder> {
   GGetCategoriesVars._();
 
-  factory GGetCategoriesVars([
-    void Function(GGetCategoriesVarsBuilder b) updates,
-  ]) = _$GGetCategoriesVars;
+  factory GGetCategoriesVars(
+          [void Function(GGetCategoriesVarsBuilder b) updates]) =
+      _$GGetCategoriesVars;
 
   _i1.GPaginationInput? get pagination;
   static Serializer<GGetCategoriesVars> get serializer =>
       _$gGetCategoriesVarsSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i2.serializers.serializeWith(GGetCategoriesVars.serializer, this)
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i2.serializers.serializeWith(
+        GGetCategoriesVars.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GGetCategoriesVars? fromJson(Map<String, dynamic> json) =>
-      _i2.serializers.deserializeWith(GGetCategoriesVars.serializer, json);
+      _i2.serializers.deserializeWith(
+        GGetCategoriesVars.serializer,
+        json,
+      );
 }

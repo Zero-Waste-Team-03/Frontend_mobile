@@ -11,26 +11,22 @@ part 'get_or_create_conversation.var.gql.g.dart';
 
 abstract class GGetOrCreateConversationVars
     implements
-        Built<
-          GGetOrCreateConversationVars,
-          GGetOrCreateConversationVarsBuilder
-        > {
+        Built<GGetOrCreateConversationVars,
+            GGetOrCreateConversationVarsBuilder> {
   GGetOrCreateConversationVars._();
 
-  factory GGetOrCreateConversationVars([
-    void Function(GGetOrCreateConversationVarsBuilder b) updates,
-  ]) = _$GGetOrCreateConversationVars;
+  factory GGetOrCreateConversationVars(
+          [void Function(GGetOrCreateConversationVarsBuilder b) updates]) =
+      _$GGetOrCreateConversationVars;
 
   String get reservationId;
   static Serializer<GGetOrCreateConversationVars> get serializer =>
       _$gGetOrCreateConversationVarsSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(
-            GGetOrCreateConversationVars.serializer,
-            this,
-          )
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GGetOrCreateConversationVars.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GGetOrCreateConversationVars? fromJson(Map<String, dynamic> json) =>
       _i1.serializers.deserializeWith(

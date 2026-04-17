@@ -13,9 +13,9 @@ abstract class GResetPasswordData
     implements Built<GResetPasswordData, GResetPasswordDataBuilder> {
   GResetPasswordData._();
 
-  factory GResetPasswordData([
-    void Function(GResetPasswordDataBuilder b) updates,
-  ]) = _$GResetPasswordData;
+  factory GResetPasswordData(
+          [void Function(GResetPasswordDataBuilder b) updates]) =
+      _$GResetPasswordData;
 
   static void _initializeBuilder(GResetPasswordDataBuilder b) =>
       b..G__typename = 'Mutation';
@@ -26,25 +26,27 @@ abstract class GResetPasswordData
   static Serializer<GResetPasswordData> get serializer =>
       _$gResetPasswordDataSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(GResetPasswordData.serializer, this)
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GResetPasswordData.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GResetPasswordData? fromJson(Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(GResetPasswordData.serializer, json);
+      _i1.serializers.deserializeWith(
+        GResetPasswordData.serializer,
+        json,
+      );
 }
 
 abstract class GResetPasswordData_resetPassword
     implements
-        Built<
-          GResetPasswordData_resetPassword,
-          GResetPasswordData_resetPasswordBuilder
-        > {
+        Built<GResetPasswordData_resetPassword,
+            GResetPasswordData_resetPasswordBuilder> {
   GResetPasswordData_resetPassword._();
 
-  factory GResetPasswordData_resetPassword([
-    void Function(GResetPasswordData_resetPasswordBuilder b) updates,
-  ]) = _$GResetPasswordData_resetPassword;
+  factory GResetPasswordData_resetPassword(
+          [void Function(GResetPasswordData_resetPasswordBuilder b) updates]) =
+      _$GResetPasswordData_resetPassword;
 
   static void _initializeBuilder(GResetPasswordData_resetPasswordBuilder b) =>
       b..G__typename = 'MessageResponse';
@@ -55,17 +57,15 @@ abstract class GResetPasswordData_resetPassword
   static Serializer<GResetPasswordData_resetPassword> get serializer =>
       _$gResetPasswordDataResetPasswordSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(
-            GResetPasswordData_resetPassword.serializer,
-            this,
-          )
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GResetPasswordData_resetPassword.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GResetPasswordData_resetPassword? fromJson(
-    Map<String, dynamic> json,
-  ) => _i1.serializers.deserializeWith(
-    GResetPasswordData_resetPassword.serializer,
-    json,
-  );
+          Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GResetPasswordData_resetPassword.serializer,
+        json,
+      );
 }

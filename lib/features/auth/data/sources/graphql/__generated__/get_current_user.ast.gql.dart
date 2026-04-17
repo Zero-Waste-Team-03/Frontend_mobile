@@ -11,25 +11,22 @@ const GetCurrentUser = _i1.OperationDefinitionNode(
   name: _i1.NameNode(value: 'GetCurrentUser'),
   variableDefinitions: [],
   directives: [],
-  selectionSet: _i1.SelectionSetNode(
-    selections: [
-      _i1.FieldNode(
-        name: _i1.NameNode(value: 'currentUser'),
-        alias: null,
-        arguments: [],
-        directives: [],
-        selectionSet: _i1.SelectionSetNode(
-          selections: [
-            _i1.FragmentSpreadNode(
-              name: _i1.NameNode(value: 'UserFields'),
-              directives: [],
-            ),
-          ],
-        ),
-      ),
-    ],
-  ),
+  selectionSet: _i1.SelectionSetNode(selections: [
+    _i1.FieldNode(
+      name: _i1.NameNode(value: 'currentUser'),
+      alias: null,
+      arguments: [],
+      directives: [],
+      selectionSet: _i1.SelectionSetNode(selections: [
+        _i1.FragmentSpreadNode(
+          name: _i1.NameNode(value: 'UserFields'),
+          directives: [],
+        )
+      ]),
+    )
+  ]),
 );
-const document = _i1.DocumentNode(
-  definitions: [GetCurrentUser, _i2.UserFields],
-);
+const document = _i1.DocumentNode(definitions: [
+  GetCurrentUser,
+  _i2.UserFields,
+]);

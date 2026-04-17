@@ -13,15 +13,13 @@ part 'get_or_create_conversation.data.gql.g.dart';
 
 abstract class GGetOrCreateConversationData
     implements
-        Built<
-          GGetOrCreateConversationData,
-          GGetOrCreateConversationDataBuilder
-        > {
+        Built<GGetOrCreateConversationData,
+            GGetOrCreateConversationDataBuilder> {
   GGetOrCreateConversationData._();
 
-  factory GGetOrCreateConversationData([
-    void Function(GGetOrCreateConversationDataBuilder b) updates,
-  ]) = _$GGetOrCreateConversationData;
+  factory GGetOrCreateConversationData(
+          [void Function(GGetOrCreateConversationDataBuilder b) updates]) =
+      _$GGetOrCreateConversationData;
 
   static void _initializeBuilder(GGetOrCreateConversationDataBuilder b) =>
       b..G__typename = 'Mutation';
@@ -29,16 +27,14 @@ abstract class GGetOrCreateConversationData
   @BuiltValueField(wireName: '__typename')
   String get G__typename;
   GGetOrCreateConversationData_getOrCreateConversation
-  get getOrCreateConversation;
+      get getOrCreateConversation;
   static Serializer<GGetOrCreateConversationData> get serializer =>
       _$gGetOrCreateConversationDataSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(
-            GGetOrCreateConversationData.serializer,
-            this,
-          )
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GGetOrCreateConversationData.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GGetOrCreateConversationData? fromJson(Map<String, dynamic> json) =>
       _i1.serializers.deserializeWith(
@@ -49,20 +45,18 @@ abstract class GGetOrCreateConversationData
 
 abstract class GGetOrCreateConversationData_getOrCreateConversation
     implements
-        Built<
-          GGetOrCreateConversationData_getOrCreateConversation,
-          GGetOrCreateConversationData_getOrCreateConversationBuilder
-        > {
+        Built<GGetOrCreateConversationData_getOrCreateConversation,
+            GGetOrCreateConversationData_getOrCreateConversationBuilder> {
   GGetOrCreateConversationData_getOrCreateConversation._();
 
-  factory GGetOrCreateConversationData_getOrCreateConversation([
-    void Function(GGetOrCreateConversationData_getOrCreateConversationBuilder b)
-    updates,
-  ]) = _$GGetOrCreateConversationData_getOrCreateConversation;
+  factory GGetOrCreateConversationData_getOrCreateConversation(
+      [void Function(
+              GGetOrCreateConversationData_getOrCreateConversationBuilder b)
+          updates]) = _$GGetOrCreateConversationData_getOrCreateConversation;
 
   static void _initializeBuilder(
-    GGetOrCreateConversationData_getOrCreateConversationBuilder b,
-  ) => b..G__typename = 'Conversation';
+          GGetOrCreateConversationData_getOrCreateConversationBuilder b) =>
+      b..G__typename = 'Conversation';
 
   @BuiltValueField(wireName: '__typename')
   String get G__typename;
@@ -72,20 +66,18 @@ abstract class GGetOrCreateConversationData_getOrCreateConversation
   String? get lastMessage;
   String get reservationId;
   static Serializer<GGetOrCreateConversationData_getOrCreateConversation>
-  get serializer =>
-      _$gGetOrCreateConversationDataGetOrCreateConversationSerializer;
+      get serializer =>
+          _$gGetOrCreateConversationDataGetOrCreateConversationSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(
-            GGetOrCreateConversationData_getOrCreateConversation.serializer,
-            this,
-          )
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GGetOrCreateConversationData_getOrCreateConversation.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GGetOrCreateConversationData_getOrCreateConversation? fromJson(
-    Map<String, dynamic> json,
-  ) => _i1.serializers.deserializeWith(
-    GGetOrCreateConversationData_getOrCreateConversation.serializer,
-    json,
-  );
+          Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GGetOrCreateConversationData_getOrCreateConversation.serializer,
+        json,
+      );
 }

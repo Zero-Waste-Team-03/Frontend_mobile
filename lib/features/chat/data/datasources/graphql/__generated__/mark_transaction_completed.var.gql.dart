@@ -13,26 +13,22 @@ part 'mark_transaction_completed.var.gql.g.dart';
 
 abstract class GMarkTransactionCompletedVars
     implements
-        Built<
-          GMarkTransactionCompletedVars,
-          GMarkTransactionCompletedVarsBuilder
-        > {
+        Built<GMarkTransactionCompletedVars,
+            GMarkTransactionCompletedVarsBuilder> {
   GMarkTransactionCompletedVars._();
 
-  factory GMarkTransactionCompletedVars([
-    void Function(GMarkTransactionCompletedVarsBuilder b) updates,
-  ]) = _$GMarkTransactionCompletedVars;
+  factory GMarkTransactionCompletedVars(
+          [void Function(GMarkTransactionCompletedVarsBuilder b) updates]) =
+      _$GMarkTransactionCompletedVars;
 
   _i1.GMarkTransactionCompletedInput get input;
   static Serializer<GMarkTransactionCompletedVars> get serializer =>
       _$gMarkTransactionCompletedVarsSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i2.serializers.serializeWith(
-            GMarkTransactionCompletedVars.serializer,
-            this,
-          )
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i2.serializers.serializeWith(
+        GMarkTransactionCompletedVars.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GMarkTransactionCompletedVars? fromJson(Map<String, dynamic> json) =>
       _i2.serializers.deserializeWith(

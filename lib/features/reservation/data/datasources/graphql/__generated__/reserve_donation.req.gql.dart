@@ -20,15 +20,13 @@ part 'reserve_donation.req.gql.g.dart';
 abstract class GReserveDonationReq
     implements
         Built<GReserveDonationReq, GReserveDonationReqBuilder>,
-        _i1.OperationRequest<
-          _i2.GReserveDonationData,
-          _i3.GReserveDonationVars
-        > {
+        _i1
+        .OperationRequest<_i2.GReserveDonationData, _i3.GReserveDonationVars> {
   GReserveDonationReq._();
 
-  factory GReserveDonationReq([
-    void Function(GReserveDonationReqBuilder b) updates,
-  ]) = _$GReserveDonationReq;
+  factory GReserveDonationReq(
+          [void Function(GReserveDonationReqBuilder b) updates]) =
+      _$GReserveDonationReq;
 
   static void _initializeBuilder(GReserveDonationReqBuilder b) => b
     ..operation = _i4.Operation(
@@ -43,10 +41,10 @@ abstract class GReserveDonationReq
   _i4.Operation get operation;
   @override
   _i4.Request get execRequest => _i4.Request(
-    operation: operation,
-    variables: vars.toJson(),
-    context: context ?? const _i4.Context(),
-  );
+        operation: operation,
+        variables: vars.toJson(),
+        context: context ?? const _i4.Context(),
+      );
 
   @override
   String? get requestId;
@@ -55,8 +53,7 @@ abstract class GReserveDonationReq
   _i2.GReserveDonationData? Function(
     _i2.GReserveDonationData?,
     _i2.GReserveDonationData?,
-  )?
-  get updateResult;
+  )? get updateResult;
   @override
   _i2.GReserveDonationData? get optimisticResponse;
   @override
@@ -83,16 +80,20 @@ abstract class GReserveDonationReq
 
   @override
   _i1.OperationRequest<_i2.GReserveDonationData, _i3.GReserveDonationVars>
-  transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
-      this.rebuild((b) => b..operation = transform(operation));
+      transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
+          this.rebuild((b) => b..operation = transform(operation));
 
   static Serializer<GReserveDonationReq> get serializer =>
       _$gReserveDonationReqSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i6.serializers.serializeWith(GReserveDonationReq.serializer, this)
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i6.serializers.serializeWith(
+        GReserveDonationReq.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GReserveDonationReq? fromJson(Map<String, dynamic> json) =>
-      _i6.serializers.deserializeWith(GReserveDonationReq.serializer, json);
+      _i6.serializers.deserializeWith(
+        GReserveDonationReq.serializer,
+        json,
+      );
 }

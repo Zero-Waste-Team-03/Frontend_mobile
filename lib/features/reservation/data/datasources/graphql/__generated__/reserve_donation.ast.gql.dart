@@ -12,36 +12,36 @@ const ReserveDonation = _i1.OperationDefinitionNode(
   variableDefinitions: [
     _i1.VariableDefinitionNode(
       variable: _i1.VariableNode(name: _i1.NameNode(value: 'donationId')),
-      type: _i1.NamedTypeNode(name: _i1.NameNode(value: 'ID'), isNonNull: true),
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'ID'),
+        isNonNull: true,
+      ),
       defaultValue: _i1.DefaultValueNode(value: null),
       directives: [],
-    ),
+    )
   ],
   directives: [],
-  selectionSet: _i1.SelectionSetNode(
-    selections: [
-      _i1.FieldNode(
-        name: _i1.NameNode(value: 'reserveDonation'),
-        alias: null,
-        arguments: [
-          _i1.ArgumentNode(
-            name: _i1.NameNode(value: 'donationId'),
-            value: _i1.VariableNode(name: _i1.NameNode(value: 'donationId')),
-          ),
-        ],
-        directives: [],
-        selectionSet: _i1.SelectionSetNode(
-          selections: [
-            _i1.FragmentSpreadNode(
-              name: _i1.NameNode(value: 'ReservationFields'),
-              directives: [],
-            ),
-          ],
-        ),
-      ),
-    ],
-  ),
+  selectionSet: _i1.SelectionSetNode(selections: [
+    _i1.FieldNode(
+      name: _i1.NameNode(value: 'reserveDonation'),
+      alias: null,
+      arguments: [
+        _i1.ArgumentNode(
+          name: _i1.NameNode(value: 'donationId'),
+          value: _i1.VariableNode(name: _i1.NameNode(value: 'donationId')),
+        )
+      ],
+      directives: [],
+      selectionSet: _i1.SelectionSetNode(selections: [
+        _i1.FragmentSpreadNode(
+          name: _i1.NameNode(value: 'ReservationFields'),
+          directives: [],
+        )
+      ]),
+    )
+  ]),
 );
-const document = _i1.DocumentNode(
-  definitions: [ReserveDonation, _i2.ReservationFields],
-);
+const document = _i1.DocumentNode(definitions: [
+  ReserveDonation,
+  _i2.ReservationFields,
+]);

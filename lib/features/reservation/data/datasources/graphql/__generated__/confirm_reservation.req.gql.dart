@@ -20,15 +20,13 @@ part 'confirm_reservation.req.gql.g.dart';
 abstract class GConfirmReservationReq
     implements
         Built<GConfirmReservationReq, GConfirmReservationReqBuilder>,
-        _i1.OperationRequest<
-          _i2.GConfirmReservationData,
-          _i3.GConfirmReservationVars
-        > {
+        _i1.OperationRequest<_i2.GConfirmReservationData,
+            _i3.GConfirmReservationVars> {
   GConfirmReservationReq._();
 
-  factory GConfirmReservationReq([
-    void Function(GConfirmReservationReqBuilder b) updates,
-  ]) = _$GConfirmReservationReq;
+  factory GConfirmReservationReq(
+          [void Function(GConfirmReservationReqBuilder b) updates]) =
+      _$GConfirmReservationReq;
 
   static void _initializeBuilder(GConfirmReservationReqBuilder b) => b
     ..operation = _i4.Operation(
@@ -43,10 +41,10 @@ abstract class GConfirmReservationReq
   _i4.Operation get operation;
   @override
   _i4.Request get execRequest => _i4.Request(
-    operation: operation,
-    variables: vars.toJson(),
-    context: context ?? const _i4.Context(),
-  );
+        operation: operation,
+        variables: vars.toJson(),
+        context: context ?? const _i4.Context(),
+      );
 
   @override
   String? get requestId;
@@ -55,8 +53,7 @@ abstract class GConfirmReservationReq
   _i2.GConfirmReservationData? Function(
     _i2.GConfirmReservationData?,
     _i2.GConfirmReservationData?,
-  )?
-  get updateResult;
+  )? get updateResult;
   @override
   _i2.GConfirmReservationData? get optimisticResponse;
   @override
@@ -83,16 +80,20 @@ abstract class GConfirmReservationReq
 
   @override
   _i1.OperationRequest<_i2.GConfirmReservationData, _i3.GConfirmReservationVars>
-  transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
-      this.rebuild((b) => b..operation = transform(operation));
+      transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
+          this.rebuild((b) => b..operation = transform(operation));
 
   static Serializer<GConfirmReservationReq> get serializer =>
       _$gConfirmReservationReqSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i6.serializers.serializeWith(GConfirmReservationReq.serializer, this)
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i6.serializers.serializeWith(
+        GConfirmReservationReq.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GConfirmReservationReq? fromJson(Map<String, dynamic> json) =>
-      _i6.serializers.deserializeWith(GConfirmReservationReq.serializer, json);
+      _i6.serializers.deserializeWith(
+        GConfirmReservationReq.serializer,
+        json,
+      );
 }

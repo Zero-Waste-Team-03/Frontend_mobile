@@ -21,7 +21,7 @@ const specifiedBy = _i1.DirectiveDefinitionNode(
         isNonNull: true,
       ),
       defaultValue: null,
-    ),
+    )
   ],
   locations: [_i1.DirectiveLocation.scalar],
   repeatable: false,
@@ -53,7 +53,10 @@ const Achievement = _i1.ObjectTypeDefinitionNode(
       name: _i1.NameNode(value: 'badgeId'),
       directives: [],
       args: [],
-      type: _i1.NamedTypeNode(name: _i1.NameNode(value: 'ID'), isNonNull: true),
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'ID'),
+        isNonNull: true,
+      ),
     ),
     _i1.FieldDefinitionNode(
       name: _i1.NameNode(value: 'createdAt'),
@@ -68,13 +71,19 @@ const Achievement = _i1.ObjectTypeDefinitionNode(
       name: _i1.NameNode(value: 'id'),
       directives: [],
       args: [],
-      type: _i1.NamedTypeNode(name: _i1.NameNode(value: 'ID'), isNonNull: true),
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'ID'),
+        isNonNull: true,
+      ),
     ),
     _i1.FieldDefinitionNode(
       name: _i1.NameNode(value: 'userId'),
       directives: [],
       args: [],
-      type: _i1.NamedTypeNode(name: _i1.NameNode(value: 'ID'), isNonNull: true),
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'ID'),
+        isNonNull: true,
+      ),
     ),
   ],
 );
@@ -202,7 +211,7 @@ const AdminDashboardStatsInput = _i1.InputObjectTypeDefinitionNode(
         isNonNull: false,
       ),
       defaultValue: null,
-    ),
+    )
   ],
 );
 const AppearanceTheme = _i1.EnumTypeDefinitionNode(
@@ -230,13 +239,19 @@ const ApproveSensitiveMessageInput = _i1.InputObjectTypeDefinitionNode(
     _i1.InputValueDefinitionNode(
       name: _i1.NameNode(value: 'conversationId'),
       directives: [],
-      type: _i1.NamedTypeNode(name: _i1.NameNode(value: 'ID'), isNonNull: true),
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'ID'),
+        isNonNull: true,
+      ),
       defaultValue: null,
     ),
     _i1.InputValueDefinitionNode(
       name: _i1.NameNode(value: 'messageId'),
       directives: [],
-      type: _i1.NamedTypeNode(name: _i1.NameNode(value: 'ID'), isNonNull: true),
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'ID'),
+        isNonNull: true,
+      ),
       defaultValue: null,
     ),
   ],
@@ -426,7 +441,10 @@ const Badge = _i1.ObjectTypeDefinitionNode(
       name: _i1.NameNode(value: 'id'),
       directives: [],
       args: [],
-      type: _i1.NamedTypeNode(name: _i1.NameNode(value: 'ID'), isNonNull: true),
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'ID'),
+        isNonNull: true,
+      ),
     ),
     _i1.FieldDefinitionNode(
       name: _i1.NameNode(value: 'isActive'),
@@ -484,7 +502,10 @@ const Category = _i1.ObjectTypeDefinitionNode(
       name: _i1.NameNode(value: 'id'),
       directives: [],
       args: [],
-      type: _i1.NamedTypeNode(name: _i1.NameNode(value: 'ID'), isNonNull: true),
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'ID'),
+        isNonNull: true,
+      ),
     ),
     _i1.FieldDefinitionNode(
       name: _i1.NameNode(value: 'name'),
@@ -609,7 +630,10 @@ const ChatMessage = _i1.ObjectTypeDefinitionNode(
       name: _i1.NameNode(value: 'conversationId'),
       directives: [],
       args: [],
-      type: _i1.NamedTypeNode(name: _i1.NameNode(value: 'ID'), isNonNull: true),
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'ID'),
+        isNonNull: true,
+      ),
     ),
     _i1.FieldDefinitionNode(
       name: _i1.NameNode(value: 'createdAt'),
@@ -624,7 +648,10 @@ const ChatMessage = _i1.ObjectTypeDefinitionNode(
       name: _i1.NameNode(value: 'id'),
       directives: [],
       args: [],
-      type: _i1.NamedTypeNode(name: _i1.NameNode(value: 'ID'), isNonNull: true),
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'ID'),
+        isNonNull: true,
+      ),
     ),
     _i1.FieldDefinitionNode(
       name: _i1.NameNode(value: 'isModerated'),
@@ -639,7 +666,10 @@ const ChatMessage = _i1.ObjectTypeDefinitionNode(
       name: _i1.NameNode(value: 'senderId'),
       directives: [],
       args: [],
-      type: _i1.NamedTypeNode(name: _i1.NameNode(value: 'ID'), isNonNull: true),
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'ID'),
+        isNonNull: true,
+      ),
     ),
   ],
 );
@@ -661,7 +691,10 @@ const Conversation = _i1.ObjectTypeDefinitionNode(
       name: _i1.NameNode(value: 'id'),
       directives: [],
       args: [],
-      type: _i1.NamedTypeNode(name: _i1.NameNode(value: 'ID'), isNonNull: true),
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'ID'),
+        isNonNull: true,
+      ),
     ),
     _i1.FieldDefinitionNode(
       name: _i1.NameNode(value: 'lastMessage'),
@@ -676,7 +709,10 @@ const Conversation = _i1.ObjectTypeDefinitionNode(
       name: _i1.NameNode(value: 'reservationId'),
       directives: [],
       args: [],
-      type: _i1.NamedTypeNode(name: _i1.NameNode(value: 'ID'), isNonNull: true),
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'ID'),
+        isNonNull: true,
+      ),
     ),
     _i1.FieldDefinitionNode(
       name: _i1.NameNode(value: 'status'),
@@ -696,7 +732,10 @@ const ConversationMessagesInput = _i1.InputObjectTypeDefinitionNode(
     _i1.InputValueDefinitionNode(
       name: _i1.NameNode(value: 'conversationId'),
       directives: [],
-      type: _i1.NamedTypeNode(name: _i1.NameNode(value: 'ID'), isNonNull: true),
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'ID'),
+        isNonNull: true,
+      ),
       defaultValue: null,
     ),
     _i1.InputValueDefinitionNode(
@@ -737,7 +776,10 @@ const ConversationPreview = _i1.ObjectTypeDefinitionNode(
       name: _i1.NameNode(value: 'id'),
       directives: [],
       args: [],
-      type: _i1.NamedTypeNode(name: _i1.NameNode(value: 'ID'), isNonNull: true),
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'ID'),
+        isNonNull: true,
+      ),
     ),
     _i1.FieldDefinitionNode(
       name: _i1.NameNode(value: 'lastMessage'),
@@ -752,7 +794,10 @@ const ConversationPreview = _i1.ObjectTypeDefinitionNode(
       name: _i1.NameNode(value: 'reservationId'),
       directives: [],
       args: [],
-      type: _i1.NamedTypeNode(name: _i1.NameNode(value: 'ID'), isNonNull: true),
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'ID'),
+        isNonNull: true,
+      ),
     ),
     _i1.FieldDefinitionNode(
       name: _i1.NameNode(value: 'status'),
@@ -1077,7 +1122,10 @@ const DangerousDonation = _i1.ObjectTypeDefinitionNode(
       name: _i1.NameNode(value: 'categoryId'),
       directives: [],
       args: [],
-      type: _i1.NamedTypeNode(name: _i1.NameNode(value: 'ID'), isNonNull: true),
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'ID'),
+        isNonNull: true,
+      ),
     ),
     _i1.FieldDefinitionNode(
       name: _i1.NameNode(value: 'categoryName'),
@@ -1101,7 +1149,10 @@ const DangerousDonation = _i1.ObjectTypeDefinitionNode(
       name: _i1.NameNode(value: 'donationId'),
       directives: [],
       args: [],
-      type: _i1.NamedTypeNode(name: _i1.NameNode(value: 'ID'), isNonNull: true),
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'ID'),
+        isNonNull: true,
+      ),
     ),
     _i1.FieldDefinitionNode(
       name: _i1.NameNode(value: 'lastReportedAt'),
@@ -1253,7 +1304,10 @@ const Donation = _i1.ObjectTypeDefinitionNode(
       name: _i1.NameNode(value: 'id'),
       directives: [],
       args: [],
-      type: _i1.NamedTypeNode(name: _i1.NameNode(value: 'ID'), isNonNull: true),
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'ID'),
+        isNonNull: true,
+      ),
     ),
     _i1.FieldDefinitionNode(
       name: _i1.NameNode(value: 'isLikedByMe'),
@@ -1567,7 +1621,10 @@ const DonationMapMarker = _i1.ObjectTypeDefinitionNode(
       name: _i1.NameNode(value: 'id'),
       directives: [],
       args: [],
-      type: _i1.NamedTypeNode(name: _i1.NameNode(value: 'ID'), isNonNull: true),
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'ID'),
+        isNonNull: true,
+      ),
     ),
     _i1.FieldDefinitionNode(
       name: _i1.NameNode(value: 'latitude'),
@@ -2053,9 +2110,12 @@ const MarkTransactionCompletedInput = _i1.InputObjectTypeDefinitionNode(
     _i1.InputValueDefinitionNode(
       name: _i1.NameNode(value: 'conversationId'),
       directives: [],
-      type: _i1.NamedTypeNode(name: _i1.NameNode(value: 'ID'), isNonNull: true),
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'ID'),
+        isNonNull: true,
+      ),
       defaultValue: null,
-    ),
+    )
   ],
 );
 const MessageResponse = _i1.ObjectTypeDefinitionNode(
@@ -2071,7 +2131,7 @@ const MessageResponse = _i1.ObjectTypeDefinitionNode(
         name: _i1.NameNode(value: 'String'),
         isNonNull: true,
       ),
-    ),
+    )
   ],
 );
 const Mutation = _i1.ObjectTypeDefinitionNode(
@@ -2091,7 +2151,7 @@ const Mutation = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'User'),
@@ -2110,7 +2170,7 @@ const Mutation = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'User'),
@@ -2129,7 +2189,7 @@ const Mutation = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'Report'),
@@ -2148,7 +2208,7 @@ const Mutation = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'ChatMessage'),
@@ -2167,7 +2227,7 @@ const Mutation = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'MessageResponse'),
@@ -2186,7 +2246,7 @@ const Mutation = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'Reservation'),
@@ -2205,7 +2265,7 @@ const Mutation = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'Badge'),
@@ -2224,7 +2284,7 @@ const Mutation = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'Category'),
@@ -2243,7 +2303,7 @@ const Mutation = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'Donation'),
@@ -2262,7 +2322,7 @@ const Mutation = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'Report'),
@@ -2290,7 +2350,7 @@ const Mutation = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'MessageResponse'),
@@ -2309,7 +2369,7 @@ const Mutation = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'MessageResponse'),
@@ -2328,7 +2388,7 @@ const Mutation = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'MessageResponse'),
@@ -2347,7 +2407,7 @@ const Mutation = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'MessageResponse'),
@@ -2366,7 +2426,7 @@ const Mutation = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'Conversation'),
@@ -2385,7 +2445,7 @@ const Mutation = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'MessageResponse'),
@@ -2404,7 +2464,7 @@ const Mutation = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'AuthResponse'),
@@ -2432,7 +2492,7 @@ const Mutation = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'MessageResponse'),
@@ -2451,7 +2511,7 @@ const Mutation = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'Conversation'),
@@ -2507,7 +2567,7 @@ const Mutation = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'MessageResponse'),
@@ -2526,7 +2586,7 @@ const Mutation = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'Reservation'),
@@ -2545,7 +2605,7 @@ const Mutation = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'MessageResponse'),
@@ -2564,7 +2624,7 @@ const Mutation = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'SendNotificationResponse'),
@@ -2583,7 +2643,7 @@ const Mutation = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'ChatMessage'),
@@ -2602,7 +2662,7 @@ const Mutation = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'MessageResponse'),
@@ -2621,7 +2681,7 @@ const Mutation = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'User'),
@@ -2640,7 +2700,7 @@ const Mutation = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'MessageResponse'),
@@ -2743,7 +2803,7 @@ const Mutation = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'User'),
@@ -2779,7 +2839,10 @@ const Notification = _i1.ObjectTypeDefinitionNode(
       name: _i1.NameNode(value: 'id'),
       directives: [],
       args: [],
-      type: _i1.NamedTypeNode(name: _i1.NameNode(value: 'ID'), isNonNull: true),
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'ID'),
+        isNonNull: true,
+      ),
     ),
     _i1.FieldDefinitionNode(
       name: _i1.NameNode(value: 'isRead'),
@@ -3442,7 +3505,7 @@ const Query = _i1.ObjectTypeDefinitionNode(
             isNonNull: false,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'AdminDashboardStats'),
@@ -3525,7 +3588,7 @@ const Query = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'StatsGrowth'),
@@ -3544,7 +3607,7 @@ const Query = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'ReportStats'),
@@ -3630,7 +3693,7 @@ const Query = _i1.ObjectTypeDefinitionNode(
             isNonNull: false,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'PaginatedCategories'),
@@ -3649,7 +3712,7 @@ const Query = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'Category'),
@@ -3668,7 +3731,7 @@ const Query = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'PaginatedMessages'),
@@ -3696,7 +3759,7 @@ const Query = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'Donation'),
@@ -3761,7 +3824,7 @@ const Query = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'DonationsHeatmap'),
@@ -3780,7 +3843,7 @@ const Query = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.ListTypeNode(
         type: _i1.NamedTypeNode(
@@ -3802,7 +3865,7 @@ const Query = _i1.ObjectTypeDefinitionNode(
             isNonNull: false,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'PaginatedNotifications'),
@@ -3897,7 +3960,7 @@ const Query = _i1.ObjectTypeDefinitionNode(
             isNonNull: true,
           ),
           defaultValue: null,
-        ),
+        )
       ],
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'Reservation'),
@@ -4063,7 +4126,10 @@ const Report = _i1.ObjectTypeDefinitionNode(
       name: _i1.NameNode(value: 'id'),
       directives: [],
       args: [],
-      type: _i1.NamedTypeNode(name: _i1.NameNode(value: 'ID'), isNonNull: true),
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'ID'),
+        isNonNull: true,
+      ),
     ),
     _i1.FieldDefinitionNode(
       name: _i1.NameNode(value: 'reason'),
@@ -4078,7 +4144,10 @@ const Report = _i1.ObjectTypeDefinitionNode(
       name: _i1.NameNode(value: 'reporterId'),
       directives: [],
       args: [],
-      type: _i1.NamedTypeNode(name: _i1.NameNode(value: 'ID'), isNonNull: true),
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'ID'),
+        isNonNull: true,
+      ),
     ),
     _i1.FieldDefinitionNode(
       name: _i1.NameNode(value: 'reviewedAt'),
@@ -4111,7 +4180,10 @@ const Report = _i1.ObjectTypeDefinitionNode(
       name: _i1.NameNode(value: 'targetId'),
       directives: [],
       args: [],
-      type: _i1.NamedTypeNode(name: _i1.NameNode(value: 'ID'), isNonNull: true),
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'ID'),
+        isNonNull: true,
+      ),
     ),
     _i1.FieldDefinitionNode(
       name: _i1.NameNode(value: 'targetType'),
@@ -4343,7 +4415,10 @@ const Reservation = _i1.ObjectTypeDefinitionNode(
       name: _i1.NameNode(value: 'beneficiaryId'),
       directives: [],
       args: [],
-      type: _i1.NamedTypeNode(name: _i1.NameNode(value: 'ID'), isNonNull: true),
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'ID'),
+        isNonNull: true,
+      ),
     ),
     _i1.FieldDefinitionNode(
       name: _i1.NameNode(value: 'confirmedAt'),
@@ -4376,13 +4451,19 @@ const Reservation = _i1.ObjectTypeDefinitionNode(
       name: _i1.NameNode(value: 'donationId'),
       directives: [],
       args: [],
-      type: _i1.NamedTypeNode(name: _i1.NameNode(value: 'ID'), isNonNull: true),
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'ID'),
+        isNonNull: true,
+      ),
     ),
     _i1.FieldDefinitionNode(
       name: _i1.NameNode(value: 'id'),
       directives: [],
       args: [],
-      type: _i1.NamedTypeNode(name: _i1.NameNode(value: 'ID'), isNonNull: true),
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'ID'),
+        isNonNull: true,
+      ),
     ),
     _i1.FieldDefinitionNode(
       name: _i1.NameNode(value: 'status'),
@@ -4416,7 +4497,7 @@ const ReservationsFilterInput = _i1.InputObjectTypeDefinitionNode(
         isNonNull: false,
       ),
       defaultValue: null,
-    ),
+    )
   ],
 );
 const ReservationStatus = _i1.EnumTypeDefinitionNode(
@@ -4472,7 +4553,10 @@ const ReviewReportInput = _i1.InputObjectTypeDefinitionNode(
     _i1.InputValueDefinitionNode(
       name: _i1.NameNode(value: 'reportId'),
       directives: [],
-      type: _i1.NamedTypeNode(name: _i1.NameNode(value: 'ID'), isNonNull: true),
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'ID'),
+        isNonNull: true,
+      ),
       defaultValue: null,
     ),
     _i1.InputValueDefinitionNode(
@@ -4502,7 +4586,10 @@ const SendMessageInput = _i1.InputObjectTypeDefinitionNode(
     _i1.InputValueDefinitionNode(
       name: _i1.NameNode(value: 'conversationId'),
       directives: [],
-      type: _i1.NamedTypeNode(name: _i1.NameNode(value: 'ID'), isNonNull: true),
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'ID'),
+        isNonNull: true,
+      ),
       defaultValue: null,
     ),
   ],
@@ -4590,7 +4677,7 @@ const StatsGrowth = _i1.ObjectTypeDefinitionNode(
         ),
         isNonNull: true,
       ),
-    ),
+    )
   ],
 );
 const StatsGrowthInput = _i1.InputObjectTypeDefinitionNode(
@@ -4963,7 +5050,7 @@ const UpdateReadNotificationsInput = _i1.InputObjectTypeDefinitionNode(
         isNonNull: true,
       ),
       defaultValue: null,
-    ),
+    )
   ],
 );
 const UploadStatusValues = _i1.EnumTypeDefinitionNode(
@@ -5347,101 +5434,99 @@ const UserStats = _i1.ObjectTypeDefinitionNode(
     ),
   ],
 );
-const document = _i1.DocumentNode(
-  definitions: [
-    oneOf,
-    specifiedBy,
-    Achievement,
-    AdminCreateAccountInput,
-    AdminDashboardStats,
-    AdminDashboardStatsInput,
-    AppearanceTheme,
-    ApproveSensitiveMessageInput,
-    Attachment,
-    AuthResponse,
-    Badge,
-    Category,
-    CategorySensitivity,
-    ChangePasswordInput,
-    ChatCounterpartPreview,
-    ChatMessage,
-    Conversation,
-    ConversationMessagesInput,
-    ConversationPreview,
-    ConversationStatus,
-    CoordinateInput,
-    CreateBadgeInput,
-    CreateCategoryInput,
-    CreateDonationInput,
-    CreateReportInput,
-    DangerousDonation,
-    DateRangeInput,
-    DateTime,
-    Donation,
-    DonationBehaviorContextInput,
-    DonationHeatmapCell,
-    DonationMapMarker,
-    DonationsFilterInput,
-    DonationsHeatmap,
-    DonationsHeatmapInput,
-    DonationsMapInput,
-    DonationStatistics,
-    DonationStatusValues,
-    DonationUrgencyValues,
-    JSON,
-    JSONObject,
-    Location,
-    LocationInput,
-    LoginInput,
-    MapBoundsInput,
-    MarkerColorValues,
-    MarkTransactionCompletedInput,
-    MessageResponse,
-    Mutation,
-    Notification,
-    PaginatedCategories,
-    PaginatedDangerousDonations,
-    PaginatedDonations,
-    PaginatedMessages,
-    PaginatedNotifications,
-    PaginatedReports,
-    PaginatedReservations,
-    PaginatedUsers,
-    PaginationInput,
-    PaginationQueryInput,
-    Query,
-    RegisterInput,
-    RegisterLocationInput,
-    Report,
-    ReportStats,
-    ReportStatsInput,
-    ReportStatsPeriod,
-    ReportStatsPoint,
-    ReportStatsStatusFilter,
-    ReportStatus,
-    ReportTargetType,
-    Reservation,
-    ReservationsFilterInput,
-    ReservationStatus,
-    ResetPasswordInput,
-    ReviewReportInput,
-    SendMessageInput,
-    SendNotificationInput,
-    SendNotificationResponse,
-    StatsGrowth,
-    StatsGrowthInput,
-    StatsGrowthPeriod,
-    StatsGrowthPoint,
-    UpdateBadgeInput,
-    UpdateCategoryInput,
-    UpdateDonationInput,
-    UpdateProfileInput,
-    UpdateReadNotificationsInput,
-    UploadStatusValues,
-    User,
-    UserRole,
-    UserSettings,
-    UserSettingsInput,
-    UserStats,
-  ],
-);
+const document = _i1.DocumentNode(definitions: [
+  oneOf,
+  specifiedBy,
+  Achievement,
+  AdminCreateAccountInput,
+  AdminDashboardStats,
+  AdminDashboardStatsInput,
+  AppearanceTheme,
+  ApproveSensitiveMessageInput,
+  Attachment,
+  AuthResponse,
+  Badge,
+  Category,
+  CategorySensitivity,
+  ChangePasswordInput,
+  ChatCounterpartPreview,
+  ChatMessage,
+  Conversation,
+  ConversationMessagesInput,
+  ConversationPreview,
+  ConversationStatus,
+  CoordinateInput,
+  CreateBadgeInput,
+  CreateCategoryInput,
+  CreateDonationInput,
+  CreateReportInput,
+  DangerousDonation,
+  DateRangeInput,
+  DateTime,
+  Donation,
+  DonationBehaviorContextInput,
+  DonationHeatmapCell,
+  DonationMapMarker,
+  DonationsFilterInput,
+  DonationsHeatmap,
+  DonationsHeatmapInput,
+  DonationsMapInput,
+  DonationStatistics,
+  DonationStatusValues,
+  DonationUrgencyValues,
+  JSON,
+  JSONObject,
+  Location,
+  LocationInput,
+  LoginInput,
+  MapBoundsInput,
+  MarkerColorValues,
+  MarkTransactionCompletedInput,
+  MessageResponse,
+  Mutation,
+  Notification,
+  PaginatedCategories,
+  PaginatedDangerousDonations,
+  PaginatedDonations,
+  PaginatedMessages,
+  PaginatedNotifications,
+  PaginatedReports,
+  PaginatedReservations,
+  PaginatedUsers,
+  PaginationInput,
+  PaginationQueryInput,
+  Query,
+  RegisterInput,
+  RegisterLocationInput,
+  Report,
+  ReportStats,
+  ReportStatsInput,
+  ReportStatsPeriod,
+  ReportStatsPoint,
+  ReportStatsStatusFilter,
+  ReportStatus,
+  ReportTargetType,
+  Reservation,
+  ReservationsFilterInput,
+  ReservationStatus,
+  ResetPasswordInput,
+  ReviewReportInput,
+  SendMessageInput,
+  SendNotificationInput,
+  SendNotificationResponse,
+  StatsGrowth,
+  StatsGrowthInput,
+  StatsGrowthPeriod,
+  StatsGrowthPoint,
+  UpdateBadgeInput,
+  UpdateCategoryInput,
+  UpdateDonationInput,
+  UpdateProfileInput,
+  UpdateReadNotificationsInput,
+  UploadStatusValues,
+  User,
+  UserRole,
+  UserSettings,
+  UserSettingsInput,
+  UserStats,
+]);

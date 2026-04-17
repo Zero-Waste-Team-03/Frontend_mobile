@@ -13,18 +13,22 @@ abstract class GForgotPasswordVars
     implements Built<GForgotPasswordVars, GForgotPasswordVarsBuilder> {
   GForgotPasswordVars._();
 
-  factory GForgotPasswordVars([
-    void Function(GForgotPasswordVarsBuilder b) updates,
-  ]) = _$GForgotPasswordVars;
+  factory GForgotPasswordVars(
+          [void Function(GForgotPasswordVarsBuilder b) updates]) =
+      _$GForgotPasswordVars;
 
   String get email;
   static Serializer<GForgotPasswordVars> get serializer =>
       _$gForgotPasswordVarsSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(GForgotPasswordVars.serializer, this)
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GForgotPasswordVars.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GForgotPasswordVars? fromJson(Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(GForgotPasswordVars.serializer, json);
+      _i1.serializers.deserializeWith(
+        GForgotPasswordVars.serializer,
+        json,
+      );
 }

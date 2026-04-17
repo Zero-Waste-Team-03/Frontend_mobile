@@ -24,21 +24,25 @@ abstract class GRegisterData
   GRegisterData_register get register;
   static Serializer<GRegisterData> get serializer => _$gRegisterDataSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(GRegisterData.serializer, this)
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GRegisterData.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GRegisterData? fromJson(Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(GRegisterData.serializer, json);
+      _i1.serializers.deserializeWith(
+        GRegisterData.serializer,
+        json,
+      );
 }
 
 abstract class GRegisterData_register
     implements Built<GRegisterData_register, GRegisterData_registerBuilder> {
   GRegisterData_register._();
 
-  factory GRegisterData_register([
-    void Function(GRegisterData_registerBuilder b) updates,
-  ]) = _$GRegisterData_register;
+  factory GRegisterData_register(
+          [void Function(GRegisterData_registerBuilder b) updates]) =
+      _$GRegisterData_register;
 
   static void _initializeBuilder(GRegisterData_registerBuilder b) =>
       b..G__typename = 'MessageResponse';
@@ -49,10 +53,14 @@ abstract class GRegisterData_register
   static Serializer<GRegisterData_register> get serializer =>
       _$gRegisterDataRegisterSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(GRegisterData_register.serializer, this)
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GRegisterData_register.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GRegisterData_register? fromJson(Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(GRegisterData_register.serializer, json);
+      _i1.serializers.deserializeWith(
+        GRegisterData_register.serializer,
+        json,
+      );
 }

@@ -14,21 +14,21 @@ abstract class GMyActiveConversationsVars
         Built<GMyActiveConversationsVars, GMyActiveConversationsVarsBuilder> {
   GMyActiveConversationsVars._();
 
-  factory GMyActiveConversationsVars([
-    void Function(GMyActiveConversationsVarsBuilder b) updates,
-  ]) = _$GMyActiveConversationsVars;
+  factory GMyActiveConversationsVars(
+          [void Function(GMyActiveConversationsVarsBuilder b) updates]) =
+      _$GMyActiveConversationsVars;
 
   static Serializer<GMyActiveConversationsVars> get serializer =>
       _$gMyActiveConversationsVarsSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(
-            GMyActiveConversationsVars.serializer,
-            this,
-          )
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GMyActiveConversationsVars.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
-  static GMyActiveConversationsVars? fromJson(Map<String, dynamic> json) => _i1
-      .serializers
-      .deserializeWith(GMyActiveConversationsVars.serializer, json);
+  static GMyActiveConversationsVars? fromJson(Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GMyActiveConversationsVars.serializer,
+        json,
+      );
 }

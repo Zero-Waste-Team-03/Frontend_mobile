@@ -13,17 +13,21 @@ abstract class GReservationFieldsVars
     implements Built<GReservationFieldsVars, GReservationFieldsVarsBuilder> {
   GReservationFieldsVars._();
 
-  factory GReservationFieldsVars([
-    void Function(GReservationFieldsVarsBuilder b) updates,
-  ]) = _$GReservationFieldsVars;
+  factory GReservationFieldsVars(
+          [void Function(GReservationFieldsVarsBuilder b) updates]) =
+      _$GReservationFieldsVars;
 
   static Serializer<GReservationFieldsVars> get serializer =>
       _$gReservationFieldsVarsSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(GReservationFieldsVars.serializer, this)
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GReservationFieldsVars.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GReservationFieldsVars? fromJson(Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(GReservationFieldsVars.serializer, json);
+      _i1.serializers.deserializeWith(
+        GReservationFieldsVars.serializer,
+        json,
+      );
 }

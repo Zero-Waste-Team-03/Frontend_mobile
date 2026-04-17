@@ -23,9 +23,9 @@ abstract class GCreateDonationReq
         _i1.OperationRequest<_i2.GCreateDonationData, _i3.GCreateDonationVars> {
   GCreateDonationReq._();
 
-  factory GCreateDonationReq([
-    void Function(GCreateDonationReqBuilder b) updates,
-  ]) = _$GCreateDonationReq;
+  factory GCreateDonationReq(
+          [void Function(GCreateDonationReqBuilder b) updates]) =
+      _$GCreateDonationReq;
 
   static void _initializeBuilder(GCreateDonationReqBuilder b) => b
     ..operation = _i4.Operation(
@@ -40,10 +40,10 @@ abstract class GCreateDonationReq
   _i4.Operation get operation;
   @override
   _i4.Request get execRequest => _i4.Request(
-    operation: operation,
-    variables: vars.toJson(),
-    context: context ?? const _i4.Context(),
-  );
+        operation: operation,
+        variables: vars.toJson(),
+        context: context ?? const _i4.Context(),
+      );
 
   @override
   String? get requestId;
@@ -52,8 +52,7 @@ abstract class GCreateDonationReq
   _i2.GCreateDonationData? Function(
     _i2.GCreateDonationData?,
     _i2.GCreateDonationData?,
-  )?
-  get updateResult;
+  )? get updateResult;
   @override
   _i2.GCreateDonationData? get optimisticResponse;
   @override
@@ -80,16 +79,20 @@ abstract class GCreateDonationReq
 
   @override
   _i1.OperationRequest<_i2.GCreateDonationData, _i3.GCreateDonationVars>
-  transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
-      this.rebuild((b) => b..operation = transform(operation));
+      transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
+          this.rebuild((b) => b..operation = transform(operation));
 
   static Serializer<GCreateDonationReq> get serializer =>
       _$gCreateDonationReqSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i6.serializers.serializeWith(GCreateDonationReq.serializer, this)
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i6.serializers.serializeWith(
+        GCreateDonationReq.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GCreateDonationReq? fromJson(Map<String, dynamic> json) =>
-      _i6.serializers.deserializeWith(GCreateDonationReq.serializer, json);
+      _i6.serializers.deserializeWith(
+        GCreateDonationReq.serializer,
+        json,
+      );
 }

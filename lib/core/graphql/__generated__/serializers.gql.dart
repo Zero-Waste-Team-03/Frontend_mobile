@@ -246,6 +246,29 @@ import 'package:gaspzero/features/donations/data/sources/graphql/__generated__/g
     show GGetDonationsReq;
 import 'package:gaspzero/features/donations/data/sources/graphql/__generated__/get_donations.var.gql.dart'
     show GGetDonationsVars;
+import 'package:gaspzero/features/notification/data/sources/graphql/__generated__/delete_notification.data.gql.dart'
+    show GDeleteNotificationData, GDeleteNotificationData_deleteNotification;
+import 'package:gaspzero/features/notification/data/sources/graphql/__generated__/delete_notification.req.gql.dart'
+    show GDeleteNotificationReq;
+import 'package:gaspzero/features/notification/data/sources/graphql/__generated__/delete_notification.var.gql.dart'
+    show GDeleteNotificationVars;
+import 'package:gaspzero/features/notification/data/sources/graphql/__generated__/get_notifications.data.gql.dart'
+    show
+        GGetNotificationsData,
+        GGetNotificationsData_getNotifications,
+        GGetNotificationsData_getNotifications_items;
+import 'package:gaspzero/features/notification/data/sources/graphql/__generated__/get_notifications.req.gql.dart'
+    show GGetNotificationsReq;
+import 'package:gaspzero/features/notification/data/sources/graphql/__generated__/get_notifications.var.gql.dart'
+    show GGetNotificationsVars;
+import 'package:gaspzero/features/notification/data/sources/graphql/__generated__/mark_notifications_as_read.data.gql.dart'
+    show
+        GMarkNotificationsAsReadData,
+        GMarkNotificationsAsReadData_markNotificationsAsRead;
+import 'package:gaspzero/features/notification/data/sources/graphql/__generated__/mark_notifications_as_read.req.gql.dart'
+    show GMarkNotificationsAsReadReq;
+import 'package:gaspzero/features/notification/data/sources/graphql/__generated__/mark_notifications_as_read.var.gql.dart'
+    show GMarkNotificationsAsReadVars;
 import 'package:gaspzero/features/reservation/data/datasources/graphql/__generated__/confirm_reservation.data.gql.dart'
     show
         GConfirmReservationData,
@@ -266,14 +289,10 @@ import 'package:gaspzero/features/reservation/data/datasources/graphql/__generat
     show
         GMyReservationData,
         GMyReservationData_myReservation,
-        GMyReservationData_myReservation_beneficiary,
-        GMyReservationData_myReservation_beneficiary_avatar,
-        GMyReservationData_myReservation_beneficiary_location,
         GMyReservationData_myReservation_donation,
-        GMyReservationData_myReservation_donation_category,
-        GMyReservationData_myReservation_donation_location,
         GMyReservationData_myReservation_donation_mainAttachment,
-        GMyReservationData_myReservation_donation_user;
+        GMyReservationData_myReservation_donation_user,
+        GMyReservationData_myReservation_donation_user_avatar;
 import 'package:gaspzero/features/reservation/data/datasources/graphql/__generated__/my_reservation.req.gql.dart'
     show GMyReservationReq;
 import 'package:gaspzero/features/reservation/data/datasources/graphql/__generated__/my_reservation.var.gql.dart'
@@ -283,14 +302,8 @@ import 'package:gaspzero/features/reservation/data/datasources/graphql/__generat
         GMyReservationsData,
         GMyReservationsData_myReservations,
         GMyReservationsData_myReservations_items,
-        GMyReservationsData_myReservations_items_beneficiary,
-        GMyReservationsData_myReservations_items_beneficiary_avatar,
-        GMyReservationsData_myReservations_items_beneficiary_location,
         GMyReservationsData_myReservations_items_donation,
-        GMyReservationsData_myReservations_items_donation_category,
-        GMyReservationsData_myReservations_items_donation_location,
-        GMyReservationsData_myReservations_items_donation_mainAttachment,
-        GMyReservationsData_myReservations_items_donation_user;
+        GMyReservationsData_myReservations_items_donation_mainAttachment;
 import 'package:gaspzero/features/reservation/data/datasources/graphql/__generated__/my_reservations.req.gql.dart'
     show GMyReservationsReq;
 import 'package:gaspzero/features/reservation/data/datasources/graphql/__generated__/my_reservations.var.gql.dart'
@@ -378,6 +391,10 @@ final SerializersBuilder _serializersBuilder = _$serializers.toBuilder()
   GDeleteAccountData_deleteAccount,
   GDeleteAccountReq,
   GDeleteAccountVars,
+  GDeleteNotificationData,
+  GDeleteNotificationData_deleteNotification,
+  GDeleteNotificationReq,
+  GDeleteNotificationVars,
   GDonationBehaviorContextInput,
   GDonationStatusValues,
   GDonationUrgencyValues,
@@ -421,6 +438,11 @@ final SerializersBuilder _serializersBuilder = _$serializers.toBuilder()
   GGetDonationsData_donations_items_user,
   GGetDonationsReq,
   GGetDonationsVars,
+  GGetNotificationsData,
+  GGetNotificationsData_getNotifications,
+  GGetNotificationsData_getNotifications_items,
+  GGetNotificationsReq,
+  GGetNotificationsVars,
   GGetOrCreateConversationData,
   GGetOrCreateConversationData_getOrCreateConversation,
   GGetOrCreateConversationReq,
@@ -441,6 +463,10 @@ final SerializersBuilder _serializersBuilder = _$serializers.toBuilder()
   GLogoutFromAllDevicesReq,
   GLogoutFromAllDevicesVars,
   GMapBoundsInput,
+  GMarkNotificationsAsReadData,
+  GMarkNotificationsAsReadData_markNotificationsAsRead,
+  GMarkNotificationsAsReadReq,
+  GMarkNotificationsAsReadVars,
   GMarkTransactionCompletedData,
   GMarkTransactionCompletedData_markTransactionCompleted,
   GMarkTransactionCompletedInput,
@@ -454,27 +480,17 @@ final SerializersBuilder _serializersBuilder = _$serializers.toBuilder()
   GMyActiveConversationsVars,
   GMyReservationData,
   GMyReservationData_myReservation,
-  GMyReservationData_myReservation_beneficiary,
-  GMyReservationData_myReservation_beneficiary_avatar,
-  GMyReservationData_myReservation_beneficiary_location,
   GMyReservationData_myReservation_donation,
-  GMyReservationData_myReservation_donation_category,
-  GMyReservationData_myReservation_donation_location,
   GMyReservationData_myReservation_donation_mainAttachment,
   GMyReservationData_myReservation_donation_user,
+  GMyReservationData_myReservation_donation_user_avatar,
   GMyReservationReq,
   GMyReservationVars,
   GMyReservationsData,
   GMyReservationsData_myReservations,
   GMyReservationsData_myReservations_items,
-  GMyReservationsData_myReservations_items_beneficiary,
-  GMyReservationsData_myReservations_items_beneficiary_avatar,
-  GMyReservationsData_myReservations_items_beneficiary_location,
   GMyReservationsData_myReservations_items_donation,
-  GMyReservationsData_myReservations_items_donation_category,
-  GMyReservationsData_myReservations_items_donation_location,
   GMyReservationsData_myReservations_items_donation_mainAttachment,
-  GMyReservationsData_myReservations_items_donation_user,
   GMyReservationsReq,
   GMyReservationsVars,
   GPaginationInput,

@@ -85,12 +85,16 @@ abstract class GUserFieldsData
       _$gUserFieldsDataSerializer;
 
   @override
-  Map<String, dynamic> toJson() =>
-      (_i2.serializers.serializeWith(GUserFieldsData.serializer, this)
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i2.serializers.serializeWith(
+        GUserFieldsData.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GUserFieldsData? fromJson(Map<String, dynamic> json) =>
-      _i2.serializers.deserializeWith(GUserFieldsData.serializer, json);
+      _i2.serializers.deserializeWith(
+        GUserFieldsData.serializer,
+        json,
+      );
 }
 
 abstract class GUserFieldsData_location
@@ -99,9 +103,9 @@ abstract class GUserFieldsData_location
         GUserFields_location {
   GUserFieldsData_location._();
 
-  factory GUserFieldsData_location([
-    void Function(GUserFieldsData_locationBuilder b) updates,
-  ]) = _$GUserFieldsData_location;
+  factory GUserFieldsData_location(
+          [void Function(GUserFieldsData_locationBuilder b) updates]) =
+      _$GUserFieldsData_location;
 
   static void _initializeBuilder(GUserFieldsData_locationBuilder b) =>
       b..G__typename = 'Location';
@@ -125,13 +129,16 @@ abstract class GUserFieldsData_location
       _$gUserFieldsDataLocationSerializer;
 
   @override
-  Map<String, dynamic> toJson() =>
-      (_i2.serializers.serializeWith(GUserFieldsData_location.serializer, this)
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i2.serializers.serializeWith(
+        GUserFieldsData_location.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
-  static GUserFieldsData_location? fromJson(Map<String, dynamic> json) => _i2
-      .serializers
-      .deserializeWith(GUserFieldsData_location.serializer, json);
+  static GUserFieldsData_location? fromJson(Map<String, dynamic> json) =>
+      _i2.serializers.deserializeWith(
+        GUserFieldsData_location.serializer,
+        json,
+      );
 }
 
 abstract class GUserFieldsData_avatar
@@ -140,9 +147,9 @@ abstract class GUserFieldsData_avatar
         GUserFields_avatar {
   GUserFieldsData_avatar._();
 
-  factory GUserFieldsData_avatar([
-    void Function(GUserFieldsData_avatarBuilder b) updates,
-  ]) = _$GUserFieldsData_avatar;
+  factory GUserFieldsData_avatar(
+          [void Function(GUserFieldsData_avatarBuilder b) updates]) =
+      _$GUserFieldsData_avatar;
 
   static void _initializeBuilder(GUserFieldsData_avatarBuilder b) =>
       b..G__typename = 'Attachment';
@@ -160,10 +167,14 @@ abstract class GUserFieldsData_avatar
       _$gUserFieldsDataAvatarSerializer;
 
   @override
-  Map<String, dynamic> toJson() =>
-      (_i2.serializers.serializeWith(GUserFieldsData_avatar.serializer, this)
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i2.serializers.serializeWith(
+        GUserFieldsData_avatar.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GUserFieldsData_avatar? fromJson(Map<String, dynamic> json) =>
-      _i2.serializers.deserializeWith(GUserFieldsData_avatar.serializer, json);
+      _i2.serializers.deserializeWith(
+        GUserFieldsData_avatar.serializer,
+        json,
+      );
 }

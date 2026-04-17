@@ -20,15 +20,13 @@ part 'reservation_fields.req.gql.g.dart';
 abstract class GReservationFieldsReq
     implements
         Built<GReservationFieldsReq, GReservationFieldsReqBuilder>,
-        _i1.FragmentRequest<
-          _i2.GReservationFieldsData,
-          _i3.GReservationFieldsVars
-        > {
+        _i1.FragmentRequest<_i2.GReservationFieldsData,
+            _i3.GReservationFieldsVars> {
   GReservationFieldsReq._();
 
-  factory GReservationFieldsReq([
-    void Function(GReservationFieldsReqBuilder b) updates,
-  ]) = _$GReservationFieldsReq;
+  factory GReservationFieldsReq(
+          [void Function(GReservationFieldsReqBuilder b) updates]) =
+      _$GReservationFieldsReq;
 
   static void _initializeBuilder(GReservationFieldsReqBuilder b) => b
     ..document = _i4.document
@@ -56,10 +54,14 @@ abstract class GReservationFieldsReq
   static Serializer<GReservationFieldsReq> get serializer =>
       _$gReservationFieldsReqSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i6.serializers.serializeWith(GReservationFieldsReq.serializer, this)
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i6.serializers.serializeWith(
+        GReservationFieldsReq.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GReservationFieldsReq? fromJson(Map<String, dynamic> json) =>
-      _i6.serializers.deserializeWith(GReservationFieldsReq.serializer, json);
+      _i6.serializers.deserializeWith(
+        GReservationFieldsReq.serializer,
+        json,
+      );
 }

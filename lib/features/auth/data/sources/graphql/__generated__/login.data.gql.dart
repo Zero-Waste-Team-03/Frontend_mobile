@@ -27,12 +27,16 @@ abstract class GLoginData implements Built<GLoginData, GLoginDataBuilder> {
   GLoginData_login get login;
   static Serializer<GLoginData> get serializer => _$gLoginDataSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(GLoginData.serializer, this)
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GLoginData.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GLoginData? fromJson(Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(GLoginData.serializer, json);
+      _i1.serializers.deserializeWith(
+        GLoginData.serializer,
+        json,
+      );
 }
 
 abstract class GLoginData_login
@@ -53,12 +57,16 @@ abstract class GLoginData_login
   static Serializer<GLoginData_login> get serializer =>
       _$gLoginDataLoginSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(GLoginData_login.serializer, this)
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GLoginData_login.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GLoginData_login? fromJson(Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(GLoginData_login.serializer, json);
+      _i1.serializers.deserializeWith(
+        GLoginData_login.serializer,
+        json,
+      );
 }
 
 abstract class GLoginData_login_user
@@ -67,9 +75,9 @@ abstract class GLoginData_login_user
         _i2.GUserFields {
   GLoginData_login_user._();
 
-  factory GLoginData_login_user([
-    void Function(GLoginData_login_userBuilder b) updates,
-  ]) = _$GLoginData_login_user;
+  factory GLoginData_login_user(
+          [void Function(GLoginData_login_userBuilder b) updates]) =
+      _$GLoginData_login_user;
 
   static void _initializeBuilder(GLoginData_login_userBuilder b) =>
       b..G__typename = 'User';
@@ -103,26 +111,28 @@ abstract class GLoginData_login_user
       _$gLoginDataLoginUserSerializer;
 
   @override
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(GLoginData_login_user.serializer, this)
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GLoginData_login_user.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GLoginData_login_user? fromJson(Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(GLoginData_login_user.serializer, json);
+      _i1.serializers.deserializeWith(
+        GLoginData_login_user.serializer,
+        json,
+      );
 }
 
 abstract class GLoginData_login_user_location
     implements
-        Built<
-          GLoginData_login_user_location,
-          GLoginData_login_user_locationBuilder
-        >,
+        Built<GLoginData_login_user_location,
+            GLoginData_login_user_locationBuilder>,
         _i2.GUserFields_location {
   GLoginData_login_user_location._();
 
-  factory GLoginData_login_user_location([
-    void Function(GLoginData_login_user_locationBuilder b) updates,
-  ]) = _$GLoginData_login_user_location;
+  factory GLoginData_login_user_location(
+          [void Function(GLoginData_login_user_locationBuilder b) updates]) =
+      _$GLoginData_login_user_location;
 
   static void _initializeBuilder(GLoginData_login_user_locationBuilder b) =>
       b..G__typename = 'Location';
@@ -146,12 +156,10 @@ abstract class GLoginData_login_user_location
       _$gLoginDataLoginUserLocationSerializer;
 
   @override
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(
-            GLoginData_login_user_location.serializer,
-            this,
-          )
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GLoginData_login_user_location.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GLoginData_login_user_location? fromJson(Map<String, dynamic> json) =>
       _i1.serializers.deserializeWith(
@@ -162,16 +170,14 @@ abstract class GLoginData_login_user_location
 
 abstract class GLoginData_login_user_avatar
     implements
-        Built<
-          GLoginData_login_user_avatar,
-          GLoginData_login_user_avatarBuilder
-        >,
+        Built<GLoginData_login_user_avatar,
+            GLoginData_login_user_avatarBuilder>,
         _i2.GUserFields_avatar {
   GLoginData_login_user_avatar._();
 
-  factory GLoginData_login_user_avatar([
-    void Function(GLoginData_login_user_avatarBuilder b) updates,
-  ]) = _$GLoginData_login_user_avatar;
+  factory GLoginData_login_user_avatar(
+          [void Function(GLoginData_login_user_avatarBuilder b) updates]) =
+      _$GLoginData_login_user_avatar;
 
   static void _initializeBuilder(GLoginData_login_user_avatarBuilder b) =>
       b..G__typename = 'Attachment';
@@ -189,12 +195,10 @@ abstract class GLoginData_login_user_avatar
       _$gLoginDataLoginUserAvatarSerializer;
 
   @override
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(
-            GLoginData_login_user_avatar.serializer,
-            this,
-          )
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GLoginData_login_user_avatar.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GLoginData_login_user_avatar? fromJson(Map<String, dynamic> json) =>
       _i1.serializers.deserializeWith(

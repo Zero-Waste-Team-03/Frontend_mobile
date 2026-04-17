@@ -19,19 +19,15 @@ part 'mark_transaction_completed.req.gql.g.dart';
 
 abstract class GMarkTransactionCompletedReq
     implements
-        Built<
-          GMarkTransactionCompletedReq,
-          GMarkTransactionCompletedReqBuilder
-        >,
-        _i1.OperationRequest<
-          _i2.GMarkTransactionCompletedData,
-          _i3.GMarkTransactionCompletedVars
-        > {
+        Built<GMarkTransactionCompletedReq,
+            GMarkTransactionCompletedReqBuilder>,
+        _i1.OperationRequest<_i2.GMarkTransactionCompletedData,
+            _i3.GMarkTransactionCompletedVars> {
   GMarkTransactionCompletedReq._();
 
-  factory GMarkTransactionCompletedReq([
-    void Function(GMarkTransactionCompletedReqBuilder b) updates,
-  ]) = _$GMarkTransactionCompletedReq;
+  factory GMarkTransactionCompletedReq(
+          [void Function(GMarkTransactionCompletedReqBuilder b) updates]) =
+      _$GMarkTransactionCompletedReq;
 
   static void _initializeBuilder(GMarkTransactionCompletedReqBuilder b) => b
     ..operation = _i4.Operation(
@@ -46,10 +42,10 @@ abstract class GMarkTransactionCompletedReq
   _i4.Operation get operation;
   @override
   _i4.Request get execRequest => _i4.Request(
-    operation: operation,
-    variables: vars.toJson(),
-    context: context ?? const _i4.Context(),
-  );
+        operation: operation,
+        variables: vars.toJson(),
+        context: context ?? const _i4.Context(),
+      );
 
   @override
   String? get requestId;
@@ -58,8 +54,7 @@ abstract class GMarkTransactionCompletedReq
   _i2.GMarkTransactionCompletedData? Function(
     _i2.GMarkTransactionCompletedData?,
     _i2.GMarkTransactionCompletedData?,
-  )?
-  get updateResult;
+  )? get updateResult;
   @override
   _i2.GMarkTransactionCompletedData? get optimisticResponse;
   @override
@@ -85,22 +80,18 @@ abstract class GMarkTransactionCompletedReq
       data.toJson();
 
   @override
-  _i1.OperationRequest<
-    _i2.GMarkTransactionCompletedData,
-    _i3.GMarkTransactionCompletedVars
-  >
-  transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
+  _i1.OperationRequest<_i2.GMarkTransactionCompletedData,
+      _i3.GMarkTransactionCompletedVars> transformOperation(
+          _i4.Operation Function(_i4.Operation) transform) =>
       this.rebuild((b) => b..operation = transform(operation));
 
   static Serializer<GMarkTransactionCompletedReq> get serializer =>
       _$gMarkTransactionCompletedReqSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i6.serializers.serializeWith(
-            GMarkTransactionCompletedReq.serializer,
-            this,
-          )
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i6.serializers.serializeWith(
+        GMarkTransactionCompletedReq.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GMarkTransactionCompletedReq? fromJson(Map<String, dynamic> json) =>
       _i6.serializers.deserializeWith(

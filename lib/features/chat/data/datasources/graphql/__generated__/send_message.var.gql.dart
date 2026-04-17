@@ -22,10 +22,14 @@ abstract class GSendMessageVars
   static Serializer<GSendMessageVars> get serializer =>
       _$gSendMessageVarsSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i2.serializers.serializeWith(GSendMessageVars.serializer, this)
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i2.serializers.serializeWith(
+        GSendMessageVars.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GSendMessageVars? fromJson(Map<String, dynamic> json) =>
-      _i2.serializers.deserializeWith(GSendMessageVars.serializer, json);
+      _i2.serializers.deserializeWith(
+        GSendMessageVars.serializer,
+        json,
+      );
 }

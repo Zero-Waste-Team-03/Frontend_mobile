@@ -15,18 +15,22 @@ abstract class GChangePasswordVars
     implements Built<GChangePasswordVars, GChangePasswordVarsBuilder> {
   GChangePasswordVars._();
 
-  factory GChangePasswordVars([
-    void Function(GChangePasswordVarsBuilder b) updates,
-  ]) = _$GChangePasswordVars;
+  factory GChangePasswordVars(
+          [void Function(GChangePasswordVarsBuilder b) updates]) =
+      _$GChangePasswordVars;
 
   _i1.GChangePasswordInput get changePasswordInput;
   static Serializer<GChangePasswordVars> get serializer =>
       _$gChangePasswordVarsSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i2.serializers.serializeWith(GChangePasswordVars.serializer, this)
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i2.serializers.serializeWith(
+        GChangePasswordVars.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GChangePasswordVars? fromJson(Map<String, dynamic> json) =>
-      _i2.serializers.deserializeWith(GChangePasswordVars.serializer, json);
+      _i2.serializers.deserializeWith(
+        GChangePasswordVars.serializer,
+        json,
+      );
 }

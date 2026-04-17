@@ -13,18 +13,22 @@ abstract class GSendVerificationVars
     implements Built<GSendVerificationVars, GSendVerificationVarsBuilder> {
   GSendVerificationVars._();
 
-  factory GSendVerificationVars([
-    void Function(GSendVerificationVarsBuilder b) updates,
-  ]) = _$GSendVerificationVars;
+  factory GSendVerificationVars(
+          [void Function(GSendVerificationVarsBuilder b) updates]) =
+      _$GSendVerificationVars;
 
   String get email;
   static Serializer<GSendVerificationVars> get serializer =>
       _$gSendVerificationVarsSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(GSendVerificationVars.serializer, this)
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GSendVerificationVars.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GSendVerificationVars? fromJson(Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(GSendVerificationVars.serializer, json);
+      _i1.serializers.deserializeWith(
+        GSendVerificationVars.serializer,
+        json,
+      );
 }

@@ -27,25 +27,27 @@ abstract class GSendMessageData
   static Serializer<GSendMessageData> get serializer =>
       _$gSendMessageDataSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(GSendMessageData.serializer, this)
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GSendMessageData.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GSendMessageData? fromJson(Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(GSendMessageData.serializer, json);
+      _i1.serializers.deserializeWith(
+        GSendMessageData.serializer,
+        json,
+      );
 }
 
 abstract class GSendMessageData_sendMessage
     implements
-        Built<
-          GSendMessageData_sendMessage,
-          GSendMessageData_sendMessageBuilder
-        > {
+        Built<GSendMessageData_sendMessage,
+            GSendMessageData_sendMessageBuilder> {
   GSendMessageData_sendMessage._();
 
-  factory GSendMessageData_sendMessage([
-    void Function(GSendMessageData_sendMessageBuilder b) updates,
-  ]) = _$GSendMessageData_sendMessage;
+  factory GSendMessageData_sendMessage(
+          [void Function(GSendMessageData_sendMessageBuilder b) updates]) =
+      _$GSendMessageData_sendMessage;
 
   static void _initializeBuilder(GSendMessageData_sendMessageBuilder b) =>
       b..G__typename = 'ChatMessage';
@@ -61,12 +63,10 @@ abstract class GSendMessageData_sendMessage
   static Serializer<GSendMessageData_sendMessage> get serializer =>
       _$gSendMessageDataSendMessageSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i1.serializers.serializeWith(
-            GSendMessageData_sendMessage.serializer,
-            this,
-          )
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GSendMessageData_sendMessage.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
   static GSendMessageData_sendMessage? fromJson(Map<String, dynamic> json) =>
       _i1.serializers.deserializeWith(

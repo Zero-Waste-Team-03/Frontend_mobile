@@ -20,15 +20,13 @@ part 'conversation_messages.req.gql.g.dart';
 abstract class GGetConversationMessagesReq
     implements
         Built<GGetConversationMessagesReq, GGetConversationMessagesReqBuilder>,
-        _i1.OperationRequest<
-          _i2.GGetConversationMessagesData,
-          _i3.GGetConversationMessagesVars
-        > {
+        _i1.OperationRequest<_i2.GGetConversationMessagesData,
+            _i3.GGetConversationMessagesVars> {
   GGetConversationMessagesReq._();
 
-  factory GGetConversationMessagesReq([
-    void Function(GGetConversationMessagesReqBuilder b) updates,
-  ]) = _$GGetConversationMessagesReq;
+  factory GGetConversationMessagesReq(
+          [void Function(GGetConversationMessagesReqBuilder b) updates]) =
+      _$GGetConversationMessagesReq;
 
   static void _initializeBuilder(GGetConversationMessagesReqBuilder b) => b
     ..operation = _i4.Operation(
@@ -43,10 +41,10 @@ abstract class GGetConversationMessagesReq
   _i4.Operation get operation;
   @override
   _i4.Request get execRequest => _i4.Request(
-    operation: operation,
-    variables: vars.toJson(),
-    context: context ?? const _i4.Context(),
-  );
+        operation: operation,
+        variables: vars.toJson(),
+        context: context ?? const _i4.Context(),
+      );
 
   @override
   String? get requestId;
@@ -55,8 +53,7 @@ abstract class GGetConversationMessagesReq
   _i2.GGetConversationMessagesData? Function(
     _i2.GGetConversationMessagesData?,
     _i2.GGetConversationMessagesData?,
-  )?
-  get updateResult;
+  )? get updateResult;
   @override
   _i2.GGetConversationMessagesData? get optimisticResponse;
   @override
@@ -82,24 +79,22 @@ abstract class GGetConversationMessagesReq
       data.toJson();
 
   @override
-  _i1.OperationRequest<
-    _i2.GGetConversationMessagesData,
-    _i3.GGetConversationMessagesVars
-  >
-  transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
+  _i1.OperationRequest<_i2.GGetConversationMessagesData,
+      _i3.GGetConversationMessagesVars> transformOperation(
+          _i4.Operation Function(_i4.Operation) transform) =>
       this.rebuild((b) => b..operation = transform(operation));
 
   static Serializer<GGetConversationMessagesReq> get serializer =>
       _$gGetConversationMessagesReqSerializer;
 
-  Map<String, dynamic> toJson() =>
-      (_i6.serializers.serializeWith(
-            GGetConversationMessagesReq.serializer,
-            this,
-          )
-          as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => (_i6.serializers.serializeWith(
+        GGetConversationMessagesReq.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
-  static GGetConversationMessagesReq? fromJson(Map<String, dynamic> json) => _i6
-      .serializers
-      .deserializeWith(GGetConversationMessagesReq.serializer, json);
+  static GGetConversationMessagesReq? fromJson(Map<String, dynamic> json) =>
+      _i6.serializers.deserializeWith(
+        GGetConversationMessagesReq.serializer,
+        json,
+      );
 }
