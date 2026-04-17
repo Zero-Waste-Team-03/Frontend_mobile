@@ -1,4 +1,5 @@
 import 'package:ferry/ferry.dart' hide ServerException;
+import 'package:ferry_exec/ferry_exec.dart' show FetchPolicy;
 import 'package:injectable/injectable.dart';
 import 'package:logger/logger.dart';
 
@@ -14,7 +15,7 @@ import 'graphql/__generated__/mark_notifications_as_read.var.gql.dart';
 abstract class NotificationRemoteDataSource {
   Future<List<NotificationModel>> getNotifications({
     int page = 1,
-    int limit = 20,
+    int limit = 10,
   });
 
   Future<void> markNotificationsAsRead(List<String> notificationIds);
@@ -41,7 +42,7 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
   @override
   Future<List<NotificationModel>> getNotifications({
     int page = 1,
-    int limit = 20,
+    int limit = 10,
   }) async {
     _logger.i('getNotifications called with page=$page, limit=$limit');
 
@@ -59,14 +60,20 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
       }
 
       final data = await _executeRequest(
-        GGetNotificationsReq((b) => b.vars = vars.toBuilder()),
+        GGetNotificationsReq(
+          (b) => b
+            ..vars = vars.toBuilder()
+            ..fetchPolicy = FetchPolicy.NetworkOnly
+            ..requestId =
+                'getNotifications-${DateTime.now().microsecondsSinceEpoch}',
+        ),
         'getNotifications',
       );
 
-      final items = data.notifications;
-      _logger.i('getNotifications returned ${items.length} items');
+      final items = data.getNotifications.items;
+      _logger.i('getNotifications returned ${items?.length ?? 0} items');
 
-      if (items.isEmpty) {
+      if (items == null || items.isEmpty) {
         return const [];
       }
 
@@ -192,8 +199,7 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
           linkExceptionMsg = originalMsg ?? response.linkException!.toString();
         }
 
-        final errorMessage =
-            graphQLErrorMessage ?? linkExceptionMsg ?? 'Unknown error';
+        final errorMessage = graphQLErrorMessage ?? linkExceptionMsg;
 
         _logger.e(
           'GraphQL error in $operationName: $errorMessage\n'

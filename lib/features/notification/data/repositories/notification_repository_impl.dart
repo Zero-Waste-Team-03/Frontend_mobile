@@ -25,7 +25,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
   @override
   Future<Either<Failure, List<Notification>>> getNotifications({
     int page = 1,
-    int limit = 20,
+    int limit = 10,
   }) async {
     try {
       _logger.i(
@@ -93,9 +93,26 @@ class NotificationRepositoryImpl implements NotificationRepository {
     String notificationId,
   ) async {
     try {
-      await remoteDataSource.markNotificationsAsRead([notificationId]);
-      return Right(null);
+      _logger.i(
+        'NotificationRepository: deleteNotification called with id=$notificationId',
+      );
+
+      await remoteDataSource.deleteNotification(notificationId);
+
+      _logger.i(
+        'NotificationRepository: Successfully deleted notification id=$notificationId',
+      );
+
+      return const Right(null);
+    } on ServerException catch (e) {
+      _logger.e(
+        'NotificationRepository: ServerException in deleteNotification: $e',
+      );
+      return Left(ServerFailure(e.message));
     } catch (e) {
+      _logger.e(
+        'NotificationRepository: Unexpected error in deleteNotification: $e',
+      );
       return Left(ServerFailure(e.toString()));
     }
   }

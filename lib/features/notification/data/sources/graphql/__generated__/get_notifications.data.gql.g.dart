@@ -8,9 +8,12 @@ part of 'get_notifications.data.gql.dart';
 
 Serializer<GGetNotificationsData> _$gGetNotificationsDataSerializer =
     _$GGetNotificationsDataSerializer();
-Serializer<GGetNotificationsData_notifications>
-_$gGetNotificationsDataNotificationsSerializer =
-    _$GGetNotificationsData_notificationsSerializer();
+Serializer<GGetNotificationsData_getNotifications>
+_$gGetNotificationsDataGetNotificationsSerializer =
+    _$GGetNotificationsData_getNotificationsSerializer();
+Serializer<GGetNotificationsData_getNotifications_items>
+_$gGetNotificationsDataGetNotificationsItemsSerializer =
+    _$GGetNotificationsData_getNotifications_itemsSerializer();
 
 class _$GGetNotificationsDataSerializer
     implements StructuredSerializer<GGetNotificationsData> {
@@ -34,12 +37,10 @@ class _$GGetNotificationsDataSerializer
         object.G__typename,
         specifiedType: const FullType(String),
       ),
-      'notifications',
+      'getNotifications',
       serializers.serialize(
-        object.notifications,
-        specifiedType: const FullType(BuiltList, const [
-          const FullType(GGetNotificationsData_notifications),
-        ]),
+        object.getNotifications,
+        specifiedType: const FullType(GGetNotificationsData_getNotifications),
       ),
     ];
 
@@ -68,12 +69,153 @@ class _$GGetNotificationsDataSerializer
                   )!
                   as String;
           break;
-        case 'notifications':
-          result.notifications.replace(
+        case 'getNotifications':
+          result.getNotifications.replace(
+            serializers.deserialize(
+                  value,
+                  specifiedType: const FullType(
+                    GGetNotificationsData_getNotifications,
+                  ),
+                )!
+                as GGetNotificationsData_getNotifications,
+          );
+          break;
+      }
+    }
+
+    return result.build();
+  }
+}
+
+class _$GGetNotificationsData_getNotificationsSerializer
+    implements StructuredSerializer<GGetNotificationsData_getNotifications> {
+  @override
+  final Iterable<Type> types = const [
+    GGetNotificationsData_getNotifications,
+    _$GGetNotificationsData_getNotifications,
+  ];
+  @override
+  final String wireName = 'GGetNotificationsData_getNotifications';
+
+  @override
+  Iterable<Object?> serialize(
+    Serializers serializers,
+    GGetNotificationsData_getNotifications object, {
+    FullType specifiedType = FullType.unspecified,
+  }) {
+    final result = <Object?>[
+      '__typename',
+      serializers.serialize(
+        object.G__typename,
+        specifiedType: const FullType(String),
+      ),
+      'hasNextPage',
+      serializers.serialize(
+        object.hasNextPage,
+        specifiedType: const FullType(bool),
+      ),
+      'hasPreviousPage',
+      serializers.serialize(
+        object.hasPreviousPage,
+        specifiedType: const FullType(bool),
+      ),
+      'limit',
+      serializers.serialize(object.limit, specifiedType: const FullType(int)),
+      'page',
+      serializers.serialize(object.page, specifiedType: const FullType(int)),
+      'totalCount',
+      serializers.serialize(
+        object.totalCount,
+        specifiedType: const FullType(int),
+      ),
+    ];
+    Object? value;
+    value = object.items;
+    if (value != null) {
+      result
+        ..add('items')
+        ..add(
+          serializers.serialize(
+            value,
+            specifiedType: const FullType(BuiltList, const [
+              const FullType(GGetNotificationsData_getNotifications_items),
+            ]),
+          ),
+        );
+    }
+    return result;
+  }
+
+  @override
+  GGetNotificationsData_getNotifications deserialize(
+    Serializers serializers,
+    Iterable<Object?> serialized, {
+    FullType specifiedType = FullType.unspecified,
+  }) {
+    final result = GGetNotificationsData_getNotificationsBuilder();
+
+    final iterator = serialized.iterator;
+    while (iterator.moveNext()) {
+      final key = iterator.current! as String;
+      iterator.moveNext();
+      final Object? value = iterator.current;
+      switch (key) {
+        case '__typename':
+          result.G__typename =
+              serializers.deserialize(
+                    value,
+                    specifiedType: const FullType(String),
+                  )!
+                  as String;
+          break;
+        case 'hasNextPage':
+          result.hasNextPage =
+              serializers.deserialize(
+                    value,
+                    specifiedType: const FullType(bool),
+                  )!
+                  as bool;
+          break;
+        case 'hasPreviousPage':
+          result.hasPreviousPage =
+              serializers.deserialize(
+                    value,
+                    specifiedType: const FullType(bool),
+                  )!
+                  as bool;
+          break;
+        case 'limit':
+          result.limit =
+              serializers.deserialize(
+                    value,
+                    specifiedType: const FullType(int),
+                  )!
+                  as int;
+          break;
+        case 'page':
+          result.page =
+              serializers.deserialize(
+                    value,
+                    specifiedType: const FullType(int),
+                  )!
+                  as int;
+          break;
+        case 'totalCount':
+          result.totalCount =
+              serializers.deserialize(
+                    value,
+                    specifiedType: const FullType(int),
+                  )!
+                  as int;
+          break;
+        case 'items':
+          result.items.replace(
             serializers.deserialize(
                   value,
                   specifiedType: const FullType(BuiltList, const [
-                    const FullType(GGetNotificationsData_notifications),
+                    const FullType(
+                      GGetNotificationsData_getNotifications_items,
+                    ),
                   ]),
                 )!
                 as BuiltList<Object?>,
@@ -86,20 +228,21 @@ class _$GGetNotificationsDataSerializer
   }
 }
 
-class _$GGetNotificationsData_notificationsSerializer
-    implements StructuredSerializer<GGetNotificationsData_notifications> {
+class _$GGetNotificationsData_getNotifications_itemsSerializer
+    implements
+        StructuredSerializer<GGetNotificationsData_getNotifications_items> {
   @override
   final Iterable<Type> types = const [
-    GGetNotificationsData_notifications,
-    _$GGetNotificationsData_notifications,
+    GGetNotificationsData_getNotifications_items,
+    _$GGetNotificationsData_getNotifications_items,
   ];
   @override
-  final String wireName = 'GGetNotificationsData_notifications';
+  final String wireName = 'GGetNotificationsData_getNotifications_items';
 
   @override
   Iterable<Object?> serialize(
     Serializers serializers,
-    GGetNotificationsData_notifications object, {
+    GGetNotificationsData_getNotifications_items object, {
     FullType specifiedType = FullType.unspecified,
   }) {
     final result = <Object?>[
@@ -142,12 +285,12 @@ class _$GGetNotificationsData_notificationsSerializer
   }
 
   @override
-  GGetNotificationsData_notifications deserialize(
+  GGetNotificationsData_getNotifications_items deserialize(
     Serializers serializers,
     Iterable<Object?> serialized, {
     FullType specifiedType = FullType.unspecified,
   }) {
-    final result = GGetNotificationsData_notificationsBuilder();
+    final result = GGetNotificationsData_getNotifications_itemsBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -240,7 +383,7 @@ class _$GGetNotificationsData extends GGetNotificationsData {
   @override
   final String G__typename;
   @override
-  final BuiltList<GGetNotificationsData_notifications> notifications;
+  final GGetNotificationsData_getNotifications getNotifications;
 
   factory _$GGetNotificationsData([
     void Function(GGetNotificationsDataBuilder)? updates,
@@ -248,7 +391,7 @@ class _$GGetNotificationsData extends GGetNotificationsData {
 
   _$GGetNotificationsData._({
     required this.G__typename,
-    required this.notifications,
+    required this.getNotifications,
   }) : super._();
   @override
   GGetNotificationsData rebuild(
@@ -264,14 +407,14 @@ class _$GGetNotificationsData extends GGetNotificationsData {
     if (identical(other, this)) return true;
     return other is GGetNotificationsData &&
         G__typename == other.G__typename &&
-        notifications == other.notifications;
+        getNotifications == other.getNotifications;
   }
 
   @override
   int get hashCode {
     var _$hash = 0;
     _$hash = $jc(_$hash, G__typename.hashCode);
-    _$hash = $jc(_$hash, notifications.hashCode);
+    _$hash = $jc(_$hash, getNotifications.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -280,7 +423,7 @@ class _$GGetNotificationsData extends GGetNotificationsData {
   String toString() {
     return (newBuiltValueToStringHelper(r'GGetNotificationsData')
           ..add('G__typename', G__typename)
-          ..add('notifications', notifications))
+          ..add('getNotifications', getNotifications))
         .toString();
   }
 }
@@ -293,13 +436,13 @@ class GGetNotificationsDataBuilder
   String? get G__typename => _$this._G__typename;
   set G__typename(String? G__typename) => _$this._G__typename = G__typename;
 
-  ListBuilder<GGetNotificationsData_notifications>? _notifications;
-  ListBuilder<GGetNotificationsData_notifications> get notifications =>
-      _$this._notifications ??=
-          ListBuilder<GGetNotificationsData_notifications>();
-  set notifications(
-    ListBuilder<GGetNotificationsData_notifications>? notifications,
-  ) => _$this._notifications = notifications;
+  GGetNotificationsData_getNotificationsBuilder? _getNotifications;
+  GGetNotificationsData_getNotificationsBuilder get getNotifications =>
+      _$this._getNotifications ??=
+          GGetNotificationsData_getNotificationsBuilder();
+  set getNotifications(
+    GGetNotificationsData_getNotificationsBuilder? getNotifications,
+  ) => _$this._getNotifications = getNotifications;
 
   GGetNotificationsDataBuilder() {
     GGetNotificationsData._initializeBuilder(this);
@@ -309,7 +452,7 @@ class GGetNotificationsDataBuilder
     final $v = _$v;
     if ($v != null) {
       _G__typename = $v.G__typename;
-      _notifications = $v.notifications.toBuilder();
+      _getNotifications = $v.getNotifications.toBuilder();
       _$v = null;
     }
     return this;
@@ -339,13 +482,13 @@ class GGetNotificationsDataBuilder
               r'GGetNotificationsData',
               'G__typename',
             ),
-            notifications: notifications.build(),
+            getNotifications: getNotifications.build(),
           );
     } catch (_) {
       late String _$failedField;
       try {
-        _$failedField = 'notifications';
-        notifications.build();
+        _$failedField = 'getNotifications';
+        getNotifications.build();
       } catch (e) {
         throw BuiltValueNestedFieldError(
           r'GGetNotificationsData',
@@ -360,8 +503,222 @@ class GGetNotificationsDataBuilder
   }
 }
 
-class _$GGetNotificationsData_notifications
-    extends GGetNotificationsData_notifications {
+class _$GGetNotificationsData_getNotifications
+    extends GGetNotificationsData_getNotifications {
+  @override
+  final String G__typename;
+  @override
+  final bool hasNextPage;
+  @override
+  final bool hasPreviousPage;
+  @override
+  final int limit;
+  @override
+  final int page;
+  @override
+  final int totalCount;
+  @override
+  final BuiltList<GGetNotificationsData_getNotifications_items>? items;
+
+  factory _$GGetNotificationsData_getNotifications([
+    void Function(GGetNotificationsData_getNotificationsBuilder)? updates,
+  ]) => (GGetNotificationsData_getNotificationsBuilder()..update(updates))
+      ._build();
+
+  _$GGetNotificationsData_getNotifications._({
+    required this.G__typename,
+    required this.hasNextPage,
+    required this.hasPreviousPage,
+    required this.limit,
+    required this.page,
+    required this.totalCount,
+    this.items,
+  }) : super._();
+  @override
+  GGetNotificationsData_getNotifications rebuild(
+    void Function(GGetNotificationsData_getNotificationsBuilder) updates,
+  ) => (toBuilder()..update(updates)).build();
+
+  @override
+  GGetNotificationsData_getNotificationsBuilder toBuilder() =>
+      GGetNotificationsData_getNotificationsBuilder()..replace(this);
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(other, this)) return true;
+    return other is GGetNotificationsData_getNotifications &&
+        G__typename == other.G__typename &&
+        hasNextPage == other.hasNextPage &&
+        hasPreviousPage == other.hasPreviousPage &&
+        limit == other.limit &&
+        page == other.page &&
+        totalCount == other.totalCount &&
+        items == other.items;
+  }
+
+  @override
+  int get hashCode {
+    var _$hash = 0;
+    _$hash = $jc(_$hash, G__typename.hashCode);
+    _$hash = $jc(_$hash, hasNextPage.hashCode);
+    _$hash = $jc(_$hash, hasPreviousPage.hashCode);
+    _$hash = $jc(_$hash, limit.hashCode);
+    _$hash = $jc(_$hash, page.hashCode);
+    _$hash = $jc(_$hash, totalCount.hashCode);
+    _$hash = $jc(_$hash, items.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
+  }
+
+  @override
+  String toString() {
+    return (newBuiltValueToStringHelper(
+            r'GGetNotificationsData_getNotifications',
+          )
+          ..add('G__typename', G__typename)
+          ..add('hasNextPage', hasNextPage)
+          ..add('hasPreviousPage', hasPreviousPage)
+          ..add('limit', limit)
+          ..add('page', page)
+          ..add('totalCount', totalCount)
+          ..add('items', items))
+        .toString();
+  }
+}
+
+class GGetNotificationsData_getNotificationsBuilder
+    implements
+        Builder<
+          GGetNotificationsData_getNotifications,
+          GGetNotificationsData_getNotificationsBuilder
+        > {
+  _$GGetNotificationsData_getNotifications? _$v;
+
+  String? _G__typename;
+  String? get G__typename => _$this._G__typename;
+  set G__typename(String? G__typename) => _$this._G__typename = G__typename;
+
+  bool? _hasNextPage;
+  bool? get hasNextPage => _$this._hasNextPage;
+  set hasNextPage(bool? hasNextPage) => _$this._hasNextPage = hasNextPage;
+
+  bool? _hasPreviousPage;
+  bool? get hasPreviousPage => _$this._hasPreviousPage;
+  set hasPreviousPage(bool? hasPreviousPage) =>
+      _$this._hasPreviousPage = hasPreviousPage;
+
+  int? _limit;
+  int? get limit => _$this._limit;
+  set limit(int? limit) => _$this._limit = limit;
+
+  int? _page;
+  int? get page => _$this._page;
+  set page(int? page) => _$this._page = page;
+
+  int? _totalCount;
+  int? get totalCount => _$this._totalCount;
+  set totalCount(int? totalCount) => _$this._totalCount = totalCount;
+
+  ListBuilder<GGetNotificationsData_getNotifications_items>? _items;
+  ListBuilder<GGetNotificationsData_getNotifications_items> get items =>
+      _$this._items ??=
+          ListBuilder<GGetNotificationsData_getNotifications_items>();
+  set items(ListBuilder<GGetNotificationsData_getNotifications_items>? items) =>
+      _$this._items = items;
+
+  GGetNotificationsData_getNotificationsBuilder() {
+    GGetNotificationsData_getNotifications._initializeBuilder(this);
+  }
+
+  GGetNotificationsData_getNotificationsBuilder get _$this {
+    final $v = _$v;
+    if ($v != null) {
+      _G__typename = $v.G__typename;
+      _hasNextPage = $v.hasNextPage;
+      _hasPreviousPage = $v.hasPreviousPage;
+      _limit = $v.limit;
+      _page = $v.page;
+      _totalCount = $v.totalCount;
+      _items = $v.items?.toBuilder();
+      _$v = null;
+    }
+    return this;
+  }
+
+  @override
+  void replace(GGetNotificationsData_getNotifications other) {
+    _$v = other as _$GGetNotificationsData_getNotifications;
+  }
+
+  @override
+  void update(
+    void Function(GGetNotificationsData_getNotificationsBuilder)? updates,
+  ) {
+    if (updates != null) updates(this);
+  }
+
+  @override
+  GGetNotificationsData_getNotifications build() => _build();
+
+  _$GGetNotificationsData_getNotifications _build() {
+    _$GGetNotificationsData_getNotifications _$result;
+    try {
+      _$result =
+          _$v ??
+          _$GGetNotificationsData_getNotifications._(
+            G__typename: BuiltValueNullFieldError.checkNotNull(
+              G__typename,
+              r'GGetNotificationsData_getNotifications',
+              'G__typename',
+            ),
+            hasNextPage: BuiltValueNullFieldError.checkNotNull(
+              hasNextPage,
+              r'GGetNotificationsData_getNotifications',
+              'hasNextPage',
+            ),
+            hasPreviousPage: BuiltValueNullFieldError.checkNotNull(
+              hasPreviousPage,
+              r'GGetNotificationsData_getNotifications',
+              'hasPreviousPage',
+            ),
+            limit: BuiltValueNullFieldError.checkNotNull(
+              limit,
+              r'GGetNotificationsData_getNotifications',
+              'limit',
+            ),
+            page: BuiltValueNullFieldError.checkNotNull(
+              page,
+              r'GGetNotificationsData_getNotifications',
+              'page',
+            ),
+            totalCount: BuiltValueNullFieldError.checkNotNull(
+              totalCount,
+              r'GGetNotificationsData_getNotifications',
+              'totalCount',
+            ),
+            items: _items?.build(),
+          );
+    } catch (_) {
+      late String _$failedField;
+      try {
+        _$failedField = 'items';
+        _items?.build();
+      } catch (e) {
+        throw BuiltValueNestedFieldError(
+          r'GGetNotificationsData_getNotifications',
+          _$failedField,
+          e.toString(),
+        );
+      }
+      rethrow;
+    }
+    replace(_$result);
+    return _$result;
+  }
+}
+
+class _$GGetNotificationsData_getNotifications_items
+    extends GGetNotificationsData_getNotifications_items {
   @override
   final String G__typename;
   @override
@@ -381,12 +738,12 @@ class _$GGetNotificationsData_notifications
   @override
   final _i2.GDateTime updatedAt;
 
-  factory _$GGetNotificationsData_notifications([
-    void Function(GGetNotificationsData_notificationsBuilder)? updates,
-  ]) =>
-      (GGetNotificationsData_notificationsBuilder()..update(updates))._build();
+  factory _$GGetNotificationsData_getNotifications_items([
+    void Function(GGetNotificationsData_getNotifications_itemsBuilder)? updates,
+  ]) => (GGetNotificationsData_getNotifications_itemsBuilder()..update(updates))
+      ._build();
 
-  _$GGetNotificationsData_notifications._({
+  _$GGetNotificationsData_getNotifications_items._({
     required this.G__typename,
     required this.body,
     required this.createdAt,
@@ -398,18 +755,18 @@ class _$GGetNotificationsData_notifications
     required this.updatedAt,
   }) : super._();
   @override
-  GGetNotificationsData_notifications rebuild(
-    void Function(GGetNotificationsData_notificationsBuilder) updates,
+  GGetNotificationsData_getNotifications_items rebuild(
+    void Function(GGetNotificationsData_getNotifications_itemsBuilder) updates,
   ) => (toBuilder()..update(updates)).build();
 
   @override
-  GGetNotificationsData_notificationsBuilder toBuilder() =>
-      GGetNotificationsData_notificationsBuilder()..replace(this);
+  GGetNotificationsData_getNotifications_itemsBuilder toBuilder() =>
+      GGetNotificationsData_getNotifications_itemsBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
-    return other is GGetNotificationsData_notifications &&
+    return other is GGetNotificationsData_getNotifications_items &&
         G__typename == other.G__typename &&
         body == other.body &&
         createdAt == other.createdAt &&
@@ -439,7 +796,9 @@ class _$GGetNotificationsData_notifications
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper(r'GGetNotificationsData_notifications')
+    return (newBuiltValueToStringHelper(
+            r'GGetNotificationsData_getNotifications_items',
+          )
           ..add('G__typename', G__typename)
           ..add('body', body)
           ..add('createdAt', createdAt)
@@ -453,13 +812,13 @@ class _$GGetNotificationsData_notifications
   }
 }
 
-class GGetNotificationsData_notificationsBuilder
+class GGetNotificationsData_getNotifications_itemsBuilder
     implements
         Builder<
-          GGetNotificationsData_notifications,
-          GGetNotificationsData_notificationsBuilder
+          GGetNotificationsData_getNotifications_items,
+          GGetNotificationsData_getNotifications_itemsBuilder
         > {
-  _$GGetNotificationsData_notifications? _$v;
+  _$GGetNotificationsData_getNotifications_items? _$v;
 
   String? _G__typename;
   String? get G__typename => _$this._G__typename;
@@ -501,11 +860,11 @@ class GGetNotificationsData_notificationsBuilder
   set updatedAt(_i2.GDateTimeBuilder? updatedAt) =>
       _$this._updatedAt = updatedAt;
 
-  GGetNotificationsData_notificationsBuilder() {
-    GGetNotificationsData_notifications._initializeBuilder(this);
+  GGetNotificationsData_getNotifications_itemsBuilder() {
+    GGetNotificationsData_getNotifications_items._initializeBuilder(this);
   }
 
-  GGetNotificationsData_notificationsBuilder get _$this {
+  GGetNotificationsData_getNotifications_itemsBuilder get _$this {
     final $v = _$v;
     if ($v != null) {
       _G__typename = $v.G__typename;
@@ -523,60 +882,60 @@ class GGetNotificationsData_notificationsBuilder
   }
 
   @override
-  void replace(GGetNotificationsData_notifications other) {
-    _$v = other as _$GGetNotificationsData_notifications;
+  void replace(GGetNotificationsData_getNotifications_items other) {
+    _$v = other as _$GGetNotificationsData_getNotifications_items;
   }
 
   @override
   void update(
-    void Function(GGetNotificationsData_notificationsBuilder)? updates,
+    void Function(GGetNotificationsData_getNotifications_itemsBuilder)? updates,
   ) {
     if (updates != null) updates(this);
   }
 
   @override
-  GGetNotificationsData_notifications build() => _build();
+  GGetNotificationsData_getNotifications_items build() => _build();
 
-  _$GGetNotificationsData_notifications _build() {
-    _$GGetNotificationsData_notifications _$result;
+  _$GGetNotificationsData_getNotifications_items _build() {
+    _$GGetNotificationsData_getNotifications_items _$result;
     try {
       _$result =
           _$v ??
-          _$GGetNotificationsData_notifications._(
+          _$GGetNotificationsData_getNotifications_items._(
             G__typename: BuiltValueNullFieldError.checkNotNull(
               G__typename,
-              r'GGetNotificationsData_notifications',
+              r'GGetNotificationsData_getNotifications_items',
               'G__typename',
             ),
             body: BuiltValueNullFieldError.checkNotNull(
               body,
-              r'GGetNotificationsData_notifications',
+              r'GGetNotificationsData_getNotifications_items',
               'body',
             ),
             createdAt: createdAt.build(),
             id: BuiltValueNullFieldError.checkNotNull(
               id,
-              r'GGetNotificationsData_notifications',
+              r'GGetNotificationsData_getNotifications_items',
               'id',
             ),
             isRead: BuiltValueNullFieldError.checkNotNull(
               isRead,
-              r'GGetNotificationsData_notifications',
+              r'GGetNotificationsData_getNotifications_items',
               'isRead',
             ),
             receiverId: BuiltValueNullFieldError.checkNotNull(
               receiverId,
-              r'GGetNotificationsData_notifications',
+              r'GGetNotificationsData_getNotifications_items',
               'receiverId',
             ),
             title: BuiltValueNullFieldError.checkNotNull(
               title,
-              r'GGetNotificationsData_notifications',
+              r'GGetNotificationsData_getNotifications_items',
               'title',
             ),
             type: BuiltValueNullFieldError.checkNotNull(
               type,
-              r'GGetNotificationsData_notifications',
+              r'GGetNotificationsData_getNotifications_items',
               'type',
             ),
             updatedAt: updatedAt.build(),
@@ -591,7 +950,7 @@ class GGetNotificationsData_notificationsBuilder
         updatedAt.build();
       } catch (e) {
         throw BuiltValueNestedFieldError(
-          r'GGetNotificationsData_notifications',
+          r'GGetNotificationsData_getNotifications_items',
           _$failedField,
           e.toString(),
         );

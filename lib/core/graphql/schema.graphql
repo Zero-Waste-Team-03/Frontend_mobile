@@ -270,8 +270,6 @@ type Donation {
   """
   mainAttachmentId: String
 
-
-
   """
   Date when listing was published
   """
@@ -566,6 +564,15 @@ type Notification {
   updatedAt: DateTime!
 }
 
+type PaginatedNotifications {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  items: [Notification!]
+  limit: Int!
+  page: Int!
+  totalCount: Int!
+}
+
 type PaginatedCategories {
   hasNextPage: Boolean!
   hasPreviousPage: Boolean!
@@ -690,7 +697,7 @@ type Query {
   Get reservations where the current user is donor or beneficiary
   """
   myReservations(pagination: PaginationInput): PaginatedReservations!
-  notifications(pagination: PaginationQueryInput): [Notification!]!
+  getNotifications(pagination: PaginationQueryInput): PaginatedNotifications!
 }
 
 input RegisterInput {

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart' hide Notification;
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gaspzero/features/notification/domain/entities/notification.dart' show Notification;
+import 'package:gaspzero/features/notification/domain/entities/notification.dart'
+    show Notification;
 import 'package:go_router/go_router.dart';
 import 'dart:async';
 import 'package:gaspzero/core/theme/app_colors.dart';
 import 'package:gaspzero/core/theme/app_text_styles.dart';
 import 'package:gaspzero/core/di/injection.dart';
+import 'package:shimmer/shimmer.dart' show Shimmer;
 import '../../presentation/bloc/notification_bloc.dart';
 import '../../presentation/bloc/notification_event.dart';
 import '../../presentation/bloc/notification_state.dart';
@@ -21,9 +23,7 @@ class NotificationsPage extends StatefulWidget {
 class _NotificationsPageState extends State<NotificationsPage> {
   late NotificationBloc _notificationBloc;
   late ScrollController _scrollController;
-  int _currentPage = 1;
   static const int _pageSize = 10;
-  bool _isLoadingMore = false;
   Completer<void>? _refreshCompleter;
 
   // Filter state
@@ -37,26 +37,35 @@ class _NotificationsPageState extends State<NotificationsPage> {
     _scrollController = ScrollController();
 
     // Fetch initial notifications
-    _notificationBloc.add(
-      FetchNotificationsEvent(page: _currentPage, limit: _pageSize),
-    );
+    _notificationBloc.add(FetchNotificationsEvent(page: 1, limit: _pageSize));
 
     // Listen to scroll events for infinite scroll
     _scrollController.addListener(_onScroll);
   }
 
   void _onScroll() {
+    final currentState = _notificationBloc.state;
+    if (currentState is! NotificationsLoaded) {
+      return;
+    }
+
     // Check if user is near the bottom (within 500 pixels)
-    if (_scrollController.position.extentAfter < 500 && !_isLoadingMore) {
+    if (_scrollController.position.extentAfter < 500 &&
+        !currentState.isLoadingMore &&
+        !currentState.hasReachedMax) {
       _loadMoreNotifications();
     }
   }
 
   void _loadMoreNotifications() {
-    setState(() => _isLoadingMore = true);
-    _currentPage++;
+    final currentState = _notificationBloc.state;
+    if (currentState is! NotificationsLoaded) {
+      return;
+    }
+
+    final nextPage = currentState.currentPage + 1;
     _notificationBloc.add(
-      FetchNotificationsEvent(page: _currentPage, limit: _pageSize),
+      FetchNotificationsEvent(page: nextPage, limit: _pageSize),
     );
   }
 
@@ -66,12 +75,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
     // Create a completer that will be resolved when BLoC finishes loading
     _refreshCompleter = Completer<void>();
 
-    setState(() {
-      _currentPage = 1;
-      _isLoadingMore = false;
-    });
-
-    _notificationBloc.add(FetchNotificationsEvent(page: 1, limit: _pageSize));
+    _notificationBloc.add(const RefreshNotificationsEvent());
 
     // Return the future from the completer - it will be completed by BlocBuilder
     return _refreshCompleter!.future;
@@ -88,9 +92,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
           onTap: () => Navigator.pop(context),
           child: Padding(
             padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.sm,
-                      vertical: AppSpacing.sm,
-                    ),
+              horizontal: AppSpacing.sm,
+              vertical: AppSpacing.sm,
+            ),
             child: const Icon(
               Icons.arrow_back_rounded,
               color: AppColors.primary,
@@ -98,12 +102,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
           ),
         ),
         title: Text(
-            'Notifications',
-            textAlign: TextAlign.start,
-            style: AppTextStyles.titleLarge.copyWith(
-              color: AppColors.primary,
-            ),
-          ),
+          'Notifications',
+          textAlign: TextAlign.start,
+          style: AppTextStyles.titleLarge.copyWith(color: AppColors.primary),
+        ),
         centerTitle: false,
         actions: [
           BlocBuilder<NotificationBloc, NotificationState>(
@@ -142,18 +144,19 @@ class _NotificationsPageState extends State<NotificationsPage> {
       body: BlocBuilder<NotificationBloc, NotificationState>(
         bloc: _notificationBloc,
         builder: (context, state) {
-          // When we receive new data, stop the loading indicator
-          if (state is NotificationsLoaded && _isLoadingMore) {
+          // Complete refresh future when we get fresh data from page 1
+          if (state is NotificationsLoaded &&
+              state.currentPage == 1 &&
+              _refreshCompleter != null &&
+              !_refreshCompleter!.isCompleted) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted) {
-                setState(() => _isLoadingMore = false);
+              if (!_refreshCompleter!.isCompleted) {
+                _refreshCompleter!.complete();
               }
             });
           }
 
-          // Complete refresh future when we get fresh data from page 1
-          if (state is NotificationsLoaded &&
-              _currentPage == 1 &&
+          if (state is NotificationsError &&
               _refreshCompleter != null &&
               !_refreshCompleter!.isCompleted) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -210,11 +213,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
   }
 
   Widget _buildContent(NotificationState state) {
-    if (state is NotificationsLoading && _currentPage == 1) {
-      return const Center(child: CircularProgressIndicator());
+    if (state is NotificationsLoading) {
+      return _buildLoadingSkeleton();
     }
 
-    if (state is NotificationsError && _currentPage == 1) {
+    if (state is NotificationsError) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -294,15 +297,129 @@ class _NotificationsPageState extends State<NotificationsPage> {
           ),
           itemCount:
               state.notifications.length +
-              (_isLoadingMore ? 1 : 0) +
+              (state.isLoadingMore ? 1 : 0) +
               _countSectionHeaders(state.notifications),
-          itemBuilder: (context, index) =>
-              _buildListItem(context, index, state.notifications),
+          itemBuilder: (context, index) => _buildListItem(
+            context,
+            index,
+            state.notifications,
+            state.isLoadingMore,
+          ),
         ),
       );
     }
 
     return const SizedBox();
+  }
+
+  Widget _buildLoadingSkeleton() {
+    return ListView.separated(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.screenHorizontal,
+        vertical: 12.0,
+      ),
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildSkeletonBox(
+                height: 136.0,
+                borderRadius: BorderRadius.circular(AppRadius.xl),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              _buildSkeletonBox(
+                width: 130.0,
+                height: 14.0,
+                borderRadius: BorderRadius.circular(6.0),
+              ),
+            ],
+          );
+        }
+
+        return _buildSkeletonNotificationCard(context);
+      },
+      separatorBuilder: (context, index) => const SizedBox(height: 12.0),
+      itemCount: 6,
+    );
+  }
+
+  Widget _buildSkeletonNotificationCard(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    return ExcludeSemantics(
+      child: Shimmer.fromColors(
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!,
+        child: Container(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(AppRadius.lg),
+            border: Border.all(color: Colors.grey[300]!),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  _buildSkeletonBox(
+                    width: 34,
+                    height: 34,
+                    borderRadius: BorderRadius.circular(17),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSkeletonBox(
+                          height: 12,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        const SizedBox(height: 8),
+                        _buildSkeletonBox(
+                          width: screenWidth * 0.42,
+                          height: 10,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _buildSkeletonBox(
+                height: 10,
+                borderRadius: BorderRadius.circular(5),
+              ),
+              const SizedBox(height: 6),
+              _buildSkeletonBox(
+                width: screenWidth * 0.58,
+                height: 10,
+                borderRadius: BorderRadius.circular(5),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSkeletonBox({
+    double? width,
+    required double height,
+    required BorderRadius borderRadius,
+  }) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: borderRadius,
+      ),
+    );
   }
 
   int _countSectionHeaders(List<Notification> notifications) {
@@ -326,10 +443,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
     BuildContext context,
     int index,
     List<Notification> notifications,
+    bool isLoadingMore,
   ) {
     // Show loading indicator at the end
     if (index == notifications.length + _countSectionHeaders(notifications)) {
-      if (_isLoadingMore) {
+      if (isLoadingMore) {
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 16.0),
           child: Center(
@@ -347,16 +465,6 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
     // Build alerts and section headers
     final now = DateTime.now();
-    int notificationIndex = 0;
-    int headerCount = 0;
-
-    for (int i = 0; i < index; i++) {
-      if (i == 0 || (i > 0 && _isNewSection(notifications, i - 1))) {
-        headerCount++;
-      } else if (i > 0) {
-        notificationIndex++;
-      }
-    }
 
     // Check if this is a section header
     if (index > 0 && _isNewSection(notifications, index - 1)) {

@@ -1511,6 +1511,70 @@ const Notification = _i1.ObjectTypeDefinitionNode(
     ),
   ],
 );
+const PaginatedNotifications = _i1.ObjectTypeDefinitionNode(
+  name: _i1.NameNode(value: 'PaginatedNotifications'),
+  directives: [],
+  interfaces: [],
+  fields: [
+    _i1.FieldDefinitionNode(
+      name: _i1.NameNode(value: 'hasNextPage'),
+      directives: [],
+      args: [],
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'Boolean'),
+        isNonNull: true,
+      ),
+    ),
+    _i1.FieldDefinitionNode(
+      name: _i1.NameNode(value: 'hasPreviousPage'),
+      directives: [],
+      args: [],
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'Boolean'),
+        isNonNull: true,
+      ),
+    ),
+    _i1.FieldDefinitionNode(
+      name: _i1.NameNode(value: 'items'),
+      directives: [],
+      args: [],
+      type: _i1.ListTypeNode(
+        type: _i1.NamedTypeNode(
+          name: _i1.NameNode(value: 'Notification'),
+          isNonNull: true,
+        ),
+        isNonNull: false,
+      ),
+    ),
+    _i1.FieldDefinitionNode(
+      name: _i1.NameNode(value: 'limit'),
+      directives: [],
+      args: [],
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'Int'),
+        isNonNull: true,
+      ),
+    ),
+    _i1.FieldDefinitionNode(
+      name: _i1.NameNode(value: 'page'),
+      directives: [],
+      args: [],
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'Int'),
+        isNonNull: true,
+      ),
+    ),
+    _i1.FieldDefinitionNode(
+      name: _i1.NameNode(value: 'totalCount'),
+      directives: [],
+      args: [],
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'Int'),
+        isNonNull: true,
+      ),
+    ),
+  ],
+);
 const PaginatedCategories = _i1.ObjectTypeDefinitionNode(
   name: _i1.NameNode(value: 'PaginatedCategories'),
   directives: [],
@@ -2026,7 +2090,7 @@ const Query = _i1.ObjectTypeDefinitionNode(
       ),
     ),
     _i1.FieldDefinitionNode(
-      name: _i1.NameNode(value: 'notifications'),
+      name: _i1.NameNode(value: 'getNotifications'),
       directives: [],
       args: [
         _i1.InputValueDefinitionNode(
@@ -2039,11 +2103,8 @@ const Query = _i1.ObjectTypeDefinitionNode(
           defaultValue: null,
         )
       ],
-      type: _i1.ListTypeNode(
-        type: _i1.NamedTypeNode(
-          name: _i1.NameNode(value: 'Notification'),
-          isNonNull: true,
-        ),
+      type: _i1.NamedTypeNode(
+        name: _i1.NameNode(value: 'PaginatedNotifications'),
         isNonNull: true,
       ),
     ),
@@ -2987,6 +3048,7 @@ const document = _i1.DocumentNode(definitions: [
   MessageResponse,
   Mutation,
   Notification,
+  PaginatedNotifications,
   PaginatedCategories,
   PaginatedDonations,
   PaginatedReservations,

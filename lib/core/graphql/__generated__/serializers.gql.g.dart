@@ -103,7 +103,8 @@ Serializers _$serializers =
           ..add(GGetDonationsReq.serializer)
           ..add(GGetDonationsVars.serializer)
           ..add(GGetNotificationsData.serializer)
-          ..add(GGetNotificationsData_notifications.serializer)
+          ..add(GGetNotificationsData_getNotifications.serializer)
+          ..add(GGetNotificationsData_getNotifications_items.serializer)
           ..add(GGetNotificationsReq.serializer)
           ..add(GGetNotificationsVars.serializer)
           ..add(GJSON.serializer)
@@ -244,9 +245,9 @@ Serializers _$serializers =
           )
           ..addBuilderFactory(
             const FullType(BuiltList, const [
-              const FullType(GGetNotificationsData_notifications),
+              const FullType(GGetNotificationsData_getNotifications_items),
             ]),
-            () => ListBuilder<GGetNotificationsData_notifications>(),
+            () => ListBuilder<GGetNotificationsData_getNotifications_items>(),
           )
           ..addBuilderFactory(
             const FullType(BuiltList, const [

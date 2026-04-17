@@ -10,7 +10,7 @@ class GetNotificationsUseCase {
 
   Future<Either<Failure, List<Notification>>> call({
     int page = 1,
-    int limit = 20,
+    int limit = 10,
   }) {
     return repository.getNotifications(page: page, limit: limit);
   }

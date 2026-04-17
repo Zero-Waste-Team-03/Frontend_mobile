@@ -188,7 +188,10 @@ import 'package:gaspzero/features/notification/data/sources/graphql/__generated_
 import 'package:gaspzero/features/notification/data/sources/graphql/__generated__/delete_notification.var.gql.dart'
     show GDeleteNotificationVars;
 import 'package:gaspzero/features/notification/data/sources/graphql/__generated__/get_notifications.data.gql.dart'
-    show GGetNotificationsData, GGetNotificationsData_notifications;
+    show
+        GGetNotificationsData,
+        GGetNotificationsData_getNotifications,
+        GGetNotificationsData_getNotifications_items;
 import 'package:gaspzero/features/notification/data/sources/graphql/__generated__/get_notifications.req.gql.dart'
     show GGetNotificationsReq;
 import 'package:gaspzero/features/notification/data/sources/graphql/__generated__/get_notifications.var.gql.dart'
@@ -355,7 +358,8 @@ final SerializersBuilder _serializersBuilder = _$serializers.toBuilder()
   GGetDonationsReq,
   GGetDonationsVars,
   GGetNotificationsData,
-  GGetNotificationsData_notifications,
+  GGetNotificationsData_getNotifications,
+  GGetNotificationsData_getNotifications_items,
   GGetNotificationsReq,
   GGetNotificationsVars,
   GJSON,

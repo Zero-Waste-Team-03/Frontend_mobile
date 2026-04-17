@@ -196,7 +196,9 @@ class _DonationsListPageState extends State<DonationsListPage> {
               Tooltip(
                 message: 'Notifications',
                 child: IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    context.push('/notifications');
+                  },
                   icon: const Icon(Icons.notifications_none_rounded),
                   color: Theme.of(
                     context,

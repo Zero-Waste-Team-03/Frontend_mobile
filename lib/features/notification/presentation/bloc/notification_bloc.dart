@@ -9,6 +9,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   final GetNotificationsUseCase getNotificationsUseCase;
   final MarkNotificationsAsReadUseCase markNotificationsAsReadUseCase;
   final DeleteNotificationUseCase deleteNotificationUseCase;
+  final Set<String> _locallyDeletedNotificationIds = <String>{};
 
   final Logger _logger = Logger(
     printer: PrettyPrinter(
@@ -39,7 +40,27 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
       'NotificationBloc: _onFetchNotifications - page=${event.page}, limit=${event.limit}',
     );
 
-    emit(const NotificationsLoading());
+    final currentState = state;
+    final isFirstPage = event.page == 1;
+
+    if (isFirstPage) {
+      emit(const NotificationsLoading());
+    } else if (currentState is NotificationsLoaded) {
+      if (currentState.hasReachedMax || currentState.isLoadingMore) {
+        return;
+      }
+
+      emit(
+        NotificationsLoaded(
+          currentState.notifications,
+          currentPage: currentState.currentPage,
+          isLoadingMore: true,
+          hasReachedMax: currentState.hasReachedMax,
+          activeFilter: currentState.activeFilter,
+          activeReadFilter: currentState.activeReadFilter,
+        ),
+      );
+    }
 
     final result = await getNotificationsUseCase(
       page: event.page,
@@ -51,13 +72,66 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
         _logger.e(
           'NotificationBloc: Failed to fetch notifications: ${failure.message}',
         );
-        emit(NotificationsError(failure.message));
+        if (!isFirstPage && currentState is NotificationsLoaded) {
+          emit(
+            NotificationsLoaded(
+              currentState.notifications,
+              currentPage: currentState.currentPage,
+              isLoadingMore: false,
+              hasReachedMax: currentState.hasReachedMax,
+              activeFilter: currentState.activeFilter,
+              activeReadFilter: currentState.activeReadFilter,
+            ),
+          );
+        } else {
+          emit(NotificationsError(failure.message));
+        }
       },
       (notifications) {
+        final filteredNotifications = notifications
+            .where(
+              (notification) =>
+                  !_locallyDeletedNotificationIds.contains(notification.id),
+            )
+            .toList();
+
         _logger.i(
-          'NotificationBloc: Successfully fetched ${notifications.length} notifications',
+          'NotificationBloc: Successfully fetched ${filteredNotifications.length} notifications',
         );
-        emit(NotificationsLoaded(notifications));
+
+        final hasReachedMax = filteredNotifications.length < event.limit;
+
+        if (isFirstPage || currentState is! NotificationsLoaded) {
+          emit(
+            NotificationsLoaded(
+              filteredNotifications,
+              currentPage: event.page,
+              isLoadingMore: false,
+              hasReachedMax: hasReachedMax,
+            ),
+          );
+          return;
+        }
+
+        final existingById = {
+          for (final notification in currentState.notifications)
+            notification.id: notification,
+        };
+
+        for (final notification in filteredNotifications) {
+          existingById[notification.id] = notification;
+        }
+
+        emit(
+          NotificationsLoaded(
+            existingById.values.toList(),
+            currentPage: event.page,
+            isLoadingMore: false,
+            hasReachedMax: hasReachedMax,
+            activeFilter: currentState.activeFilter,
+            activeReadFilter: currentState.activeReadFilter,
+          ),
+        );
       },
     );
   }
@@ -93,7 +167,16 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
             return notif;
           }).toList();
 
-          emit(NotificationsLoaded(updatedList));
+          emit(
+            NotificationsLoaded(
+              updatedList,
+              currentPage: currentState.currentPage,
+              isLoadingMore: false,
+              hasReachedMax: currentState.hasReachedMax,
+              activeFilter: currentState.activeFilter,
+              activeReadFilter: currentState.activeReadFilter,
+            ),
+          );
         },
       );
     }
@@ -121,11 +204,22 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
         },
         (_) {
           _logger.i('NotificationBloc: Successfully deleted notification');
+          _locallyDeletedNotificationIds.add(event.notificationId);
+
           final updatedList = currentState.notifications
               .where((notif) => notif.id != event.notificationId)
               .toList();
 
-          emit(NotificationsLoaded(updatedList));
+          emit(
+            NotificationsLoaded(
+              updatedList,
+              currentPage: currentState.currentPage,
+              isLoadingMore: false,
+              hasReachedMax: currentState.hasReachedMax,
+              activeFilter: currentState.activeFilter,
+              activeReadFilter: currentState.activeReadFilter,
+            ),
+          );
         },
       );
     }
@@ -147,10 +241,24 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
         emit(NotificationsError(failure.message));
       },
       (notifications) {
+        final filteredNotifications = notifications
+            .where(
+              (notification) =>
+                  !_locallyDeletedNotificationIds.contains(notification.id),
+            )
+            .toList();
+
         _logger.i(
-          'NotificationBloc: Successfully refreshed ${notifications.length} notifications',
+          'NotificationBloc: Successfully refreshed ${filteredNotifications.length} notifications',
         );
-        emit(NotificationsLoaded(notifications));
+        emit(
+          NotificationsLoaded(
+            filteredNotifications,
+            currentPage: 1,
+            isLoadingMore: false,
+            hasReachedMax: filteredNotifications.length < 10,
+          ),
+        );
       },
     );
   }
