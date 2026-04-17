@@ -1,0 +1,13 @@
+query MyActiveConversations {
+  myActiveConversations {
+    id
+    reservationId
+    status
+    lastMessage
+    createdAt
+    counterpart {
+      displayName
+      avatarUrl
+    }
+  }
+}

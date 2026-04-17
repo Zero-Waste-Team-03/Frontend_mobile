@@ -49,7 +49,11 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AuthColors.headingText, size: AppDimensions.iconSize.sp),
+          icon: Icon(
+            Icons.arrow_back,
+            color: AuthColors.headingText,
+            size: AppDimensions.iconSize.sp,
+          ),
           onPressed: () => context.pop(),
         ),
       ),
@@ -58,9 +62,9 @@ class _LoginPageState extends State<LoginPage> {
           if (state is AuthSuccess) {
             context.go('/home');
           } else if (state is AuthError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           }
         },
         builder: (context, state) {
@@ -74,155 +78,195 @@ class _LoginPageState extends State<LoginPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                  SizedBox(height: 20.h),
-                  Text(
-                    "Welcome Back",
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                      fontSize: AppDimensions.titleSize.sp,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -0.025 * AppDimensions.titleSize.sp,
-                      color: AuthColors.headingText,
-                    ),
-                  ),
-                  SizedBox(height: AppDimensions.paddingSmall.h),
-                  Text(
-                    "Log in to join the Gasp'Zero community",
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                      fontSize: AppDimensions.buttonTextSize.sp,
-                      fontWeight: FontWeight.w400,
-                      color: AuthColors.subText,
-                    ),
-                  ),
-                  SizedBox(height: 48.h),
-                  
-                  // Form
-                  _buildLabel('Email'),
-                  SizedBox(height: AppDimensions.paddingSmall.h),
-                  _buildTextField(_emailController, 'jane.doe@example.com', false, validator: (v) {
-                    if (v == null || v.isEmpty) return 'Required';
-                    if (!RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(v)) return 'Invalid email';
-                    return null;
-                  }),
-                  SizedBox(height: AppDimensions.paddingLarge.h),
-                  _buildLabel('Password'),
-                  SizedBox(height: AppDimensions.paddingSmall.h),
-                  _buildTextField(_passwordController, 'Enter your password', true, validator: (v) {
-                    if (v == null || v.isEmpty) return 'Required';
-                    return null;
-                  }),
-                  SizedBox(height: AppDimensions.paddingSmall.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          "Must be at least 8 characters with 1 uppercase, 1 lowercase, 1 number, and 1 symbol.",
-                          style: TextStyle(color: AuthColors.subText, fontSize: 10.sp),
-                        ),
+                    SizedBox(height: 20.h),
+                    Text(
+                      "Welcome Back",
+                      textAlign: TextAlign.start,
+                      style: TextStyle(
+                        fontSize: AppDimensions.titleSize.sp,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.025 * AppDimensions.titleSize.sp,
+                        color: AuthColors.headingText,
                       ),
-                      GestureDetector(
-                        onTap: () => context.push('/forgot-password'),
-                        child: Text(
-                          "Forget Password?",
-                          style: TextStyle(
-                            color: AuthColors.primary,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 11.sp,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 48.h),
-
-                  ElevatedButton(
-                    onPressed: isLoading ? null : _onLogin,
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(double.infinity, 56.h),
-                      backgroundColor: AuthColors.primary,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppDimensions.borderRadiusLarge.r),
-                      ),
-                      elevation: 0,
                     ),
-                    child: isLoading
-                        ? SizedBox(
-                            width: AppDimensions.iconSize.w,
-                            height: AppDimensions.iconSize.h,
-                            child: const CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                          )
-                        : Text(
-                            'Sign In',
-                            style: TextStyle(
-                              fontSize: AppDimensions.primaryButtonTextSize.sp,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.015 * AppDimensions.primaryButtonTextSize.sp,
-                            ),
-                          ),
-                  ),
-                  SizedBox(height: AppDimensions.paddingLarge.h),
-                  
-                  Row(
-                    children: [
-                      const Expanded(child: Divider(color: AuthColors.inputBorder)),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: AppDimensions.paddingMedium.w),
-                        child: Text(
-                          "OR CONTINUE WITH",
-                          style: TextStyle(
-                            color: AuthColors.subText,
-                            fontSize: AppDimensions.captionSize.sp,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ),
-                      const Expanded(child: Divider(color: AuthColors.inputBorder)),
-                    ],
-                  ),
-                  SizedBox(height: AppDimensions.paddingLarge.h),
-                  
-                  OutlinedButton.icon(
-                    onPressed: isLoading ? null : _onGoogleSignIn,
-                    icon: SvgPicture.asset(
-                      'assets/images/google_logo.svg',
-                      width: 20.sp,
-                      height: 20.sp,
-                    ),
-                    label: Text(
-                      'Google',
+                    SizedBox(height: AppDimensions.paddingSmall.h),
+                    Text(
+                      "Log in to join the Gasp'Zero community",
+                      textAlign: TextAlign.start,
                       style: TextStyle(
                         fontSize: AppDimensions.buttonTextSize.sp,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w400,
+                        color: AuthColors.subText,
                       ),
                     ),
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: Size(double.infinity, 56.h),
-                      foregroundColor: AuthColors.headingText,
-                      side: const BorderSide(color: AuthColors.inputBorder),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22.r)),
+                    SizedBox(height: 48.h),
+
+                    // Form
+                    _buildLabel('Email'),
+                    SizedBox(height: AppDimensions.paddingSmall.h),
+                    _buildTextField(
+                      _emailController,
+                      'jane.doe@example.com',
+                      false,
+                      validator: (v) {
+                        if (v == null || v.isEmpty) return 'Required';
+                        if (!RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(v))
+                          return 'Invalid email';
+                        return null;
+                      },
                     ),
-                  ),
-                  
-                  SizedBox(height: 48.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text("Don't have an account? ", style: TextStyle(color: AuthColors.subText, fontSize: AppDimensions.bodySize.sp)),
-                      GestureDetector(
-                        onTap: () => context.push('/register'),
-                        child: Text(
-                          "Sign Up",
-                          style: TextStyle(color: AuthColors.primary, fontWeight: FontWeight.bold, fontSize: AppDimensions.bodySize.sp),
+                    SizedBox(height: AppDimensions.paddingLarge.h),
+                    _buildLabel('Password'),
+                    SizedBox(height: AppDimensions.paddingSmall.h),
+                    _buildTextField(
+                      _passwordController,
+                      'Enter your password',
+                      true,
+                      validator: (v) {
+                        if (v == null || v.isEmpty) return 'Required';
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: AppDimensions.paddingSmall.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            "Must be at least 8 characters with 1 uppercase, 1 lowercase, 1 number, and 1 symbol.",
+                            style: TextStyle(
+                              color: AuthColors.subText,
+                              fontSize: 10.sp,
+                            ),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () => context.push('/forgot-password'),
+                          child: Text(
+                            "Forget Password?",
+                            style: TextStyle(
+                              color: AuthColors.primary,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 11.sp,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 48.h),
+
+                    ElevatedButton(
+                      onPressed: isLoading ? null : _onLogin,
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(double.infinity, 56.h),
+                        backgroundColor: AuthColors.primary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            AppDimensions.borderRadiusLarge.r,
+                          ),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: isLoading
+                          ? SizedBox(
+                              width: AppDimensions.iconSize.w,
+                              height: AppDimensions.iconSize.h,
+                              child: const CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Text(
+                              'Sign In',
+                              style: TextStyle(
+                                fontSize:
+                                    AppDimensions.primaryButtonTextSize.sp,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing:
+                                    0.015 *
+                                    AppDimensions.primaryButtonTextSize.sp,
+                              ),
+                            ),
+                    ),
+                    SizedBox(height: AppDimensions.paddingLarge.h),
+
+                    Row(
+                      children: [
+                        const Expanded(
+                          child: Divider(color: AuthColors.inputBorder),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: AppDimensions.paddingMedium.w,
+                          ),
+                          child: Text(
+                            "OR CONTINUE WITH",
+                            style: TextStyle(
+                              color: AuthColors.subText,
+                              fontSize: AppDimensions.captionSize.sp,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ),
+                        const Expanded(
+                          child: Divider(color: AuthColors.inputBorder),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: AppDimensions.paddingLarge.h),
+
+                    OutlinedButton.icon(
+                      onPressed: isLoading ? null : _onGoogleSignIn,
+                      icon: SvgPicture.asset(
+                        'assets/images/google_logo.svg',
+                        width: 20.sp,
+                        height: 20.sp,
+                      ),
+                      label: Text(
+                        'Google',
+                        style: TextStyle(
+                          fontSize: AppDimensions.buttonTextSize.sp,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                    ],
-                  ),
-                ],
-              ),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: Size(double.infinity, 56.h),
+                        foregroundColor: AuthColors.headingText,
+                        side: const BorderSide(color: AuthColors.inputBorder),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(22.r),
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(height: 48.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Don't have an account? ",
+                          style: TextStyle(
+                            color: AuthColors.subText,
+                            fontSize: AppDimensions.bodySize.sp,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () => context.push('/register'),
+                          child: Text(
+                            "Sign Up",
+                            style: TextStyle(
+                              color: AuthColors.primary,
+                              fontWeight: FontWeight.bold,
+                              fontSize: AppDimensions.bodySize.sp,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           );
@@ -249,21 +293,39 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String hint, bool isPassword, {String? Function(String?)? validator}) {
+  Widget _buildTextField(
+    TextEditingController controller,
+    String hint,
+    bool isPassword, {
+    String? Function(String?)? validator,
+  }) {
     return TextFormField(
       controller: controller,
       obscureText: isPassword ? _obscurePassword : false,
-      keyboardType: isPassword ? TextInputType.text : TextInputType.emailAddress,
+      keyboardType: isPassword
+          ? TextInputType.text
+          : TextInputType.emailAddress,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       validator: validator,
-      style: TextStyle(color: AuthColors.headingText, fontSize: 16.sp, fontWeight: FontWeight.w400),
+      style: TextStyle(
+        color: AuthColors.headingText,
+        fontSize: 16.sp,
+        fontWeight: FontWeight.w400,
+      ),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: TextStyle(color: AuthColors.inputText, fontSize: 16.sp, fontWeight: FontWeight.w400),
+        hintStyle: TextStyle(
+          color: AuthColors.inputText,
+          fontSize: 16.sp,
+          fontWeight: FontWeight.w400,
+        ),
         filled: true,
         fillColor: AuthColors.inputBackground,
         isDense: false,
-        contentPadding: EdgeInsets.symmetric(horizontal: AppDimensions.paddingMedium.w, vertical: (AppDimensions.inputHeight.h - 20.sp) / 2),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: AppDimensions.paddingMedium.w,
+          vertical: (AppDimensions.inputHeight.h - 20.sp) / 2,
+        ),
         border: _getBorder(AuthColors.inputBorder),
         enabledBorder: _getBorder(AuthColors.inputBorder),
         focusedBorder: _getBorder(AuthColors.primary),

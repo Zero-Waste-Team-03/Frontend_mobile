@@ -10,8 +10,10 @@ Serializers _$serializers =
     (Serializers().toBuilder()
           ..add(FetchPolicy.serializer)
           ..add(GAdminCreateAccountInput.serializer)
+          ..add(GAdminDashboardStatsInput.serializer)
           ..add(GAppearanceTheme.serializer)
-          ..add(GCategorySensitivityValues.serializer)
+          ..add(GApproveSensitiveMessageInput.serializer)
+          ..add(GCategorySensitivity.serializer)
           ..add(GChangePasswordData.serializer)
           ..add(GChangePasswordData_changePassword.serializer)
           ..add(GChangePasswordInput.serializer)
@@ -48,6 +50,10 @@ Serializers _$serializers =
           )
           ..add(GConfirmReservationReq.serializer)
           ..add(GConfirmReservationVars.serializer)
+          ..add(GConversationMessagesInput.serializer)
+          ..add(GConversationStatus.serializer)
+          ..add(GCoordinateInput.serializer)
+          ..add(GCreateBadgeInput.serializer)
           ..add(GCreateCategoryInput.serializer)
           ..add(GCreateDonationData.serializer)
           ..add(GCreateDonationData_createDonation.serializer)
@@ -58,6 +64,8 @@ Serializers _$serializers =
           ..add(GCreateDonationInput.serializer)
           ..add(GCreateDonationReq.serializer)
           ..add(GCreateDonationVars.serializer)
+          ..add(GCreateReportInput.serializer)
+          ..add(GDateRangeInput.serializer)
           ..add(GDateTime.serializer)
           ..add(GDeleteAccountData.serializer)
           ..add(GDeleteAccountData_deleteAccount.serializer)
@@ -67,9 +75,12 @@ Serializers _$serializers =
           ..add(GDeleteNotificationData_deleteNotification.serializer)
           ..add(GDeleteNotificationReq.serializer)
           ..add(GDeleteNotificationVars.serializer)
+          ..add(GDonationBehaviorContextInput.serializer)
           ..add(GDonationStatusValues.serializer)
           ..add(GDonationUrgencyValues.serializer)
           ..add(GDonationsFilterInput.serializer)
+          ..add(GDonationsHeatmapInput.serializer)
+          ..add(GDonationsMapInput.serializer)
           ..add(GForgotPasswordData.serializer)
           ..add(GForgotPasswordData_forgotPassword.serializer)
           ..add(GForgotPasswordReq.serializer)
@@ -79,6 +90,13 @@ Serializers _$serializers =
           ..add(GGetCategoriesData_categories_items.serializer)
           ..add(GGetCategoriesReq.serializer)
           ..add(GGetCategoriesVars.serializer)
+          ..add(GGetConversationMessagesData.serializer)
+          ..add(GGetConversationMessagesData_conversationMessages.serializer)
+          ..add(
+            GGetConversationMessagesData_conversationMessages_items.serializer,
+          )
+          ..add(GGetConversationMessagesReq.serializer)
+          ..add(GGetConversationMessagesVars.serializer)
           ..add(GGetCurrentUserData.serializer)
           ..add(GGetCurrentUserData_currentUser.serializer)
           ..add(GGetCurrentUserData_currentUser_avatar.serializer)
@@ -107,6 +125,10 @@ Serializers _$serializers =
           ..add(GGetNotificationsData_getNotifications_items.serializer)
           ..add(GGetNotificationsReq.serializer)
           ..add(GGetNotificationsVars.serializer)
+          ..add(GGetOrCreateConversationData.serializer)
+          ..add(GGetOrCreateConversationData_getOrCreateConversation.serializer)
+          ..add(GGetOrCreateConversationReq.serializer)
+          ..add(GGetOrCreateConversationVars.serializer)
           ..add(GJSON.serializer)
           ..add(GJSONObject.serializer)
           ..add(GLocationInput.serializer)
@@ -122,10 +144,27 @@ Serializers _$serializers =
           ..add(GLogoutFromAllDevicesData_logoutFromAllDevices.serializer)
           ..add(GLogoutFromAllDevicesReq.serializer)
           ..add(GLogoutFromAllDevicesVars.serializer)
+          ..add(GMapBoundsInput.serializer)
           ..add(GMarkNotificationsAsReadData.serializer)
           ..add(GMarkNotificationsAsReadData_markNotificationsAsRead.serializer)
           ..add(GMarkNotificationsAsReadReq.serializer)
           ..add(GMarkNotificationsAsReadVars.serializer)
+          ..add(GMarkTransactionCompletedData.serializer)
+          ..add(
+            GMarkTransactionCompletedData_markTransactionCompleted.serializer,
+          )
+          ..add(GMarkTransactionCompletedInput.serializer)
+          ..add(GMarkTransactionCompletedReq.serializer)
+          ..add(GMarkTransactionCompletedVars.serializer)
+          ..add(GMarkerColorValues.serializer)
+          ..add(GMyActiveConversationsData.serializer)
+          ..add(GMyActiveConversationsData_myActiveConversations.serializer)
+          ..add(
+            GMyActiveConversationsData_myActiveConversations_counterpart
+                .serializer,
+          )
+          ..add(GMyActiveConversationsReq.serializer)
+          ..add(GMyActiveConversationsVars.serializer)
           ..add(GMyReservationData.serializer)
           ..add(GMyReservationData_myReservation.serializer)
           ..add(GMyReservationData_myReservation_donation.serializer)
@@ -167,6 +206,11 @@ Serializers _$serializers =
           ..add(GRegisterLocationInput.serializer)
           ..add(GRegisterReq.serializer)
           ..add(GRegisterVars.serializer)
+          ..add(GReportStatsInput.serializer)
+          ..add(GReportStatsPeriod.serializer)
+          ..add(GReportStatsStatusFilter.serializer)
+          ..add(GReportStatus.serializer)
+          ..add(GReportTargetType.serializer)
           ..add(GReservationFieldsData.serializer)
           ..add(GReservationFieldsData_beneficiary.serializer)
           ..add(GReservationFieldsData_beneficiary_avatar.serializer)
@@ -179,6 +223,7 @@ Serializers _$serializers =
           ..add(GReservationFieldsReq.serializer)
           ..add(GReservationFieldsVars.serializer)
           ..add(GReservationStatus.serializer)
+          ..add(GReservationsFilterInput.serializer)
           ..add(GReserveDonationData.serializer)
           ..add(GReserveDonationData_reserveDonation.serializer)
           ..add(GReserveDonationData_reserveDonation_beneficiary.serializer)
@@ -208,11 +253,20 @@ Serializers _$serializers =
           ..add(GResetPasswordInput.serializer)
           ..add(GResetPasswordReq.serializer)
           ..add(GResetPasswordVars.serializer)
+          ..add(GReviewReportInput.serializer)
+          ..add(GSendMessageData.serializer)
+          ..add(GSendMessageData_sendMessage.serializer)
+          ..add(GSendMessageInput.serializer)
+          ..add(GSendMessageReq.serializer)
+          ..add(GSendMessageVars.serializer)
           ..add(GSendNotificationInput.serializer)
           ..add(GSendVerificationData.serializer)
           ..add(GSendVerificationData_sendVerification.serializer)
           ..add(GSendVerificationReq.serializer)
           ..add(GSendVerificationVars.serializer)
+          ..add(GStatsGrowthInput.serializer)
+          ..add(GStatsGrowthPeriod.serializer)
+          ..add(GUpdateBadgeInput.serializer)
           ..add(GUpdateCategoryInput.serializer)
           ..add(GUpdateDonationInput.serializer)
           ..add(GUpdateProfileData.serializer)
@@ -239,6 +293,17 @@ Serializers _$serializers =
           )
           ..addBuilderFactory(
             const FullType(BuiltList, const [
+              const FullType(
+                GGetConversationMessagesData_conversationMessages_items,
+              ),
+            ]),
+            () =>
+                ListBuilder<
+                  GGetConversationMessagesData_conversationMessages_items
+                >(),
+          )
+          ..addBuilderFactory(
+            const FullType(BuiltList, const [
               const FullType(GGetDonationsData_donations_items),
             ]),
             () => ListBuilder<GGetDonationsData_donations_items>(),
@@ -251,9 +316,20 @@ Serializers _$serializers =
           )
           ..addBuilderFactory(
             const FullType(BuiltList, const [
+              const FullType(GMyActiveConversationsData_myActiveConversations),
+            ]),
+            () =>
+                ListBuilder<GMyActiveConversationsData_myActiveConversations>(),
+          )
+          ..addBuilderFactory(
+            const FullType(BuiltList, const [
               const FullType(GMyReservationsData_myReservations_items),
             ]),
             () => ListBuilder<GMyReservationsData_myReservations_items>(),
+          )
+          ..addBuilderFactory(
+            const FullType(BuiltList, const [const FullType(String)]),
+            () => ListBuilder<String>(),
           )
           ..addBuilderFactory(
             const FullType(BuiltList, const [const FullType(String)]),

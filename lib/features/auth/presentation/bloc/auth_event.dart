@@ -1,8 +1,8 @@
-﻿import 'package:equatable/equatable.dart';
+import 'package:equatable/equatable.dart';
 
 abstract class AuthEvent extends Equatable {
   const AuthEvent();
-  
+
   @override
   List<Object?> get props => [];
 }
@@ -31,9 +31,15 @@ class AuthSignUpRequested extends AuthEvent {
     required this.email,
     required this.password,
   });
-  
+
   @override
-  List<Object?> get props => [firstName, lastName, email, password, phoneNumber];
+  List<Object?> get props => [
+    firstName,
+    lastName,
+    email,
+    password,
+    phoneNumber,
+  ];
 }
 
 class AuthVerifyOtpRequested extends AuthEvent {
@@ -45,7 +51,7 @@ class AuthVerifyOtpRequested extends AuthEvent {
   final String confirmPassword;
   final String location;
   final String otp;
-  
+
   const AuthVerifyOtpRequested({
     required this.firstName,
     required this.lastName,
@@ -56,18 +62,18 @@ class AuthVerifyOtpRequested extends AuthEvent {
     required this.location,
     required this.otp,
   });
-  
+
   @override
   List<Object?> get props => [
-        firstName,
-        lastName,
-        email,
-        password,
-        confirmPassword,
-        location,
-        otp,
-        phoneNumber,
-      ];
+    firstName,
+    lastName,
+    email,
+    password,
+    confirmPassword,
+    location,
+    otp,
+    phoneNumber,
+  ];
 }
 
 class AuthGoogleLoginRequested extends AuthEvent {}

@@ -37,10 +37,7 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
     // The token would come from the reset email deep link
     final token = widget.data['token'] ?? '';
     context.read<AuthBloc>().add(
-      AuthResetPasswordRequested(
-        token: token,
-        newPassword: newPassword,
-      ),
+      AuthResetPasswordRequested(token: token, newPassword: newPassword),
     );
   }
 
@@ -61,7 +58,11 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
           ),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AuthColors.headingText, size: AppDimensions.iconSize.sp),
+          icon: Icon(
+            Icons.arrow_back,
+            color: AuthColors.headingText,
+            size: AppDimensions.iconSize.sp,
+          ),
           onPressed: () => context.pop(),
         ),
       ),
@@ -69,13 +70,15 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
         listener: (context, state) {
           if (state is AuthResetPasswordSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Password reset successfully! Please log in.')),
+              const SnackBar(
+                content: Text('Password reset successfully! Please log in.'),
+              ),
             );
             context.go('/login');
           } else if (state is AuthError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           }
         },
         builder: (context, state) {
@@ -89,105 +92,125 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                  SizedBox(height: 20.h),
-                  Text(
-                    "Create New\nPassword",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: AppDimensions.titleSize.sp,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -0.025 * AppDimensions.titleSize.sp,
-                      color: AuthColors.headingText,
-                      height: 1.25,
-                    ),
-                  ),
-                  SizedBox(height: AppDimensions.paddingSmall.h),
-                  Text(
-                    "Your new password must be different\nfrom previous used passwords.",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: AppDimensions.buttonTextSize.sp,
-                      fontWeight: FontWeight.w400,
-                      color: AuthColors.subText,
-                      height: 1.5,
-                    ),
-                  ),
-                  SizedBox(height: 48.h),
-
-                  // New Password
-                  _buildLabel('New Password'),
-                  SizedBox(height: AppDimensions.paddingSmall.h),
-                  _buildPasswordField(
-                    _newPasswordController,
-                    '••••••••',
-                    _obscureNewPassword,
-                    () => setState(() => _obscureNewPassword = !_obscureNewPassword),
-                    validator: (v) {
-                      if (v == null || v.isEmpty) return 'Required';
-                      if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$').hasMatch(v)) return 'Not strong enough';
-                      return null;
-                    }
-                  ),
-                  SizedBox(height: AppDimensions.paddingSmall.h),
-                  Text(
-                    "Must be at least 8 characters with 1 uppercase, 1 lowercase, 1 number, and 1 symbol.",
-                    style: TextStyle(color: AuthColors.subText, fontSize: 11.sp),
-                  ),
-                  SizedBox(height: AppDimensions.paddingLarge.h),
-
-                  // Confirm New Password
-                  _buildLabel('Confirm New Password'),
-                  SizedBox(height: AppDimensions.paddingSmall.h),
-                  _buildPasswordField(
-                    _confirmPasswordController,
-                    '••••••••',
-                    _obscureConfirmPassword,
-                    () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
-                    validator: (v) {
-                      if (v == null || v.isEmpty) return 'Required';
-                      if (v != _newPasswordController.text) return 'Passwords do not match';
-                      return null;
-                    }
-                  ),
-
-                  SizedBox(height: 120.h),
-
-                  // Log In button
-                  ElevatedButton(
-                    onPressed: isLoading ? null : _onSubmit,
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(double.infinity, 56.h),
-                      backgroundColor: AuthColors.primary,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppDimensions.borderRadiusLarge.r),
+                    SizedBox(height: 20.h),
+                    Text(
+                      "Create New\nPassword",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: AppDimensions.titleSize.sp,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.025 * AppDimensions.titleSize.sp,
+                        color: AuthColors.headingText,
+                        height: 1.25,
                       ),
-                      elevation: 0,
                     ),
-                    child: isLoading
-                        ? SizedBox(
-                            width: AppDimensions.iconSize.w,
-                            height: AppDimensions.iconSize.h,
-                            child: const CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                          )
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Log In',
-                                style: TextStyle(
-                                  fontSize: AppDimensions.primaryButtonTextSize.sp,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 0.015 * AppDimensions.primaryButtonTextSize.sp,
-                                ),
-                              ),
-                              SizedBox(width: 8.w),
-                              Icon(Icons.arrow_forward, size: 20.sp),
-                            ],
+                    SizedBox(height: AppDimensions.paddingSmall.h),
+                    Text(
+                      "Your new password must be different\nfrom previous used passwords.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: AppDimensions.buttonTextSize.sp,
+                        fontWeight: FontWeight.w400,
+                        color: AuthColors.subText,
+                        height: 1.5,
+                      ),
+                    ),
+                    SizedBox(height: 48.h),
+
+                    // New Password
+                    _buildLabel('New Password'),
+                    SizedBox(height: AppDimensions.paddingSmall.h),
+                    _buildPasswordField(
+                      _newPasswordController,
+                      '••••••••',
+                      _obscureNewPassword,
+                      () => setState(
+                        () => _obscureNewPassword = !_obscureNewPassword,
+                      ),
+                      validator: (v) {
+                        if (v == null || v.isEmpty) return 'Required';
+                        if (!RegExp(
+                          r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$',
+                        ).hasMatch(v))
+                          return 'Not strong enough';
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: AppDimensions.paddingSmall.h),
+                    Text(
+                      "Must be at least 8 characters with 1 uppercase, 1 lowercase, 1 number, and 1 symbol.",
+                      style: TextStyle(
+                        color: AuthColors.subText,
+                        fontSize: 11.sp,
+                      ),
+                    ),
+                    SizedBox(height: AppDimensions.paddingLarge.h),
+
+                    // Confirm New Password
+                    _buildLabel('Confirm New Password'),
+                    SizedBox(height: AppDimensions.paddingSmall.h),
+                    _buildPasswordField(
+                      _confirmPasswordController,
+                      '••••••••',
+                      _obscureConfirmPassword,
+                      () => setState(
+                        () =>
+                            _obscureConfirmPassword = !_obscureConfirmPassword,
+                      ),
+                      validator: (v) {
+                        if (v == null || v.isEmpty) return 'Required';
+                        if (v != _newPasswordController.text)
+                          return 'Passwords do not match';
+                        return null;
+                      },
+                    ),
+
+                    SizedBox(height: 120.h),
+
+                    // Log In button
+                    ElevatedButton(
+                      onPressed: isLoading ? null : _onSubmit,
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(double.infinity, 56.h),
+                        backgroundColor: AuthColors.primary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            AppDimensions.borderRadiusLarge.r,
                           ),
-                  ),
-                ],
-              ),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: isLoading
+                          ? SizedBox(
+                              width: AppDimensions.iconSize.w,
+                              height: AppDimensions.iconSize.h,
+                              child: const CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Log In',
+                                  style: TextStyle(
+                                    fontSize:
+                                        AppDimensions.primaryButtonTextSize.sp,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing:
+                                        0.015 *
+                                        AppDimensions.primaryButtonTextSize.sp,
+                                  ),
+                                ),
+                                SizedBox(width: 8.w),
+                                Icon(Icons.arrow_forward, size: 20.sp),
+                              ],
+                            ),
+                    ),
+                  ],
+                ),
               ),
             ),
           );
@@ -226,14 +249,25 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
       obscureText: obscure,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       validator: validator,
-      style: TextStyle(color: AuthColors.headingText, fontSize: 16.sp, fontWeight: FontWeight.w400),
+      style: TextStyle(
+        color: AuthColors.headingText,
+        fontSize: 16.sp,
+        fontWeight: FontWeight.w400,
+      ),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: TextStyle(color: AuthColors.inputText, fontSize: 16.sp, fontWeight: FontWeight.w400),
+        hintStyle: TextStyle(
+          color: AuthColors.inputText,
+          fontSize: 16.sp,
+          fontWeight: FontWeight.w400,
+        ),
         filled: true,
         fillColor: AuthColors.inputBackground,
         isDense: false,
-        contentPadding: EdgeInsets.symmetric(horizontal: AppDimensions.paddingMedium.w, vertical: (AppDimensions.inputHeight.h - 20.sp) / 2),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: AppDimensions.paddingMedium.w,
+          vertical: (AppDimensions.inputHeight.h - 20.sp) / 2,
+        ),
         border: _getBorder(AuthColors.inputBorder),
         enabledBorder: _getBorder(AuthColors.inputBorder),
         focusedBorder: _getBorder(AuthColors.primary),

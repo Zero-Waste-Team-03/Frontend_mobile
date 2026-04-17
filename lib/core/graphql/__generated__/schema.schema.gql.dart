@@ -39,6 +39,31 @@ abstract class GAdminCreateAccountInput
       );
 }
 
+abstract class GAdminDashboardStatsInput
+    implements
+        Built<GAdminDashboardStatsInput, GAdminDashboardStatsInputBuilder> {
+  GAdminDashboardStatsInput._();
+
+  factory GAdminDashboardStatsInput(
+          [void Function(GAdminDashboardStatsInputBuilder b) updates]) =
+      _$GAdminDashboardStatsInput;
+
+  bool? get applyDonationStatusFilter;
+  static Serializer<GAdminDashboardStatsInput> get serializer =>
+      _$gAdminDashboardStatsInputSerializer;
+
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GAdminDashboardStatsInput.serializer,
+        this,
+      ) as Map<String, dynamic>);
+
+  static GAdminDashboardStatsInput? fromJson(Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GAdminDashboardStatsInput.serializer,
+        json,
+      );
+}
+
 class GAppearanceTheme extends EnumClass {
   const GAppearanceTheme._(String name) : super(name);
 
@@ -57,25 +82,50 @@ class GAppearanceTheme extends EnumClass {
       _$gAppearanceThemeValueOf(name);
 }
 
-class GCategorySensitivityValues extends EnumClass {
-  const GCategorySensitivityValues._(String name) : super(name);
+abstract class GApproveSensitiveMessageInput
+    implements
+        Built<GApproveSensitiveMessageInput,
+            GApproveSensitiveMessageInputBuilder> {
+  GApproveSensitiveMessageInput._();
 
-  static const GCategorySensitivityValues HIGH =
-      _$gCategorySensitivityValuesHIGH;
+  factory GApproveSensitiveMessageInput(
+          [void Function(GApproveSensitiveMessageInputBuilder b) updates]) =
+      _$GApproveSensitiveMessageInput;
 
-  static const GCategorySensitivityValues LOW = _$gCategorySensitivityValuesLOW;
+  String get conversationId;
+  String get messageId;
+  static Serializer<GApproveSensitiveMessageInput> get serializer =>
+      _$gApproveSensitiveMessageInputSerializer;
 
-  static const GCategorySensitivityValues MEDIUM =
-      _$gCategorySensitivityValuesMEDIUM;
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GApproveSensitiveMessageInput.serializer,
+        this,
+      ) as Map<String, dynamic>);
 
-  static Serializer<GCategorySensitivityValues> get serializer =>
-      _$gCategorySensitivityValuesSerializer;
+  static GApproveSensitiveMessageInput? fromJson(Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GApproveSensitiveMessageInput.serializer,
+        json,
+      );
+}
 
-  static BuiltSet<GCategorySensitivityValues> get values =>
-      _$gCategorySensitivityValuesValues;
+class GCategorySensitivity extends EnumClass {
+  const GCategorySensitivity._(String name) : super(name);
 
-  static GCategorySensitivityValues valueOf(String name) =>
-      _$gCategorySensitivityValuesValueOf(name);
+  static const GCategorySensitivity HIGH = _$gCategorySensitivityHIGH;
+
+  static const GCategorySensitivity LOW = _$gCategorySensitivityLOW;
+
+  static const GCategorySensitivity MEDIUM = _$gCategorySensitivityMEDIUM;
+
+  static Serializer<GCategorySensitivity> get serializer =>
+      _$gCategorySensitivitySerializer;
+
+  static BuiltSet<GCategorySensitivity> get values =>
+      _$gCategorySensitivityValues;
+
+  static GCategorySensitivity valueOf(String name) =>
+      _$gCategorySensitivityValueOf(name);
 }
 
 abstract class GChangePasswordInput
@@ -104,6 +154,104 @@ abstract class GChangePasswordInput
       );
 }
 
+abstract class GConversationMessagesInput
+    implements
+        Built<GConversationMessagesInput, GConversationMessagesInputBuilder> {
+  GConversationMessagesInput._();
+
+  factory GConversationMessagesInput(
+          [void Function(GConversationMessagesInputBuilder b) updates]) =
+      _$GConversationMessagesInput;
+
+  String get conversationId;
+  GPaginationInput? get pagination;
+  static Serializer<GConversationMessagesInput> get serializer =>
+      _$gConversationMessagesInputSerializer;
+
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GConversationMessagesInput.serializer,
+        this,
+      ) as Map<String, dynamic>);
+
+  static GConversationMessagesInput? fromJson(Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GConversationMessagesInput.serializer,
+        json,
+      );
+}
+
+class GConversationStatus extends EnumClass {
+  const GConversationStatus._(String name) : super(name);
+
+  static const GConversationStatus ACTIVE = _$gConversationStatusACTIVE;
+
+  static const GConversationStatus ARCHIVED = _$gConversationStatusARCHIVED;
+
+  static const GConversationStatus LOCKED = _$gConversationStatusLOCKED;
+
+  static Serializer<GConversationStatus> get serializer =>
+      _$gConversationStatusSerializer;
+
+  static BuiltSet<GConversationStatus> get values =>
+      _$gConversationStatusValues;
+
+  static GConversationStatus valueOf(String name) =>
+      _$gConversationStatusValueOf(name);
+}
+
+abstract class GCoordinateInput
+    implements Built<GCoordinateInput, GCoordinateInputBuilder> {
+  GCoordinateInput._();
+
+  factory GCoordinateInput([void Function(GCoordinateInputBuilder b) updates]) =
+      _$GCoordinateInput;
+
+  double get latitude;
+  double get longitude;
+  static Serializer<GCoordinateInput> get serializer =>
+      _$gCoordinateInputSerializer;
+
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GCoordinateInput.serializer,
+        this,
+      ) as Map<String, dynamic>);
+
+  static GCoordinateInput? fromJson(Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GCoordinateInput.serializer,
+        json,
+      );
+}
+
+abstract class GCreateBadgeInput
+    implements Built<GCreateBadgeInput, GCreateBadgeInputBuilder> {
+  GCreateBadgeInput._();
+
+  factory GCreateBadgeInput(
+          [void Function(GCreateBadgeInputBuilder b) updates]) =
+      _$GCreateBadgeInput;
+
+  String get code;
+  String get description;
+  String? get iconAttachmentId;
+  bool? get isActive;
+  String get name;
+  int? get sortOrder;
+  static Serializer<GCreateBadgeInput> get serializer =>
+      _$gCreateBadgeInputSerializer;
+
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GCreateBadgeInput.serializer,
+        this,
+      ) as Map<String, dynamic>);
+
+  static GCreateBadgeInput? fromJson(Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GCreateBadgeInput.serializer,
+        json,
+      );
+}
+
 abstract class GCreateCategoryInput
     implements Built<GCreateCategoryInput, GCreateCategoryInputBuilder> {
   GCreateCategoryInput._();
@@ -113,7 +261,7 @@ abstract class GCreateCategoryInput
       _$GCreateCategoryInput;
 
   String get name;
-  GCategorySensitivityValues? get sensitivity;
+  GCategorySensitivity? get sensitivity;
   static Serializer<GCreateCategoryInput> get serializer =>
       _$gCreateCategoryInputSerializer;
 
@@ -141,6 +289,7 @@ abstract class GCreateDonationInput
   String get categoryId;
   String get description;
   GDateTime get expiryDate;
+  double get foodWeightKg;
   GDateTime? get listingExpiresAt;
   String? get locationId;
   GLocationInput? get locationInput;
@@ -165,6 +314,57 @@ abstract class GCreateDonationInput
       );
 }
 
+abstract class GCreateReportInput
+    implements Built<GCreateReportInput, GCreateReportInputBuilder> {
+  GCreateReportInput._();
+
+  factory GCreateReportInput(
+          [void Function(GCreateReportInputBuilder b) updates]) =
+      _$GCreateReportInput;
+
+  String? get description;
+  String get reason;
+  String get targetId;
+  GReportTargetType get targetType;
+  static Serializer<GCreateReportInput> get serializer =>
+      _$gCreateReportInputSerializer;
+
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GCreateReportInput.serializer,
+        this,
+      ) as Map<String, dynamic>);
+
+  static GCreateReportInput? fromJson(Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GCreateReportInput.serializer,
+        json,
+      );
+}
+
+abstract class GDateRangeInput
+    implements Built<GDateRangeInput, GDateRangeInputBuilder> {
+  GDateRangeInput._();
+
+  factory GDateRangeInput([void Function(GDateRangeInputBuilder b) updates]) =
+      _$GDateRangeInput;
+
+  GDateTime get from;
+  GDateTime get to;
+  static Serializer<GDateRangeInput> get serializer =>
+      _$gDateRangeInputSerializer;
+
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GDateRangeInput.serializer,
+        this,
+      ) as Map<String, dynamic>);
+
+  static GDateRangeInput? fromJson(Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GDateRangeInput.serializer,
+        json,
+      );
+}
+
 abstract class GDateTime implements Built<GDateTime, GDateTimeBuilder> {
   GDateTime._();
 
@@ -176,6 +376,33 @@ abstract class GDateTime implements Built<GDateTime, GDateTimeBuilder> {
   static Serializer<GDateTime> get serializer =>
       _i2.DefaultScalarSerializer<GDateTime>(
           (Object serialized) => GDateTime((serialized as String?)));
+}
+
+abstract class GDonationBehaviorContextInput
+    implements
+        Built<GDonationBehaviorContextInput,
+            GDonationBehaviorContextInputBuilder> {
+  GDonationBehaviorContextInput._();
+
+  factory GDonationBehaviorContextInput(
+          [void Function(GDonationBehaviorContextInputBuilder b) updates]) =
+      _$GDonationBehaviorContextInput;
+
+  String? get distanceBucket;
+  String? get origin;
+  static Serializer<GDonationBehaviorContextInput> get serializer =>
+      _$gDonationBehaviorContextInputSerializer;
+
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GDonationBehaviorContextInput.serializer,
+        this,
+      ) as Map<String, dynamic>);
+
+  static GDonationBehaviorContextInput? fromJson(Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GDonationBehaviorContextInput.serializer,
+        json,
+      );
 }
 
 abstract class GDonationsFilterInput
@@ -200,6 +427,59 @@ abstract class GDonationsFilterInput
   static GDonationsFilterInput? fromJson(Map<String, dynamic> json) =>
       _i1.serializers.deserializeWith(
         GDonationsFilterInput.serializer,
+        json,
+      );
+}
+
+abstract class GDonationsHeatmapInput
+    implements Built<GDonationsHeatmapInput, GDonationsHeatmapInputBuilder> {
+  GDonationsHeatmapInput._();
+
+  factory GDonationsHeatmapInput(
+          [void Function(GDonationsHeatmapInputBuilder b) updates]) =
+      _$GDonationsHeatmapInput;
+
+  GMapBoundsInput get bounds;
+  BuiltList<String>? get categories;
+  GDateRangeInput? get dateRange;
+  double? get gridSize;
+  static Serializer<GDonationsHeatmapInput> get serializer =>
+      _$gDonationsHeatmapInputSerializer;
+
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GDonationsHeatmapInput.serializer,
+        this,
+      ) as Map<String, dynamic>);
+
+  static GDonationsHeatmapInput? fromJson(Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GDonationsHeatmapInput.serializer,
+        json,
+      );
+}
+
+abstract class GDonationsMapInput
+    implements Built<GDonationsMapInput, GDonationsMapInputBuilder> {
+  GDonationsMapInput._();
+
+  factory GDonationsMapInput(
+          [void Function(GDonationsMapInputBuilder b) updates]) =
+      _$GDonationsMapInput;
+
+  double get latitude;
+  double get longitude;
+  double get radius;
+  static Serializer<GDonationsMapInput> get serializer =>
+      _$gDonationsMapInputSerializer;
+
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GDonationsMapInput.serializer,
+        this,
+      ) as Map<String, dynamic>);
+
+  static GDonationsMapInput? fromJson(Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GDonationsMapInput.serializer,
         json,
       );
 }
@@ -322,6 +602,74 @@ abstract class GLoginInput implements Built<GLoginInput, GLoginInputBuilder> {
       );
 }
 
+abstract class GMapBoundsInput
+    implements Built<GMapBoundsInput, GMapBoundsInputBuilder> {
+  GMapBoundsInput._();
+
+  factory GMapBoundsInput([void Function(GMapBoundsInputBuilder b) updates]) =
+      _$GMapBoundsInput;
+
+  GCoordinateInput get northEast;
+  GCoordinateInput get southWest;
+  static Serializer<GMapBoundsInput> get serializer =>
+      _$gMapBoundsInputSerializer;
+
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GMapBoundsInput.serializer,
+        this,
+      ) as Map<String, dynamic>);
+
+  static GMapBoundsInput? fromJson(Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GMapBoundsInput.serializer,
+        json,
+      );
+}
+
+class GMarkerColorValues extends EnumClass {
+  const GMarkerColorValues._(String name) : super(name);
+
+  static const GMarkerColorValues GREEN = _$gMarkerColorValuesGREEN;
+
+  static const GMarkerColorValues ORANGE = _$gMarkerColorValuesORANGE;
+
+  static const GMarkerColorValues RED = _$gMarkerColorValuesRED;
+
+  static Serializer<GMarkerColorValues> get serializer =>
+      _$gMarkerColorValuesSerializer;
+
+  static BuiltSet<GMarkerColorValues> get values => _$gMarkerColorValuesValues;
+
+  static GMarkerColorValues valueOf(String name) =>
+      _$gMarkerColorValuesValueOf(name);
+}
+
+abstract class GMarkTransactionCompletedInput
+    implements
+        Built<GMarkTransactionCompletedInput,
+            GMarkTransactionCompletedInputBuilder> {
+  GMarkTransactionCompletedInput._();
+
+  factory GMarkTransactionCompletedInput(
+          [void Function(GMarkTransactionCompletedInputBuilder b) updates]) =
+      _$GMarkTransactionCompletedInput;
+
+  String get conversationId;
+  static Serializer<GMarkTransactionCompletedInput> get serializer =>
+      _$gMarkTransactionCompletedInputSerializer;
+
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GMarkTransactionCompletedInput.serializer,
+        this,
+      ) as Map<String, dynamic>);
+
+  static GMarkTransactionCompletedInput? fromJson(Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GMarkTransactionCompletedInput.serializer,
+        json,
+      );
+}
+
 abstract class GPaginationInput
     implements Built<GPaginationInput, GPaginationInputBuilder> {
   GPaginationInput._();
@@ -426,6 +774,139 @@ abstract class GRegisterLocationInput
       );
 }
 
+abstract class GReportStatsInput
+    implements Built<GReportStatsInput, GReportStatsInputBuilder> {
+  GReportStatsInput._();
+
+  factory GReportStatsInput(
+          [void Function(GReportStatsInputBuilder b) updates]) =
+      _$GReportStatsInput;
+
+  GReportStatsPeriod get period;
+  GReportStatsStatusFilter? get statusFilter;
+  static Serializer<GReportStatsInput> get serializer =>
+      _$gReportStatsInputSerializer;
+
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GReportStatsInput.serializer,
+        this,
+      ) as Map<String, dynamic>);
+
+  static GReportStatsInput? fromJson(Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GReportStatsInput.serializer,
+        json,
+      );
+}
+
+class GReportStatsPeriod extends EnumClass {
+  const GReportStatsPeriod._(String name) : super(name);
+
+  static const GReportStatsPeriod LAST_MONTH = _$gReportStatsPeriodLAST_MONTH;
+
+  static const GReportStatsPeriod LAST_WEEK = _$gReportStatsPeriodLAST_WEEK;
+
+  static const GReportStatsPeriod LAST_YEAR = _$gReportStatsPeriodLAST_YEAR;
+
+  static Serializer<GReportStatsPeriod> get serializer =>
+      _$gReportStatsPeriodSerializer;
+
+  static BuiltSet<GReportStatsPeriod> get values => _$gReportStatsPeriodValues;
+
+  static GReportStatsPeriod valueOf(String name) =>
+      _$gReportStatsPeriodValueOf(name);
+}
+
+class GReportStatsStatusFilter extends EnumClass {
+  const GReportStatsStatusFilter._(String name) : super(name);
+
+  static const GReportStatsStatusFilter ACCEPTED =
+      _$gReportStatsStatusFilterACCEPTED;
+
+  static const GReportStatsStatusFilter ALL = _$gReportStatsStatusFilterALL;
+
+  static const GReportStatsStatusFilter OPEN = _$gReportStatsStatusFilterOPEN;
+
+  static const GReportStatsStatusFilter REJECTED =
+      _$gReportStatsStatusFilterREJECTED;
+
+  static const GReportStatsStatusFilter RESOLVED =
+      _$gReportStatsStatusFilterRESOLVED;
+
+  static const GReportStatsStatusFilter UNDER_REVIEW =
+      _$gReportStatsStatusFilterUNDER_REVIEW;
+
+  static Serializer<GReportStatsStatusFilter> get serializer =>
+      _$gReportStatsStatusFilterSerializer;
+
+  static BuiltSet<GReportStatsStatusFilter> get values =>
+      _$gReportStatsStatusFilterValues;
+
+  static GReportStatsStatusFilter valueOf(String name) =>
+      _$gReportStatsStatusFilterValueOf(name);
+}
+
+class GReportStatus extends EnumClass {
+  const GReportStatus._(String name) : super(name);
+
+  static const GReportStatus OPEN = _$gReportStatusOPEN;
+
+  static const GReportStatus REJECTED = _$gReportStatusREJECTED;
+
+  static const GReportStatus RESOLVED = _$gReportStatusRESOLVED;
+
+  static const GReportStatus UNDER_REVIEW = _$gReportStatusUNDER_REVIEW;
+
+  static Serializer<GReportStatus> get serializer => _$gReportStatusSerializer;
+
+  static BuiltSet<GReportStatus> get values => _$gReportStatusValues;
+
+  static GReportStatus valueOf(String name) => _$gReportStatusValueOf(name);
+}
+
+class GReportTargetType extends EnumClass {
+  const GReportTargetType._(String name) : super(name);
+
+  static const GReportTargetType DONATION = _$gReportTargetTypeDONATION;
+
+  static const GReportTargetType MESSAGE = _$gReportTargetTypeMESSAGE;
+
+  static const GReportTargetType USER = _$gReportTargetTypeUSER;
+
+  static Serializer<GReportTargetType> get serializer =>
+      _$gReportTargetTypeSerializer;
+
+  static BuiltSet<GReportTargetType> get values => _$gReportTargetTypeValues;
+
+  static GReportTargetType valueOf(String name) =>
+      _$gReportTargetTypeValueOf(name);
+}
+
+abstract class GReservationsFilterInput
+    implements
+        Built<GReservationsFilterInput, GReservationsFilterInputBuilder> {
+  GReservationsFilterInput._();
+
+  factory GReservationsFilterInput(
+          [void Function(GReservationsFilterInputBuilder b) updates]) =
+      _$GReservationsFilterInput;
+
+  GReservationStatus? get status;
+  static Serializer<GReservationsFilterInput> get serializer =>
+      _$gReservationsFilterInputSerializer;
+
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GReservationsFilterInput.serializer,
+        this,
+      ) as Map<String, dynamic>);
+
+  static GReservationsFilterInput? fromJson(Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GReservationsFilterInput.serializer,
+        json,
+      );
+}
+
 class GReservationStatus extends EnumClass {
   const GReservationStatus._(String name) : super(name);
 
@@ -471,6 +952,56 @@ abstract class GResetPasswordInput
       );
 }
 
+abstract class GReviewReportInput
+    implements Built<GReviewReportInput, GReviewReportInputBuilder> {
+  GReviewReportInput._();
+
+  factory GReviewReportInput(
+          [void Function(GReviewReportInputBuilder b) updates]) =
+      _$GReviewReportInput;
+
+  String get reportId;
+  GReportStatus get status;
+  static Serializer<GReviewReportInput> get serializer =>
+      _$gReviewReportInputSerializer;
+
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GReviewReportInput.serializer,
+        this,
+      ) as Map<String, dynamic>);
+
+  static GReviewReportInput? fromJson(Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GReviewReportInput.serializer,
+        json,
+      );
+}
+
+abstract class GSendMessageInput
+    implements Built<GSendMessageInput, GSendMessageInputBuilder> {
+  GSendMessageInput._();
+
+  factory GSendMessageInput(
+          [void Function(GSendMessageInputBuilder b) updates]) =
+      _$GSendMessageInput;
+
+  String get content;
+  String get conversationId;
+  static Serializer<GSendMessageInput> get serializer =>
+      _$gSendMessageInputSerializer;
+
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GSendMessageInput.serializer,
+        this,
+      ) as Map<String, dynamic>);
+
+  static GSendMessageInput? fromJson(Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GSendMessageInput.serializer,
+        json,
+      );
+}
+
 abstract class GSendNotificationInput
     implements Built<GSendNotificationInput, GSendNotificationInputBuilder> {
   GSendNotificationInput._();
@@ -498,6 +1029,78 @@ abstract class GSendNotificationInput
       );
 }
 
+abstract class GStatsGrowthInput
+    implements Built<GStatsGrowthInput, GStatsGrowthInputBuilder> {
+  GStatsGrowthInput._();
+
+  factory GStatsGrowthInput(
+          [void Function(GStatsGrowthInputBuilder b) updates]) =
+      _$GStatsGrowthInput;
+
+  bool? get applyDonationStatusFilter;
+  GStatsGrowthPeriod get period;
+  static Serializer<GStatsGrowthInput> get serializer =>
+      _$gStatsGrowthInputSerializer;
+
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GStatsGrowthInput.serializer,
+        this,
+      ) as Map<String, dynamic>);
+
+  static GStatsGrowthInput? fromJson(Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GStatsGrowthInput.serializer,
+        json,
+      );
+}
+
+class GStatsGrowthPeriod extends EnumClass {
+  const GStatsGrowthPeriod._(String name) : super(name);
+
+  static const GStatsGrowthPeriod LAST_MONTH = _$gStatsGrowthPeriodLAST_MONTH;
+
+  static const GStatsGrowthPeriod LAST_WEEK = _$gStatsGrowthPeriodLAST_WEEK;
+
+  static const GStatsGrowthPeriod LAST_YEAR = _$gStatsGrowthPeriodLAST_YEAR;
+
+  static Serializer<GStatsGrowthPeriod> get serializer =>
+      _$gStatsGrowthPeriodSerializer;
+
+  static BuiltSet<GStatsGrowthPeriod> get values => _$gStatsGrowthPeriodValues;
+
+  static GStatsGrowthPeriod valueOf(String name) =>
+      _$gStatsGrowthPeriodValueOf(name);
+}
+
+abstract class GUpdateBadgeInput
+    implements Built<GUpdateBadgeInput, GUpdateBadgeInputBuilder> {
+  GUpdateBadgeInput._();
+
+  factory GUpdateBadgeInput(
+          [void Function(GUpdateBadgeInputBuilder b) updates]) =
+      _$GUpdateBadgeInput;
+
+  String? get code;
+  String? get description;
+  String? get iconAttachmentId;
+  bool? get isActive;
+  String? get name;
+  int? get sortOrder;
+  static Serializer<GUpdateBadgeInput> get serializer =>
+      _$gUpdateBadgeInputSerializer;
+
+  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
+        GUpdateBadgeInput.serializer,
+        this,
+      ) as Map<String, dynamic>);
+
+  static GUpdateBadgeInput? fromJson(Map<String, dynamic> json) =>
+      _i1.serializers.deserializeWith(
+        GUpdateBadgeInput.serializer,
+        json,
+      );
+}
+
 abstract class GUpdateCategoryInput
     implements Built<GUpdateCategoryInput, GUpdateCategoryInputBuilder> {
   GUpdateCategoryInput._();
@@ -507,7 +1110,7 @@ abstract class GUpdateCategoryInput
       _$GUpdateCategoryInput;
 
   String? get name;
-  GCategorySensitivityValues? get sensitivity;
+  GCategorySensitivity? get sensitivity;
   static Serializer<GUpdateCategoryInput> get serializer =>
       _$gUpdateCategoryInputSerializer;
 
@@ -535,6 +1138,7 @@ abstract class GUpdateDonationInput
   String? get categoryId;
   String? get description;
   GDateTime? get expiryDate;
+  double? get foodWeightKg;
   GDateTime? get listingExpiresAt;
   String? get locationId;
   GLocationInput? get locationInput;

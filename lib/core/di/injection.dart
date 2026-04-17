@@ -15,6 +15,12 @@ import '../../features/profile/domain/repositories/profile_repository.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../features/chat/data/sources/chat_socket_service.dart';
+import '../../features/chat/data/sources/chat_remote_data_source.dart';
+import '../../features/chat/data/repositories/chat_repository_impl.dart';
+import '../../features/chat/domain/repositories/chat_repository.dart';
+import '../../features/chat/presentation/bloc/chat_bloc.dart';
+
 import '../../features/donations/data/sources/donation_remote_data_source.dart';
 import '../../features/donations/data/repositories/donation_repository_impl.dart';
 import '../../features/donations/domain/repositories/donation_repository.dart';
@@ -160,6 +166,18 @@ Future<void> configureDependencies() async {
       repository: getIt(),
     ),
   );
+
+  // ── Chat ──
+  getIt.registerLazySingleton<ChatSocketService>(
+    () => ChatSocketService(getIt()),
+  );
+  getIt.registerLazySingleton<ChatRemoteDataSource>(
+    () => ChatRemoteDataSourceImpl(getIt(), getIt()),
+  );
+  getIt.registerLazySingleton<ChatRepository>(
+    () => ChatRepositoryImpl(getIt()),
+  );
+  getIt.registerFactory(() => ChatBloc(chatRepository: getIt()));
 
   // ── Notification ──
   getIt.registerLazySingleton<NotificationRemoteDataSource>(

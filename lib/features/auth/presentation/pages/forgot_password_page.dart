@@ -48,7 +48,11 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           ),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AuthColors.headingText, size: AppDimensions.iconSize.sp),
+          icon: Icon(
+            Icons.arrow_back,
+            color: AuthColors.headingText,
+            size: AppDimensions.iconSize.sp,
+          ),
           onPressed: () => context.pop(),
         ),
       ),
@@ -57,9 +61,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           if (state is AuthForgotPasswordSuccess) {
             setState(() => _linkSent = true);
           } else if (state is AuthError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           }
         },
         builder: (context, state) {
@@ -121,19 +125,24 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         foregroundColor: AuthColors.primary,
                         side: const BorderSide(color: AuthColors.primary),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppDimensions.borderRadiusLarge.r),
+                          borderRadius: BorderRadius.circular(
+                            AppDimensions.borderRadiusLarge.r,
+                          ),
                         ),
                       ),
                       child: isLoading
                           ? SizedBox(
                               width: AppDimensions.iconSize.w,
                               height: AppDimensions.iconSize.h,
-                              child: const CircularProgressIndicator(strokeWidth: 2),
+                              child: const CircularProgressIndicator(
+                                strokeWidth: 2,
+                              ),
                             )
                           : Text(
                               'Resend Link',
                               style: TextStyle(
-                                fontSize: AppDimensions.primaryButtonTextSize.sp,
+                                fontSize:
+                                    AppDimensions.primaryButtonTextSize.sp,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -148,7 +157,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         backgroundColor: AuthColors.primary,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppDimensions.borderRadiusLarge.r),
+                          borderRadius: BorderRadius.circular(
+                            AppDimensions.borderRadiusLarge.r,
+                          ),
                         ),
                         elevation: 0,
                       ),
@@ -157,7 +168,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         style: TextStyle(
                           fontSize: AppDimensions.primaryButtonTextSize.sp,
                           fontWeight: FontWeight.w700,
-                          letterSpacing: 0.015 * AppDimensions.primaryButtonTextSize.sp,
+                          letterSpacing:
+                              0.015 * AppDimensions.primaryButtonTextSize.sp,
                         ),
                       ),
                     ),
@@ -176,101 +188,117 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                  SizedBox(height: 20.h),
-                  Text(
-                    "Forgot Password",
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                      fontSize: AppDimensions.titleSize.sp,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -0.025 * AppDimensions.titleSize.sp,
-                      color: AuthColors.headingText,
-                    ),
-                  ),
-                  SizedBox(height: AppDimensions.paddingSmall.h),
-                  Text(
-                    "Enter your email address and we'll send you a\nlink to reset your password.",
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                      fontSize: AppDimensions.buttonTextSize.sp,
-                      fontWeight: FontWeight.w400,
-                      color: AuthColors.subText,
-                      height: 1.5,
-                    ),
-                  ),
-                  SizedBox(height: 48.h),
-
-                  // Email field
-                  _buildLabel('Email'),
-                  SizedBox(height: AppDimensions.paddingSmall.h),
-                  _buildTextField(_emailController, 'jane.doe@example.com', validator: (v) {
-                    if (v == null || v.isEmpty) return 'Required';
-                    if (!RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(v)) return 'Invalid email address';
-                    return null;
-                  }),
-                  
-                  // Spacer to push button to bottom area
-                  SizedBox(height: 220.h),
-
-                  // Send Reset Link button
-                  ElevatedButton(
-                    onPressed: isLoading ? null : _onSendResetLink,
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(double.infinity, 56.h),
-                      backgroundColor: AuthColors.primary,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppDimensions.borderRadiusLarge.r),
+                    SizedBox(height: 20.h),
+                    Text(
+                      "Forgot Password",
+                      textAlign: TextAlign.start,
+                      style: TextStyle(
+                        fontSize: AppDimensions.titleSize.sp,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.025 * AppDimensions.titleSize.sp,
+                        color: AuthColors.headingText,
                       ),
-                      elevation: 0,
                     ),
-                    child: isLoading
-                        ? SizedBox(
-                            width: AppDimensions.iconSize.w,
-                            height: AppDimensions.iconSize.h,
-                            child: const CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                          )
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Send Reset Link',
-                                style: TextStyle(
-                                  fontSize: AppDimensions.primaryButtonTextSize.sp,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 0.015 * AppDimensions.primaryButtonTextSize.sp,
-                                ),
-                              ),
-                              SizedBox(width: 8.w),
-                              Icon(Icons.send_rounded, size: 20.sp),
-                            ],
+                    SizedBox(height: AppDimensions.paddingSmall.h),
+                    Text(
+                      "Enter your email address and we'll send you a\nlink to reset your password.",
+                      textAlign: TextAlign.start,
+                      style: TextStyle(
+                        fontSize: AppDimensions.buttonTextSize.sp,
+                        fontWeight: FontWeight.w400,
+                        color: AuthColors.subText,
+                        height: 1.5,
+                      ),
+                    ),
+                    SizedBox(height: 48.h),
+
+                    // Email field
+                    _buildLabel('Email'),
+                    SizedBox(height: AppDimensions.paddingSmall.h),
+                    _buildTextField(
+                      _emailController,
+                      'jane.doe@example.com',
+                      validator: (v) {
+                        if (v == null || v.isEmpty) return 'Required';
+                        if (!RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(v))
+                          return 'Invalid email address';
+                        return null;
+                      },
+                    ),
+
+                    // Spacer to push button to bottom area
+                    SizedBox(height: 220.h),
+
+                    // Send Reset Link button
+                    ElevatedButton(
+                      onPressed: isLoading ? null : _onSendResetLink,
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(double.infinity, 56.h),
+                        backgroundColor: AuthColors.primary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            AppDimensions.borderRadiusLarge.r,
                           ),
-                  ),
-                  SizedBox(height: AppDimensions.paddingLarge.h),
-
-                  // Footer
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Remember your password? ",
-                        style: TextStyle(color: AuthColors.subText, fontSize: AppDimensions.bodySize.sp),
+                        ),
+                        elevation: 0,
                       ),
-                      GestureDetector(
-                        onTap: () => context.pop(),
-                        child: Text(
-                          "Log in",
+                      child: isLoading
+                          ? SizedBox(
+                              width: AppDimensions.iconSize.w,
+                              height: AppDimensions.iconSize.h,
+                              child: const CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Send Reset Link',
+                                  style: TextStyle(
+                                    fontSize:
+                                        AppDimensions.primaryButtonTextSize.sp,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing:
+                                        0.015 *
+                                        AppDimensions.primaryButtonTextSize.sp,
+                                  ),
+                                ),
+                                SizedBox(width: 8.w),
+                                Icon(Icons.send_rounded, size: 20.sp),
+                              ],
+                            ),
+                    ),
+                    SizedBox(height: AppDimensions.paddingLarge.h),
+
+                    // Footer
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Remember your password? ",
                           style: TextStyle(
-                            color: AuthColors.primary,
-                            fontWeight: FontWeight.bold,
+                            color: AuthColors.subText,
                             fontSize: AppDimensions.bodySize.sp,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                        GestureDetector(
+                          onTap: () => context.pop(),
+                          child: Text(
+                            "Log in",
+                            style: TextStyle(
+                              color: AuthColors.primary,
+                              fontWeight: FontWeight.bold,
+                              fontSize: AppDimensions.bodySize.sp,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           );
@@ -297,20 +325,35 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String hint, {String? Function(String?)? validator}) {
+  Widget _buildTextField(
+    TextEditingController controller,
+    String hint, {
+    String? Function(String?)? validator,
+  }) {
     return TextFormField(
       controller: controller,
       keyboardType: TextInputType.emailAddress,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       validator: validator,
-      style: TextStyle(color: AuthColors.headingText, fontSize: 16.sp, fontWeight: FontWeight.w400),
+      style: TextStyle(
+        color: AuthColors.headingText,
+        fontSize: 16.sp,
+        fontWeight: FontWeight.w400,
+      ),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: TextStyle(color: AuthColors.inputText, fontSize: 16.sp, fontWeight: FontWeight.w400),
+        hintStyle: TextStyle(
+          color: AuthColors.inputText,
+          fontSize: 16.sp,
+          fontWeight: FontWeight.w400,
+        ),
         filled: true,
         fillColor: AuthColors.inputBackground,
         isDense: false,
-        contentPadding: EdgeInsets.symmetric(horizontal: AppDimensions.paddingMedium.w, vertical: (AppDimensions.inputHeight.h - 20.sp) / 2),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: AppDimensions.paddingMedium.w,
+          vertical: (AppDimensions.inputHeight.h - 20.sp) / 2,
+        ),
         border: _getBorder(AuthColors.inputBorder),
         enabledBorder: _getBorder(AuthColors.inputBorder),
         focusedBorder: _getBorder(AuthColors.primary),

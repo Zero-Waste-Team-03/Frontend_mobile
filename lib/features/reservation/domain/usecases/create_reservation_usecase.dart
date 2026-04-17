@@ -12,9 +12,7 @@ class CreateReservationUseCase {
     required String donationId,
   }) async {
     try {
-      return await repository.createReservation(
-        donationId: donationId,
-      );
+      return await repository.createReservation(donationId: donationId);
     } catch (e) {
       return Left(ServerFailure('Error creating reservation: ${e.toString()}'));
     }
