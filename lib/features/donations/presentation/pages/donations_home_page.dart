@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -23,21 +24,29 @@ class DonationsHomePage extends StatefulWidget {
   State<DonationsHomePage> createState() => _DonationsHomePageState();
 }
 
-class _DonationsHomePageState extends State<DonationsHomePage> with TickerProviderStateMixin {
+class _DonationsHomePageState extends State<DonationsHomePage>
+    with TickerProviderStateMixin {
   final MapController _mapController = MapController();
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounceTimer;
   late final DonationsBloc _donationsBloc;
   LatLng? _currentPosition;
-  bool _isLoadingMap = true;
   String _selectedCategory = 'All';
   String? _selectedCategoryId;
+  String? _selectedCondition;
+  DateTime? _selectedExpiryDate;
   Donation? _selectedDonation;
+  bool _gettingCurrentLocation = false;
+  bool _suppressCameraFetch = false;
+  LatLng? _lastGestureCameraCenter;
+  double? _lastGestureCameraZoom;
+  Position? position;
 
   @override
   void initState() {
     super.initState();
     _donationsBloc = getIt<DonationsBloc>();
+    _donationsBloc.add(const LoadDonationCategoriesEvent());
     _determinePosition();
   }
 
@@ -49,56 +58,125 @@ class _DonationsHomePageState extends State<DonationsHomePage> with TickerProvid
     super.dispose();
   }
 
-  void _fetchDonationsInArea({bool append = false, LatLng? center}) {
+  void _fetchDonationsInArea({
+    bool append = false,
+    LatLng? center,
+    double? zoom,
+    LatLngBounds? visibleBounds,
+  }) {
     if (_currentPosition == null) return;
-    
+
     final fetchCenter = center ?? _currentPosition!;
-    
+    final radiusKm = _calculateFetchRadiusKm(
+      center: fetchCenter,
+      zoom: zoom,
+      visibleBounds: visibleBounds,
+    );
+
     _donationsBloc.add(
       LoadDonationsEvent(
         categoryId: _selectedCategoryId,
         searchQuery: _searchController.text,
         latitude: fetchCenter.latitude,
         longitude: fetchCenter.longitude,
-        radius: 20.0, // 20 km default visible radius
+        radius: radiusKm,
         append: append,
       ),
     );
   }
 
   void _onMapPositionChanged(MapCamera camera, bool hasGesture) {
-    if (!hasGesture) return;
+    if (_suppressCameraFetch) return;
+
+    final previousCenter = _lastGestureCameraCenter;
+    final previousZoom = _lastGestureCameraZoom;
+    final hasMeaningfulCenterChange =
+        previousCenter == null ||
+        const Distance().as(LengthUnit.Meter, previousCenter, camera.center) >
+            5;
+    final hasMeaningfulZoomChange =
+        previousZoom == null || (previousZoom - camera.zoom).abs() > 0.01;
+
+    if (!hasMeaningfulCenterChange && !hasMeaningfulZoomChange) return;
+
+    _lastGestureCameraCenter = camera.center;
+    _lastGestureCameraZoom = camera.zoom;
+
     if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
     _debounceTimer = Timer(const Duration(milliseconds: 600), () {
       if (mounted) {
-        _fetchDonationsInArea(append: true, center: camera.center);
+        _fetchDonationsInArea(
+          append: true,
+          center: camera.center,
+          zoom: camera.zoom,
+          visibleBounds: camera.visibleBounds,
+        );
       }
     });
   }
 
+  double _calculateFetchRadiusKm({
+    required LatLng center,
+    double? zoom,
+    LatLngBounds? visibleBounds,
+  }) {
+    final distance = const Distance();
+
+    if (visibleBounds != null) {
+      final northEast = LatLng(visibleBounds.north, visibleBounds.east);
+      final radiusInMeters = distance.as(LengthUnit.Meter, center, northEast);
+      return (radiusInMeters / 1000).clamp(0.5, 300.0).toDouble();
+    }
+
+    final effectiveZoom = zoom ?? _mapController.camera.zoom;
+    final metersPerPixel =
+        156543.03392 *
+        (math.cos(center.latitude * math.pi / 180).abs()) /
+        math.pow(2, effectiveZoom);
+    final approxRadiusInMeters = metersPerPixel * 500;
+    return (approxRadiusInMeters / 1000).clamp(0.5, 300.0).toDouble();
+  }
+
   void _animatedMapMove(LatLng destLocation, double destZoom) {
-    if (_mapController.camera.center == destLocation && _mapController.camera.zoom == destZoom) return;
+    if (_mapController.camera.center == destLocation &&
+        _mapController.camera.zoom == destZoom)
+      return;
+
+    _suppressCameraFetch = true;
 
     final latTween = Tween<double>(
-        begin: _mapController.camera.center.latitude, end: destLocation.latitude);
+      begin: _mapController.camera.center.latitude,
+      end: destLocation.latitude,
+    );
     final lngTween = Tween<double>(
-        begin: _mapController.camera.center.longitude, end: destLocation.longitude);
+      begin: _mapController.camera.center.longitude,
+      end: destLocation.longitude,
+    );
     final zoomTween = Tween<double>(
-        begin: _mapController.camera.zoom, end: destZoom);
+      begin: _mapController.camera.zoom,
+      end: destZoom,
+    );
 
     final animationController = AnimationController(
-        duration: const Duration(milliseconds: 500), vsync: this);
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
     final Animation<double> animation = CurvedAnimation(
-        parent: animationController, curve: Curves.fastOutSlowIn);
+      parent: animationController,
+      curve: Curves.fastOutSlowIn,
+    );
 
     animationController.addListener(() {
       _mapController.move(
-          LatLng(latTween.evaluate(animation), lngTween.evaluate(animation)),
-          zoomTween.evaluate(animation));
+        LatLng(latTween.evaluate(animation), lngTween.evaluate(animation)),
+        zoomTween.evaluate(animation),
+      );
     });
 
     animation.addStatusListener((status) {
-      if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
+      if (status == AnimationStatus.completed ||
+          status == AnimationStatus.dismissed) {
+        _suppressCameraFetch = false;
         animationController.dispose();
       }
     });
@@ -109,6 +187,10 @@ class _DonationsHomePageState extends State<DonationsHomePage> with TickerProvid
   Future<void> _determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;
+
+    setState(() {
+      _gettingCurrentLocation = true;
+    });
 
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
@@ -131,24 +213,29 @@ class _DonationsHomePageState extends State<DonationsHomePage> with TickerProvid
     }
 
     try {
-      Position position = await Geolocator.getCurrentPosition();
-      if (mounted) {
+      if (position == null) {
+        position = await Geolocator.getCurrentPosition();
+      }
+      if (mounted && position != null) {
         setState(() {
-          _currentPosition = LatLng(position.latitude, position.longitude);
-          _isLoadingMap = false;
+          _currentPosition = LatLng(position!.latitude, position!.longitude);
+          _animatedMapMove(_currentPosition!, 14.5);
         });
         _fetchDonationsInArea();
       }
     } catch (e) {
       _setDefaultPosition();
     }
+    setState(() {
+      _gettingCurrentLocation = false;
+      _selectedDonation = null;
+    });
   }
 
   void _setDefaultPosition() {
     if (mounted) {
       setState(() {
-        _currentPosition = const LatLng(21.4225, 39.8262); // Mecca fallback
-        _isLoadingMap = false;
+        _currentPosition = const LatLng(36.737232, 3.086472);
       });
       _fetchDonationsInArea();
     }
@@ -160,212 +247,415 @@ class _DonationsHomePageState extends State<DonationsHomePage> with TickerProvid
       value: _donationsBloc,
       child: Scaffold(
         backgroundColor: AuthColors.background,
-        body: SafeArea(
-          child: _isLoadingMap
-              ? const Center(child: CircularProgressIndicator())
-              : BlocBuilder<DonationsBloc, DonationsState>(
-                  builder: (context, state) {
-                    if (state is DonationsLoading ||
-                        state is DonationsInitial) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
+        body: Container(
+          child: BlocBuilder<DonationsBloc, DonationsState>(
+            builder: (context, state) {
+              final categories = state is DonationsLoaded
+                  ? state.categories
+                  : <Category>[];
+              final donations = state is DonationsLoaded
+                  ? state.donations
+                  : <Donation>[];
+              final filteredDonations = _applyLocalFilters(donations);
+              final donationsWithLocation = filteredDonations
+                  .where((d) => d.latitude != null && d.longitude != null)
+                  .toList();
 
-                    if (state is DonationsError) {
-                      return Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'Failed to load map donations',
-                              style: TextStyle(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w600,
-                                color: AuthColors.headingText,
-                              ),
-                            ),
-                            SizedBox(height: 6.h),
-                            Text(
-                              state.message,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 13.sp,
-                                color: AuthColors.subText,
-                              ),
-                            ),
-                            SizedBox(height: 14.h),
-                            ElevatedButton(
-                              onPressed: _fetchDonationsInArea,
-                              child: const Text('Retry'),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
+              if (_selectedDonation != null &&
+                  !donationsWithLocation.any(
+                    (d) => d.id == _selectedDonation!.id,
+                  )) {
+                _selectedDonation = null;
+              }
 
-                    if (state is! DonationsLoaded) {
-                      return const SizedBox.shrink();
-                    }
-
-                    final categories = state.categories;
-                    final donations = state.donations;
-                    final donationsWithLocation = donations
-                        .where((d) => d.latitude != null && d.longitude != null)
-                        .toList();
-
-                    if (_selectedDonation != null &&
-                        !donationsWithLocation.any(
-                          (d) => d.id == _selectedDonation!.id,
-                        )) {
-                      _selectedDonation = null;
-                    }
-
-                    return Column(
+              return Stack(
+                children: [
+                  Positioned.fill(
+                    child: Stack(
                       children: [
-                        _buildSearchBar(context),
-                        SizedBox(height: 12.h),
-                        _buildCategoryFilters(context, categories),
-                        SizedBox(height: 12.h),
-                        Expanded(
-                          child: Stack(
-                            children: [
-                              _buildMap(donationsWithLocation),
-                              Positioned(
-                                right: 16.w,
-                                bottom: 120.h,
-                                child: FloatingActionButton(
-                                  mini: true,
-                                  backgroundColor: Colors.white,
-                                  onPressed: () {
-                                    if (_currentPosition != null) {
-                                      _animatedMapMove(_currentPosition!, 14.5);
-                                    }
-                                  },
-                                  child: Icon(Icons.my_location, color: AuthColors.primary),
+                        _buildMap(donationsWithLocation),
+                        Positioned(
+                          right: 16.w,
+                          bottom: 130.h,
+                          child: FloatingActionButton(
+                            mini: true,
+                            backgroundColor: Colors.white,
+                            onPressed: () {
+                              _determinePosition();
+                            },
+                            child: _gettingCurrentLocation
+                                ? SizedBox(
+                                    width: 20.w,
+                                    height: 20.w,
+                                    child: CircularProgressIndicator(
+                                      color: AuthColors.primary,
+                                      strokeWidth: 2.5,
+                                    ),
+                                  )
+                                : Icon(
+                                    Icons.my_location_rounded,
+                                    color: AuthColors.primary,
+                                    size: 20.sp,
+                                  ),
+                          ),
+                        ),
+                        Positioned(
+                          left: 16.w,
+                          right: 16.w,
+                          bottom: 16.h,
+                          child: _buildBottomCard(donationsWithLocation),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SafeArea(
+                    bottom: false,
+                    child: Column(
+                      spacing: 4.h,
+                      children: [
+                        _buildSearchBar(context, categories),
+                        state is DonationsLoading
+                            ? LinearProgressIndicator(
+                                color: AuthColors.primary,
+                                backgroundColor: AuthColors.primary.withValues(
+                                  alpha: 0.3,
                                 ),
-                              ),
-                              Positioned(
-                                left: 16.w,
-                                right: 16.w,
-                                bottom: 16.h,
-                                child: _buildBottomCard(donationsWithLocation),
-                              ),
-                            ],
+                              )
+                            : const SizedBox.shrink(),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchBar(BuildContext context, List<Category> categories) {
+    // _selectedDonation = null;
+    // _fetchDonationsInArea();
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: SearchAnchor(
+        builder: (BuildContext context, SearchController controller) {
+          return SearchBar(
+            controller: controller,
+            padding: const WidgetStatePropertyAll<EdgeInsets>(
+              EdgeInsets.only(left: 16.0, right: 8.0),
+            ),
+            onTap: () {
+              controller.openView();
+            },
+            onChanged: (_) {
+              controller.openView();
+            },
+            hintText: 'Search donations...',
+            leading: const Icon(Icons.search),
+            trailing: <Widget>[
+              Tooltip(
+                message: 'Filters',
+                child: IconButton(
+                  onPressed: () => _openFiltersSheet(categories),
+                  icon: const Icon(Icons.tune_rounded),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
+              ),
+            ],
+          );
+        },
+        suggestionsBuilder: (BuildContext context, SearchController controller) {
+          return []; // No dynamic suggestions for now, just rely on the search results page
+        },
+      ),
+    );
+  }
+
+  List<Donation> _applyLocalFilters(List<Donation> donations) {
+    return donations.where((donation) {
+      final matchesCondition =
+          _selectedCondition == null ||
+          donation.condition.toLowerCase() == _selectedCondition;
+
+      final matchesExpiry =
+          _selectedExpiryDate == null ||
+          (donation.expiryDate != null &&
+              _isSameDate(donation.expiryDate!, _selectedExpiryDate!));
+
+      return matchesCondition && matchesExpiry;
+    }).toList();
+  }
+
+  bool _isSameDate(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  String _resolveCategoryLabel(String? categoryId, List<Category> categories) {
+    if (categoryId == null) return 'All';
+    for (final category in categories) {
+      if (category.id == categoryId) return category.name;
+    }
+    return 'All';
+  }
+
+  Future<void> _openFiltersSheet(List<Category> categories) async {
+    String? tempCategoryId = _selectedCategoryId;
+    String? tempCondition = _selectedCondition;
+    DateTime? tempExpiryDate = _selectedExpiryDate;
+
+    final applied = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return SafeArea(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 24.h),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Filters',
+                          style: TextStyle(
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.w700,
+                            color: AuthColors.headingText,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            setModalState(() {
+                              tempCategoryId = null;
+                              tempCondition = null;
+                              tempExpiryDate = null;
+                            });
+                          },
+                          child: const Text('Reset'),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 14.h),
+                    Text(
+                      'Categories',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                        color: AuthColors.headingText,
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    Wrap(
+                      spacing: 6.w,
+                      runSpacing: 2.h,
+                      children: [
+                        ChoiceChip(
+                          label: const Text('All'),
+                          padding: EdgeInsets.all(8.w),
+                          selected: tempCategoryId == null,
+                          onSelected: (_) {
+                            setModalState(() {
+                              tempCategoryId = null;
+                            });
+                          },
+                        ),
+                        ...categories.map(
+                          (category) => ChoiceChip(
+                            label: Text(category.name),
+                            padding: EdgeInsets.all(8.w),
+                            selected: tempCategoryId == category.id,
+                            onSelected: (_) {
+                              setModalState(() {
+                                tempCategoryId = category.id;
+                              });
+                            },
                           ),
                         ),
                       ],
-                    );
-                  },
+                    ),
+                    SizedBox(height: 16.h),
+                    Text(
+                      'Condition',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                        color: AuthColors.headingText,
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    Row(
+                      children: [
+                        _buildConditionButton(
+                          label: 'Low',
+                          value: 'low',
+                          selectedValue: tempCondition,
+                          onTap: () {
+                            setModalState(() {
+                              tempCondition = tempCondition == 'low'
+                                  ? null
+                                  : 'low';
+                            });
+                          },
+                        ),
+                        SizedBox(width: 8.w),
+                        _buildConditionButton(
+                          label: 'Medium',
+                          value: 'medium',
+                          selectedValue: tempCondition,
+                          onTap: () {
+                            setModalState(() {
+                              tempCondition = tempCondition == 'medium'
+                                  ? null
+                                  : 'medium';
+                            });
+                          },
+                        ),
+                        SizedBox(width: 8.w),
+                        _buildConditionButton(
+                          label: 'High',
+                          value: 'high',
+                          selectedValue: tempCondition,
+                          onTap: () {
+                            setModalState(() {
+                              tempCondition = tempCondition == 'high'
+                                  ? null
+                                  : 'high';
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 16.h),
+                    Text(
+                      'Expiry Date',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                        color: AuthColors.headingText,
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () async {
+                              final now = DateTime.now();
+                              final pickedDate = await showDatePicker(
+                                context: context,
+                                initialDate: tempExpiryDate ?? now,
+                                firstDate: DateTime(now.year - 1),
+                                lastDate: DateTime(now.year + 5),
+                              );
+                              if (pickedDate != null) {
+                                setModalState(() {
+                                  tempExpiryDate = DateTime(
+                                    pickedDate.year,
+                                    pickedDate.month,
+                                    pickedDate.day,
+                                  );
+                                });
+                              }
+                            },
+                            icon: const Icon(Icons.calendar_today_outlined),
+                            label: Text(
+                              tempExpiryDate == null
+                                  ? 'Pick date'
+                                  : '${tempExpiryDate!.year}-${tempExpiryDate!.month.toString().padLeft(2, '0')}-${tempExpiryDate!.day.toString().padLeft(2, '0')}',
+                            ),
+                          ),
+                        ),
+                        if (tempExpiryDate != null) ...[
+                          SizedBox(width: 8.w),
+                          IconButton(
+                            onPressed: () {
+                              setModalState(() {
+                                tempExpiryDate = null;
+                              });
+                            },
+                            icon: const Icon(Icons.close_rounded),
+                          ),
+                        ],
+                      ],
+                    ),
+                    SizedBox(height: 20.h),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AuthColors.primary,
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(vertical: 12.h),
+                        ),
+                        child: const Text('Apply Filters'),
+                      ),
+                    ),
+                  ],
                 ),
-        ),
-      ),
+              ),
+            );
+          },
+        );
+      },
     );
+
+    if (applied != true || !mounted) return;
+
+    final bool categoryChanged = tempCategoryId != _selectedCategoryId;
+    setState(() {
+      _selectedCategoryId = tempCategoryId;
+      _selectedCategory = _resolveCategoryLabel(
+        _selectedCategoryId,
+        categories,
+      );
+      _selectedCondition = tempCondition;
+      _selectedExpiryDate = tempExpiryDate;
+      _selectedDonation = null;
+    });
+
+    if (categoryChanged) {
+      _fetchDonationsInArea();
+    }
   }
 
-  Widget _buildSearchBar(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 4.h),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(30.r),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
+  Widget _buildConditionButton({
+    required String label,
+    required String value,
+    required String? selectedValue,
+    required VoidCallback onTap,
+  }) {
+    final isSelected = selectedValue == value;
+    return Expanded(
+      child: OutlinedButton(
+        onPressed: onTap,
+        style: OutlinedButton.styleFrom(
+          backgroundColor: isSelected
+              ? AuthColors.primary.withValues(alpha: 0.1)
+              : Colors.white,
+          side: BorderSide(
+            color: isSelected ? AuthColors.primary : const Color(0xFFD7DFDB),
+          ),
         ),
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
-        child: Row(
-          children: [
-            Icon(Icons.search_rounded, color: const Color(0xFF94A3B8), size: 24.sp),
-            SizedBox(width: 12.w),
-            Expanded(
-              child: TextField(
-                controller: _searchController,
-                textInputAction: TextInputAction.search,
-                onSubmitted: (_) {
-                  _selectedDonation = null;
-                  _fetchDonationsInArea();
-                },
-                decoration: InputDecoration(
-                  hintText: 'Search donations or locations...',
-                  hintStyle: TextStyle(
-                    color: const Color(0xFF94A3B8),
-                    fontSize: 14.sp,
-                  ),
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
-            Container(
-              padding: EdgeInsets.all(8.w),
-              decoration: BoxDecoration(
-                color: AuthColors.background,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(Icons.tune_rounded, color: AuthColors.primary, size: 20.sp),
-            ),
-          ],
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? AuthColors.primary : AuthColors.subText,
+            fontWeight: FontWeight.w600,
+          ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildCategoryFilters(
-    BuildContext context,
-    List<Category> categories,
-  ) {
-    final labels = ['All', ...categories.map((c) => c.name)];
-    return SizedBox(
-      height: 36.h,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: labels.length,
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
-        itemBuilder: (context, index) {
-          final category = labels[index];
-          final isSelected = category == _selectedCategory;
-          return Padding(
-            padding: EdgeInsets.only(right: 8.w),
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  _selectedCategory = category;
-                  _selectedCategoryId = index == 0
-                      ? null
-                      : categories[index - 1].id;
-                  _selectedDonation = null;
-                });
-                _fetchDonationsInArea();
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 180),
-                padding: EdgeInsets.symmetric(horizontal: 14.w),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: isSelected ? AuthColors.primary : Colors.white,
-                  borderRadius: BorderRadius.circular(20.r),
-                  border: Border.all(
-                    color: isSelected
-                        ? AuthColors.primary
-                        : const Color(0xFFD7DFDB),
-                    width: 1,
-                  ),
-                ),
-                child: Text(
-                  category,
-                  style: TextStyle(
-                    color: isSelected ? Colors.white : AuthColors.subText,
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
       ),
     );
   }
@@ -376,8 +666,8 @@ class _DonationsHomePageState extends State<DonationsHomePage> with TickerProvid
       child: FlutterMap(
         mapController: _mapController,
         options: MapOptions(
-          initialCenter: _currentPosition!,
-          initialZoom: 13.2,
+          initialCenter: _currentPosition ?? LatLng(36.737232, 3.086472),
+          initialZoom: 14.5,
           onPositionChanged: _onMapPositionChanged,
         ),
         children: [
@@ -387,67 +677,30 @@ class _DonationsHomePageState extends State<DonationsHomePage> with TickerProvid
           ),
           MarkerLayer(
             markers: [
-              Marker(
-                point: _currentPosition!,
-                width: 34.w,
-                height: 34.w,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1D4ED8),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
-                  ),
-                  child: const Icon(
-                    Icons.my_location_rounded,
-                    color: Colors.white,
-                    size: 18,
-                  ),
-                ),
-              ),
               ...donationsWithLocation.map((donation) {
                 final isSelected = _selectedDonation?.id == donation.id;
-                return Marker(
-                  point: LatLng(donation.latitude!, donation.longitude!),
-                  width: 48.w,
-                  height: 48.w,
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _selectedDonation = donation;
-                      });
-                      _animatedMapMove(
-                        LatLng(donation.latitude!, donation.longitude!),
-                        14.5,
-                      );
-                    },
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          padding: EdgeInsets.all(isSelected ? 8.w : 6.w),
-                          decoration: BoxDecoration(
-                            color: isSelected ? AuthColors.primary : Colors.white,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.15),
-                                blurRadius: 8,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            Icons.location_on_rounded,
-                            color: isSelected ? Colors.white : AuthColors.primary,
-                            size: isSelected ? 24.sp : 20.sp,
-                          ),
+                return _buildDonationMarker(donation, isSelected);
+              }),
+              if (_currentPosition != null)
+                Marker(
+                  point: _currentPosition!,
+                  width: 24.w,
+                  height: 24.w,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1D4ED8),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 4),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF1D4ED8).withValues(alpha: 0.4),
+                          blurRadius: 12,
+                          offset: const Offset(0, 6),
                         ),
                       ],
                     ),
                   ),
-                );
-              }),
+                ),
             ],
           ),
         ],
@@ -464,9 +717,9 @@ class _DonationsHomePageState extends State<DonationsHomePage> with TickerProvid
           borderRadius: BorderRadius.circular(14.r),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 16,
-              offset: const Offset(0, 8),
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
             ),
           ],
         ),
@@ -477,34 +730,35 @@ class _DonationsHomePageState extends State<DonationsHomePage> with TickerProvid
       );
     }
 
-    final donation = _selectedDonation ?? donationsWithLocation.first;
-    final distance = _formatDistanceKm(donation);
+    if (_selectedDonation == null) return const SizedBox.shrink();
+    final donation = _selectedDonation;
+    final distance = _formatDistanceKm(donation!);
 
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(24.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
         ],
       ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(24.r),
         onTap: () => context.push('/donation-details', extra: donation),
         child: Padding(
-          padding: EdgeInsets.all(10.w),
+          padding: EdgeInsets.all(8.w),
           child: Row(
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(10.r),
+                borderRadius: BorderRadius.circular(16.r),
                 child: CachedNetworkImage(
                   imageUrl: donation.imageUrl,
-                  width: 62.w,
-                  height: 62.w,
+                  width: 80.w,
+                  height: 80.w,
                   fit: BoxFit.cover,
                   placeholder: (context, url) =>
                       Container(color: const Color(0xFFE2E8F0)),
@@ -593,5 +847,63 @@ class _DonationsHomePageState extends State<DonationsHomePage> with TickerProvid
     }
 
     return '${(distanceInMeters / 1000).toStringAsFixed(1)} km away';
+  }
+
+  Marker _buildDonationMarker(Donation donation, bool isSelected) {
+    final markerColor = switch (donation.condition.toLowerCase()) {
+      'low' => const Color(0xFF10B981),
+      'medium' => const Color(0xFFF59E0B),
+      'high' => const Color(0xFFEF4444),
+      _ => const Color(0xFF6B7280),
+    };
+    final markerIcon = switch (donation.condition.toLowerCase()) {
+      'low' || 'medium' => Icons.volunteer_activism_rounded,
+      'high' => Icons.warning_amber_rounded,
+      _ => Icons.help_outline_rounded,
+    };
+    return Marker(
+      point: LatLng(donation.latitude!, donation.longitude!),
+      width: 64.w,
+      height: 64.w,
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _selectedDonation = donation;
+          });
+          _animatedMapMove(
+            LatLng(donation.latitude!, donation.longitude!),
+            15.5,
+          );
+        },
+        child: Center(
+          child: AnimatedScale(
+            scale: isSelected ? 1.6 : 1.0,
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOutBack,
+            child: SizedBox(
+              width: 40.w,
+              height: 40.w,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: markerColor,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 4),
+                  boxShadow: [
+                    BoxShadow(
+                      color: markerColor.withValues(alpha: 0.4),
+                      blurRadius: 12,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: Icon(markerIcon, color: Colors.white, size: 16.sp),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

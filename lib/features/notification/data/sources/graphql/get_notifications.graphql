@@ -1,0 +1,12 @@
+query GetNotifications($pagination: PaginationQueryInput) {
+  notifications(pagination: $pagination) {
+    body
+    createdAt
+    id
+    isRead
+    receiverId
+    title
+    type
+    updatedAt
+  }
+}

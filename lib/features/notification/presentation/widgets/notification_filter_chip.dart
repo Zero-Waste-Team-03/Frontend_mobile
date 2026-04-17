@@ -77,9 +77,6 @@ class NotificationFiltersBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasActiveFilters =
-        activeTypeFilter != null || activeReadFilter != null;
-
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Padding(

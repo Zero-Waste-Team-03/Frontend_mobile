@@ -30,6 +30,16 @@ class AppColors {
   static const Color statusExpiredBackground = Color(0xFFE5E7EB);
   static const Color statusExpiredText = Color(0xFF6B7280);
 
+  // Notification status colors
+  static const Color notificationAlertBackground = Color(0xFFFFA500);
+  static const Color notificationAlertLight = Color(0xFFFFF5E6);
+  static const Color notificationConfirmationBackground = Color(0xFFD1FAE5);
+  static const Color notificationDonationBackground = Color(0xFFD1FAE5);
+  static const Color notificationImpactBackground = Color(0xFFD1FAE5);
+  static const Color notificationUnreadIndicator = Color(0xFF2D6C50);
+  static const Color notificationCardBorder = Color(0xFFE2E8F0);
+  static const Color notificationCardUnreadBackground = Color(0xFFF5F7F6);
+
   static const Color googleBlue = Color(0xFF4285F4);
   static const Color googleGreen = Color(0xFF34A853);
   static const Color googleYellow = Color(0xFFFBBC05);

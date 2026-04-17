@@ -1,0 +1,5 @@
+mutation MarkNotificationsAsRead($input: UpdateReadNotificationsInput!) {
+  markNotificationsAsRead(input: $input) {
+    message
+  }
+}

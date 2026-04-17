@@ -3,6 +3,7 @@ import '../../domain/repositories/reservation_repository.dart';
 import '../../domain/usecases/create_reservation_usecase.dart';
 import '../../domain/usecases/get_user_donations_usecase.dart';
 import '../../domain/usecases/get_user_reservations_usecase.dart';
+import '../../domain/entities/reservation.dart';
 import 'reservation_event.dart';
 import 'reservation_state.dart';
 
@@ -11,6 +12,10 @@ class ReservationBloc extends Bloc<ReservationEvent, ReservationState> {
   final GetUserReservationsUseCase getUserReservationsUseCase;
   final CreateReservationUseCase createReservationUseCase;
   final ReservationRepository repository;
+
+  // Store current user ID and filter for refetching
+  String? _currentUserId;
+  String? _currentDonationsFilter;
 
   ReservationBloc({
     required this.getUserDonationsUseCase,
@@ -34,6 +39,10 @@ class ReservationBloc extends Bloc<ReservationEvent, ReservationState> {
   ) async {
     emit(const UserDonationsLoading());
 
+    // Store user ID and filter for later refetching
+    _currentUserId = event.userId;
+    _currentDonationsFilter = event.statusFilter;
+
     final result = await getUserDonationsUseCase(
       userId: event.userId,
       status: event.statusFilter,
@@ -52,6 +61,9 @@ class ReservationBloc extends Bloc<ReservationEvent, ReservationState> {
     Emitter<ReservationState> emit,
   ) async {
     emit(const UserReservationsLoading());
+
+    // Store user ID for later refetching
+    _currentUserId = event.userId;
 
     final result = await getUserReservationsUseCase(
       userId: event.userId,
@@ -140,16 +152,21 @@ class ReservationBloc extends Bloc<ReservationEvent, ReservationState> {
     FilterDonationsEvent event,
     Emitter<ReservationState> emit,
   ) async {
-    final currentState = state;
-    if (currentState is UserDonationsLoaded) {
+    if (_currentUserId != null) {
       emit(const UserDonationsLoading());
+      _currentDonationsFilter = event.statusFilter;
 
-      final donations = currentState.donations;
-      final filtered = event.statusFilter == null || event.statusFilter!.isEmpty
-          ? donations
-          : donations.where((d) => d.status == event.statusFilter).toList();
+      final result = await getUserDonationsUseCase(
+        userId: _currentUserId!,
+        status: event.statusFilter,
+      );
 
-      emit(UserDonationsLoaded(filtered, activeFilter: event.statusFilter));
+      result.fold(
+        (failure) => emit(UserDonationsError(failure.message)),
+        (donations) => emit(
+          UserDonationsLoaded(donations, activeFilter: event.statusFilter),
+        ),
+      );
     }
   }
 
@@ -157,16 +174,23 @@ class ReservationBloc extends Bloc<ReservationEvent, ReservationState> {
     FilterReservationsEvent event,
     Emitter<ReservationState> emit,
   ) async {
-    final currentState = state;
-    if (currentState is UserReservationsLoaded) {
+    if (_currentUserId != null) {
       emit(const UserReservationsLoading());
 
-      final reservations = currentState.reservations;
-      final filtered = event.statusFilter == null || event.statusFilter!.isEmpty
-          ? reservations
-          : reservations.where((d) => d.status == event.statusFilter).toList();
+      final result = await getUserReservationsUseCase(
+        userId: _currentUserId!,
+        status: event.statusFilter,
+      );
 
-      emit(UserReservationsLoaded(filtered, activeFilter: event.statusFilter));
+      result.fold(
+        (failure) => emit(UserReservationsError(failure.message)),
+        (reservations) => emit(
+          UserReservationsLoaded(
+            reservations,
+            activeFilter: event.statusFilter,
+          ),
+        ),
+      );
     }
   }
 }

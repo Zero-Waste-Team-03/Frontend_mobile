@@ -1,4 +1,7 @@
-query GetDonations($pagination: PaginationInput, $filter: DonationsFilterInput) {
+query GetDonations(
+  $pagination: PaginationInput
+  $filter: DonationsFilterInput
+) {
   donations(pagination: $pagination, filter: $filter) {
     items {
       id
