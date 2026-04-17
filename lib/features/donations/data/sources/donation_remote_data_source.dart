@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:ferry/ferry.dart' hide ServerException;
+import 'package:logger/logger.dart';
 
 import '../../../../core/exceptions/exceptions.dart';
 import '../models/category_model.dart';
@@ -50,6 +51,16 @@ class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
   final Dio dio;
   final Client _ferryClient;
 
+  final Logger _logger = Logger(
+    printer: PrettyPrinter(
+      methodCount: 0,
+      errorMethodCount: 5,
+      lineLength: 80,
+      colors: true,
+      printEmojis: false,
+    ),
+  );
+
   @override
   Future<List<DonationModel>> getDonations({
     int page = 1,
@@ -60,37 +71,54 @@ class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
     double? longitude,
     double? radius,
   }) async {
-    final filter = <String, dynamic>{};
-    if (categoryId != null && categoryId.isNotEmpty) {
-      filter['categoryId'] = categoryId;
-    }
-
-    final varsMap = <String, dynamic>{
-      'pagination': {'page': page, 'limit': limit},
-      if (filter.isNotEmpty) 'filter': filter,
-    };
-
-    final vars = GGetDonationsVars.fromJson(varsMap);
-    if (vars == null) {
-      throw ServerException('Failed to build getDonations request');
-    }
-
-    final data = await _executeRequest(
-      GGetDonationsReq((b) => b.vars = vars.toBuilder()),
-      'getDonations',
+    _logger.i(
+      'getDonations called with params: page=$page, limit=$limit, categoryId=$categoryId, '
+      'searchQuery=$searchQuery, latitude=$latitude, longitude=$longitude, radius=$radius',
     );
 
-    final items = data.donations.items;
-    if (items == null || items.isEmpty) {
-      return const [];
-    }
+    try {
+      final filter = <String, dynamic>{};
+      if (categoryId != null && categoryId.isNotEmpty) {
+        filter['categoryId'] = categoryId;
+        _logger.d('Added categoryId to filter: $categoryId');
+      }
 
-    return items
-        .map(
-          (item) =>
-              DonationModel.fromJson(Map<String, dynamic>.from(item.toJson())),
-        )
-        .toList();
+      final varsMap = <String, dynamic>{
+        'pagination': {'page': page, 'limit': limit},
+        if (filter.isNotEmpty) 'filter': filter,
+      };
+
+      _logger.d('Building getDonations variables: $varsMap');
+
+      final vars = GGetDonationsVars.fromJson(varsMap);
+      if (vars == null) {
+        _logger.e('Failed to build getDonations variables from: $varsMap');
+        throw ServerException('Failed to build getDonations request');
+      }
+
+      final data = await _executeRequest(
+        GGetDonationsReq((b) => b.vars = vars.toBuilder()),
+        'getDonations',
+      );
+
+      final items = data.donations.items;
+      _logger.i('getDonations returned ${items?.length ?? 0} items');
+
+      if (items == null || items.isEmpty) {
+        return const [];
+      }
+
+      return items
+          .map(
+            (item) => DonationModel.fromJson(
+              Map<String, dynamic>.from(item.toJson()),
+            ),
+          )
+          .toList();
+    } catch (e) {
+      _logger.e('getDonations error: $e', error: e);
+      rethrow;
+    }
   }
 
   @override
@@ -98,46 +126,73 @@ class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
     int page = 1,
     int limit = 50,
   }) async {
-    final vars = GGetCategoriesVars.fromJson({
-      'pagination': {'page': page, 'limit': limit},
-    });
-    if (vars == null) {
-      throw ServerException('Failed to build getCategories request');
+    _logger.i('getCategories called with page=$page, limit=$limit');
+
+    try {
+      final varsMap = {
+        'pagination': {'page': page, 'limit': limit},
+      };
+
+      _logger.d('Building getCategories variables: $varsMap');
+
+      final vars = GGetCategoriesVars.fromJson(varsMap);
+      if (vars == null) {
+        _logger.e('Failed to build getCategories variables from: $varsMap');
+        throw ServerException('Failed to build getCategories request');
+      }
+
+      final data = await _executeRequest(
+        GGetCategoriesReq((b) => b.vars = vars.toBuilder()),
+        'getCategories',
+      );
+
+      final items = data.categories.items;
+      _logger.i('getCategories returned ${items?.length ?? 0} items');
+
+      if (items == null || items.isEmpty) {
+        return const [];
+      }
+
+      return items
+          .map(
+            (item) => CategoryModel.fromJson(
+              Map<String, dynamic>.from(item.toJson()),
+            ),
+          )
+          .toList();
+    } catch (e) {
+      _logger.e('getCategories error: $e', error: e);
+      rethrow;
     }
-
-    final data = await _executeRequest(
-      GGetCategoriesReq((b) => b.vars = vars.toBuilder()),
-      'getCategories',
-    );
-
-    final items = data.categories.items;
-    if (items == null || items.isEmpty) {
-      return const [];
-    }
-
-    return items
-        .map(
-          (item) =>
-              CategoryModel.fromJson(Map<String, dynamic>.from(item.toJson())),
-        )
-        .toList();
   }
 
   @override
   Future<DonationModel> getDonationDetails(String id) async {
-    final vars = GGetDonationByIdVars.fromJson({'id': id});
-    if (vars == null) {
-      throw ServerException('Failed to build getDonationById request');
+    _logger.i('getDonationDetails called with id=$id');
+
+    try {
+      final varsMap = {'id': id};
+      _logger.d('Building getDonationDetails variables: $varsMap');
+
+      final vars = GGetDonationByIdVars.fromJson(varsMap);
+      if (vars == null) {
+        _logger.e('Failed to build getDonationById variables from: $varsMap');
+        throw ServerException('Failed to build getDonationById request');
+      }
+
+      final data = await _executeRequest(
+        GGetDonationByIdReq((b) => b.vars = vars.toBuilder()),
+        'getDonationById',
+      );
+
+      _logger.i('Successfully retrieved donation details for id=$id');
+      return DonationModel.fromJson(
+        Map<String, dynamic>.from(data.donation.toJson()),
+      );
+    } catch (e) {
+      _logger.e('getDonationDetails error: $e', error: e);
+      rethrow;
     }
-
-    final data = await _executeRequest(
-      GGetDonationByIdReq((b) => b.vars = vars.toBuilder()),
-      'getDonationById',
-    );
-
-    return DonationModel.fromJson(
-      Map<String, dynamic>.from(data.donation.toJson()),
-    );
   }
 
   @override
@@ -155,64 +210,107 @@ class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
     double? latitude,
     double? longitude,
   }) async {
-    final normalizedUrgency = urgency.trim().toUpperCase();
-    const allowedUrgency = {'LOW', 'MEDIUM', 'HIGH'};
+    _logger.i(
+      'createDonation called with title=$title, categoryId=$categoryId, '
+      'urgency=$urgency, expiryDate=$expiryDate',
+    );
 
-    final inputParams = <String, dynamic>{
-      'title': title,
-      'description': description,
-      'categoryId': categoryId,
-      'quantity': quantity,
-      'urgency': allowedUrgency.contains(normalizedUrgency)
-          ? normalizedUrgency
-          : 'MEDIUM',
-      'mainAttachmentId': mainAttachmentId,
-      'attachmentIds': attachmentIds,
-      'expiryDate': expiryDate.toUtc().toIso8601String(),
-      'safetyChecklistCompleted': safetyChecklistCompleted,
-    };
+    try {
+      final normalizedUrgency = urgency.trim().toUpperCase();
+      const allowedUrgency = {'LOW', 'MEDIUM', 'HIGH'};
 
-    if (latitude != null && longitude != null) {
-      inputParams['locationInput'] = {
-        'latitude': latitude,
-        'longitude': longitude,
+      final inputParams = <String, dynamic>{
+        'title': title,
+        'description': description,
+        'categoryId': categoryId,
+        'quantity': quantity,
+        'urgency': allowedUrgency.contains(normalizedUrgency)
+            ? normalizedUrgency
+            : 'MEDIUM',
+        'mainAttachmentId': mainAttachmentId,
+        'attachmentIds': attachmentIds,
+        'expiryDate': expiryDate.toUtc().toIso8601String(),
+        'safetyChecklistCompleted': safetyChecklistCompleted,
       };
+
+      if (latitude != null && longitude != null) {
+        inputParams['locationInput'] = {
+          'latitude': latitude,
+          'longitude': longitude,
+        };
+        _logger.d('Added location to createDonation input');
+      }
+
+      final varsMap = {'input': inputParams};
+      _logger.d(
+        'Building createDonation variables with input keys: ${inputParams.keys.toList()}',
+      );
+
+      final vars = GCreateDonationVars.fromJson(varsMap);
+      if (vars == null) {
+        _logger.e(
+          'Failed to build createDonation variables from input keys: ${inputParams.keys.toList()}',
+        );
+        throw ServerException('Failed to build createDonation request');
+      }
+
+      final data = await _executeRequest(
+        GCreateDonationReq((b) => b.vars = vars.toBuilder()),
+        'createDonation',
+      );
+
+      _logger.i('Successfully created donation with title=$title');
+      return DonationModel.fromJson(
+        Map<String, dynamic>.from(data.createDonation.toJson()),
+      );
+    } catch (e) {
+      _logger.e('createDonation error: $e', error: e);
+      rethrow;
     }
-
-    final vars = GCreateDonationVars.fromJson({'input': inputParams});
-    if (vars == null) {
-      throw ServerException('Failed to build createDonation request');
-    }
-
-    final data = await _executeRequest(
-      GCreateDonationReq((b) => b.vars = vars.toBuilder()),
-      'createDonation',
-    );
-
-    return DonationModel.fromJson(
-      Map<String, dynamic>.from(data.createDonation.toJson()),
-    );
   }
 
   @override
   Future<String> uploadDonationImage(File file) async {
+    _logger.i('Uploading donation image: ${file.path}');
     try {
       final formData = FormData.fromMap({
         'file': await MultipartFile.fromFile(file.path),
       });
+
+      _logger.d(
+        'Sending file upload request to /api/v1/upload/file?uploadType=DONATION',
+      );
+
       final response = await dio.post(
         '/api/v1/upload/file?uploadType=DONATION',
         data: formData,
       );
 
+      _logger.d('File upload response status: ${response.statusCode}');
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = response.data['data'] as Map<String, dynamic>?;
-        return data?['attachmentId'] as String? ??
-            response.data['id'] as String;
+        final attachmentId =
+            data?['attachmentId'] as String? ?? response.data['id'] as String;
+        _logger.i(
+          'File uploaded successfully with attachmentId: $attachmentId',
+        );
+        return attachmentId;
       }
+
+      _logger.e('File upload failed with status: ${response.statusCode}');
       throw ServerException('Failed to upload image');
     } on DioException catch (e) {
-      throw ServerException(e.message ?? 'Failed to upload image');
+      final errorMessage =
+          e.response?.data?['message'] ??
+          e.message ??
+          e.error?.toString() ??
+          'Failed to upload image';
+      _logger.e('DioException during upload: $errorMessage', error: e);
+      throw ServerException(errorMessage);
+    } catch (e) {
+      _logger.e('Unexpected error during file upload: $e', error: e);
+      throw ServerException('Failed to upload image: $e');
     }
   }
 
@@ -220,6 +318,8 @@ class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
     OperationRequest<TData, TVars> request,
     String operationName,
   ) async {
+    _logger.i('Executing GraphQL operation: $operationName');
+
     try {
       final response = await _ferryClient
           .request(request)
@@ -237,25 +337,43 @@ class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
             ? graphQLErrors.first.message
             : null;
 
-        final message =
-            graphQLErrorMessage ??
-            response.linkException?.originalException?.toString() ??
-            response.linkException.toString();
+        String linkExceptionMsg = 'Unknown link exception';
+        if (response.linkException != null) {
+          final originalMsg = response.linkException!.originalException
+              ?.toString();
+          linkExceptionMsg = originalMsg ?? response.linkException.toString();
+        }
 
-        throw ServerException(message);
+        final errorMessage =
+            graphQLErrorMessage ?? linkExceptionMsg ?? 'Unknown error';
+
+        _logger.e(
+          'GraphQL error in $operationName: $errorMessage\n'
+          'Has GraphQL errors: ${response.hasErrors}\n'
+          'Has link exception: ${response.linkException != null}\n'
+          'GraphQL error details: ${graphQLErrors?.map((e) => 'Message: ${e.message}, Extensions: ${e.extensions}').toList()}',
+        );
+
+        throw ServerException('GraphQL error in $operationName: $errorMessage');
       }
 
       final data = response.data;
       if (data == null) {
+        _logger.e('No data returned for $operationName');
         throw ServerException('No data returned for $operationName');
       }
 
+      _logger.i('$operationName completed successfully');
       return data;
     } catch (e) {
       if (e is ServerException) {
         rethrow;
       }
-      throw ServerException('GraphQL request failed: $e');
+      _logger.e(
+        'Unexpected error in GraphQL request for $operationName: $e',
+        error: e,
+      );
+      throw ServerException('GraphQL request failed for $operationName: $e');
     }
   }
 }

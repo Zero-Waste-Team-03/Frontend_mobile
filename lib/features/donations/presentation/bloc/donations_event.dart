@@ -8,6 +8,15 @@ abstract class DonationsEvent extends Equatable {
   List<Object?> get props => [];
 }
 
+class LoadDonationCategoriesEvent extends DonationsEvent {
+  final bool forceRefresh;
+
+  const LoadDonationCategoriesEvent({this.forceRefresh = false});
+
+  @override
+  List<Object?> get props => [forceRefresh];
+}
+
 class LoadDonationsEvent extends DonationsEvent {
   final String? categoryId;
   final String? searchQuery;

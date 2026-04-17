@@ -10,8 +10,8 @@ abstract class ReservationRepository {
     String? status,
   });
 
-  /// Get all donations where the current user is the beneficiary (reservations)
-  Future<Either<Failure, List<Donation>>> getUserReservations({
+  /// Get all reservations for the current user as beneficiary
+  Future<Either<Failure, List<Reservation>>> getUserReservations({
     required String userId,
     String? status,
   });

@@ -4,7 +4,7 @@ import 'package:gaspzero/main.dart';
 
 void main() {
   testWidgets('App bootstraps', (WidgetTester tester) async {
-    configureDependencies();
+    await configureDependencies();
     await tester.pumpWidget(const GaspZeroApp());
     expect(find.byType(GaspZeroApp), findsOneWidget);
   }, tags: ['requires_env']);

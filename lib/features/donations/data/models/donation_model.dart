@@ -16,6 +16,8 @@ class DonationModel extends Donation {
     required super.imageUrl,
     super.latitude,
     super.longitude,
+    super.expiryDate,
+    super.urgency,
   });
 
   factory DonationModel.fromJson(Map<String, dynamic> json) {
@@ -28,9 +30,7 @@ class DonationModel extends Donation {
         ? (location['longitude'] as num?)?.toDouble()
         : null;
 
-    // Parse mainAttachmentId or mainAttachment to imageUrl
-    final mainAttachment = json['mainAttachment'] as Map<String, dynamic>?;
-    final fallbackAttachmentId = json['mainAttachmentId'] as String?;
+    // Parse imageUrl from API, with fallback to mainAttachment or mainAttachmentId
     final baseUrl = const String.fromEnvironment(
       'API_BASE_URL',
       defaultValue: 'https://api.gaspzero.qzz.io/',
@@ -40,10 +40,20 @@ class DonationModel extends Donation {
     String imageUrl =
         'https://ui-avatars.com/api/?name=${Uri.encodeComponent(json['title'] ?? 'Food')}&background=random';
 
-    if (mainAttachment != null && mainAttachment['url'] != null) {
-      imageUrl = mainAttachment['url'] as String;
-    } else if (fallbackAttachmentId != null) {
-      imageUrl = '${envBaseUrl}attachments/$fallbackAttachmentId';
+    // Priority 1: Use imageUrl directly from API (new field)
+    if (json['imageUrl'] != null && (json['imageUrl'] as String).isNotEmpty) {
+      imageUrl = json['imageUrl'] as String;
+    }
+    // Priority 2: Use mainAttachment URL
+    else {
+      final mainAttachment = json['mainAttachment'] as Map<String, dynamic>?;
+      final fallbackAttachmentId = json['mainAttachmentId'] as String?;
+
+      if (mainAttachment != null && mainAttachment['url'] != null) {
+        imageUrl = mainAttachment['url'] as String;
+      } else if (fallbackAttachmentId != null) {
+        imageUrl = '${envBaseUrl}attachments/$fallbackAttachmentId';
+      }
     }
 
     // Parse the user (author)
@@ -51,6 +61,11 @@ class DonationModel extends Donation {
     final authorName = user != null
         ? (user['displayName'] ?? user['email'])
         : 'Unknown';
+    final expiryDateRaw = json['expiryDate'] as String?;
+    final expiryDate = expiryDateRaw != null
+        ? DateTime.tryParse(expiryDateRaw)
+        : null;
+    final urgency = json['urgency'] as String?;
 
     return DonationModel(
       id: json['id'] as String,
@@ -67,6 +82,8 @@ class DonationModel extends Donation {
       imageUrl: imageUrl,
       latitude: lat,
       longitude: lng,
+      expiryDate: expiryDate,
+      urgency: urgency,
     );
   }
 }

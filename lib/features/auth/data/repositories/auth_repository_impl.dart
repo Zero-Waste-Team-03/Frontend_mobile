@@ -176,7 +176,7 @@ class AuthRepositoryImpl implements AuthRepository {
     StreamSubscription<Uri>? sub;
     try {
       final authUrl = remoteDataSource.getOAuthProviderEntryUrl('google');
-      _logger.i('ðŸŒ [OAuth] Launching external browser URL: $authUrl');
+      _logger.i('[OAuth] Launching sign-in URL: $authUrl');
 
       final callbackCompleter = Completer<Uri>();
 
@@ -198,10 +198,22 @@ class AuthRepositoryImpl implements AuthRepository {
         completeIfCallback(uri, 'stream');
       });
 
-      final launched = await launchUrl(
-        Uri.parse(authUrl),
-        mode: LaunchMode.externalApplication,
-      );
+      final authUri = Uri.parse(authUrl);
+      var launched = false;
+
+      try {
+        launched = await launchUrl(authUri, mode: LaunchMode.inAppBrowserView);
+      } catch (_) {
+        launched = false;
+      }
+
+      if (!launched) {
+        launched = await launchUrl(
+          authUri,
+          mode: LaunchMode.externalApplication,
+        );
+      }
+
       if (!launched) {
         return Left(ServerFailure('Failed to open Google sign-in page.'));
       }

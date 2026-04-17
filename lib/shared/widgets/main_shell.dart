@@ -87,8 +87,8 @@ class _MainShellState extends State<MainShell> {
                             onTap: () => context.push('/add-donation'),
                           ),
                           _NavItem(
-                            icon: AppIcons.ranks,
-                            label: 'Ranks',
+                            icon: AppIcons.leaderboard,
+                            label: 'Leaderboard',
                             isSelected:
                                 widget.navigationShell.currentIndex == 2,
                             onTap: () => widget.navigationShell.goBranch(2),

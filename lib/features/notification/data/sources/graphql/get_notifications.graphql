@@ -1,0 +1,19 @@
+query GetNotifications($pagination: PaginationQueryInput) {
+  getNotifications(pagination: $pagination) {
+    hasNextPage
+    hasPreviousPage
+    limit
+    page
+    totalCount
+    items {
+      body
+      createdAt
+      id
+      isRead
+      receiverId
+      title
+      type
+      updatedAt
+    }
+  }
+}

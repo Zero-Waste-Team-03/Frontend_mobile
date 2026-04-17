@@ -14,27 +14,15 @@ _$gMyReservationDataMyReservationSerializer =
 Serializer<GMyReservationData_myReservation_donation>
 _$gMyReservationDataMyReservationDonationSerializer =
     _$GMyReservationData_myReservation_donationSerializer();
-Serializer<GMyReservationData_myReservation_donation_category>
-_$gMyReservationDataMyReservationDonationCategorySerializer =
-    _$GMyReservationData_myReservation_donation_categorySerializer();
 Serializer<GMyReservationData_myReservation_donation_mainAttachment>
 _$gMyReservationDataMyReservationDonationMainAttachmentSerializer =
     _$GMyReservationData_myReservation_donation_mainAttachmentSerializer();
-Serializer<GMyReservationData_myReservation_donation_location>
-_$gMyReservationDataMyReservationDonationLocationSerializer =
-    _$GMyReservationData_myReservation_donation_locationSerializer();
 Serializer<GMyReservationData_myReservation_donation_user>
 _$gMyReservationDataMyReservationDonationUserSerializer =
     _$GMyReservationData_myReservation_donation_userSerializer();
-Serializer<GMyReservationData_myReservation_beneficiary>
-_$gMyReservationDataMyReservationBeneficiarySerializer =
-    _$GMyReservationData_myReservation_beneficiarySerializer();
-Serializer<GMyReservationData_myReservation_beneficiary_location>
-_$gMyReservationDataMyReservationBeneficiaryLocationSerializer =
-    _$GMyReservationData_myReservation_beneficiary_locationSerializer();
-Serializer<GMyReservationData_myReservation_beneficiary_avatar>
-_$gMyReservationDataMyReservationBeneficiaryAvatarSerializer =
-    _$GMyReservationData_myReservation_beneficiary_avatarSerializer();
+Serializer<GMyReservationData_myReservation_donation_user_avatar>
+_$gMyReservationDataMyReservationDonationUserAvatarSerializer =
+    _$GMyReservationData_myReservation_donation_user_avatarSerializer();
 
 class _$GMyReservationDataSerializer
     implements StructuredSerializer<GMyReservationData> {
@@ -129,30 +117,20 @@ class _$GMyReservationData_myReservationSerializer
       ),
       'id',
       serializers.serialize(object.id, specifiedType: const FullType(String)),
-      'donationId',
-      serializers.serialize(
-        object.donationId,
-        specifiedType: const FullType(String),
-      ),
-      'beneficiaryId',
-      serializers.serialize(
-        object.beneficiaryId,
-        specifiedType: const FullType(String),
-      ),
       'status',
       serializers.serialize(
         object.status,
-        specifiedType: const FullType(_i3.GReservationStatus),
+        specifiedType: const FullType(_i2.GReservationStatus),
       ),
       'createdAt',
       serializers.serialize(
         object.createdAt,
-        specifiedType: const FullType(_i3.GDateTime),
+        specifiedType: const FullType(_i2.GDateTime),
       ),
       'updatedAt',
       serializers.serialize(
         object.updatedAt,
-        specifiedType: const FullType(_i3.GDateTime),
+        specifiedType: const FullType(_i2.GDateTime),
       ),
     ];
     Object? value;
@@ -163,7 +141,7 @@ class _$GMyReservationData_myReservationSerializer
         ..add(
           serializers.serialize(
             value,
-            specifiedType: const FullType(_i3.GDateTime),
+            specifiedType: const FullType(_i2.GDateTime),
           ),
         );
     }
@@ -176,19 +154,6 @@ class _$GMyReservationData_myReservationSerializer
             value,
             specifiedType: const FullType(
               GMyReservationData_myReservation_donation,
-            ),
-          ),
-        );
-    }
-    value = object.beneficiary;
-    if (value != null) {
-      result
-        ..add('beneficiary')
-        ..add(
-          serializers.serialize(
-            value,
-            specifiedType: const FullType(
-              GMyReservationData_myReservation_beneficiary,
             ),
           ),
         );
@@ -226,55 +191,39 @@ class _$GMyReservationData_myReservationSerializer
                   )!
                   as String;
           break;
-        case 'donationId':
-          result.donationId =
-              serializers.deserialize(
-                    value,
-                    specifiedType: const FullType(String),
-                  )!
-                  as String;
-          break;
-        case 'beneficiaryId':
-          result.beneficiaryId =
-              serializers.deserialize(
-                    value,
-                    specifiedType: const FullType(String),
-                  )!
-                  as String;
-          break;
         case 'status':
           result.status =
               serializers.deserialize(
                     value,
-                    specifiedType: const FullType(_i3.GReservationStatus),
+                    specifiedType: const FullType(_i2.GReservationStatus),
                   )!
-                  as _i3.GReservationStatus;
+                  as _i2.GReservationStatus;
           break;
         case 'createdAt':
           result.createdAt.replace(
             serializers.deserialize(
                   value,
-                  specifiedType: const FullType(_i3.GDateTime),
+                  specifiedType: const FullType(_i2.GDateTime),
                 )!
-                as _i3.GDateTime,
+                as _i2.GDateTime,
           );
           break;
         case 'confirmedAt':
           result.confirmedAt.replace(
             serializers.deserialize(
                   value,
-                  specifiedType: const FullType(_i3.GDateTime),
+                  specifiedType: const FullType(_i2.GDateTime),
                 )!
-                as _i3.GDateTime,
+                as _i2.GDateTime,
           );
           break;
         case 'updatedAt':
           result.updatedAt.replace(
             serializers.deserialize(
                   value,
-                  specifiedType: const FullType(_i3.GDateTime),
+                  specifiedType: const FullType(_i2.GDateTime),
                 )!
-                as _i3.GDateTime,
+                as _i2.GDateTime,
           );
           break;
         case 'donation':
@@ -286,17 +235,6 @@ class _$GMyReservationData_myReservationSerializer
                   ),
                 )!
                 as GMyReservationData_myReservation_donation,
-          );
-          break;
-        case 'beneficiary':
-          result.beneficiary.replace(
-            serializers.deserialize(
-                  value,
-                  specifiedType: const FullType(
-                    GMyReservationData_myReservation_beneficiary,
-                  ),
-                )!
-                as GMyReservationData_myReservation_beneficiary,
           );
           break;
       }
@@ -353,12 +291,39 @@ class _$GMyReservationData_myReservation_donationSerializer
       'status',
       serializers.serialize(
         object.status,
-        specifiedType: const FullType(_i3.GDonationStatusValues),
+        specifiedType: const FullType(_i2.GDonationStatusValues),
       ),
       'urgency',
       serializers.serialize(
         object.urgency,
-        specifiedType: const FullType(_i3.GDonationUrgencyValues),
+        specifiedType: const FullType(_i2.GDonationUrgencyValues),
+      ),
+      'expiryDate',
+      serializers.serialize(
+        object.expiryDate,
+        specifiedType: const FullType(_i2.GDateTime),
+      ),
+      'attachmentIds',
+      serializers.serialize(
+        object.attachmentIds,
+        specifiedType: const FullType(BuiltList, const [
+          const FullType(String),
+        ]),
+      ),
+      'userId',
+      serializers.serialize(
+        object.userId,
+        specifiedType: const FullType(String),
+      ),
+      'safetyChecklistCompleted',
+      serializers.serialize(
+        object.safetyChecklistCompleted,
+        specifiedType: const FullType(bool),
+      ),
+      'updatedAt',
+      serializers.serialize(
+        object.updatedAt,
+        specifiedType: const FullType(_i2.GDateTime),
       ),
       'user',
       serializers.serialize(
@@ -369,17 +334,23 @@ class _$GMyReservationData_myReservation_donationSerializer
       ),
     ];
     Object? value;
-    value = object.category;
+    value = object.publishedAt;
     if (value != null) {
       result
-        ..add('category')
+        ..add('publishedAt')
         ..add(
           serializers.serialize(
             value,
-            specifiedType: const FullType(
-              GMyReservationData_myReservation_donation_category,
-            ),
+            specifiedType: const FullType(_i2.GDateTime),
           ),
+        );
+    }
+    value = object.locationId;
+    if (value != null) {
+      result
+        ..add('locationId')
+        ..add(
+          serializers.serialize(value, specifiedType: const FullType(String)),
         );
     }
     value = object.mainAttachmentId;
@@ -388,6 +359,17 @@ class _$GMyReservationData_myReservation_donationSerializer
         ..add('mainAttachmentId')
         ..add(
           serializers.serialize(value, specifiedType: const FullType(String)),
+        );
+    }
+    value = object.listingExpiresAt;
+    if (value != null) {
+      result
+        ..add('listingExpiresAt')
+        ..add(
+          serializers.serialize(
+            value,
+            specifiedType: const FullType(_i2.GDateTime),
+          ),
         );
     }
     value = object.mainAttachment;
@@ -399,19 +381,6 @@ class _$GMyReservationData_myReservation_donationSerializer
             value,
             specifiedType: const FullType(
               GMyReservationData_myReservation_donation_mainAttachment,
-            ),
-          ),
-        );
-    }
-    value = object.location;
-    if (value != null) {
-      result
-        ..add('location')
-        ..add(
-          serializers.serialize(
-            value,
-            specifiedType: const FullType(
-              GMyReservationData_myReservation_donation_location,
             ),
           ),
         );
@@ -481,32 +450,47 @@ class _$GMyReservationData_myReservation_donationSerializer
                   )!
                   as String;
           break;
-        case 'category':
-          result.category.replace(
-            serializers.deserialize(
-                  value,
-                  specifiedType: const FullType(
-                    GMyReservationData_myReservation_donation_category,
-                  ),
-                )!
-                as GMyReservationData_myReservation_donation_category,
-          );
-          break;
         case 'status':
           result.status =
               serializers.deserialize(
                     value,
-                    specifiedType: const FullType(_i3.GDonationStatusValues),
+                    specifiedType: const FullType(_i2.GDonationStatusValues),
                   )!
-                  as _i3.GDonationStatusValues;
+                  as _i2.GDonationStatusValues;
           break;
         case 'urgency':
           result.urgency =
               serializers.deserialize(
                     value,
-                    specifiedType: const FullType(_i3.GDonationUrgencyValues),
+                    specifiedType: const FullType(_i2.GDonationUrgencyValues),
                   )!
-                  as _i3.GDonationUrgencyValues;
+                  as _i2.GDonationUrgencyValues;
+          break;
+        case 'expiryDate':
+          result.expiryDate.replace(
+            serializers.deserialize(
+                  value,
+                  specifiedType: const FullType(_i2.GDateTime),
+                )!
+                as _i2.GDateTime,
+          );
+          break;
+        case 'publishedAt':
+          result.publishedAt.replace(
+            serializers.deserialize(
+                  value,
+                  specifiedType: const FullType(_i2.GDateTime),
+                )!
+                as _i2.GDateTime,
+          );
+          break;
+        case 'locationId':
+          result.locationId =
+              serializers.deserialize(
+                    value,
+                    specifiedType: const FullType(String),
+                  )
+                  as String?;
           break;
         case 'mainAttachmentId':
           result.mainAttachmentId =
@@ -515,6 +499,51 @@ class _$GMyReservationData_myReservation_donationSerializer
                     specifiedType: const FullType(String),
                   )
                   as String?;
+          break;
+        case 'attachmentIds':
+          result.attachmentIds.replace(
+            serializers.deserialize(
+                  value,
+                  specifiedType: const FullType(BuiltList, const [
+                    const FullType(String),
+                  ]),
+                )!
+                as BuiltList<Object?>,
+          );
+          break;
+        case 'userId':
+          result.userId =
+              serializers.deserialize(
+                    value,
+                    specifiedType: const FullType(String),
+                  )!
+                  as String;
+          break;
+        case 'safetyChecklistCompleted':
+          result.safetyChecklistCompleted =
+              serializers.deserialize(
+                    value,
+                    specifiedType: const FullType(bool),
+                  )!
+                  as bool;
+          break;
+        case 'listingExpiresAt':
+          result.listingExpiresAt.replace(
+            serializers.deserialize(
+                  value,
+                  specifiedType: const FullType(_i2.GDateTime),
+                )!
+                as _i2.GDateTime,
+          );
+          break;
+        case 'updatedAt':
+          result.updatedAt.replace(
+            serializers.deserialize(
+                  value,
+                  specifiedType: const FullType(_i2.GDateTime),
+                )!
+                as _i2.GDateTime,
+          );
           break;
         case 'mainAttachment':
           result.mainAttachment.replace(
@@ -527,17 +556,6 @@ class _$GMyReservationData_myReservation_donationSerializer
                 as GMyReservationData_myReservation_donation_mainAttachment,
           );
           break;
-        case 'location':
-          result.location.replace(
-            serializers.deserialize(
-                  value,
-                  specifiedType: const FullType(
-                    GMyReservationData_myReservation_donation_location,
-                  ),
-                )!
-                as GMyReservationData_myReservation_donation_location,
-          );
-          break;
         case 'user':
           result.user.replace(
             serializers.deserialize(
@@ -548,85 +566,6 @@ class _$GMyReservationData_myReservation_donationSerializer
                 )!
                 as GMyReservationData_myReservation_donation_user,
           );
-          break;
-      }
-    }
-
-    return result.build();
-  }
-}
-
-class _$GMyReservationData_myReservation_donation_categorySerializer
-    implements
-        StructuredSerializer<
-          GMyReservationData_myReservation_donation_category
-        > {
-  @override
-  final Iterable<Type> types = const [
-    GMyReservationData_myReservation_donation_category,
-    _$GMyReservationData_myReservation_donation_category,
-  ];
-  @override
-  final String wireName = 'GMyReservationData_myReservation_donation_category';
-
-  @override
-  Iterable<Object?> serialize(
-    Serializers serializers,
-    GMyReservationData_myReservation_donation_category object, {
-    FullType specifiedType = FullType.unspecified,
-  }) {
-    final result = <Object?>[
-      '__typename',
-      serializers.serialize(
-        object.G__typename,
-        specifiedType: const FullType(String),
-      ),
-      'id',
-      serializers.serialize(object.id, specifiedType: const FullType(String)),
-      'name',
-      serializers.serialize(object.name, specifiedType: const FullType(String)),
-    ];
-
-    return result;
-  }
-
-  @override
-  GMyReservationData_myReservation_donation_category deserialize(
-    Serializers serializers,
-    Iterable<Object?> serialized, {
-    FullType specifiedType = FullType.unspecified,
-  }) {
-    final result = GMyReservationData_myReservation_donation_categoryBuilder();
-
-    final iterator = serialized.iterator;
-    while (iterator.moveNext()) {
-      final key = iterator.current! as String;
-      iterator.moveNext();
-      final Object? value = iterator.current;
-      switch (key) {
-        case '__typename':
-          result.G__typename =
-              serializers.deserialize(
-                    value,
-                    specifiedType: const FullType(String),
-                  )!
-                  as String;
-          break;
-        case 'id':
-          result.id =
-              serializers.deserialize(
-                    value,
-                    specifiedType: const FullType(String),
-                  )!
-                  as String;
-          break;
-        case 'name':
-          result.name =
-              serializers.deserialize(
-                    value,
-                    specifiedType: const FullType(String),
-                  )!
-                  as String;
           break;
       }
     }
@@ -661,12 +600,69 @@ class _$GMyReservationData_myReservation_donation_mainAttachmentSerializer
         object.G__typename,
         specifiedType: const FullType(String),
       ),
+      'id',
+      serializers.serialize(object.id, specifiedType: const FullType(String)),
+      'fileName',
+      serializers.serialize(
+        object.fileName,
+        specifiedType: const FullType(String),
+      ),
+      'fileType',
+      serializers.serialize(
+        object.fileType,
+        specifiedType: const FullType(String),
+      ),
+      'fileSize',
+      serializers.serialize(
+        object.fileSize,
+        specifiedType: const FullType(double),
+      ),
+      'createdAt',
+      serializers.serialize(
+        object.createdAt,
+        specifiedType: const FullType(_i2.GDateTime),
+      ),
+      'uploadedById',
+      serializers.serialize(
+        object.uploadedById,
+        specifiedType: const FullType(String),
+      ),
     ];
     Object? value;
     value = object.url;
     if (value != null) {
       result
         ..add('url')
+        ..add(
+          serializers.serialize(value, specifiedType: const FullType(String)),
+        );
+    }
+    value = object.updatedAt;
+    if (value != null) {
+      result
+        ..add('updatedAt')
+        ..add(
+          serializers.serialize(
+            value,
+            specifiedType: const FullType(_i2.GDateTime),
+          ),
+        );
+    }
+    value = object.uploadStatus;
+    if (value != null) {
+      result
+        ..add('uploadStatus')
+        ..add(
+          serializers.serialize(
+            value,
+            specifiedType: const FullType(_i2.GUploadStatusValues),
+          ),
+        );
+    }
+    value = object.jobId;
+    if (value != null) {
+      result
+        ..add('jobId')
         ..add(
           serializers.serialize(value, specifiedType: const FullType(String)),
         );
@@ -697,6 +693,14 @@ class _$GMyReservationData_myReservation_donation_mainAttachmentSerializer
                   )!
                   as String;
           break;
+        case 'id':
+          result.id =
+              serializers.deserialize(
+                    value,
+                    specifiedType: const FullType(String),
+                  )!
+                  as String;
+          break;
         case 'url':
           result.url =
               serializers.deserialize(
@@ -705,96 +709,71 @@ class _$GMyReservationData_myReservation_donation_mainAttachmentSerializer
                   )
                   as String?;
           break;
-      }
-    }
-
-    return result.build();
-  }
-}
-
-class _$GMyReservationData_myReservation_donation_locationSerializer
-    implements
-        StructuredSerializer<
-          GMyReservationData_myReservation_donation_location
-        > {
-  @override
-  final Iterable<Type> types = const [
-    GMyReservationData_myReservation_donation_location,
-    _$GMyReservationData_myReservation_donation_location,
-  ];
-  @override
-  final String wireName = 'GMyReservationData_myReservation_donation_location';
-
-  @override
-  Iterable<Object?> serialize(
-    Serializers serializers,
-    GMyReservationData_myReservation_donation_location object, {
-    FullType specifiedType = FullType.unspecified,
-  }) {
-    final result = <Object?>[
-      '__typename',
-      serializers.serialize(
-        object.G__typename,
-        specifiedType: const FullType(String),
-      ),
-    ];
-    Object? value;
-    value = object.latitude;
-    if (value != null) {
-      result
-        ..add('latitude')
-        ..add(
-          serializers.serialize(value, specifiedType: const FullType(double)),
-        );
-    }
-    value = object.longitude;
-    if (value != null) {
-      result
-        ..add('longitude')
-        ..add(
-          serializers.serialize(value, specifiedType: const FullType(double)),
-        );
-    }
-    return result;
-  }
-
-  @override
-  GMyReservationData_myReservation_donation_location deserialize(
-    Serializers serializers,
-    Iterable<Object?> serialized, {
-    FullType specifiedType = FullType.unspecified,
-  }) {
-    final result = GMyReservationData_myReservation_donation_locationBuilder();
-
-    final iterator = serialized.iterator;
-    while (iterator.moveNext()) {
-      final key = iterator.current! as String;
-      iterator.moveNext();
-      final Object? value = iterator.current;
-      switch (key) {
-        case '__typename':
-          result.G__typename =
+        case 'fileName':
+          result.fileName =
               serializers.deserialize(
                     value,
                     specifiedType: const FullType(String),
                   )!
                   as String;
           break;
-        case 'latitude':
-          result.latitude =
+        case 'fileType':
+          result.fileType =
               serializers.deserialize(
                     value,
-                    specifiedType: const FullType(double),
-                  )
-                  as double?;
+                    specifiedType: const FullType(String),
+                  )!
+                  as String;
           break;
-        case 'longitude':
-          result.longitude =
+        case 'fileSize':
+          result.fileSize =
               serializers.deserialize(
                     value,
                     specifiedType: const FullType(double),
+                  )!
+                  as double;
+          break;
+        case 'createdAt':
+          result.createdAt.replace(
+            serializers.deserialize(
+                  value,
+                  specifiedType: const FullType(_i2.GDateTime),
+                )!
+                as _i2.GDateTime,
+          );
+          break;
+        case 'updatedAt':
+          result.updatedAt.replace(
+            serializers.deserialize(
+                  value,
+                  specifiedType: const FullType(_i2.GDateTime),
+                )!
+                as _i2.GDateTime,
+          );
+          break;
+        case 'uploadStatus':
+          result.uploadStatus =
+              serializers.deserialize(
+                    value,
+                    specifiedType: const FullType(_i2.GUploadStatusValues),
                   )
-                  as double?;
+                  as _i2.GUploadStatusValues?;
+          break;
+        case 'jobId':
+          result.jobId =
+              serializers.deserialize(
+                    value,
+                    specifiedType: const FullType(String),
+                  )
+                  as String?;
+          break;
+        case 'uploadedById':
+          result.uploadedById =
+              serializers.deserialize(
+                    value,
+                    specifiedType: const FullType(String),
+                  )!
+                  as String;
           break;
       }
     }
@@ -826,19 +805,107 @@ class _$GMyReservationData_myReservation_donation_userSerializer
         object.G__typename,
         specifiedType: const FullType(String),
       ),
+      'createdAt',
+      serializers.serialize(
+        object.createdAt,
+        specifiedType: const FullType(_i2.GDateTime),
+      ),
       'email',
       serializers.serialize(
         object.email,
         specifiedType: const FullType(String),
       ),
+      'id',
+      serializers.serialize(object.id, specifiedType: const FullType(String)),
+      'isMailVerified',
+      serializers.serialize(
+        object.isMailVerified,
+        specifiedType: const FullType(bool),
+      ),
+      'reputationScore',
+      serializers.serialize(
+        object.reputationScore,
+        specifiedType: const FullType(int),
+      ),
+      'role',
+      serializers.serialize(
+        object.role,
+        specifiedType: const FullType(_i2.GUserRole),
+      ),
+      'status',
+      serializers.serialize(
+        object.status,
+        specifiedType: const FullType(String),
+      ),
+      'updatedAt',
+      serializers.serialize(
+        object.updatedAt,
+        specifiedType: const FullType(_i2.GDateTime),
+      ),
     ];
     Object? value;
+    value = object.avatarAttachmentId;
+    if (value != null) {
+      result
+        ..add('avatarAttachmentId')
+        ..add(
+          serializers.serialize(value, specifiedType: const FullType(String)),
+        );
+    }
+    value = object.description;
+    if (value != null) {
+      result
+        ..add('description')
+        ..add(
+          serializers.serialize(value, specifiedType: const FullType(String)),
+        );
+    }
     value = object.displayName;
     if (value != null) {
       result
         ..add('displayName')
         ..add(
           serializers.serialize(value, specifiedType: const FullType(String)),
+        );
+    }
+    value = object.lastChangedPasswordDate;
+    if (value != null) {
+      result
+        ..add('lastChangedPasswordDate')
+        ..add(
+          serializers.serialize(
+            value,
+            specifiedType: const FullType(_i2.GDateTime),
+          ),
+        );
+    }
+    value = object.locationId;
+    if (value != null) {
+      result
+        ..add('locationId')
+        ..add(
+          serializers.serialize(value, specifiedType: const FullType(String)),
+        );
+    }
+    value = object.phoneNumber;
+    if (value != null) {
+      result
+        ..add('phoneNumber')
+        ..add(
+          serializers.serialize(value, specifiedType: const FullType(String)),
+        );
+    }
+    value = object.avatar;
+    if (value != null) {
+      result
+        ..add('avatar')
+        ..add(
+          serializers.serialize(
+            value,
+            specifiedType: const FullType(
+              GMyReservationData_myReservation_donation_user_avatar,
+            ),
+          ),
         );
     }
     return result;
@@ -866,6 +933,31 @@ class _$GMyReservationData_myReservation_donation_userSerializer
                   )!
                   as String;
           break;
+        case 'avatarAttachmentId':
+          result.avatarAttachmentId =
+              serializers.deserialize(
+                    value,
+                    specifiedType: const FullType(String),
+                  )
+                  as String?;
+          break;
+        case 'createdAt':
+          result.createdAt.replace(
+            serializers.deserialize(
+                  value,
+                  specifiedType: const FullType(_i2.GDateTime),
+                )!
+                as _i2.GDateTime,
+          );
+          break;
+        case 'description':
+          result.description =
+              serializers.deserialize(
+                    value,
+                    specifiedType: const FullType(String),
+                  )
+                  as String?;
+          break;
         case 'displayName':
           result.displayName =
               serializers.deserialize(
@@ -882,143 +974,6 @@ class _$GMyReservationData_myReservation_donation_userSerializer
                   )!
                   as String;
           break;
-      }
-    }
-
-    return result.build();
-  }
-}
-
-class _$GMyReservationData_myReservation_beneficiarySerializer
-    implements
-        StructuredSerializer<GMyReservationData_myReservation_beneficiary> {
-  @override
-  final Iterable<Type> types = const [
-    GMyReservationData_myReservation_beneficiary,
-    _$GMyReservationData_myReservation_beneficiary,
-  ];
-  @override
-  final String wireName = 'GMyReservationData_myReservation_beneficiary';
-
-  @override
-  Iterable<Object?> serialize(
-    Serializers serializers,
-    GMyReservationData_myReservation_beneficiary object, {
-    FullType specifiedType = FullType.unspecified,
-  }) {
-    final result = <Object?>[
-      '__typename',
-      serializers.serialize(
-        object.G__typename,
-        specifiedType: const FullType(String),
-      ),
-      'id',
-      serializers.serialize(object.id, specifiedType: const FullType(String)),
-      'email',
-      serializers.serialize(
-        object.email,
-        specifiedType: const FullType(String),
-      ),
-      'role',
-      serializers.serialize(
-        object.role,
-        specifiedType: const FullType(_i3.GUserRole),
-      ),
-      'isMailVerified',
-      serializers.serialize(
-        object.isMailVerified,
-        specifiedType: const FullType(bool),
-      ),
-      'reputationScore',
-      serializers.serialize(
-        object.reputationScore,
-        specifiedType: const FullType(int),
-      ),
-    ];
-    Object? value;
-    value = object.displayName;
-    if (value != null) {
-      result
-        ..add('displayName')
-        ..add(
-          serializers.serialize(value, specifiedType: const FullType(String)),
-        );
-    }
-    value = object.phoneNumber;
-    if (value != null) {
-      result
-        ..add('phoneNumber')
-        ..add(
-          serializers.serialize(value, specifiedType: const FullType(String)),
-        );
-    }
-    value = object.description;
-    if (value != null) {
-      result
-        ..add('description')
-        ..add(
-          serializers.serialize(value, specifiedType: const FullType(String)),
-        );
-    }
-    value = object.locationId;
-    if (value != null) {
-      result
-        ..add('locationId')
-        ..add(
-          serializers.serialize(value, specifiedType: const FullType(String)),
-        );
-    }
-    value = object.location;
-    if (value != null) {
-      result
-        ..add('location')
-        ..add(
-          serializers.serialize(
-            value,
-            specifiedType: const FullType(
-              GMyReservationData_myReservation_beneficiary_location,
-            ),
-          ),
-        );
-    }
-    value = object.avatar;
-    if (value != null) {
-      result
-        ..add('avatar')
-        ..add(
-          serializers.serialize(
-            value,
-            specifiedType: const FullType(
-              GMyReservationData_myReservation_beneficiary_avatar,
-            ),
-          ),
-        );
-    }
-    return result;
-  }
-
-  @override
-  GMyReservationData_myReservation_beneficiary deserialize(
-    Serializers serializers,
-    Iterable<Object?> serialized, {
-    FullType specifiedType = FullType.unspecified,
-  }) {
-    final result = GMyReservationData_myReservation_beneficiaryBuilder();
-
-    final iterator = serialized.iterator;
-    while (iterator.moveNext()) {
-      final key = iterator.current! as String;
-      iterator.moveNext();
-      final Object? value = iterator.current;
-      switch (key) {
-        case '__typename':
-          result.G__typename =
-              serializers.deserialize(
-                    value,
-                    specifiedType: const FullType(String),
-                  )!
-                  as String;
-          break;
         case 'id':
           result.id =
               serializers.deserialize(
@@ -1027,16 +982,25 @@ class _$GMyReservationData_myReservation_beneficiarySerializer
                   )!
                   as String;
           break;
-        case 'email':
-          result.email =
+        case 'isMailVerified':
+          result.isMailVerified =
               serializers.deserialize(
                     value,
-                    specifiedType: const FullType(String),
+                    specifiedType: const FullType(bool),
                   )!
-                  as String;
+                  as bool;
           break;
-        case 'displayName':
-          result.displayName =
+        case 'lastChangedPasswordDate':
+          result.lastChangedPasswordDate.replace(
+            serializers.deserialize(
+                  value,
+                  specifiedType: const FullType(_i2.GDateTime),
+                )!
+                as _i2.GDateTime,
+          );
+          break;
+        case 'locationId':
+          result.locationId =
               serializers.deserialize(
                     value,
                     specifiedType: const FullType(String),
@@ -1051,30 +1015,6 @@ class _$GMyReservationData_myReservation_beneficiarySerializer
                   )
                   as String?;
           break;
-        case 'role':
-          result.role =
-              serializers.deserialize(
-                    value,
-                    specifiedType: const FullType(_i3.GUserRole),
-                  )!
-                  as _i3.GUserRole;
-          break;
-        case 'description':
-          result.description =
-              serializers.deserialize(
-                    value,
-                    specifiedType: const FullType(String),
-                  )
-                  as String?;
-          break;
-        case 'isMailVerified':
-          result.isMailVerified =
-              serializers.deserialize(
-                    value,
-                    specifiedType: const FullType(bool),
-                  )!
-                  as bool;
-          break;
         case 'reputationScore':
           result.reputationScore =
               serializers.deserialize(
@@ -1083,23 +1023,29 @@ class _$GMyReservationData_myReservation_beneficiarySerializer
                   )!
                   as int;
           break;
-        case 'locationId':
-          result.locationId =
+        case 'role':
+          result.role =
+              serializers.deserialize(
+                    value,
+                    specifiedType: const FullType(_i2.GUserRole),
+                  )!
+                  as _i2.GUserRole;
+          break;
+        case 'status':
+          result.status =
               serializers.deserialize(
                     value,
                     specifiedType: const FullType(String),
-                  )
-                  as String?;
+                  )!
+                  as String;
           break;
-        case 'location':
-          result.location.replace(
+        case 'updatedAt':
+          result.updatedAt.replace(
             serializers.deserialize(
                   value,
-                  specifiedType: const FullType(
-                    GMyReservationData_myReservation_beneficiary_location,
-                  ),
+                  specifiedType: const FullType(_i2.GDateTime),
                 )!
-                as GMyReservationData_myReservation_beneficiary_location,
+                as _i2.GDateTime,
           );
           break;
         case 'avatar':
@@ -1107,10 +1053,10 @@ class _$GMyReservationData_myReservation_beneficiarySerializer
             serializers.deserialize(
                   value,
                   specifiedType: const FullType(
-                    GMyReservationData_myReservation_beneficiary_avatar,
+                    GMyReservationData_myReservation_donation_user_avatar,
                   ),
                 )!
-                as GMyReservationData_myReservation_beneficiary_avatar,
+                as GMyReservationData_myReservation_donation_user_avatar,
           );
           break;
       }
@@ -1120,24 +1066,24 @@ class _$GMyReservationData_myReservation_beneficiarySerializer
   }
 }
 
-class _$GMyReservationData_myReservation_beneficiary_locationSerializer
+class _$GMyReservationData_myReservation_donation_user_avatarSerializer
     implements
         StructuredSerializer<
-          GMyReservationData_myReservation_beneficiary_location
+          GMyReservationData_myReservation_donation_user_avatar
         > {
   @override
   final Iterable<Type> types = const [
-    GMyReservationData_myReservation_beneficiary_location,
-    _$GMyReservationData_myReservation_beneficiary_location,
+    GMyReservationData_myReservation_donation_user_avatar,
+    _$GMyReservationData_myReservation_donation_user_avatar,
   ];
   @override
   final String wireName =
-      'GMyReservationData_myReservation_beneficiary_location';
+      'GMyReservationData_myReservation_donation_user_avatar';
 
   @override
   Iterable<Object?> serialize(
     Serializers serializers,
-    GMyReservationData_myReservation_beneficiary_location object, {
+    GMyReservationData_myReservation_donation_user_avatar object, {
     FullType specifiedType = FullType.unspecified,
   }) {
     final result = <Object?>[
@@ -1146,150 +1092,65 @@ class _$GMyReservationData_myReservation_beneficiary_locationSerializer
         object.G__typename,
         specifiedType: const FullType(String),
       ),
-    ];
-    Object? value;
-    value = object.city;
-    if (value != null) {
-      result
-        ..add('city')
-        ..add(
-          serializers.serialize(value, specifiedType: const FullType(String)),
-        );
-    }
-    value = object.country;
-    if (value != null) {
-      result
-        ..add('country')
-        ..add(
-          serializers.serialize(value, specifiedType: const FullType(String)),
-        );
-    }
-    value = object.latitude;
-    if (value != null) {
-      result
-        ..add('latitude')
-        ..add(
-          serializers.serialize(value, specifiedType: const FullType(double)),
-        );
-    }
-    value = object.longitude;
-    if (value != null) {
-      result
-        ..add('longitude')
-        ..add(
-          serializers.serialize(value, specifiedType: const FullType(double)),
-        );
-    }
-    value = object.neighborhood;
-    if (value != null) {
-      result
-        ..add('neighborhood')
-        ..add(
-          serializers.serialize(value, specifiedType: const FullType(String)),
-        );
-    }
-    return result;
-  }
-
-  @override
-  GMyReservationData_myReservation_beneficiary_location deserialize(
-    Serializers serializers,
-    Iterable<Object?> serialized, {
-    FullType specifiedType = FullType.unspecified,
-  }) {
-    final result =
-        GMyReservationData_myReservation_beneficiary_locationBuilder();
-
-    final iterator = serialized.iterator;
-    while (iterator.moveNext()) {
-      final key = iterator.current! as String;
-      iterator.moveNext();
-      final Object? value = iterator.current;
-      switch (key) {
-        case '__typename':
-          result.G__typename =
-              serializers.deserialize(
-                    value,
-                    specifiedType: const FullType(String),
-                  )!
-                  as String;
-          break;
-        case 'city':
-          result.city =
-              serializers.deserialize(
-                    value,
-                    specifiedType: const FullType(String),
-                  )
-                  as String?;
-          break;
-        case 'country':
-          result.country =
-              serializers.deserialize(
-                    value,
-                    specifiedType: const FullType(String),
-                  )
-                  as String?;
-          break;
-        case 'latitude':
-          result.latitude =
-              serializers.deserialize(
-                    value,
-                    specifiedType: const FullType(double),
-                  )
-                  as double?;
-          break;
-        case 'longitude':
-          result.longitude =
-              serializers.deserialize(
-                    value,
-                    specifiedType: const FullType(double),
-                  )
-                  as double?;
-          break;
-        case 'neighborhood':
-          result.neighborhood =
-              serializers.deserialize(
-                    value,
-                    specifiedType: const FullType(String),
-                  )
-                  as String?;
-          break;
-      }
-    }
-
-    return result.build();
-  }
-}
-
-class _$GMyReservationData_myReservation_beneficiary_avatarSerializer
-    implements
-        StructuredSerializer<
-          GMyReservationData_myReservation_beneficiary_avatar
-        > {
-  @override
-  final Iterable<Type> types = const [
-    GMyReservationData_myReservation_beneficiary_avatar,
-    _$GMyReservationData_myReservation_beneficiary_avatar,
-  ];
-  @override
-  final String wireName = 'GMyReservationData_myReservation_beneficiary_avatar';
-
-  @override
-  Iterable<Object?> serialize(
-    Serializers serializers,
-    GMyReservationData_myReservation_beneficiary_avatar object, {
-    FullType specifiedType = FullType.unspecified,
-  }) {
-    final result = <Object?>[
-      '__typename',
+      'createdAt',
       serializers.serialize(
-        object.G__typename,
+        object.createdAt,
+        specifiedType: const FullType(_i2.GDateTime),
+      ),
+      'fileName',
+      serializers.serialize(
+        object.fileName,
+        specifiedType: const FullType(String),
+      ),
+      'fileSize',
+      serializers.serialize(
+        object.fileSize,
+        specifiedType: const FullType(double),
+      ),
+      'fileType',
+      serializers.serialize(
+        object.fileType,
         specifiedType: const FullType(String),
       ),
       'id',
       serializers.serialize(object.id, specifiedType: const FullType(String)),
+      'uploadedById',
+      serializers.serialize(
+        object.uploadedById,
+        specifiedType: const FullType(String),
+      ),
     ];
     Object? value;
+    value = object.jobId;
+    if (value != null) {
+      result
+        ..add('jobId')
+        ..add(
+          serializers.serialize(value, specifiedType: const FullType(String)),
+        );
+    }
+    value = object.updatedAt;
+    if (value != null) {
+      result
+        ..add('updatedAt')
+        ..add(
+          serializers.serialize(
+            value,
+            specifiedType: const FullType(_i2.GDateTime),
+          ),
+        );
+    }
+    value = object.uploadStatus;
+    if (value != null) {
+      result
+        ..add('uploadStatus')
+        ..add(
+          serializers.serialize(
+            value,
+            specifiedType: const FullType(_i2.GUploadStatusValues),
+          ),
+        );
+    }
     value = object.url;
     if (value != null) {
       result
@@ -1302,12 +1163,13 @@ class _$GMyReservationData_myReservation_beneficiary_avatarSerializer
   }
 
   @override
-  GMyReservationData_myReservation_beneficiary_avatar deserialize(
+  GMyReservationData_myReservation_donation_user_avatar deserialize(
     Serializers serializers,
     Iterable<Object?> serialized, {
     FullType specifiedType = FullType.unspecified,
   }) {
-    final result = GMyReservationData_myReservation_beneficiary_avatarBuilder();
+    final result =
+        GMyReservationData_myReservation_donation_user_avatarBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -1323,8 +1185,74 @@ class _$GMyReservationData_myReservation_beneficiary_avatarSerializer
                   )!
                   as String;
           break;
+        case 'createdAt':
+          result.createdAt.replace(
+            serializers.deserialize(
+                  value,
+                  specifiedType: const FullType(_i2.GDateTime),
+                )!
+                as _i2.GDateTime,
+          );
+          break;
+        case 'fileName':
+          result.fileName =
+              serializers.deserialize(
+                    value,
+                    specifiedType: const FullType(String),
+                  )!
+                  as String;
+          break;
+        case 'fileSize':
+          result.fileSize =
+              serializers.deserialize(
+                    value,
+                    specifiedType: const FullType(double),
+                  )!
+                  as double;
+          break;
+        case 'fileType':
+          result.fileType =
+              serializers.deserialize(
+                    value,
+                    specifiedType: const FullType(String),
+                  )!
+                  as String;
+          break;
         case 'id':
           result.id =
+              serializers.deserialize(
+                    value,
+                    specifiedType: const FullType(String),
+                  )!
+                  as String;
+          break;
+        case 'jobId':
+          result.jobId =
+              serializers.deserialize(
+                    value,
+                    specifiedType: const FullType(String),
+                  )
+                  as String?;
+          break;
+        case 'updatedAt':
+          result.updatedAt.replace(
+            serializers.deserialize(
+                  value,
+                  specifiedType: const FullType(_i2.GDateTime),
+                )!
+                as _i2.GDateTime,
+          );
+          break;
+        case 'uploadStatus':
+          result.uploadStatus =
+              serializers.deserialize(
+                    value,
+                    specifiedType: const FullType(_i2.GUploadStatusValues),
+                  )
+                  as _i2.GUploadStatusValues?;
+          break;
+        case 'uploadedById':
+          result.uploadedById =
               serializers.deserialize(
                     value,
                     specifiedType: const FullType(String),
@@ -1475,21 +1403,15 @@ class _$GMyReservationData_myReservation
   @override
   final String id;
   @override
-  final String donationId;
+  final _i2.GReservationStatus status;
   @override
-  final String beneficiaryId;
+  final _i2.GDateTime createdAt;
   @override
-  final _i3.GReservationStatus status;
+  final _i2.GDateTime? confirmedAt;
   @override
-  final _i3.GDateTime createdAt;
-  @override
-  final _i3.GDateTime? confirmedAt;
-  @override
-  final _i3.GDateTime updatedAt;
+  final _i2.GDateTime updatedAt;
   @override
   final GMyReservationData_myReservation_donation? donation;
-  @override
-  final GMyReservationData_myReservation_beneficiary? beneficiary;
 
   factory _$GMyReservationData_myReservation([
     void Function(GMyReservationData_myReservationBuilder)? updates,
@@ -1498,14 +1420,11 @@ class _$GMyReservationData_myReservation
   _$GMyReservationData_myReservation._({
     required this.G__typename,
     required this.id,
-    required this.donationId,
-    required this.beneficiaryId,
     required this.status,
     required this.createdAt,
     this.confirmedAt,
     required this.updatedAt,
     this.donation,
-    this.beneficiary,
   }) : super._();
   @override
   GMyReservationData_myReservation rebuild(
@@ -1522,14 +1441,11 @@ class _$GMyReservationData_myReservation
     return other is GMyReservationData_myReservation &&
         G__typename == other.G__typename &&
         id == other.id &&
-        donationId == other.donationId &&
-        beneficiaryId == other.beneficiaryId &&
         status == other.status &&
         createdAt == other.createdAt &&
         confirmedAt == other.confirmedAt &&
         updatedAt == other.updatedAt &&
-        donation == other.donation &&
-        beneficiary == other.beneficiary;
+        donation == other.donation;
   }
 
   @override
@@ -1537,14 +1453,11 @@ class _$GMyReservationData_myReservation
     var _$hash = 0;
     _$hash = $jc(_$hash, G__typename.hashCode);
     _$hash = $jc(_$hash, id.hashCode);
-    _$hash = $jc(_$hash, donationId.hashCode);
-    _$hash = $jc(_$hash, beneficiaryId.hashCode);
     _$hash = $jc(_$hash, status.hashCode);
     _$hash = $jc(_$hash, createdAt.hashCode);
     _$hash = $jc(_$hash, confirmedAt.hashCode);
     _$hash = $jc(_$hash, updatedAt.hashCode);
     _$hash = $jc(_$hash, donation.hashCode);
-    _$hash = $jc(_$hash, beneficiary.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -1554,14 +1467,11 @@ class _$GMyReservationData_myReservation
     return (newBuiltValueToStringHelper(r'GMyReservationData_myReservation')
           ..add('G__typename', G__typename)
           ..add('id', id)
-          ..add('donationId', donationId)
-          ..add('beneficiaryId', beneficiaryId)
           ..add('status', status)
           ..add('createdAt', createdAt)
           ..add('confirmedAt', confirmedAt)
           ..add('updatedAt', updatedAt)
-          ..add('donation', donation)
-          ..add('beneficiary', beneficiary))
+          ..add('donation', donation))
         .toString();
   }
 }
@@ -1582,35 +1492,26 @@ class GMyReservationData_myReservationBuilder
   String? get id => _$this._id;
   set id(String? id) => _$this._id = id;
 
-  String? _donationId;
-  String? get donationId => _$this._donationId;
-  set donationId(String? donationId) => _$this._donationId = donationId;
+  _i2.GReservationStatus? _status;
+  _i2.GReservationStatus? get status => _$this._status;
+  set status(_i2.GReservationStatus? status) => _$this._status = status;
 
-  String? _beneficiaryId;
-  String? get beneficiaryId => _$this._beneficiaryId;
-  set beneficiaryId(String? beneficiaryId) =>
-      _$this._beneficiaryId = beneficiaryId;
-
-  _i3.GReservationStatus? _status;
-  _i3.GReservationStatus? get status => _$this._status;
-  set status(_i3.GReservationStatus? status) => _$this._status = status;
-
-  _i3.GDateTimeBuilder? _createdAt;
-  _i3.GDateTimeBuilder get createdAt =>
-      _$this._createdAt ??= _i3.GDateTimeBuilder();
-  set createdAt(_i3.GDateTimeBuilder? createdAt) =>
+  _i2.GDateTimeBuilder? _createdAt;
+  _i2.GDateTimeBuilder get createdAt =>
+      _$this._createdAt ??= _i2.GDateTimeBuilder();
+  set createdAt(_i2.GDateTimeBuilder? createdAt) =>
       _$this._createdAt = createdAt;
 
-  _i3.GDateTimeBuilder? _confirmedAt;
-  _i3.GDateTimeBuilder get confirmedAt =>
-      _$this._confirmedAt ??= _i3.GDateTimeBuilder();
-  set confirmedAt(_i3.GDateTimeBuilder? confirmedAt) =>
+  _i2.GDateTimeBuilder? _confirmedAt;
+  _i2.GDateTimeBuilder get confirmedAt =>
+      _$this._confirmedAt ??= _i2.GDateTimeBuilder();
+  set confirmedAt(_i2.GDateTimeBuilder? confirmedAt) =>
       _$this._confirmedAt = confirmedAt;
 
-  _i3.GDateTimeBuilder? _updatedAt;
-  _i3.GDateTimeBuilder get updatedAt =>
-      _$this._updatedAt ??= _i3.GDateTimeBuilder();
-  set updatedAt(_i3.GDateTimeBuilder? updatedAt) =>
+  _i2.GDateTimeBuilder? _updatedAt;
+  _i2.GDateTimeBuilder get updatedAt =>
+      _$this._updatedAt ??= _i2.GDateTimeBuilder();
+  set updatedAt(_i2.GDateTimeBuilder? updatedAt) =>
       _$this._updatedAt = updatedAt;
 
   GMyReservationData_myReservation_donationBuilder? _donation;
@@ -1618,14 +1519,6 @@ class GMyReservationData_myReservationBuilder
       _$this._donation ??= GMyReservationData_myReservation_donationBuilder();
   set donation(GMyReservationData_myReservation_donationBuilder? donation) =>
       _$this._donation = donation;
-
-  GMyReservationData_myReservation_beneficiaryBuilder? _beneficiary;
-  GMyReservationData_myReservation_beneficiaryBuilder get beneficiary =>
-      _$this._beneficiary ??=
-          GMyReservationData_myReservation_beneficiaryBuilder();
-  set beneficiary(
-    GMyReservationData_myReservation_beneficiaryBuilder? beneficiary,
-  ) => _$this._beneficiary = beneficiary;
 
   GMyReservationData_myReservationBuilder() {
     GMyReservationData_myReservation._initializeBuilder(this);
@@ -1636,14 +1529,11 @@ class GMyReservationData_myReservationBuilder
     if ($v != null) {
       _G__typename = $v.G__typename;
       _id = $v.id;
-      _donationId = $v.donationId;
-      _beneficiaryId = $v.beneficiaryId;
       _status = $v.status;
       _createdAt = $v.createdAt.toBuilder();
       _confirmedAt = $v.confirmedAt?.toBuilder();
       _updatedAt = $v.updatedAt.toBuilder();
       _donation = $v.donation?.toBuilder();
-      _beneficiary = $v.beneficiary?.toBuilder();
       _$v = null;
     }
     return this;
@@ -1678,16 +1568,6 @@ class GMyReservationData_myReservationBuilder
               r'GMyReservationData_myReservation',
               'id',
             ),
-            donationId: BuiltValueNullFieldError.checkNotNull(
-              donationId,
-              r'GMyReservationData_myReservation',
-              'donationId',
-            ),
-            beneficiaryId: BuiltValueNullFieldError.checkNotNull(
-              beneficiaryId,
-              r'GMyReservationData_myReservation',
-              'beneficiaryId',
-            ),
             status: BuiltValueNullFieldError.checkNotNull(
               status,
               r'GMyReservationData_myReservation',
@@ -1697,7 +1577,6 @@ class GMyReservationData_myReservationBuilder
             confirmedAt: _confirmedAt?.build(),
             updatedAt: updatedAt.build(),
             donation: _donation?.build(),
-            beneficiary: _beneficiary?.build(),
           );
     } catch (_) {
       late String _$failedField;
@@ -1710,8 +1589,6 @@ class GMyReservationData_myReservationBuilder
         updatedAt.build();
         _$failedField = 'donation';
         _donation?.build();
-        _$failedField = 'beneficiary';
-        _beneficiary?.build();
       } catch (e) {
         throw BuiltValueNestedFieldError(
           r'GMyReservationData_myReservation',
@@ -1741,18 +1618,30 @@ class _$GMyReservationData_myReservation_donation
   @override
   final String categoryId;
   @override
-  final GMyReservationData_myReservation_donation_category? category;
+  final _i2.GDonationStatusValues status;
   @override
-  final _i3.GDonationStatusValues status;
+  final _i2.GDonationUrgencyValues urgency;
   @override
-  final _i3.GDonationUrgencyValues urgency;
+  final _i2.GDateTime expiryDate;
+  @override
+  final _i2.GDateTime? publishedAt;
+  @override
+  final String? locationId;
   @override
   final String? mainAttachmentId;
   @override
+  final BuiltList<String> attachmentIds;
+  @override
+  final String userId;
+  @override
+  final bool safetyChecklistCompleted;
+  @override
+  final _i2.GDateTime? listingExpiresAt;
+  @override
+  final _i2.GDateTime updatedAt;
+  @override
   final GMyReservationData_myReservation_donation_mainAttachment?
   mainAttachment;
-  @override
-  final GMyReservationData_myReservation_donation_location? location;
   @override
   final GMyReservationData_myReservation_donation_user user;
 
@@ -1768,12 +1657,18 @@ class _$GMyReservationData_myReservation_donation
     required this.description,
     required this.quantity,
     required this.categoryId,
-    this.category,
     required this.status,
     required this.urgency,
+    required this.expiryDate,
+    this.publishedAt,
+    this.locationId,
     this.mainAttachmentId,
+    required this.attachmentIds,
+    required this.userId,
+    required this.safetyChecklistCompleted,
+    this.listingExpiresAt,
+    required this.updatedAt,
     this.mainAttachment,
-    this.location,
     required this.user,
   }) : super._();
   @override
@@ -1795,12 +1690,18 @@ class _$GMyReservationData_myReservation_donation
         description == other.description &&
         quantity == other.quantity &&
         categoryId == other.categoryId &&
-        category == other.category &&
         status == other.status &&
         urgency == other.urgency &&
+        expiryDate == other.expiryDate &&
+        publishedAt == other.publishedAt &&
+        locationId == other.locationId &&
         mainAttachmentId == other.mainAttachmentId &&
+        attachmentIds == other.attachmentIds &&
+        userId == other.userId &&
+        safetyChecklistCompleted == other.safetyChecklistCompleted &&
+        listingExpiresAt == other.listingExpiresAt &&
+        updatedAt == other.updatedAt &&
         mainAttachment == other.mainAttachment &&
-        location == other.location &&
         user == other.user;
   }
 
@@ -1813,12 +1714,18 @@ class _$GMyReservationData_myReservation_donation
     _$hash = $jc(_$hash, description.hashCode);
     _$hash = $jc(_$hash, quantity.hashCode);
     _$hash = $jc(_$hash, categoryId.hashCode);
-    _$hash = $jc(_$hash, category.hashCode);
     _$hash = $jc(_$hash, status.hashCode);
     _$hash = $jc(_$hash, urgency.hashCode);
+    _$hash = $jc(_$hash, expiryDate.hashCode);
+    _$hash = $jc(_$hash, publishedAt.hashCode);
+    _$hash = $jc(_$hash, locationId.hashCode);
     _$hash = $jc(_$hash, mainAttachmentId.hashCode);
+    _$hash = $jc(_$hash, attachmentIds.hashCode);
+    _$hash = $jc(_$hash, userId.hashCode);
+    _$hash = $jc(_$hash, safetyChecklistCompleted.hashCode);
+    _$hash = $jc(_$hash, listingExpiresAt.hashCode);
+    _$hash = $jc(_$hash, updatedAt.hashCode);
     _$hash = $jc(_$hash, mainAttachment.hashCode);
-    _$hash = $jc(_$hash, location.hashCode);
     _$hash = $jc(_$hash, user.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
@@ -1835,12 +1742,18 @@ class _$GMyReservationData_myReservation_donation
           ..add('description', description)
           ..add('quantity', quantity)
           ..add('categoryId', categoryId)
-          ..add('category', category)
           ..add('status', status)
           ..add('urgency', urgency)
+          ..add('expiryDate', expiryDate)
+          ..add('publishedAt', publishedAt)
+          ..add('locationId', locationId)
           ..add('mainAttachmentId', mainAttachmentId)
+          ..add('attachmentIds', attachmentIds)
+          ..add('userId', userId)
+          ..add('safetyChecklistCompleted', safetyChecklistCompleted)
+          ..add('listingExpiresAt', listingExpiresAt)
+          ..add('updatedAt', updatedAt)
           ..add('mainAttachment', mainAttachment)
-          ..add('location', location)
           ..add('user', user))
         .toString();
   }
@@ -1878,26 +1791,61 @@ class GMyReservationData_myReservation_donationBuilder
   String? get categoryId => _$this._categoryId;
   set categoryId(String? categoryId) => _$this._categoryId = categoryId;
 
-  GMyReservationData_myReservation_donation_categoryBuilder? _category;
-  GMyReservationData_myReservation_donation_categoryBuilder get category =>
-      _$this._category ??=
-          GMyReservationData_myReservation_donation_categoryBuilder();
-  set category(
-    GMyReservationData_myReservation_donation_categoryBuilder? category,
-  ) => _$this._category = category;
+  _i2.GDonationStatusValues? _status;
+  _i2.GDonationStatusValues? get status => _$this._status;
+  set status(_i2.GDonationStatusValues? status) => _$this._status = status;
 
-  _i3.GDonationStatusValues? _status;
-  _i3.GDonationStatusValues? get status => _$this._status;
-  set status(_i3.GDonationStatusValues? status) => _$this._status = status;
+  _i2.GDonationUrgencyValues? _urgency;
+  _i2.GDonationUrgencyValues? get urgency => _$this._urgency;
+  set urgency(_i2.GDonationUrgencyValues? urgency) => _$this._urgency = urgency;
 
-  _i3.GDonationUrgencyValues? _urgency;
-  _i3.GDonationUrgencyValues? get urgency => _$this._urgency;
-  set urgency(_i3.GDonationUrgencyValues? urgency) => _$this._urgency = urgency;
+  _i2.GDateTimeBuilder? _expiryDate;
+  _i2.GDateTimeBuilder get expiryDate =>
+      _$this._expiryDate ??= _i2.GDateTimeBuilder();
+  set expiryDate(_i2.GDateTimeBuilder? expiryDate) =>
+      _$this._expiryDate = expiryDate;
+
+  _i2.GDateTimeBuilder? _publishedAt;
+  _i2.GDateTimeBuilder get publishedAt =>
+      _$this._publishedAt ??= _i2.GDateTimeBuilder();
+  set publishedAt(_i2.GDateTimeBuilder? publishedAt) =>
+      _$this._publishedAt = publishedAt;
+
+  String? _locationId;
+  String? get locationId => _$this._locationId;
+  set locationId(String? locationId) => _$this._locationId = locationId;
 
   String? _mainAttachmentId;
   String? get mainAttachmentId => _$this._mainAttachmentId;
   set mainAttachmentId(String? mainAttachmentId) =>
       _$this._mainAttachmentId = mainAttachmentId;
+
+  ListBuilder<String>? _attachmentIds;
+  ListBuilder<String> get attachmentIds =>
+      _$this._attachmentIds ??= ListBuilder<String>();
+  set attachmentIds(ListBuilder<String>? attachmentIds) =>
+      _$this._attachmentIds = attachmentIds;
+
+  String? _userId;
+  String? get userId => _$this._userId;
+  set userId(String? userId) => _$this._userId = userId;
+
+  bool? _safetyChecklistCompleted;
+  bool? get safetyChecklistCompleted => _$this._safetyChecklistCompleted;
+  set safetyChecklistCompleted(bool? safetyChecklistCompleted) =>
+      _$this._safetyChecklistCompleted = safetyChecklistCompleted;
+
+  _i2.GDateTimeBuilder? _listingExpiresAt;
+  _i2.GDateTimeBuilder get listingExpiresAt =>
+      _$this._listingExpiresAt ??= _i2.GDateTimeBuilder();
+  set listingExpiresAt(_i2.GDateTimeBuilder? listingExpiresAt) =>
+      _$this._listingExpiresAt = listingExpiresAt;
+
+  _i2.GDateTimeBuilder? _updatedAt;
+  _i2.GDateTimeBuilder get updatedAt =>
+      _$this._updatedAt ??= _i2.GDateTimeBuilder();
+  set updatedAt(_i2.GDateTimeBuilder? updatedAt) =>
+      _$this._updatedAt = updatedAt;
 
   GMyReservationData_myReservation_donation_mainAttachmentBuilder?
   _mainAttachment;
@@ -1908,14 +1856,6 @@ class GMyReservationData_myReservation_donationBuilder
     GMyReservationData_myReservation_donation_mainAttachmentBuilder?
     mainAttachment,
   ) => _$this._mainAttachment = mainAttachment;
-
-  GMyReservationData_myReservation_donation_locationBuilder? _location;
-  GMyReservationData_myReservation_donation_locationBuilder get location =>
-      _$this._location ??=
-          GMyReservationData_myReservation_donation_locationBuilder();
-  set location(
-    GMyReservationData_myReservation_donation_locationBuilder? location,
-  ) => _$this._location = location;
 
   GMyReservationData_myReservation_donation_userBuilder? _user;
   GMyReservationData_myReservation_donation_userBuilder get user =>
@@ -1936,12 +1876,18 @@ class GMyReservationData_myReservation_donationBuilder
       _description = $v.description;
       _quantity = $v.quantity;
       _categoryId = $v.categoryId;
-      _category = $v.category?.toBuilder();
       _status = $v.status;
       _urgency = $v.urgency;
+      _expiryDate = $v.expiryDate.toBuilder();
+      _publishedAt = $v.publishedAt?.toBuilder();
+      _locationId = $v.locationId;
       _mainAttachmentId = $v.mainAttachmentId;
+      _attachmentIds = $v.attachmentIds.toBuilder();
+      _userId = $v.userId;
+      _safetyChecklistCompleted = $v.safetyChecklistCompleted;
+      _listingExpiresAt = $v.listingExpiresAt?.toBuilder();
+      _updatedAt = $v.updatedAt.toBuilder();
       _mainAttachment = $v.mainAttachment?.toBuilder();
-      _location = $v.location?.toBuilder();
       _user = $v.user.toBuilder();
       _$v = null;
     }
@@ -1999,7 +1945,6 @@ class GMyReservationData_myReservation_donationBuilder
               r'GMyReservationData_myReservation_donation',
               'categoryId',
             ),
-            category: _category?.build(),
             status: BuiltValueNullFieldError.checkNotNull(
               status,
               r'GMyReservationData_myReservation_donation',
@@ -2010,21 +1955,43 @@ class GMyReservationData_myReservation_donationBuilder
               r'GMyReservationData_myReservation_donation',
               'urgency',
             ),
+            expiryDate: expiryDate.build(),
+            publishedAt: _publishedAt?.build(),
+            locationId: locationId,
             mainAttachmentId: mainAttachmentId,
+            attachmentIds: attachmentIds.build(),
+            userId: BuiltValueNullFieldError.checkNotNull(
+              userId,
+              r'GMyReservationData_myReservation_donation',
+              'userId',
+            ),
+            safetyChecklistCompleted: BuiltValueNullFieldError.checkNotNull(
+              safetyChecklistCompleted,
+              r'GMyReservationData_myReservation_donation',
+              'safetyChecklistCompleted',
+            ),
+            listingExpiresAt: _listingExpiresAt?.build(),
+            updatedAt: updatedAt.build(),
             mainAttachment: _mainAttachment?.build(),
-            location: _location?.build(),
             user: user.build(),
           );
     } catch (_) {
       late String _$failedField;
       try {
-        _$failedField = 'category';
-        _category?.build();
+        _$failedField = 'expiryDate';
+        expiryDate.build();
+        _$failedField = 'publishedAt';
+        _publishedAt?.build();
 
+        _$failedField = 'attachmentIds';
+        attachmentIds.build();
+
+        _$failedField = 'listingExpiresAt';
+        _listingExpiresAt?.build();
+        _$failedField = 'updatedAt';
+        updatedAt.build();
         _$failedField = 'mainAttachment';
         _mainAttachment?.build();
-        _$failedField = 'location';
-        _location?.build();
         _$failedField = 'user';
         user.build();
       } catch (e) {
@@ -2041,152 +2008,30 @@ class GMyReservationData_myReservation_donationBuilder
   }
 }
 
-class _$GMyReservationData_myReservation_donation_category
-    extends GMyReservationData_myReservation_donation_category {
-  @override
-  final String G__typename;
-  @override
-  final String id;
-  @override
-  final String name;
-
-  factory _$GMyReservationData_myReservation_donation_category([
-    void Function(GMyReservationData_myReservation_donation_categoryBuilder)?
-    updates,
-  ]) =>
-      (GMyReservationData_myReservation_donation_categoryBuilder()
-            ..update(updates))
-          ._build();
-
-  _$GMyReservationData_myReservation_donation_category._({
-    required this.G__typename,
-    required this.id,
-    required this.name,
-  }) : super._();
-  @override
-  GMyReservationData_myReservation_donation_category rebuild(
-    void Function(GMyReservationData_myReservation_donation_categoryBuilder)
-    updates,
-  ) => (toBuilder()..update(updates)).build();
-
-  @override
-  GMyReservationData_myReservation_donation_categoryBuilder toBuilder() =>
-      GMyReservationData_myReservation_donation_categoryBuilder()
-        ..replace(this);
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(other, this)) return true;
-    return other is GMyReservationData_myReservation_donation_category &&
-        G__typename == other.G__typename &&
-        id == other.id &&
-        name == other.name;
-  }
-
-  @override
-  int get hashCode {
-    var _$hash = 0;
-    _$hash = $jc(_$hash, G__typename.hashCode);
-    _$hash = $jc(_$hash, id.hashCode);
-    _$hash = $jc(_$hash, name.hashCode);
-    _$hash = $jf(_$hash);
-    return _$hash;
-  }
-
-  @override
-  String toString() {
-    return (newBuiltValueToStringHelper(
-            r'GMyReservationData_myReservation_donation_category',
-          )
-          ..add('G__typename', G__typename)
-          ..add('id', id)
-          ..add('name', name))
-        .toString();
-  }
-}
-
-class GMyReservationData_myReservation_donation_categoryBuilder
-    implements
-        Builder<
-          GMyReservationData_myReservation_donation_category,
-          GMyReservationData_myReservation_donation_categoryBuilder
-        > {
-  _$GMyReservationData_myReservation_donation_category? _$v;
-
-  String? _G__typename;
-  String? get G__typename => _$this._G__typename;
-  set G__typename(String? G__typename) => _$this._G__typename = G__typename;
-
-  String? _id;
-  String? get id => _$this._id;
-  set id(String? id) => _$this._id = id;
-
-  String? _name;
-  String? get name => _$this._name;
-  set name(String? name) => _$this._name = name;
-
-  GMyReservationData_myReservation_donation_categoryBuilder() {
-    GMyReservationData_myReservation_donation_category._initializeBuilder(this);
-  }
-
-  GMyReservationData_myReservation_donation_categoryBuilder get _$this {
-    final $v = _$v;
-    if ($v != null) {
-      _G__typename = $v.G__typename;
-      _id = $v.id;
-      _name = $v.name;
-      _$v = null;
-    }
-    return this;
-  }
-
-  @override
-  void replace(GMyReservationData_myReservation_donation_category other) {
-    _$v = other as _$GMyReservationData_myReservation_donation_category;
-  }
-
-  @override
-  void update(
-    void Function(GMyReservationData_myReservation_donation_categoryBuilder)?
-    updates,
-  ) {
-    if (updates != null) updates(this);
-  }
-
-  @override
-  GMyReservationData_myReservation_donation_category build() => _build();
-
-  _$GMyReservationData_myReservation_donation_category _build() {
-    final _$result =
-        _$v ??
-        _$GMyReservationData_myReservation_donation_category._(
-          G__typename: BuiltValueNullFieldError.checkNotNull(
-            G__typename,
-            r'GMyReservationData_myReservation_donation_category',
-            'G__typename',
-          ),
-          id: BuiltValueNullFieldError.checkNotNull(
-            id,
-            r'GMyReservationData_myReservation_donation_category',
-            'id',
-          ),
-          name: BuiltValueNullFieldError.checkNotNull(
-            name,
-            r'GMyReservationData_myReservation_donation_category',
-            'name',
-          ),
-        );
-    replace(_$result);
-    return _$result;
-  }
-}
-
 class _$GMyReservationData_myReservation_donation_mainAttachment
     extends GMyReservationData_myReservation_donation_mainAttachment {
   @override
   final String G__typename;
   @override
+  final String id;
+  @override
   final String? url;
+  @override
+  final String fileName;
+  @override
+  final String fileType;
+  @override
+  final double fileSize;
+  @override
+  final _i2.GDateTime createdAt;
+  @override
+  final _i2.GDateTime? updatedAt;
+  @override
+  final _i2.GUploadStatusValues? uploadStatus;
+  @override
+  final String? jobId;
+  @override
+  final String uploadedById;
 
   factory _$GMyReservationData_myReservation_donation_mainAttachment([
     void Function(
@@ -2200,7 +2045,16 @@ class _$GMyReservationData_myReservation_donation_mainAttachment
 
   _$GMyReservationData_myReservation_donation_mainAttachment._({
     required this.G__typename,
+    required this.id,
     this.url,
+    required this.fileName,
+    required this.fileType,
+    required this.fileSize,
+    required this.createdAt,
+    this.updatedAt,
+    this.uploadStatus,
+    this.jobId,
+    required this.uploadedById,
   }) : super._();
   @override
   GMyReservationData_myReservation_donation_mainAttachment rebuild(
@@ -2220,14 +2074,32 @@ class _$GMyReservationData_myReservation_donation_mainAttachment
     if (identical(other, this)) return true;
     return other is GMyReservationData_myReservation_donation_mainAttachment &&
         G__typename == other.G__typename &&
-        url == other.url;
+        id == other.id &&
+        url == other.url &&
+        fileName == other.fileName &&
+        fileType == other.fileType &&
+        fileSize == other.fileSize &&
+        createdAt == other.createdAt &&
+        updatedAt == other.updatedAt &&
+        uploadStatus == other.uploadStatus &&
+        jobId == other.jobId &&
+        uploadedById == other.uploadedById;
   }
 
   @override
   int get hashCode {
     var _$hash = 0;
     _$hash = $jc(_$hash, G__typename.hashCode);
+    _$hash = $jc(_$hash, id.hashCode);
     _$hash = $jc(_$hash, url.hashCode);
+    _$hash = $jc(_$hash, fileName.hashCode);
+    _$hash = $jc(_$hash, fileType.hashCode);
+    _$hash = $jc(_$hash, fileSize.hashCode);
+    _$hash = $jc(_$hash, createdAt.hashCode);
+    _$hash = $jc(_$hash, updatedAt.hashCode);
+    _$hash = $jc(_$hash, uploadStatus.hashCode);
+    _$hash = $jc(_$hash, jobId.hashCode);
+    _$hash = $jc(_$hash, uploadedById.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -2238,7 +2110,16 @@ class _$GMyReservationData_myReservation_donation_mainAttachment
             r'GMyReservationData_myReservation_donation_mainAttachment',
           )
           ..add('G__typename', G__typename)
-          ..add('url', url))
+          ..add('id', id)
+          ..add('url', url)
+          ..add('fileName', fileName)
+          ..add('fileType', fileType)
+          ..add('fileSize', fileSize)
+          ..add('createdAt', createdAt)
+          ..add('updatedAt', updatedAt)
+          ..add('uploadStatus', uploadStatus)
+          ..add('jobId', jobId)
+          ..add('uploadedById', uploadedById))
         .toString();
   }
 }
@@ -2255,9 +2136,50 @@ class GMyReservationData_myReservation_donation_mainAttachmentBuilder
   String? get G__typename => _$this._G__typename;
   set G__typename(String? G__typename) => _$this._G__typename = G__typename;
 
+  String? _id;
+  String? get id => _$this._id;
+  set id(String? id) => _$this._id = id;
+
   String? _url;
   String? get url => _$this._url;
   set url(String? url) => _$this._url = url;
+
+  String? _fileName;
+  String? get fileName => _$this._fileName;
+  set fileName(String? fileName) => _$this._fileName = fileName;
+
+  String? _fileType;
+  String? get fileType => _$this._fileType;
+  set fileType(String? fileType) => _$this._fileType = fileType;
+
+  double? _fileSize;
+  double? get fileSize => _$this._fileSize;
+  set fileSize(double? fileSize) => _$this._fileSize = fileSize;
+
+  _i2.GDateTimeBuilder? _createdAt;
+  _i2.GDateTimeBuilder get createdAt =>
+      _$this._createdAt ??= _i2.GDateTimeBuilder();
+  set createdAt(_i2.GDateTimeBuilder? createdAt) =>
+      _$this._createdAt = createdAt;
+
+  _i2.GDateTimeBuilder? _updatedAt;
+  _i2.GDateTimeBuilder get updatedAt =>
+      _$this._updatedAt ??= _i2.GDateTimeBuilder();
+  set updatedAt(_i2.GDateTimeBuilder? updatedAt) =>
+      _$this._updatedAt = updatedAt;
+
+  _i2.GUploadStatusValues? _uploadStatus;
+  _i2.GUploadStatusValues? get uploadStatus => _$this._uploadStatus;
+  set uploadStatus(_i2.GUploadStatusValues? uploadStatus) =>
+      _$this._uploadStatus = uploadStatus;
+
+  String? _jobId;
+  String? get jobId => _$this._jobId;
+  set jobId(String? jobId) => _$this._jobId = jobId;
+
+  String? _uploadedById;
+  String? get uploadedById => _$this._uploadedById;
+  set uploadedById(String? uploadedById) => _$this._uploadedById = uploadedById;
 
   GMyReservationData_myReservation_donation_mainAttachmentBuilder() {
     GMyReservationData_myReservation_donation_mainAttachment._initializeBuilder(
@@ -2269,7 +2191,16 @@ class GMyReservationData_myReservation_donation_mainAttachmentBuilder
     final $v = _$v;
     if ($v != null) {
       _G__typename = $v.G__typename;
+      _id = $v.id;
       _url = $v.url;
+      _fileName = $v.fileName;
+      _fileType = $v.fileType;
+      _fileSize = $v.fileSize;
+      _createdAt = $v.createdAt.toBuilder();
+      _updatedAt = $v.updatedAt?.toBuilder();
+      _uploadStatus = $v.uploadStatus;
+      _jobId = $v.jobId;
+      _uploadedById = $v.uploadedById;
       _$v = null;
     }
     return this;
@@ -2294,148 +2225,63 @@ class GMyReservationData_myReservation_donation_mainAttachmentBuilder
   GMyReservationData_myReservation_donation_mainAttachment build() => _build();
 
   _$GMyReservationData_myReservation_donation_mainAttachment _build() {
-    final _$result =
-        _$v ??
-        _$GMyReservationData_myReservation_donation_mainAttachment._(
-          G__typename: BuiltValueNullFieldError.checkNotNull(
-            G__typename,
-            r'GMyReservationData_myReservation_donation_mainAttachment',
-            'G__typename',
-          ),
-          url: url,
+    _$GMyReservationData_myReservation_donation_mainAttachment _$result;
+    try {
+      _$result =
+          _$v ??
+          _$GMyReservationData_myReservation_donation_mainAttachment._(
+            G__typename: BuiltValueNullFieldError.checkNotNull(
+              G__typename,
+              r'GMyReservationData_myReservation_donation_mainAttachment',
+              'G__typename',
+            ),
+            id: BuiltValueNullFieldError.checkNotNull(
+              id,
+              r'GMyReservationData_myReservation_donation_mainAttachment',
+              'id',
+            ),
+            url: url,
+            fileName: BuiltValueNullFieldError.checkNotNull(
+              fileName,
+              r'GMyReservationData_myReservation_donation_mainAttachment',
+              'fileName',
+            ),
+            fileType: BuiltValueNullFieldError.checkNotNull(
+              fileType,
+              r'GMyReservationData_myReservation_donation_mainAttachment',
+              'fileType',
+            ),
+            fileSize: BuiltValueNullFieldError.checkNotNull(
+              fileSize,
+              r'GMyReservationData_myReservation_donation_mainAttachment',
+              'fileSize',
+            ),
+            createdAt: createdAt.build(),
+            updatedAt: _updatedAt?.build(),
+            uploadStatus: uploadStatus,
+            jobId: jobId,
+            uploadedById: BuiltValueNullFieldError.checkNotNull(
+              uploadedById,
+              r'GMyReservationData_myReservation_donation_mainAttachment',
+              'uploadedById',
+            ),
+          );
+    } catch (_) {
+      late String _$failedField;
+      try {
+        _$failedField = 'createdAt';
+        createdAt.build();
+        _$failedField = 'updatedAt';
+        _updatedAt?.build();
+      } catch (e) {
+        throw BuiltValueNestedFieldError(
+          r'GMyReservationData_myReservation_donation_mainAttachment',
+          _$failedField,
+          e.toString(),
         );
-    replace(_$result);
-    return _$result;
-  }
-}
-
-class _$GMyReservationData_myReservation_donation_location
-    extends GMyReservationData_myReservation_donation_location {
-  @override
-  final String G__typename;
-  @override
-  final double? latitude;
-  @override
-  final double? longitude;
-
-  factory _$GMyReservationData_myReservation_donation_location([
-    void Function(GMyReservationData_myReservation_donation_locationBuilder)?
-    updates,
-  ]) =>
-      (GMyReservationData_myReservation_donation_locationBuilder()
-            ..update(updates))
-          ._build();
-
-  _$GMyReservationData_myReservation_donation_location._({
-    required this.G__typename,
-    this.latitude,
-    this.longitude,
-  }) : super._();
-  @override
-  GMyReservationData_myReservation_donation_location rebuild(
-    void Function(GMyReservationData_myReservation_donation_locationBuilder)
-    updates,
-  ) => (toBuilder()..update(updates)).build();
-
-  @override
-  GMyReservationData_myReservation_donation_locationBuilder toBuilder() =>
-      GMyReservationData_myReservation_donation_locationBuilder()
-        ..replace(this);
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(other, this)) return true;
-    return other is GMyReservationData_myReservation_donation_location &&
-        G__typename == other.G__typename &&
-        latitude == other.latitude &&
-        longitude == other.longitude;
-  }
-
-  @override
-  int get hashCode {
-    var _$hash = 0;
-    _$hash = $jc(_$hash, G__typename.hashCode);
-    _$hash = $jc(_$hash, latitude.hashCode);
-    _$hash = $jc(_$hash, longitude.hashCode);
-    _$hash = $jf(_$hash);
-    return _$hash;
-  }
-
-  @override
-  String toString() {
-    return (newBuiltValueToStringHelper(
-            r'GMyReservationData_myReservation_donation_location',
-          )
-          ..add('G__typename', G__typename)
-          ..add('latitude', latitude)
-          ..add('longitude', longitude))
-        .toString();
-  }
-}
-
-class GMyReservationData_myReservation_donation_locationBuilder
-    implements
-        Builder<
-          GMyReservationData_myReservation_donation_location,
-          GMyReservationData_myReservation_donation_locationBuilder
-        > {
-  _$GMyReservationData_myReservation_donation_location? _$v;
-
-  String? _G__typename;
-  String? get G__typename => _$this._G__typename;
-  set G__typename(String? G__typename) => _$this._G__typename = G__typename;
-
-  double? _latitude;
-  double? get latitude => _$this._latitude;
-  set latitude(double? latitude) => _$this._latitude = latitude;
-
-  double? _longitude;
-  double? get longitude => _$this._longitude;
-  set longitude(double? longitude) => _$this._longitude = longitude;
-
-  GMyReservationData_myReservation_donation_locationBuilder() {
-    GMyReservationData_myReservation_donation_location._initializeBuilder(this);
-  }
-
-  GMyReservationData_myReservation_donation_locationBuilder get _$this {
-    final $v = _$v;
-    if ($v != null) {
-      _G__typename = $v.G__typename;
-      _latitude = $v.latitude;
-      _longitude = $v.longitude;
-      _$v = null;
+      }
+      rethrow;
     }
-    return this;
-  }
-
-  @override
-  void replace(GMyReservationData_myReservation_donation_location other) {
-    _$v = other as _$GMyReservationData_myReservation_donation_location;
-  }
-
-  @override
-  void update(
-    void Function(GMyReservationData_myReservation_donation_locationBuilder)?
-    updates,
-  ) {
-    if (updates != null) updates(this);
-  }
-
-  @override
-  GMyReservationData_myReservation_donation_location build() => _build();
-
-  _$GMyReservationData_myReservation_donation_location _build() {
-    final _$result =
-        _$v ??
-        _$GMyReservationData_myReservation_donation_location._(
-          G__typename: BuiltValueNullFieldError.checkNotNull(
-            G__typename,
-            r'GMyReservationData_myReservation_donation_location',
-            'G__typename',
-          ),
-          latitude: latitude,
-          longitude: longitude,
-        );
     replace(_$result);
     return _$result;
   }
@@ -2446,9 +2292,35 @@ class _$GMyReservationData_myReservation_donation_user
   @override
   final String G__typename;
   @override
+  final String? avatarAttachmentId;
+  @override
+  final _i2.GDateTime createdAt;
+  @override
+  final String? description;
+  @override
   final String? displayName;
   @override
   final String email;
+  @override
+  final String id;
+  @override
+  final bool isMailVerified;
+  @override
+  final _i2.GDateTime? lastChangedPasswordDate;
+  @override
+  final String? locationId;
+  @override
+  final String? phoneNumber;
+  @override
+  final int reputationScore;
+  @override
+  final _i2.GUserRole role;
+  @override
+  final String status;
+  @override
+  final _i2.GDateTime updatedAt;
+  @override
+  final GMyReservationData_myReservation_donation_user_avatar? avatar;
 
   factory _$GMyReservationData_myReservation_donation_user([
     void Function(GMyReservationData_myReservation_donation_userBuilder)?
@@ -2459,8 +2331,21 @@ class _$GMyReservationData_myReservation_donation_user
 
   _$GMyReservationData_myReservation_donation_user._({
     required this.G__typename,
+    this.avatarAttachmentId,
+    required this.createdAt,
+    this.description,
     this.displayName,
     required this.email,
+    required this.id,
+    required this.isMailVerified,
+    this.lastChangedPasswordDate,
+    this.locationId,
+    this.phoneNumber,
+    required this.reputationScore,
+    required this.role,
+    required this.status,
+    required this.updatedAt,
+    this.avatar,
   }) : super._();
   @override
   GMyReservationData_myReservation_donation_user rebuild(
@@ -2477,16 +2362,42 @@ class _$GMyReservationData_myReservation_donation_user
     if (identical(other, this)) return true;
     return other is GMyReservationData_myReservation_donation_user &&
         G__typename == other.G__typename &&
+        avatarAttachmentId == other.avatarAttachmentId &&
+        createdAt == other.createdAt &&
+        description == other.description &&
         displayName == other.displayName &&
-        email == other.email;
+        email == other.email &&
+        id == other.id &&
+        isMailVerified == other.isMailVerified &&
+        lastChangedPasswordDate == other.lastChangedPasswordDate &&
+        locationId == other.locationId &&
+        phoneNumber == other.phoneNumber &&
+        reputationScore == other.reputationScore &&
+        role == other.role &&
+        status == other.status &&
+        updatedAt == other.updatedAt &&
+        avatar == other.avatar;
   }
 
   @override
   int get hashCode {
     var _$hash = 0;
     _$hash = $jc(_$hash, G__typename.hashCode);
+    _$hash = $jc(_$hash, avatarAttachmentId.hashCode);
+    _$hash = $jc(_$hash, createdAt.hashCode);
+    _$hash = $jc(_$hash, description.hashCode);
     _$hash = $jc(_$hash, displayName.hashCode);
     _$hash = $jc(_$hash, email.hashCode);
+    _$hash = $jc(_$hash, id.hashCode);
+    _$hash = $jc(_$hash, isMailVerified.hashCode);
+    _$hash = $jc(_$hash, lastChangedPasswordDate.hashCode);
+    _$hash = $jc(_$hash, locationId.hashCode);
+    _$hash = $jc(_$hash, phoneNumber.hashCode);
+    _$hash = $jc(_$hash, reputationScore.hashCode);
+    _$hash = $jc(_$hash, role.hashCode);
+    _$hash = $jc(_$hash, status.hashCode);
+    _$hash = $jc(_$hash, updatedAt.hashCode);
+    _$hash = $jc(_$hash, avatar.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -2497,8 +2408,21 @@ class _$GMyReservationData_myReservation_donation_user
             r'GMyReservationData_myReservation_donation_user',
           )
           ..add('G__typename', G__typename)
+          ..add('avatarAttachmentId', avatarAttachmentId)
+          ..add('createdAt', createdAt)
+          ..add('description', description)
           ..add('displayName', displayName)
-          ..add('email', email))
+          ..add('email', email)
+          ..add('id', id)
+          ..add('isMailVerified', isMailVerified)
+          ..add('lastChangedPasswordDate', lastChangedPasswordDate)
+          ..add('locationId', locationId)
+          ..add('phoneNumber', phoneNumber)
+          ..add('reputationScore', reputationScore)
+          ..add('role', role)
+          ..add('status', status)
+          ..add('updatedAt', updatedAt)
+          ..add('avatar', avatar))
         .toString();
   }
 }
@@ -2515,6 +2439,21 @@ class GMyReservationData_myReservation_donation_userBuilder
   String? get G__typename => _$this._G__typename;
   set G__typename(String? G__typename) => _$this._G__typename = G__typename;
 
+  String? _avatarAttachmentId;
+  String? get avatarAttachmentId => _$this._avatarAttachmentId;
+  set avatarAttachmentId(String? avatarAttachmentId) =>
+      _$this._avatarAttachmentId = avatarAttachmentId;
+
+  _i2.GDateTimeBuilder? _createdAt;
+  _i2.GDateTimeBuilder get createdAt =>
+      _$this._createdAt ??= _i2.GDateTimeBuilder();
+  set createdAt(_i2.GDateTimeBuilder? createdAt) =>
+      _$this._createdAt = createdAt;
+
+  String? _description;
+  String? get description => _$this._description;
+  set description(String? description) => _$this._description = description;
+
   String? _displayName;
   String? get displayName => _$this._displayName;
   set displayName(String? displayName) => _$this._displayName = displayName;
@@ -2522,6 +2461,56 @@ class GMyReservationData_myReservation_donation_userBuilder
   String? _email;
   String? get email => _$this._email;
   set email(String? email) => _$this._email = email;
+
+  String? _id;
+  String? get id => _$this._id;
+  set id(String? id) => _$this._id = id;
+
+  bool? _isMailVerified;
+  bool? get isMailVerified => _$this._isMailVerified;
+  set isMailVerified(bool? isMailVerified) =>
+      _$this._isMailVerified = isMailVerified;
+
+  _i2.GDateTimeBuilder? _lastChangedPasswordDate;
+  _i2.GDateTimeBuilder get lastChangedPasswordDate =>
+      _$this._lastChangedPasswordDate ??= _i2.GDateTimeBuilder();
+  set lastChangedPasswordDate(_i2.GDateTimeBuilder? lastChangedPasswordDate) =>
+      _$this._lastChangedPasswordDate = lastChangedPasswordDate;
+
+  String? _locationId;
+  String? get locationId => _$this._locationId;
+  set locationId(String? locationId) => _$this._locationId = locationId;
+
+  String? _phoneNumber;
+  String? get phoneNumber => _$this._phoneNumber;
+  set phoneNumber(String? phoneNumber) => _$this._phoneNumber = phoneNumber;
+
+  int? _reputationScore;
+  int? get reputationScore => _$this._reputationScore;
+  set reputationScore(int? reputationScore) =>
+      _$this._reputationScore = reputationScore;
+
+  _i2.GUserRole? _role;
+  _i2.GUserRole? get role => _$this._role;
+  set role(_i2.GUserRole? role) => _$this._role = role;
+
+  String? _status;
+  String? get status => _$this._status;
+  set status(String? status) => _$this._status = status;
+
+  _i2.GDateTimeBuilder? _updatedAt;
+  _i2.GDateTimeBuilder get updatedAt =>
+      _$this._updatedAt ??= _i2.GDateTimeBuilder();
+  set updatedAt(_i2.GDateTimeBuilder? updatedAt) =>
+      _$this._updatedAt = updatedAt;
+
+  GMyReservationData_myReservation_donation_user_avatarBuilder? _avatar;
+  GMyReservationData_myReservation_donation_user_avatarBuilder get avatar =>
+      _$this._avatar ??=
+          GMyReservationData_myReservation_donation_user_avatarBuilder();
+  set avatar(
+    GMyReservationData_myReservation_donation_user_avatarBuilder? avatar,
+  ) => _$this._avatar = avatar;
 
   GMyReservationData_myReservation_donation_userBuilder() {
     GMyReservationData_myReservation_donation_user._initializeBuilder(this);
@@ -2531,8 +2520,21 @@ class GMyReservationData_myReservation_donation_userBuilder
     final $v = _$v;
     if ($v != null) {
       _G__typename = $v.G__typename;
+      _avatarAttachmentId = $v.avatarAttachmentId;
+      _createdAt = $v.createdAt.toBuilder();
+      _description = $v.description;
       _displayName = $v.displayName;
       _email = $v.email;
+      _id = $v.id;
+      _isMailVerified = $v.isMailVerified;
+      _lastChangedPasswordDate = $v.lastChangedPasswordDate?.toBuilder();
+      _locationId = $v.locationId;
+      _phoneNumber = $v.phoneNumber;
+      _reputationScore = $v.reputationScore;
+      _role = $v.role;
+      _status = $v.status;
+      _updatedAt = $v.updatedAt.toBuilder();
+      _avatar = $v.avatar?.toBuilder();
       _$v = null;
     }
     return this;
@@ -2555,297 +2557,72 @@ class GMyReservationData_myReservation_donation_userBuilder
   GMyReservationData_myReservation_donation_user build() => _build();
 
   _$GMyReservationData_myReservation_donation_user _build() {
-    final _$result =
-        _$v ??
-        _$GMyReservationData_myReservation_donation_user._(
-          G__typename: BuiltValueNullFieldError.checkNotNull(
-            G__typename,
-            r'GMyReservationData_myReservation_donation_user',
-            'G__typename',
-          ),
-          displayName: displayName,
-          email: BuiltValueNullFieldError.checkNotNull(
-            email,
-            r'GMyReservationData_myReservation_donation_user',
-            'email',
-          ),
-        );
-    replace(_$result);
-    return _$result;
-  }
-}
-
-class _$GMyReservationData_myReservation_beneficiary
-    extends GMyReservationData_myReservation_beneficiary {
-  @override
-  final String G__typename;
-  @override
-  final String id;
-  @override
-  final String email;
-  @override
-  final String? displayName;
-  @override
-  final String? phoneNumber;
-  @override
-  final _i3.GUserRole role;
-  @override
-  final String? description;
-  @override
-  final bool isMailVerified;
-  @override
-  final int reputationScore;
-  @override
-  final String? locationId;
-  @override
-  final GMyReservationData_myReservation_beneficiary_location? location;
-  @override
-  final GMyReservationData_myReservation_beneficiary_avatar? avatar;
-
-  factory _$GMyReservationData_myReservation_beneficiary([
-    void Function(GMyReservationData_myReservation_beneficiaryBuilder)? updates,
-  ]) => (GMyReservationData_myReservation_beneficiaryBuilder()..update(updates))
-      ._build();
-
-  _$GMyReservationData_myReservation_beneficiary._({
-    required this.G__typename,
-    required this.id,
-    required this.email,
-    this.displayName,
-    this.phoneNumber,
-    required this.role,
-    this.description,
-    required this.isMailVerified,
-    required this.reputationScore,
-    this.locationId,
-    this.location,
-    this.avatar,
-  }) : super._();
-  @override
-  GMyReservationData_myReservation_beneficiary rebuild(
-    void Function(GMyReservationData_myReservation_beneficiaryBuilder) updates,
-  ) => (toBuilder()..update(updates)).build();
-
-  @override
-  GMyReservationData_myReservation_beneficiaryBuilder toBuilder() =>
-      GMyReservationData_myReservation_beneficiaryBuilder()..replace(this);
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(other, this)) return true;
-    return other is GMyReservationData_myReservation_beneficiary &&
-        G__typename == other.G__typename &&
-        id == other.id &&
-        email == other.email &&
-        displayName == other.displayName &&
-        phoneNumber == other.phoneNumber &&
-        role == other.role &&
-        description == other.description &&
-        isMailVerified == other.isMailVerified &&
-        reputationScore == other.reputationScore &&
-        locationId == other.locationId &&
-        location == other.location &&
-        avatar == other.avatar;
-  }
-
-  @override
-  int get hashCode {
-    var _$hash = 0;
-    _$hash = $jc(_$hash, G__typename.hashCode);
-    _$hash = $jc(_$hash, id.hashCode);
-    _$hash = $jc(_$hash, email.hashCode);
-    _$hash = $jc(_$hash, displayName.hashCode);
-    _$hash = $jc(_$hash, phoneNumber.hashCode);
-    _$hash = $jc(_$hash, role.hashCode);
-    _$hash = $jc(_$hash, description.hashCode);
-    _$hash = $jc(_$hash, isMailVerified.hashCode);
-    _$hash = $jc(_$hash, reputationScore.hashCode);
-    _$hash = $jc(_$hash, locationId.hashCode);
-    _$hash = $jc(_$hash, location.hashCode);
-    _$hash = $jc(_$hash, avatar.hashCode);
-    _$hash = $jf(_$hash);
-    return _$hash;
-  }
-
-  @override
-  String toString() {
-    return (newBuiltValueToStringHelper(
-            r'GMyReservationData_myReservation_beneficiary',
-          )
-          ..add('G__typename', G__typename)
-          ..add('id', id)
-          ..add('email', email)
-          ..add('displayName', displayName)
-          ..add('phoneNumber', phoneNumber)
-          ..add('role', role)
-          ..add('description', description)
-          ..add('isMailVerified', isMailVerified)
-          ..add('reputationScore', reputationScore)
-          ..add('locationId', locationId)
-          ..add('location', location)
-          ..add('avatar', avatar))
-        .toString();
-  }
-}
-
-class GMyReservationData_myReservation_beneficiaryBuilder
-    implements
-        Builder<
-          GMyReservationData_myReservation_beneficiary,
-          GMyReservationData_myReservation_beneficiaryBuilder
-        > {
-  _$GMyReservationData_myReservation_beneficiary? _$v;
-
-  String? _G__typename;
-  String? get G__typename => _$this._G__typename;
-  set G__typename(String? G__typename) => _$this._G__typename = G__typename;
-
-  String? _id;
-  String? get id => _$this._id;
-  set id(String? id) => _$this._id = id;
-
-  String? _email;
-  String? get email => _$this._email;
-  set email(String? email) => _$this._email = email;
-
-  String? _displayName;
-  String? get displayName => _$this._displayName;
-  set displayName(String? displayName) => _$this._displayName = displayName;
-
-  String? _phoneNumber;
-  String? get phoneNumber => _$this._phoneNumber;
-  set phoneNumber(String? phoneNumber) => _$this._phoneNumber = phoneNumber;
-
-  _i3.GUserRole? _role;
-  _i3.GUserRole? get role => _$this._role;
-  set role(_i3.GUserRole? role) => _$this._role = role;
-
-  String? _description;
-  String? get description => _$this._description;
-  set description(String? description) => _$this._description = description;
-
-  bool? _isMailVerified;
-  bool? get isMailVerified => _$this._isMailVerified;
-  set isMailVerified(bool? isMailVerified) =>
-      _$this._isMailVerified = isMailVerified;
-
-  int? _reputationScore;
-  int? get reputationScore => _$this._reputationScore;
-  set reputationScore(int? reputationScore) =>
-      _$this._reputationScore = reputationScore;
-
-  String? _locationId;
-  String? get locationId => _$this._locationId;
-  set locationId(String? locationId) => _$this._locationId = locationId;
-
-  GMyReservationData_myReservation_beneficiary_locationBuilder? _location;
-  GMyReservationData_myReservation_beneficiary_locationBuilder get location =>
-      _$this._location ??=
-          GMyReservationData_myReservation_beneficiary_locationBuilder();
-  set location(
-    GMyReservationData_myReservation_beneficiary_locationBuilder? location,
-  ) => _$this._location = location;
-
-  GMyReservationData_myReservation_beneficiary_avatarBuilder? _avatar;
-  GMyReservationData_myReservation_beneficiary_avatarBuilder get avatar =>
-      _$this._avatar ??=
-          GMyReservationData_myReservation_beneficiary_avatarBuilder();
-  set avatar(
-    GMyReservationData_myReservation_beneficiary_avatarBuilder? avatar,
-  ) => _$this._avatar = avatar;
-
-  GMyReservationData_myReservation_beneficiaryBuilder() {
-    GMyReservationData_myReservation_beneficiary._initializeBuilder(this);
-  }
-
-  GMyReservationData_myReservation_beneficiaryBuilder get _$this {
-    final $v = _$v;
-    if ($v != null) {
-      _G__typename = $v.G__typename;
-      _id = $v.id;
-      _email = $v.email;
-      _displayName = $v.displayName;
-      _phoneNumber = $v.phoneNumber;
-      _role = $v.role;
-      _description = $v.description;
-      _isMailVerified = $v.isMailVerified;
-      _reputationScore = $v.reputationScore;
-      _locationId = $v.locationId;
-      _location = $v.location?.toBuilder();
-      _avatar = $v.avatar?.toBuilder();
-      _$v = null;
-    }
-    return this;
-  }
-
-  @override
-  void replace(GMyReservationData_myReservation_beneficiary other) {
-    _$v = other as _$GMyReservationData_myReservation_beneficiary;
-  }
-
-  @override
-  void update(
-    void Function(GMyReservationData_myReservation_beneficiaryBuilder)? updates,
-  ) {
-    if (updates != null) updates(this);
-  }
-
-  @override
-  GMyReservationData_myReservation_beneficiary build() => _build();
-
-  _$GMyReservationData_myReservation_beneficiary _build() {
-    _$GMyReservationData_myReservation_beneficiary _$result;
+    _$GMyReservationData_myReservation_donation_user _$result;
     try {
       _$result =
           _$v ??
-          _$GMyReservationData_myReservation_beneficiary._(
+          _$GMyReservationData_myReservation_donation_user._(
             G__typename: BuiltValueNullFieldError.checkNotNull(
               G__typename,
-              r'GMyReservationData_myReservation_beneficiary',
+              r'GMyReservationData_myReservation_donation_user',
               'G__typename',
+            ),
+            avatarAttachmentId: avatarAttachmentId,
+            createdAt: createdAt.build(),
+            description: description,
+            displayName: displayName,
+            email: BuiltValueNullFieldError.checkNotNull(
+              email,
+              r'GMyReservationData_myReservation_donation_user',
+              'email',
             ),
             id: BuiltValueNullFieldError.checkNotNull(
               id,
-              r'GMyReservationData_myReservation_beneficiary',
+              r'GMyReservationData_myReservation_donation_user',
               'id',
             ),
-            email: BuiltValueNullFieldError.checkNotNull(
-              email,
-              r'GMyReservationData_myReservation_beneficiary',
-              'email',
-            ),
-            displayName: displayName,
-            phoneNumber: phoneNumber,
-            role: BuiltValueNullFieldError.checkNotNull(
-              role,
-              r'GMyReservationData_myReservation_beneficiary',
-              'role',
-            ),
-            description: description,
             isMailVerified: BuiltValueNullFieldError.checkNotNull(
               isMailVerified,
-              r'GMyReservationData_myReservation_beneficiary',
+              r'GMyReservationData_myReservation_donation_user',
               'isMailVerified',
             ),
+            lastChangedPasswordDate: _lastChangedPasswordDate?.build(),
+            locationId: locationId,
+            phoneNumber: phoneNumber,
             reputationScore: BuiltValueNullFieldError.checkNotNull(
               reputationScore,
-              r'GMyReservationData_myReservation_beneficiary',
+              r'GMyReservationData_myReservation_donation_user',
               'reputationScore',
             ),
-            locationId: locationId,
-            location: _location?.build(),
+            role: BuiltValueNullFieldError.checkNotNull(
+              role,
+              r'GMyReservationData_myReservation_donation_user',
+              'role',
+            ),
+            status: BuiltValueNullFieldError.checkNotNull(
+              status,
+              r'GMyReservationData_myReservation_donation_user',
+              'status',
+            ),
+            updatedAt: updatedAt.build(),
             avatar: _avatar?.build(),
           );
     } catch (_) {
       late String _$failedField;
       try {
-        _$failedField = 'location';
-        _location?.build();
+        _$failedField = 'createdAt';
+        createdAt.build();
+
+        _$failedField = 'lastChangedPasswordDate';
+        _lastChangedPasswordDate?.build();
+
+        _$failedField = 'updatedAt';
+        updatedAt.build();
         _$failedField = 'avatar';
         _avatar?.build();
       } catch (e) {
         throw BuiltValueNestedFieldError(
-          r'GMyReservationData_myReservation_beneficiary',
+          r'GMyReservationData_myReservation_donation_user',
           _$failedField,
           e.toString(),
         );
@@ -2857,215 +2634,77 @@ class GMyReservationData_myReservation_beneficiaryBuilder
   }
 }
 
-class _$GMyReservationData_myReservation_beneficiary_location
-    extends GMyReservationData_myReservation_beneficiary_location {
+class _$GMyReservationData_myReservation_donation_user_avatar
+    extends GMyReservationData_myReservation_donation_user_avatar {
   @override
   final String G__typename;
   @override
-  final String? city;
+  final _i2.GDateTime createdAt;
   @override
-  final String? country;
+  final String fileName;
   @override
-  final double? latitude;
+  final double fileSize;
   @override
-  final double? longitude;
-  @override
-  final String? neighborhood;
-
-  factory _$GMyReservationData_myReservation_beneficiary_location([
-    void Function(GMyReservationData_myReservation_beneficiary_locationBuilder)?
-    updates,
-  ]) =>
-      (GMyReservationData_myReservation_beneficiary_locationBuilder()
-            ..update(updates))
-          ._build();
-
-  _$GMyReservationData_myReservation_beneficiary_location._({
-    required this.G__typename,
-    this.city,
-    this.country,
-    this.latitude,
-    this.longitude,
-    this.neighborhood,
-  }) : super._();
-  @override
-  GMyReservationData_myReservation_beneficiary_location rebuild(
-    void Function(GMyReservationData_myReservation_beneficiary_locationBuilder)
-    updates,
-  ) => (toBuilder()..update(updates)).build();
-
-  @override
-  GMyReservationData_myReservation_beneficiary_locationBuilder toBuilder() =>
-      GMyReservationData_myReservation_beneficiary_locationBuilder()
-        ..replace(this);
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(other, this)) return true;
-    return other is GMyReservationData_myReservation_beneficiary_location &&
-        G__typename == other.G__typename &&
-        city == other.city &&
-        country == other.country &&
-        latitude == other.latitude &&
-        longitude == other.longitude &&
-        neighborhood == other.neighborhood;
-  }
-
-  @override
-  int get hashCode {
-    var _$hash = 0;
-    _$hash = $jc(_$hash, G__typename.hashCode);
-    _$hash = $jc(_$hash, city.hashCode);
-    _$hash = $jc(_$hash, country.hashCode);
-    _$hash = $jc(_$hash, latitude.hashCode);
-    _$hash = $jc(_$hash, longitude.hashCode);
-    _$hash = $jc(_$hash, neighborhood.hashCode);
-    _$hash = $jf(_$hash);
-    return _$hash;
-  }
-
-  @override
-  String toString() {
-    return (newBuiltValueToStringHelper(
-            r'GMyReservationData_myReservation_beneficiary_location',
-          )
-          ..add('G__typename', G__typename)
-          ..add('city', city)
-          ..add('country', country)
-          ..add('latitude', latitude)
-          ..add('longitude', longitude)
-          ..add('neighborhood', neighborhood))
-        .toString();
-  }
-}
-
-class GMyReservationData_myReservation_beneficiary_locationBuilder
-    implements
-        Builder<
-          GMyReservationData_myReservation_beneficiary_location,
-          GMyReservationData_myReservation_beneficiary_locationBuilder
-        > {
-  _$GMyReservationData_myReservation_beneficiary_location? _$v;
-
-  String? _G__typename;
-  String? get G__typename => _$this._G__typename;
-  set G__typename(String? G__typename) => _$this._G__typename = G__typename;
-
-  String? _city;
-  String? get city => _$this._city;
-  set city(String? city) => _$this._city = city;
-
-  String? _country;
-  String? get country => _$this._country;
-  set country(String? country) => _$this._country = country;
-
-  double? _latitude;
-  double? get latitude => _$this._latitude;
-  set latitude(double? latitude) => _$this._latitude = latitude;
-
-  double? _longitude;
-  double? get longitude => _$this._longitude;
-  set longitude(double? longitude) => _$this._longitude = longitude;
-
-  String? _neighborhood;
-  String? get neighborhood => _$this._neighborhood;
-  set neighborhood(String? neighborhood) => _$this._neighborhood = neighborhood;
-
-  GMyReservationData_myReservation_beneficiary_locationBuilder() {
-    GMyReservationData_myReservation_beneficiary_location._initializeBuilder(
-      this,
-    );
-  }
-
-  GMyReservationData_myReservation_beneficiary_locationBuilder get _$this {
-    final $v = _$v;
-    if ($v != null) {
-      _G__typename = $v.G__typename;
-      _city = $v.city;
-      _country = $v.country;
-      _latitude = $v.latitude;
-      _longitude = $v.longitude;
-      _neighborhood = $v.neighborhood;
-      _$v = null;
-    }
-    return this;
-  }
-
-  @override
-  void replace(GMyReservationData_myReservation_beneficiary_location other) {
-    _$v = other as _$GMyReservationData_myReservation_beneficiary_location;
-  }
-
-  @override
-  void update(
-    void Function(GMyReservationData_myReservation_beneficiary_locationBuilder)?
-    updates,
-  ) {
-    if (updates != null) updates(this);
-  }
-
-  @override
-  GMyReservationData_myReservation_beneficiary_location build() => _build();
-
-  _$GMyReservationData_myReservation_beneficiary_location _build() {
-    final _$result =
-        _$v ??
-        _$GMyReservationData_myReservation_beneficiary_location._(
-          G__typename: BuiltValueNullFieldError.checkNotNull(
-            G__typename,
-            r'GMyReservationData_myReservation_beneficiary_location',
-            'G__typename',
-          ),
-          city: city,
-          country: country,
-          latitude: latitude,
-          longitude: longitude,
-          neighborhood: neighborhood,
-        );
-    replace(_$result);
-    return _$result;
-  }
-}
-
-class _$GMyReservationData_myReservation_beneficiary_avatar
-    extends GMyReservationData_myReservation_beneficiary_avatar {
-  @override
-  final String G__typename;
+  final String fileType;
   @override
   final String id;
   @override
+  final String? jobId;
+  @override
+  final _i2.GDateTime? updatedAt;
+  @override
+  final _i2.GUploadStatusValues? uploadStatus;
+  @override
+  final String uploadedById;
+  @override
   final String? url;
 
-  factory _$GMyReservationData_myReservation_beneficiary_avatar([
-    void Function(GMyReservationData_myReservation_beneficiary_avatarBuilder)?
+  factory _$GMyReservationData_myReservation_donation_user_avatar([
+    void Function(GMyReservationData_myReservation_donation_user_avatarBuilder)?
     updates,
   ]) =>
-      (GMyReservationData_myReservation_beneficiary_avatarBuilder()
+      (GMyReservationData_myReservation_donation_user_avatarBuilder()
             ..update(updates))
           ._build();
 
-  _$GMyReservationData_myReservation_beneficiary_avatar._({
+  _$GMyReservationData_myReservation_donation_user_avatar._({
     required this.G__typename,
+    required this.createdAt,
+    required this.fileName,
+    required this.fileSize,
+    required this.fileType,
     required this.id,
+    this.jobId,
+    this.updatedAt,
+    this.uploadStatus,
+    required this.uploadedById,
     this.url,
   }) : super._();
   @override
-  GMyReservationData_myReservation_beneficiary_avatar rebuild(
-    void Function(GMyReservationData_myReservation_beneficiary_avatarBuilder)
+  GMyReservationData_myReservation_donation_user_avatar rebuild(
+    void Function(GMyReservationData_myReservation_donation_user_avatarBuilder)
     updates,
   ) => (toBuilder()..update(updates)).build();
 
   @override
-  GMyReservationData_myReservation_beneficiary_avatarBuilder toBuilder() =>
-      GMyReservationData_myReservation_beneficiary_avatarBuilder()
+  GMyReservationData_myReservation_donation_user_avatarBuilder toBuilder() =>
+      GMyReservationData_myReservation_donation_user_avatarBuilder()
         ..replace(this);
 
   @override
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
-    return other is GMyReservationData_myReservation_beneficiary_avatar &&
+    return other is GMyReservationData_myReservation_donation_user_avatar &&
         G__typename == other.G__typename &&
+        createdAt == other.createdAt &&
+        fileName == other.fileName &&
+        fileSize == other.fileSize &&
+        fileType == other.fileType &&
         id == other.id &&
+        jobId == other.jobId &&
+        updatedAt == other.updatedAt &&
+        uploadStatus == other.uploadStatus &&
+        uploadedById == other.uploadedById &&
         url == other.url;
   }
 
@@ -3073,7 +2712,15 @@ class _$GMyReservationData_myReservation_beneficiary_avatar
   int get hashCode {
     var _$hash = 0;
     _$hash = $jc(_$hash, G__typename.hashCode);
+    _$hash = $jc(_$hash, createdAt.hashCode);
+    _$hash = $jc(_$hash, fileName.hashCode);
+    _$hash = $jc(_$hash, fileSize.hashCode);
+    _$hash = $jc(_$hash, fileType.hashCode);
     _$hash = $jc(_$hash, id.hashCode);
+    _$hash = $jc(_$hash, jobId.hashCode);
+    _$hash = $jc(_$hash, updatedAt.hashCode);
+    _$hash = $jc(_$hash, uploadStatus.hashCode);
+    _$hash = $jc(_$hash, uploadedById.hashCode);
     _$hash = $jc(_$hash, url.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
@@ -3082,46 +2729,99 @@ class _$GMyReservationData_myReservation_beneficiary_avatar
   @override
   String toString() {
     return (newBuiltValueToStringHelper(
-            r'GMyReservationData_myReservation_beneficiary_avatar',
+            r'GMyReservationData_myReservation_donation_user_avatar',
           )
           ..add('G__typename', G__typename)
+          ..add('createdAt', createdAt)
+          ..add('fileName', fileName)
+          ..add('fileSize', fileSize)
+          ..add('fileType', fileType)
           ..add('id', id)
+          ..add('jobId', jobId)
+          ..add('updatedAt', updatedAt)
+          ..add('uploadStatus', uploadStatus)
+          ..add('uploadedById', uploadedById)
           ..add('url', url))
         .toString();
   }
 }
 
-class GMyReservationData_myReservation_beneficiary_avatarBuilder
+class GMyReservationData_myReservation_donation_user_avatarBuilder
     implements
         Builder<
-          GMyReservationData_myReservation_beneficiary_avatar,
-          GMyReservationData_myReservation_beneficiary_avatarBuilder
+          GMyReservationData_myReservation_donation_user_avatar,
+          GMyReservationData_myReservation_donation_user_avatarBuilder
         > {
-  _$GMyReservationData_myReservation_beneficiary_avatar? _$v;
+  _$GMyReservationData_myReservation_donation_user_avatar? _$v;
 
   String? _G__typename;
   String? get G__typename => _$this._G__typename;
   set G__typename(String? G__typename) => _$this._G__typename = G__typename;
 
+  _i2.GDateTimeBuilder? _createdAt;
+  _i2.GDateTimeBuilder get createdAt =>
+      _$this._createdAt ??= _i2.GDateTimeBuilder();
+  set createdAt(_i2.GDateTimeBuilder? createdAt) =>
+      _$this._createdAt = createdAt;
+
+  String? _fileName;
+  String? get fileName => _$this._fileName;
+  set fileName(String? fileName) => _$this._fileName = fileName;
+
+  double? _fileSize;
+  double? get fileSize => _$this._fileSize;
+  set fileSize(double? fileSize) => _$this._fileSize = fileSize;
+
+  String? _fileType;
+  String? get fileType => _$this._fileType;
+  set fileType(String? fileType) => _$this._fileType = fileType;
+
   String? _id;
   String? get id => _$this._id;
   set id(String? id) => _$this._id = id;
+
+  String? _jobId;
+  String? get jobId => _$this._jobId;
+  set jobId(String? jobId) => _$this._jobId = jobId;
+
+  _i2.GDateTimeBuilder? _updatedAt;
+  _i2.GDateTimeBuilder get updatedAt =>
+      _$this._updatedAt ??= _i2.GDateTimeBuilder();
+  set updatedAt(_i2.GDateTimeBuilder? updatedAt) =>
+      _$this._updatedAt = updatedAt;
+
+  _i2.GUploadStatusValues? _uploadStatus;
+  _i2.GUploadStatusValues? get uploadStatus => _$this._uploadStatus;
+  set uploadStatus(_i2.GUploadStatusValues? uploadStatus) =>
+      _$this._uploadStatus = uploadStatus;
+
+  String? _uploadedById;
+  String? get uploadedById => _$this._uploadedById;
+  set uploadedById(String? uploadedById) => _$this._uploadedById = uploadedById;
 
   String? _url;
   String? get url => _$this._url;
   set url(String? url) => _$this._url = url;
 
-  GMyReservationData_myReservation_beneficiary_avatarBuilder() {
-    GMyReservationData_myReservation_beneficiary_avatar._initializeBuilder(
+  GMyReservationData_myReservation_donation_user_avatarBuilder() {
+    GMyReservationData_myReservation_donation_user_avatar._initializeBuilder(
       this,
     );
   }
 
-  GMyReservationData_myReservation_beneficiary_avatarBuilder get _$this {
+  GMyReservationData_myReservation_donation_user_avatarBuilder get _$this {
     final $v = _$v;
     if ($v != null) {
       _G__typename = $v.G__typename;
+      _createdAt = $v.createdAt.toBuilder();
+      _fileName = $v.fileName;
+      _fileSize = $v.fileSize;
+      _fileType = $v.fileType;
       _id = $v.id;
+      _jobId = $v.jobId;
+      _updatedAt = $v.updatedAt?.toBuilder();
+      _uploadStatus = $v.uploadStatus;
+      _uploadedById = $v.uploadedById;
       _url = $v.url;
       _$v = null;
     }
@@ -3129,37 +2829,80 @@ class GMyReservationData_myReservation_beneficiary_avatarBuilder
   }
 
   @override
-  void replace(GMyReservationData_myReservation_beneficiary_avatar other) {
-    _$v = other as _$GMyReservationData_myReservation_beneficiary_avatar;
+  void replace(GMyReservationData_myReservation_donation_user_avatar other) {
+    _$v = other as _$GMyReservationData_myReservation_donation_user_avatar;
   }
 
   @override
   void update(
-    void Function(GMyReservationData_myReservation_beneficiary_avatarBuilder)?
+    void Function(GMyReservationData_myReservation_donation_user_avatarBuilder)?
     updates,
   ) {
     if (updates != null) updates(this);
   }
 
   @override
-  GMyReservationData_myReservation_beneficiary_avatar build() => _build();
+  GMyReservationData_myReservation_donation_user_avatar build() => _build();
 
-  _$GMyReservationData_myReservation_beneficiary_avatar _build() {
-    final _$result =
-        _$v ??
-        _$GMyReservationData_myReservation_beneficiary_avatar._(
-          G__typename: BuiltValueNullFieldError.checkNotNull(
-            G__typename,
-            r'GMyReservationData_myReservation_beneficiary_avatar',
-            'G__typename',
-          ),
-          id: BuiltValueNullFieldError.checkNotNull(
-            id,
-            r'GMyReservationData_myReservation_beneficiary_avatar',
-            'id',
-          ),
-          url: url,
+  _$GMyReservationData_myReservation_donation_user_avatar _build() {
+    _$GMyReservationData_myReservation_donation_user_avatar _$result;
+    try {
+      _$result =
+          _$v ??
+          _$GMyReservationData_myReservation_donation_user_avatar._(
+            G__typename: BuiltValueNullFieldError.checkNotNull(
+              G__typename,
+              r'GMyReservationData_myReservation_donation_user_avatar',
+              'G__typename',
+            ),
+            createdAt: createdAt.build(),
+            fileName: BuiltValueNullFieldError.checkNotNull(
+              fileName,
+              r'GMyReservationData_myReservation_donation_user_avatar',
+              'fileName',
+            ),
+            fileSize: BuiltValueNullFieldError.checkNotNull(
+              fileSize,
+              r'GMyReservationData_myReservation_donation_user_avatar',
+              'fileSize',
+            ),
+            fileType: BuiltValueNullFieldError.checkNotNull(
+              fileType,
+              r'GMyReservationData_myReservation_donation_user_avatar',
+              'fileType',
+            ),
+            id: BuiltValueNullFieldError.checkNotNull(
+              id,
+              r'GMyReservationData_myReservation_donation_user_avatar',
+              'id',
+            ),
+            jobId: jobId,
+            updatedAt: _updatedAt?.build(),
+            uploadStatus: uploadStatus,
+            uploadedById: BuiltValueNullFieldError.checkNotNull(
+              uploadedById,
+              r'GMyReservationData_myReservation_donation_user_avatar',
+              'uploadedById',
+            ),
+            url: url,
+          );
+    } catch (_) {
+      late String _$failedField;
+      try {
+        _$failedField = 'createdAt';
+        createdAt.build();
+
+        _$failedField = 'updatedAt';
+        _updatedAt?.build();
+      } catch (e) {
+        throw BuiltValueNestedFieldError(
+          r'GMyReservationData_myReservation_donation_user_avatar',
+          _$failedField,
+          e.toString(),
         );
+      }
+      rethrow;
+    }
     replace(_$result);
     return _$result;
   }

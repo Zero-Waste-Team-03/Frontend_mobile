@@ -1,12 +1,46 @@
-# import './reservation_fields.graphql'
-
 query MyReservations($pagination: PaginationInput) {
   myReservations(pagination: $pagination) {
-    items {
-      ...ReservationFields
-    }
+    hasNextPage
+    hasPreviousPage
+    totalCount
     page
     limit
-    totalCount
+    items {
+      id
+      status
+      createdAt
+      confirmedAt
+      updatedAt
+      donation {
+        id
+        title
+        description
+        quantity
+        categoryId
+        status
+        urgency
+        expiryDate
+        publishedAt
+        locationId
+        mainAttachmentId
+        attachmentIds
+        userId
+        safetyChecklistCompleted
+        listingExpiresAt
+        updatedAt
+        mainAttachment {
+          id
+          url
+          fileName
+          fileType
+          fileSize
+          createdAt
+          updatedAt
+          uploadStatus
+          jobId
+          uploadedById
+        }
+      }
+    }
   }
 }

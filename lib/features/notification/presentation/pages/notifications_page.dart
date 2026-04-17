@@ -1,12 +1,17 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Notification;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gaspzero/features/notification/domain/entities/notification.dart'
+    show Notification;
+import 'package:go_router/go_router.dart';
+import 'dart:async';
+import 'package:gaspzero/core/theme/app_colors.dart';
+import 'package:gaspzero/core/theme/app_text_styles.dart';
+import 'package:gaspzero/core/di/injection.dart';
+import 'package:shimmer/shimmer.dart' show Shimmer;
 import '../../presentation/bloc/notification_bloc.dart';
 import '../../presentation/bloc/notification_event.dart';
 import '../../presentation/bloc/notification_state.dart';
-import 'package:gaspzero/core/di/injection.dart';
 import '../widgets/notification_card.dart';
-import '../widgets/notification_filter_chip.dart';
-import '../../../../shared/theme/app_colors.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({Key? key}) : super(key: key);
@@ -17,103 +22,116 @@ class NotificationsPage extends StatefulWidget {
 
 class _NotificationsPageState extends State<NotificationsPage> {
   late NotificationBloc _notificationBloc;
-  String? _activeTypeFilter;
-  bool? _activeReadFilter;
+  late ScrollController _scrollController;
+  static const int _pageSize = 10;
+  Completer<void>? _refreshCompleter;
+
+  // Filter state
+  String _selectedFilter = 'All';
+  static const List<String> _filterOptions = ['All', 'Test'];
 
   @override
   void initState() {
     super.initState();
     _notificationBloc = getIt<NotificationBloc>();
-    // TODO: Replace 'user_123' with actual userId from auth context
-    _notificationBloc.add(const FetchNotificationsEvent('user_123'));
+    _scrollController = ScrollController();
+
+    // Fetch initial notifications
+    _notificationBloc.add(FetchNotificationsEvent(page: 1, limit: _pageSize));
+
+    // Listen to scroll events for infinite scroll
+    _scrollController.addListener(_onScroll);
   }
 
-  void _handleTypeFilterChange(String? filter) {
-    setState(() {
-      _activeTypeFilter = filter;
-    });
+  void _onScroll() {
+    final currentState = _notificationBloc.state;
+    if (currentState is! NotificationsLoaded) {
+      return;
+    }
 
-    if (filter == null && _activeReadFilter == null) {
-      _notificationBloc.add(const ClearNotificationFilterEvent('user_123'));
-    } else {
-      _notificationBloc.add(
-        FilterNotificationsEvent(
-          'user_123',
-          typeFilter: _activeTypeFilter,
-          isReadFilter: _activeReadFilter,
-        ),
-      );
+    // Check if user is near the bottom (within 500 pixels)
+    if (_scrollController.position.extentAfter < 500 &&
+        !currentState.isLoadingMore &&
+        !currentState.hasReachedMax) {
+      _loadMoreNotifications();
     }
   }
 
-  void _handleReadFilterChange(bool? filter) {
-    setState(() {
-      _activeReadFilter = filter;
-    });
-
-    if (_activeTypeFilter == null && filter == null) {
-      _notificationBloc.add(const ClearNotificationFilterEvent('user_123'));
-    } else {
-      _notificationBloc.add(
-        FilterNotificationsEvent(
-          'user_123',
-          typeFilter: _activeTypeFilter,
-          isReadFilter: _activeReadFilter,
-        ),
-      );
+  void _loadMoreNotifications() {
+    final currentState = _notificationBloc.state;
+    if (currentState is! NotificationsLoaded) {
+      return;
     }
+
+    final nextPage = currentState.currentPage + 1;
+    _notificationBloc.add(
+      FetchNotificationsEvent(page: nextPage, limit: _pageSize),
+    );
   }
 
-  void _handleClearFilters() {
-    setState(() {
-      _activeTypeFilter = null;
-      _activeReadFilter = null;
-    });
-    _notificationBloc.add(const ClearNotificationFilterEvent('user_123'));
+  Future<void> _refreshNotifications() async {
+    if (!mounted) return;
+
+    // Create a completer that will be resolved when BLoC finishes loading
+    _refreshCompleter = Completer<void>();
+
+    _notificationBloc.add(const RefreshNotificationsEvent());
+
+    // Return the future from the completer - it will be completed by BlocBuilder
+    return _refreshCompleter!.future;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F7F7),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.background,
         elevation: 0,
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
-          child: const Icon(
-            Icons.arrow_back_rounded,
-            color: AuthColors.headingText,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.sm,
+              vertical: AppSpacing.sm,
+            ),
+            child: const Icon(
+              Icons.arrow_back_rounded,
+              color: AppColors.primary,
+            ),
           ),
         ),
         title: Text(
           'Notifications',
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.w700,
-            color: AuthColors.headingText,
-          ),
+          textAlign: TextAlign.start,
+          style: AppTextStyles.titleLarge.copyWith(color: AppColors.primary),
         ),
-        centerTitle: true,
+        centerTitle: false,
         actions: [
           BlocBuilder<NotificationBloc, NotificationState>(
             bloc: _notificationBloc,
             builder: (context, state) {
-              final hasUnread = state is NotificationsLoaded
-                  ? state.notifications.any((n) => !n.isRead)
-                  : false;
+              final unreadNotifications = state is NotificationsLoaded
+                  ? state.notifications.where((n) => !n.isRead).toList()
+                  : [];
 
-              if (hasUnread) {
+              if (unreadNotifications.isNotEmpty) {
                 return GestureDetector(
                   onTap: () {
-                    _notificationBloc.add(
-                      const MarkAllNotificationsAsReadEvent('user_123'),
-                    );
+                    final ids = unreadNotifications
+                        .map((n) => n.id)
+                        .cast<String>()
+                        .toList();
+                    _notificationBloc.add(MarkNotificationsAsReadEvent(ids));
                   },
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sm,
+                      vertical: AppSpacing.sm,
+                    ),
                     child: Icon(
                       Icons.done_all_rounded,
-                      color: AuthColors.headingText,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                 );
@@ -126,17 +144,66 @@ class _NotificationsPageState extends State<NotificationsPage> {
       body: BlocBuilder<NotificationBloc, NotificationState>(
         bloc: _notificationBloc,
         builder: (context, state) {
+          // Complete refresh future when we get fresh data from page 1
+          if (state is NotificationsLoaded &&
+              state.currentPage == 1 &&
+              _refreshCompleter != null &&
+              !_refreshCompleter!.isCompleted) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!_refreshCompleter!.isCompleted) {
+                _refreshCompleter!.complete();
+              }
+            });
+          }
+
+          if (state is NotificationsError &&
+              _refreshCompleter != null &&
+              !_refreshCompleter!.isCompleted) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!_refreshCompleter!.isCompleted) {
+                _refreshCompleter!.complete();
+              }
+            });
+          }
+
           return Column(
             children: [
               // Filter chips
-              NotificationFiltersBar(
-                activeTypeFilter: _activeTypeFilter,
-                activeReadFilter: _activeReadFilter,
-                onTypeFilterChanged: _handleTypeFilterChange,
-                onReadFilterChanged: _handleReadFilterChange,
-                onClearFilters: _handleClearFilters,
+              SizedBox(
+                height: 45,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.screenHorizontal,
+                    vertical: 8.0,
+                  ),
+                  itemCount: _filterOptions.length,
+                  itemBuilder: (context, index) {
+                    final option = _filterOptions[index];
+                    final isSelected = option == _selectedFilter;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: FilterChip(
+                        label: Text(option),
+                        selected: isSelected,
+                        onSelected: (selected) {
+                          setState(() => _selectedFilter = option);
+                        },
+                        showCheckmark: false,
+                        backgroundColor: isSelected
+                            ? AppColors.primary
+                            : const Color(0xFFE8F1ED),
+                        labelStyle: TextStyle(
+                          color: isSelected
+                              ? AppColors.onPrimary
+                              : AppColors.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ),
-              // Content
               Expanded(child: _buildContent(state)),
             ],
           );
@@ -147,7 +214,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   Widget _buildContent(NotificationState state) {
     if (state is NotificationsLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return _buildLoadingSkeleton();
     }
 
     if (state is NotificationsError) {
@@ -155,19 +222,24 @@ class _NotificationsPageState extends State<NotificationsPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 48.0, color: Colors.grey.shade400),
+            Icon(Icons.error_outline, size: 48.0, color: AppColors.textMuted),
             const SizedBox(height: 16.0),
             Text(
               'Failed to load notifications',
-              style: Theme.of(context).textTheme.bodyLarge,
+              style: AppTextStyles.bodyLarge,
             ),
             const SizedBox(height: 8.0),
             Text(
               state.message,
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textTertiary,
+              ),
               textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24.0),
+            ElevatedButton(
+              onPressed: _refreshNotifications,
+              child: const Text('Retry'),
             ),
           ],
         ),
@@ -176,59 +248,363 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
     if (state is NotificationsLoaded) {
       if (state.notifications.isEmpty) {
-        return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.notifications_off_outlined,
-                size: 48.0,
-                color: Colors.grey.shade400,
+        return RefreshIndicator(
+          onRefresh: _refreshNotifications,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height - 200,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.notifications_off_outlined,
+                      size: 48.0,
+                      color: AppColors.textMuted,
+                    ),
+                    const SizedBox(height: 16.0),
+                    Text(
+                      'No notifications',
+                      style: AppTextStyles.bodyLarge.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 8.0),
+                    Text(
+                      'You\'re all caught up!',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.textTertiary,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 16.0),
-              Text(
-                'No notifications',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 8.0),
-              Text(
-                'You\'re all caught up!',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
-              ),
-            ],
+            ),
           ),
         );
       }
 
-      return ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-        itemCount: state.notifications.length,
-        itemBuilder: (context, index) {
-          final notification = state.notifications[index];
-          return NotificationCard(
-            notification: notification,
-            onTap: () {
-              // TODO: Handle notification tap - navigate to relevant page
-            },
-            onMarkAsRead: () {
-              _notificationBloc.add(
-                MarkNotificationAsReadEvent(notification.id),
-              );
-            },
-          );
-        },
+      // Build list with sections, infinite scroll and pulldown refresh
+      return RefreshIndicator(
+        onRefresh: _refreshNotifications,
+        child: ListView.builder(
+          controller: _scrollController,
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.screenHorizontal,
+            vertical: 12.0,
+          ),
+          itemCount:
+              state.notifications.length +
+              (state.isLoadingMore ? 1 : 0) +
+              _countSectionHeaders(state.notifications),
+          itemBuilder: (context, index) => _buildListItem(
+            context,
+            index,
+            state.notifications,
+            state.isLoadingMore,
+          ),
+        ),
       );
     }
 
     return const SizedBox();
   }
 
+  Widget _buildLoadingSkeleton() {
+    return ListView.separated(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.screenHorizontal,
+        vertical: 12.0,
+      ),
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildSkeletonBox(
+                height: 136.0,
+                borderRadius: BorderRadius.circular(AppRadius.xl),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              _buildSkeletonBox(
+                width: 130.0,
+                height: 14.0,
+                borderRadius: BorderRadius.circular(6.0),
+              ),
+            ],
+          );
+        }
+
+        return _buildSkeletonNotificationCard(context);
+      },
+      separatorBuilder: (context, index) => const SizedBox(height: 12.0),
+      itemCount: 6,
+    );
+  }
+
+  Widget _buildSkeletonNotificationCard(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    return ExcludeSemantics(
+      child: Shimmer.fromColors(
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!,
+        child: Container(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(AppRadius.lg),
+            border: Border.all(color: Colors.grey[300]!),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  _buildSkeletonBox(
+                    width: 34,
+                    height: 34,
+                    borderRadius: BorderRadius.circular(17),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSkeletonBox(
+                          height: 12,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        const SizedBox(height: 8),
+                        _buildSkeletonBox(
+                          width: screenWidth * 0.42,
+                          height: 10,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _buildSkeletonBox(
+                height: 10,
+                borderRadius: BorderRadius.circular(5),
+              ),
+              const SizedBox(height: 6),
+              _buildSkeletonBox(
+                width: screenWidth * 0.58,
+                height: 10,
+                borderRadius: BorderRadius.circular(5),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSkeletonBox({
+    double? width,
+    required double height,
+    required BorderRadius borderRadius,
+  }) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: borderRadius,
+      ),
+    );
+  }
+
+  int _countSectionHeaders(List<Notification> notifications) {
+    final now = DateTime.now();
+    bool hasRecent = false;
+    bool hasEarlier = false;
+
+    for (var notif in notifications) {
+      final difference = now.difference(notif.createdAt).inDays;
+      if (difference == 0) {
+        hasRecent = true;
+      } else {
+        hasEarlier = true;
+      }
+    }
+
+    return (hasRecent ? 1 : 0) + (hasEarlier ? 1 : 0);
+  }
+
+  Widget _buildListItem(
+    BuildContext context,
+    int index,
+    List<Notification> notifications,
+    bool isLoadingMore,
+  ) {
+    // Show loading indicator at the end
+    if (index == notifications.length + _countSectionHeaders(notifications)) {
+      if (isLoadingMore) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16.0),
+          child: Center(
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: const AlwaysStoppedAnimation<Color>(
+                AppColors.primary,
+              ),
+            ),
+          ),
+        );
+      }
+      return const SizedBox();
+    }
+
+    // Build alerts and section headers
+    final now = DateTime.now();
+
+    // Check if this is a section header
+    if (index > 0 && _isNewSection(notifications, index - 1)) {
+      final difference = now
+          .difference(notifications[index - 1].createdAt)
+          .inDays;
+      final isRecent = difference == 0;
+      final nextDifference = index < notifications.length
+          ? now.difference(notifications[index].createdAt).inDays
+          : 1;
+      final isNextEarlier = nextDifference > 0;
+
+      if ((isRecent && isNextEarlier) || (!isRecent)) {
+        final headerText = isRecent ? 'RECENT UPDATES' : 'EARLIER';
+        return Padding(
+          padding: const EdgeInsets.only(
+            top: AppSpacing.lg,
+            bottom: AppSpacing.md,
+          ),
+          child: Text(
+            headerText,
+            style: AppTextStyles.labelMedium.copyWith(
+              color: AppColors.textTertiary,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.5,
+            ),
+          ),
+        );
+      }
+    }
+
+    // First item is alert banner
+    if (index == 0) {
+      return _buildAlertBanner(context);
+    }
+
+    // Regular notification card
+    final notification = notifications[index - 1];
+    return NotificationCard(
+      notification: notification,
+      onTap: () {
+        context.push('/notification-details', extra: notification);
+      },
+      onMarkAsRead: () {
+        _notificationBloc.add(MarkNotificationsAsReadEvent([notification.id]));
+      },
+      onDelete: () {
+        _notificationBloc.add(DeleteNotificationEvent(notification.id));
+      },
+    );
+  }
+
+  bool _isNewSection(List<Notification> notifications, int index) {
+    if (index < 0 || index >= notifications.length - 1) return false;
+
+    final now = DateTime.now();
+    final current = now.difference(notifications[index].createdAt).inDays;
+    final next = now.difference(notifications[index + 1].createdAt).inDays;
+
+    return (current == 0 && next > 0) || (current > 0 && next == 0);
+  }
+
+  Widget _buildAlertBanner(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: AppSpacing.lg, top: AppSpacing.md),
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(
+        color: AppColors.notificationAlertBackground,
+        borderRadius: BorderRadius.circular(AppRadius.xl),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.warning_rounded, color: AppColors.surface, size: 24.0),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'URGENT ALERT',
+                      style: AppTextStyles.titleMedium.copyWith(
+                        color: AppColors.surface,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 4.0),
+                    Text(
+                      '3 items expiring soon!',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.surface,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Text(
+            'Save food in your area before it goes to waste.',
+            style: AppTextStyles.bodySmall.copyWith(
+              color: AppColors.surface,
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          SizedBox(
+            width: double.infinity,
+            height: 44.0,
+            child: ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.surface,
+                foregroundColor: AppColors.notificationAlertBackground,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.xl),
+                ),
+              ),
+              child: Text(
+                'View Now',
+                style: AppTextStyles.titleMedium.copyWith(
+                  color: AppColors.notificationAlertBackground,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void dispose() {
+    _scrollController.dispose();
     super.dispose();
   }
 }

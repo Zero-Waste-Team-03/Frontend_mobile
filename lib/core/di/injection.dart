@@ -181,7 +181,7 @@ Future<void> configureDependencies() async {
 
   // ── Notification ──
   getIt.registerLazySingleton<NotificationRemoteDataSource>(
-    () => NotificationRemoteDataSourceImpl(),
+    () => NotificationRemoteDataSourceImpl(getIt()),
   );
   getIt.registerLazySingleton<NotificationRepository>(
     () => NotificationRepositoryImpl(remoteDataSource: getIt()),
@@ -189,21 +189,17 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton<GetNotificationsUseCase>(
     () => GetNotificationsUseCase(repository: getIt()),
   );
-  getIt.registerLazySingleton<GetFilteredNotificationsUseCase>(
-    () => GetFilteredNotificationsUseCase(repository: getIt()),
+  getIt.registerLazySingleton<MarkNotificationsAsReadUseCase>(
+    () => MarkNotificationsAsReadUseCase(repository: getIt()),
   );
-  getIt.registerLazySingleton<MarkNotificationAsReadUseCase>(
-    () => MarkNotificationAsReadUseCase(repository: getIt()),
-  );
-  getIt.registerLazySingleton<MarkAllNotificationsAsReadUseCase>(
-    () => MarkAllNotificationsAsReadUseCase(repository: getIt()),
+  getIt.registerLazySingleton<DeleteNotificationUseCase>(
+    () => DeleteNotificationUseCase(repository: getIt()),
   );
   getIt.registerFactory(
     () => NotificationBloc(
       getNotificationsUseCase: getIt(),
-      getFilteredNotificationsUseCase: getIt(),
-      markNotificationAsReadUseCase: getIt(),
-      markAllNotificationsAsReadUseCase: getIt(),
+      markNotificationsAsReadUseCase: getIt(),
+      deleteNotificationUseCase: getIt(),
     ),
   );
 }

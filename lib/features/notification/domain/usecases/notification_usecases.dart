@@ -9,56 +9,29 @@ class GetNotificationsUseCase {
   GetNotificationsUseCase({required this.repository});
 
   Future<Either<Failure, List<Notification>>> call({
-    required String userId,
     int page = 1,
-    int limit = 20,
+    int limit = 10,
   }) {
-    return repository.getNotifications(
-      userId: userId,
-      page: page,
-      limit: limit,
-    );
+    return repository.getNotifications(page: page, limit: limit);
   }
 }
 
-class GetFilteredNotificationsUseCase {
+class MarkNotificationsAsReadUseCase {
   final NotificationRepository repository;
 
-  GetFilteredNotificationsUseCase({required this.repository});
+  MarkNotificationsAsReadUseCase({required this.repository});
 
-  Future<Either<Failure, List<Notification>>> call({
-    required String userId,
-    String? typeFilter,
-    bool? isReadFilter,
-    int page = 1,
-    int limit = 20,
-  }) {
-    return repository.getFilteredNotifications(
-      userId: userId,
-      typeFilter: typeFilter,
-      isReadFilter: isReadFilter,
-      page: page,
-      limit: limit,
-    );
+  Future<Either<Failure, void>> call(List<String> notificationIds) {
+    return repository.markNotificationsAsRead(notificationIds);
   }
 }
 
-class MarkNotificationAsReadUseCase {
+class DeleteNotificationUseCase {
   final NotificationRepository repository;
 
-  MarkNotificationAsReadUseCase({required this.repository});
+  DeleteNotificationUseCase({required this.repository});
 
-  Future<Either<Failure, Notification>> call(String notificationId) {
-    return repository.markAsRead(notificationId);
-  }
-}
-
-class MarkAllNotificationsAsReadUseCase {
-  final NotificationRepository repository;
-
-  MarkAllNotificationsAsReadUseCase({required this.repository});
-
-  Future<Either<Failure, void>> call(String userId) {
-    return repository.markAllAsRead(userId);
+  Future<Either<Failure, void>> call(String notificationId) {
+    return repository.deleteNotification(notificationId);
   }
 }

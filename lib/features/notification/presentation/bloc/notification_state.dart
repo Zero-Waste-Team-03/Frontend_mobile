@@ -18,17 +18,30 @@ class NotificationsLoading extends NotificationState {
 
 class NotificationsLoaded extends NotificationState {
   final List<Notification> notifications;
+  final int currentPage;
+  final bool isLoadingMore;
+  final bool hasReachedMax;
   final String? activeFilter;
   final bool? activeReadFilter;
 
   const NotificationsLoaded(
     this.notifications, {
+    this.currentPage = 1,
+    this.isLoadingMore = false,
+    this.hasReachedMax = false,
     this.activeFilter,
     this.activeReadFilter,
   });
 
   @override
-  List<Object?> get props => [notifications, activeFilter, activeReadFilter];
+  List<Object?> get props => [
+    notifications,
+    currentPage,
+    isLoadingMore,
+    hasReachedMax,
+    activeFilter,
+    activeReadFilter,
+  ];
 }
 
 class NotificationsError extends NotificationState {

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../bloc/profile_bloc.dart';
 import '../bloc/profile_event.dart';
@@ -187,35 +188,29 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                       user.avatarUrl != null &&
                                       user.avatarUrl!.isNotEmpty)
                                   ? ClipOval(
-                                      child: Image.network(
-                                        user.avatarUrl!,
+                                      child: CachedNetworkImage(
+                                        imageUrl: user.avatarUrl!,
                                         key: ValueKey(user.avatarUrl),
                                         fit: BoxFit.cover,
-                                        cacheHeight:
-                                            (120 *
-                                                    (MediaQuery.of(
-                                                      context,
-                                                    ).devicePixelRatio))
-                                                .toInt(),
-                                        cacheWidth:
-                                            (120 *
-                                                    (MediaQuery.of(
-                                                      context,
-                                                    ).devicePixelRatio))
-                                                .toInt(),
-                                        errorBuilder:
-                                            (context, error, stackTrace) {
-                                              return Center(
-                                                child: Text(
-                                                  getInitials(user.name),
-                                                  style: TextStyle(
-                                                    fontSize: 40.sp,
-                                                    fontWeight: FontWeight.w700,
-                                                    color: AuthColors.primary,
-                                                  ),
-                                                ),
-                                              );
-                                            },
+                                        placeholder: (context, url) {
+                                          return Center(
+                                            child: CircularProgressIndicator(
+                                              color: AuthColors.primary,
+                                            ),
+                                          );
+                                        },
+                                        errorWidget: (context, url, error) {
+                                          return Center(
+                                            child: Text(
+                                              getInitials(user.name),
+                                              style: TextStyle(
+                                                fontSize: 40.sp,
+                                                fontWeight: FontWeight.w700,
+                                                color: AuthColors.primary,
+                                              ),
+                                            ),
+                                          );
+                                        },
                                       ),
                                     )
                                   : Center(

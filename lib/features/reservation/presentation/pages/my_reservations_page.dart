@@ -6,7 +6,7 @@ import '../../../../shared/theme/app_colors.dart';
 import '../bloc/reservation_bloc.dart';
 import '../bloc/reservation_event.dart';
 import '../bloc/reservation_state.dart';
-import '../widgets/donation_card.dart';
+import '../widgets/reservation_card.dart';
 import '../widgets/status_filter_chip.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../../core/di/injection.dart';
@@ -47,6 +47,10 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
     context.read<ReservationBloc>().add(
       FetchUserReservationsEvent(_currentUserId, statusFilter: _selectedFilter),
     );
+  }
+
+  Future<void> _onRefresh() async {
+    _fetchReservations();
   }
 
   @override
@@ -103,12 +107,23 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                       ),
                       SizedBox(width: AppDimensions.paddingSmall.w),
                       StatusFilterChip(
-                        label: 'Reserved',
-                        isSelected: _selectedFilter == 'RESERVED',
+                        label: 'Pending',
+                        isSelected: _selectedFilter == 'PENDING',
                         onTap: () {
-                          setState(() => _selectedFilter = 'RESERVED');
+                          setState(() => _selectedFilter = 'PENDING');
                           context.read<ReservationBloc>().add(
-                            const FilterReservationsEvent('RESERVED'),
+                            const FilterReservationsEvent('PENDING'),
+                          );
+                        },
+                      ),
+                      SizedBox(width: AppDimensions.paddingSmall.w),
+                      StatusFilterChip(
+                        label: 'Confirmed',
+                        isSelected: _selectedFilter == 'CONFIRMED',
+                        onTap: () {
+                          setState(() => _selectedFilter = 'CONFIRMED');
+                          context.read<ReservationBloc>().add(
+                            const FilterReservationsEvent('CONFIRMED'),
                           );
                         },
                       ),
@@ -120,6 +135,17 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                           setState(() => _selectedFilter = 'COMPLETED');
                           context.read<ReservationBloc>().add(
                             const FilterReservationsEvent('COMPLETED'),
+                          );
+                        },
+                      ),
+                      SizedBox(width: AppDimensions.paddingSmall.w),
+                      StatusFilterChip(
+                        label: 'Cancelled',
+                        isSelected: _selectedFilter == 'CANCELLED',
+                        onTap: () {
+                          setState(() => _selectedFilter = 'CANCELLED');
+                          context.read<ReservationBloc>().add(
+                            const FilterReservationsEvent('CANCELLED'),
                           );
                         },
                       ),
@@ -146,7 +172,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              Icons.error_outline,
+                              Icons.error_outline_rounded,
                               size: 48.sp,
                               color: Colors.red,
                             ),
@@ -155,8 +181,43 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                               'Error loading reservations',
                               style: TextStyle(
                                 fontSize: AppDimensions.bodySize.sp,
+                                fontWeight: FontWeight.w600,
                                 color: AuthColors.headingText,
                                 fontFamily: AppFonts.primaryFont,
+                              ),
+                            ),
+                            SizedBox(height: 8.h),
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: AppDimensions.paddingLarge.w,
+                              ),
+                              child: Text(
+                                state.message,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: AppDimensions.captionSize.sp,
+                                  color: AuthColors.subText,
+                                  fontFamily: AppFonts.primaryFont,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: AppDimensions.paddingLarge.h),
+                            ElevatedButton.icon(
+                              onPressed: _onRefresh,
+                              icon: Icon(Icons.refresh_rounded, size: 20.sp),
+                              label: Text(
+                                'Retry',
+                                style: TextStyle(
+                                  fontSize: AppDimensions.bodySize.sp,
+                                  fontFamily: AppFonts.primaryFont,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AuthColors.primary,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: AppDimensions.paddingLarge.w,
+                                  vertical: 10.h,
+                                ),
                               ),
                             ),
                           ],
@@ -166,22 +227,34 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
 
                     if (state is UserReservationsLoaded) {
                       if (state.reservations.isEmpty) {
-                        return Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                        return RefreshIndicator(
+                          onRefresh: _onRefresh,
+                          color: AuthColors.primary,
+                          backgroundColor: AuthColors.background,
+                          child: ListView(
                             children: [
-                              Icon(
-                                Icons.shopping_basket_outlined,
-                                size: 48.sp,
-                                color: AuthColors.inputText,
-                              ),
-                              SizedBox(height: AppDimensions.paddingMedium.h),
-                              Text(
-                                'No reservations yet',
-                                style: TextStyle(
-                                  fontSize: AppDimensions.bodySize.sp,
-                                  color: AuthColors.subText,
-                                  fontFamily: AppFonts.primaryFont,
+                              SizedBox(height: 100.h),
+                              Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.shopping_basket_outlined,
+                                      size: 48.sp,
+                                      color: AuthColors.inputText,
+                                    ),
+                                    SizedBox(
+                                      height: AppDimensions.paddingMedium.h,
+                                    ),
+                                    Text(
+                                      'No reservations yet',
+                                      style: TextStyle(
+                                        fontSize: AppDimensions.bodySize.sp,
+                                        color: AuthColors.subText,
+                                        fontFamily: AppFonts.primaryFont,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
@@ -189,24 +262,35 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                         );
                       }
 
-                      return ListView.builder(
-                        itemCount: state.reservations.length,
-                        padding: EdgeInsets.only(
-                          bottom: AppDimensions.paddingMedium.h,
+                      return RefreshIndicator(
+                        onRefresh: _onRefresh,
+                        color: AuthColors.primary,
+                        backgroundColor: AuthColors.background,
+                        child: ListView.builder(
+                          itemCount: state.reservations
+                              .where((r) => r.donation != null)
+                              .length,
+                          padding: EdgeInsets.only(
+                            bottom: AppDimensions.paddingMedium.h,
+                          ),
+                          itemBuilder: (context, index) {
+                            final filteredReservations = state.reservations
+                                .where((r) => r.donation != null)
+                                .toList();
+                            final reservation = filteredReservations[index];
+
+                            return ReservationCard(
+                              reservation: reservation,
+                              onTap: () {
+                                // Navigate to reservation details with reservation ID
+                                context.push(
+                                  '/reservation-details',
+                                  extra: reservation.id,
+                                );
+                              },
+                            );
+                          },
                         ),
-                        itemBuilder: (context, index) {
-                          final donation = state.reservations[index];
-                          return DonationCard(
-                            donation: donation,
-                            onTap: () {
-                              // Navigate to reservation details
-                              context.push(
-                                '/reservation-details',
-                                extra: donation.id,
-                              );
-                            },
-                          );
-                        },
                       );
                     }
 

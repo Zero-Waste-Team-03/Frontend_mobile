@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../core/di/injection.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
@@ -194,39 +195,32 @@ class _ProfilePageState extends State<ProfilePage> {
                                       user.avatarUrl != null &&
                                           user.avatarUrl!.isNotEmpty
                                       ? ClipOval(
-                                          child: Image.network(
-                                            user.avatarUrl!,
+                                          child: CachedNetworkImage(
+                                            imageUrl: user.avatarUrl!,
                                             key: ValueKey(user.avatarUrl),
                                             fit: BoxFit.cover,
-                                            cacheHeight:
-                                                (120 *
-                                                        (MediaQuery.of(
-                                                          context,
-                                                        ).devicePixelRatio))
-                                                    .toInt(),
-                                            cacheWidth:
-                                                (120 *
-                                                        (MediaQuery.of(
-                                                          context,
-                                                        ).devicePixelRatio))
-                                                    .toInt(),
-                                            errorBuilder:
-                                                (context, error, stackTrace) {
-                                                  return Center(
-                                                    child: Text(
-                                                      _getInitials(user.name),
-                                                      style: TextStyle(
-                                                        fontSize: 48.sp,
-                                                        fontWeight:
-                                                            FontWeight.w700,
-                                                        color:
-                                                            AuthColors.primary,
-                                                        fontFamily: AppFonts
-                                                            .primaryFont,
-                                                      ),
+                                            placeholder: (context, url) {
+                                              return Center(
+                                                child:
+                                                    CircularProgressIndicator(
+                                                      color: AuthColors.primary,
                                                     ),
-                                                  );
-                                                },
+                                              );
+                                            },
+                                            errorWidget: (context, url, error) {
+                                              return Center(
+                                                child: Text(
+                                                  _getInitials(user.name),
+                                                  style: TextStyle(
+                                                    fontSize: 48.sp,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: AuthColors.primary,
+                                                    fontFamily:
+                                                        AppFonts.primaryFont,
+                                                  ),
+                                                ),
+                                              );
+                                            },
                                           ),
                                         )
                                       : Center(
@@ -335,9 +329,45 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                             SizedBox(height: AppDimensions.paddingMedium.h),
 
-                            // Edit Account Info Button (smaller, inline)
+                            // Status Badge with leaf icon
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: AppDimensions.paddingSmall.w,
+                                vertical: 5.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AuthColors.primary,
+                                borderRadius: BorderRadius.circular(
+                                  AppDimensions.borderRadiusExtraLarge.r,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.eco_outlined,
+                                    color: Colors.white,
+                                    size: 14.sp,
+                                  ),
+                                  SizedBox(width: 4.w),
+                                  Text(
+                                    'ACTIVE FOOD SAVER',
+                                    style: TextStyle(
+                                      fontSize: 11.sp,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                      fontFamily: AppFonts.primaryFont,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: AppDimensions.paddingMedium.h),
+
                             SizedBox(
-                              width: 150.w,
+                              width: 140.w,
+                              height: 32.h,
                               child: ElevatedButton(
                                 onPressed: isUpdating
                                     ? null
@@ -348,8 +378,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                   backgroundColor:
                                       AuthColors.lightGreenBackground,
                                   padding: EdgeInsets.symmetric(
-                                    horizontal: AppDimensions.paddingMedium.w,
-                                    vertical: 8.h,
+                                    horizontal: AppDimensions.paddingSmall.w,
+                                    vertical: 6.h,
                                   ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(
@@ -361,36 +391,11 @@ class _ProfilePageState extends State<ProfilePage> {
                                 child: Text(
                                   'Edit Account Info',
                                   style: TextStyle(
-                                    fontSize: 12.sp,
-                                    fontWeight: FontWeight.w600,
+                                    fontSize: 11.sp,
+                                    fontWeight: FontWeight.w700,
                                     color: AuthColors.primary,
                                     fontFamily: AppFonts.primaryFont,
                                   ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: AppDimensions.paddingMedium.h),
-
-                            // Status Badge
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: AppDimensions.paddingMedium.w,
-                                vertical: 6.h,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AuthColors.primary,
-                                borderRadius: BorderRadius.circular(
-                                  AppDimensions.borderRadiusExtraLarge.r,
-                                ),
-                              ),
-                              child: Text(
-                                'ACTIVE FOOD SAVER',
-                                style: TextStyle(
-                                  fontSize: 12.sp,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                  fontFamily: AppFonts.primaryFont,
-                                  letterSpacing: 0.5,
                                 ),
                               ),
                             ),
@@ -434,17 +439,16 @@ class _ProfilePageState extends State<ProfilePage> {
                           ],
                         ),
                       ),
-
-                      /*
                       // Activity Section
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: AppDimensions.paddingLarge.w,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: AppDimensions.paddingLarge.w,
+                              vertical: AppDimensions.paddingLarge.h,
+                            ),
+                            child: Text(
                               'ACTIVITY',
                               style: TextStyle(
                                 fontSize: AppDimensions.captionSize.sp,
@@ -454,8 +458,13 @@ class _ProfilePageState extends State<ProfilePage> {
                                 letterSpacing: 0.5,
                               ),
                             ),
-                            SizedBox(height: AppDimensions.paddingMedium.h),
-                            Container(
+                          ),
+                          SizedBox(height: AppDimensions.paddingMedium.h),
+                          GestureDetector(
+                            onTap: () {
+                              context.push('/my-activities');
+                            },
+                            child: Container(
                               padding: EdgeInsets.all(
                                 AppDimensions.paddingMedium.w,
                               ),
@@ -467,10 +476,22 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                               child: Row(
                                 children: [
-                                  Icon(
-                                    Icons.history_rounded,
-                                    color: AuthColors.primary,
-                                    size: AppDimensions.iconSize.sp,
+                                  Container(
+                                    width: 40.w,
+                                    height: 40.w,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: AuthColors.primary.withValues(
+                                        alpha: 0.1,
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: Icon(
+                                        Icons.history_rounded,
+                                        color: AuthColors.primary,
+                                        size: 20.sp,
+                                      ),
+                                    ),
                                   ),
                                   SizedBox(
                                     width: AppDimensions.paddingMedium.w,
@@ -483,8 +504,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                         Text(
                                           'Activity History',
                                           style: TextStyle(
-                                            fontSize:
-                                                AppDimensions.buttonTextSize.sp,
+                                            fontSize: AppDimensions.bodySize.sp,
                                             fontWeight: FontWeight.w600,
                                             color: AuthColors.headingText,
                                             fontFamily: AppFonts.primaryFont,
@@ -492,9 +512,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                         ),
                                         SizedBox(height: 4.h),
                                         Text(
-                                          'Last: <PLACEHOLDER_ACTIVITY>',
+                                          'View your past donations',
                                           style: TextStyle(
-                                            fontSize: AppDimensions.bodySize.sp,
+                                            fontSize:
+                                                AppDimensions.captionSize.sp,
                                             fontWeight: FontWeight.w400,
                                             color: AuthColors.subText,
                                             fontFamily: AppFonts.primaryFont,
@@ -511,10 +532,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ],
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                      */
+
                       SizedBox(height: AppDimensions.paddingLarge.h),
 
                       // Preferences and Buttons Section
@@ -587,38 +608,6 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
 
                             SizedBox(height: AppDimensions.paddingLarge.h),
-
-                            // My Activities Button
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton.icon(
-                                icon: Icon(
-                                  Icons.history,
-                                  size: AppDimensions.iconSize.sp,
-                                ),
-                                onPressed: () {
-                                  context.push('/my-activities');
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AuthColors.primary,
-                                  padding: EdgeInsets.symmetric(vertical: 12.h),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(
-                                      AppDimensions.borderRadiusLarge.r,
-                                    ),
-                                  ),
-                                ),
-                                label: Text(
-                                  'My Activities',
-                                  style: TextStyle(
-                                    fontSize: AppDimensions.bodySize.sp,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                    fontFamily: AppFonts.primaryFont,
-                                  ),
-                                ),
-                              ),
-                            ),
 
                             SizedBox(height: AppDimensions.paddingMedium.h),
 

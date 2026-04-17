@@ -66,40 +66,48 @@ class ReservationRemoteDataSourceImpl implements ReservationRemoteDataSource {
     int page = 1,
     int limit = 20,
   }) async {
-    final vars = GMyReservationsVars.fromJson({
-      'pagination': {'page': page, 'limit': limit},
-    });
-    if (vars == null) {
-      throw ServerException('Failed to build myReservations request');
-    }
+    try {
+      // Note: The myReservations query returns current user's reservations
+      // userId parameter is kept for compatibility but not used in the GraphQL call
+      final vars = GMyReservationsVars.fromJson({
+        'pagination': {'page': page, 'limit': limit},
+      });
+      if (vars == null) {
+        throw ServerException('Failed to build myReservations request');
+      }
 
-    final data = await _executeRequest(
-      GMyReservationsReq((b) => b.vars = vars.toBuilder()),
-      'myReservations',
-    );
+      final data = await _executeRequest(
+        GMyReservationsReq((b) => b.vars = vars.toBuilder()),
+        'myReservations',
+      );
 
-    final items = data.myReservations.items;
-    if (items == null || items.isEmpty) {
-      return [];
-    }
+      final items = data.myReservations.items;
+      if (items == null || items.isEmpty) {
+        return [];
+      }
 
-    var reservations = items
-        .map(
-          (item) => ReservationModel.fromJson(
-            Map<String, dynamic>.from(item.toJson()),
-          ),
-        )
-        .toList();
-
-    final normalizedStatus = statusFilter?.trim().toUpperCase();
-    if (normalizedStatus != null && normalizedStatus.isNotEmpty) {
-      final status = ReservationStatusExt.fromString(normalizedStatus);
-      reservations = reservations
-          .where((reservation) => reservation.status == status)
+      var reservations = items
+          .map(
+            (item) => ReservationModel.fromJson(
+              Map<String, dynamic>.from(item.toJson()),
+            ),
+          )
           .toList();
-    }
 
-    return reservations;
+      final normalizedStatus = statusFilter?.trim().toUpperCase();
+      if (normalizedStatus != null && normalizedStatus.isNotEmpty) {
+        final status = ReservationStatusExt.fromString(normalizedStatus);
+        reservations = reservations
+            .where((reservation) => reservation.status == status)
+            .toList();
+      }
+
+      return reservations;
+    } on ServerException {
+      rethrow;
+    } catch (e) {
+      throw ServerException('Failed to fetch user reservations: $e');
+    }
   }
 
   @override
@@ -121,19 +129,50 @@ class ReservationRemoteDataSourceImpl implements ReservationRemoteDataSource {
 
   @override
   Future<ReservationModel> getReservationDetails(String reservationId) async {
+    print(
+      '[ReservationRemoteDataSource] getReservationDetails() called with ID: $reservationId',
+    );
+
     final vars = GMyReservationVars.fromJson({'id': reservationId});
     if (vars == null) {
+      print(
+        '[ReservationRemoteDataSource] ERROR: Failed to build myReservation request',
+      );
       throw ServerException('Failed to build myReservation request');
     }
 
-    final data = await _executeRequest(
-      GMyReservationReq((b) => b.vars = vars.toBuilder()),
-      'myReservation',
-    );
+    try {
+      print(
+        '[ReservationRemoteDataSource] Executing GraphQL query: myReservation',
+      );
+      final data = await _executeRequest(
+        GMyReservationReq((b) => b.vars = vars.toBuilder()),
+        'myReservation',
+      );
 
-    return ReservationModel.fromJson(
-      Map<String, dynamic>.from(data.myReservation.toJson()),
-    );
+      print('[ReservationRemoteDataSource] GraphQL response received');
+      final responseJson = data.myReservation.toJson();
+      print(
+        '[ReservationRemoteDataSource] Parsing response to ReservationModel...',
+      );
+      final model = ReservationModel.fromJson(
+        Map<String, dynamic>.from(responseJson),
+      );
+      print(
+        '[ReservationRemoteDataSource] SUCCESS: Reservation model created with ID: ${model.id}',
+      );
+      return model;
+    } on ServerException catch (e) {
+      print(
+        '[ReservationRemoteDataSource] ServerException caught: ${e.message}',
+      );
+      rethrow;
+    } catch (e) {
+      print(
+        '[ReservationRemoteDataSource] Unexpected error: ${e.runtimeType} - $e',
+      );
+      throw ServerException('Error fetching reservation: $e');
+    }
   }
 
   @override
