@@ -17,9 +17,9 @@ abstract class GUpdateProfileData
     implements Built<GUpdateProfileData, GUpdateProfileDataBuilder> {
   GUpdateProfileData._();
 
-  factory GUpdateProfileData(
-          [void Function(GUpdateProfileDataBuilder b) updates]) =
-      _$GUpdateProfileData;
+  factory GUpdateProfileData([
+    void Function(GUpdateProfileDataBuilder b) updates,
+  ]) = _$GUpdateProfileData;
 
   static void _initializeBuilder(GUpdateProfileDataBuilder b) =>
       b..G__typename = 'Mutation';
@@ -30,28 +30,26 @@ abstract class GUpdateProfileData
   static Serializer<GUpdateProfileData> get serializer =>
       _$gUpdateProfileDataSerializer;
 
-  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
-        GUpdateProfileData.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i1.serializers.serializeWith(GUpdateProfileData.serializer, this)
+          as Map<String, dynamic>);
 
   static GUpdateProfileData? fromJson(Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(
-        GUpdateProfileData.serializer,
-        json,
-      );
+      _i1.serializers.deserializeWith(GUpdateProfileData.serializer, json);
 }
 
 abstract class GUpdateProfileData_updateProfile
     implements
-        Built<GUpdateProfileData_updateProfile,
-            GUpdateProfileData_updateProfileBuilder>,
+        Built<
+          GUpdateProfileData_updateProfile,
+          GUpdateProfileData_updateProfileBuilder
+        >,
         _i2.GUserFields {
   GUpdateProfileData_updateProfile._();
 
-  factory GUpdateProfileData_updateProfile(
-          [void Function(GUpdateProfileData_updateProfileBuilder b) updates]) =
-      _$GUpdateProfileData_updateProfile;
+  factory GUpdateProfileData_updateProfile([
+    void Function(GUpdateProfileData_updateProfileBuilder b) updates,
+  ]) = _$GUpdateProfileData_updateProfile;
 
   static void _initializeBuilder(GUpdateProfileData_updateProfileBuilder b) =>
       b..G__typename = 'User';
@@ -85,33 +83,37 @@ abstract class GUpdateProfileData_updateProfile
       _$gUpdateProfileDataUpdateProfileSerializer;
 
   @override
-  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
-        GUpdateProfileData_updateProfile.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i1.serializers.serializeWith(
+            GUpdateProfileData_updateProfile.serializer,
+            this,
+          )
+          as Map<String, dynamic>);
 
   static GUpdateProfileData_updateProfile? fromJson(
-          Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(
-        GUpdateProfileData_updateProfile.serializer,
-        json,
-      );
+    Map<String, dynamic> json,
+  ) => _i1.serializers.deserializeWith(
+    GUpdateProfileData_updateProfile.serializer,
+    json,
+  );
 }
 
 abstract class GUpdateProfileData_updateProfile_location
     implements
-        Built<GUpdateProfileData_updateProfile_location,
-            GUpdateProfileData_updateProfile_locationBuilder>,
+        Built<
+          GUpdateProfileData_updateProfile_location,
+          GUpdateProfileData_updateProfile_locationBuilder
+        >,
         _i2.GUserFields_location {
   GUpdateProfileData_updateProfile_location._();
 
-  factory GUpdateProfileData_updateProfile_location(
-      [void Function(GUpdateProfileData_updateProfile_locationBuilder b)
-          updates]) = _$GUpdateProfileData_updateProfile_location;
+  factory GUpdateProfileData_updateProfile_location([
+    void Function(GUpdateProfileData_updateProfile_locationBuilder b) updates,
+  ]) = _$GUpdateProfileData_updateProfile_location;
 
   static void _initializeBuilder(
-          GUpdateProfileData_updateProfile_locationBuilder b) =>
-      b..G__typename = 'Location';
+    GUpdateProfileData_updateProfile_locationBuilder b,
+  ) => b..G__typename = 'Location';
 
   @override
   @BuiltValueField(wireName: '__typename')
@@ -132,33 +134,37 @@ abstract class GUpdateProfileData_updateProfile_location
       _$gUpdateProfileDataUpdateProfileLocationSerializer;
 
   @override
-  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
-        GUpdateProfileData_updateProfile_location.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i1.serializers.serializeWith(
+            GUpdateProfileData_updateProfile_location.serializer,
+            this,
+          )
+          as Map<String, dynamic>);
 
   static GUpdateProfileData_updateProfile_location? fromJson(
-          Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(
-        GUpdateProfileData_updateProfile_location.serializer,
-        json,
-      );
+    Map<String, dynamic> json,
+  ) => _i1.serializers.deserializeWith(
+    GUpdateProfileData_updateProfile_location.serializer,
+    json,
+  );
 }
 
 abstract class GUpdateProfileData_updateProfile_avatar
     implements
-        Built<GUpdateProfileData_updateProfile_avatar,
-            GUpdateProfileData_updateProfile_avatarBuilder>,
+        Built<
+          GUpdateProfileData_updateProfile_avatar,
+          GUpdateProfileData_updateProfile_avatarBuilder
+        >,
         _i2.GUserFields_avatar {
   GUpdateProfileData_updateProfile_avatar._();
 
-  factory GUpdateProfileData_updateProfile_avatar(
-      [void Function(GUpdateProfileData_updateProfile_avatarBuilder b)
-          updates]) = _$GUpdateProfileData_updateProfile_avatar;
+  factory GUpdateProfileData_updateProfile_avatar([
+    void Function(GUpdateProfileData_updateProfile_avatarBuilder b) updates,
+  ]) = _$GUpdateProfileData_updateProfile_avatar;
 
   static void _initializeBuilder(
-          GUpdateProfileData_updateProfile_avatarBuilder b) =>
-      b..G__typename = 'Attachment';
+    GUpdateProfileData_updateProfile_avatarBuilder b,
+  ) => b..G__typename = 'Attachment';
 
   @override
   @BuiltValueField(wireName: '__typename')
@@ -173,15 +179,17 @@ abstract class GUpdateProfileData_updateProfile_avatar
       _$gUpdateProfileDataUpdateProfileAvatarSerializer;
 
   @override
-  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
-        GUpdateProfileData_updateProfile_avatar.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i1.serializers.serializeWith(
+            GUpdateProfileData_updateProfile_avatar.serializer,
+            this,
+          )
+          as Map<String, dynamic>);
 
   static GUpdateProfileData_updateProfile_avatar? fromJson(
-          Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(
-        GUpdateProfileData_updateProfile_avatar.serializer,
-        json,
-      );
+    Map<String, dynamic> json,
+  ) => _i1.serializers.deserializeWith(
+    GUpdateProfileData_updateProfile_avatar.serializer,
+    json,
+  );
 }

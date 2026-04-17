@@ -20,13 +20,15 @@ part 'get_donation_by_id.req.gql.g.dart';
 abstract class GGetDonationByIdReq
     implements
         Built<GGetDonationByIdReq, GGetDonationByIdReqBuilder>,
-        _i1
-        .OperationRequest<_i2.GGetDonationByIdData, _i3.GGetDonationByIdVars> {
+        _i1.OperationRequest<
+          _i2.GGetDonationByIdData,
+          _i3.GGetDonationByIdVars
+        > {
   GGetDonationByIdReq._();
 
-  factory GGetDonationByIdReq(
-          [void Function(GGetDonationByIdReqBuilder b) updates]) =
-      _$GGetDonationByIdReq;
+  factory GGetDonationByIdReq([
+    void Function(GGetDonationByIdReqBuilder b) updates,
+  ]) = _$GGetDonationByIdReq;
 
   static void _initializeBuilder(GGetDonationByIdReqBuilder b) => b
     ..operation = _i4.Operation(
@@ -41,10 +43,10 @@ abstract class GGetDonationByIdReq
   _i4.Operation get operation;
   @override
   _i4.Request get execRequest => _i4.Request(
-        operation: operation,
-        variables: vars.toJson(),
-        context: context ?? const _i4.Context(),
-      );
+    operation: operation,
+    variables: vars.toJson(),
+    context: context ?? const _i4.Context(),
+  );
 
   @override
   String? get requestId;
@@ -53,7 +55,8 @@ abstract class GGetDonationByIdReq
   _i2.GGetDonationByIdData? Function(
     _i2.GGetDonationByIdData?,
     _i2.GGetDonationByIdData?,
-  )? get updateResult;
+  )?
+  get updateResult;
   @override
   _i2.GGetDonationByIdData? get optimisticResponse;
   @override
@@ -80,20 +83,16 @@ abstract class GGetDonationByIdReq
 
   @override
   _i1.OperationRequest<_i2.GGetDonationByIdData, _i3.GGetDonationByIdVars>
-      transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
-          this.rebuild((b) => b..operation = transform(operation));
+  transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
+      this.rebuild((b) => b..operation = transform(operation));
 
   static Serializer<GGetDonationByIdReq> get serializer =>
       _$gGetDonationByIdReqSerializer;
 
-  Map<String, dynamic> toJson() => (_i6.serializers.serializeWith(
-        GGetDonationByIdReq.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i6.serializers.serializeWith(GGetDonationByIdReq.serializer, this)
+          as Map<String, dynamic>);
 
   static GGetDonationByIdReq? fromJson(Map<String, dynamic> json) =>
-      _i6.serializers.deserializeWith(
-        GGetDonationByIdReq.serializer,
-        json,
-      );
+      _i6.serializers.deserializeWith(GGetDonationByIdReq.serializer, json);
 }

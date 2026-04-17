@@ -13,9 +13,9 @@ abstract class GDeleteAccountData
     implements Built<GDeleteAccountData, GDeleteAccountDataBuilder> {
   GDeleteAccountData._();
 
-  factory GDeleteAccountData(
-          [void Function(GDeleteAccountDataBuilder b) updates]) =
-      _$GDeleteAccountData;
+  factory GDeleteAccountData([
+    void Function(GDeleteAccountDataBuilder b) updates,
+  ]) = _$GDeleteAccountData;
 
   static void _initializeBuilder(GDeleteAccountDataBuilder b) =>
       b..G__typename = 'Mutation';
@@ -26,27 +26,25 @@ abstract class GDeleteAccountData
   static Serializer<GDeleteAccountData> get serializer =>
       _$gDeleteAccountDataSerializer;
 
-  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
-        GDeleteAccountData.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i1.serializers.serializeWith(GDeleteAccountData.serializer, this)
+          as Map<String, dynamic>);
 
   static GDeleteAccountData? fromJson(Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(
-        GDeleteAccountData.serializer,
-        json,
-      );
+      _i1.serializers.deserializeWith(GDeleteAccountData.serializer, json);
 }
 
 abstract class GDeleteAccountData_deleteAccount
     implements
-        Built<GDeleteAccountData_deleteAccount,
-            GDeleteAccountData_deleteAccountBuilder> {
+        Built<
+          GDeleteAccountData_deleteAccount,
+          GDeleteAccountData_deleteAccountBuilder
+        > {
   GDeleteAccountData_deleteAccount._();
 
-  factory GDeleteAccountData_deleteAccount(
-          [void Function(GDeleteAccountData_deleteAccountBuilder b) updates]) =
-      _$GDeleteAccountData_deleteAccount;
+  factory GDeleteAccountData_deleteAccount([
+    void Function(GDeleteAccountData_deleteAccountBuilder b) updates,
+  ]) = _$GDeleteAccountData_deleteAccount;
 
   static void _initializeBuilder(GDeleteAccountData_deleteAccountBuilder b) =>
       b..G__typename = 'MessageResponse';
@@ -57,15 +55,17 @@ abstract class GDeleteAccountData_deleteAccount
   static Serializer<GDeleteAccountData_deleteAccount> get serializer =>
       _$gDeleteAccountDataDeleteAccountSerializer;
 
-  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
-        GDeleteAccountData_deleteAccount.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i1.serializers.serializeWith(
+            GDeleteAccountData_deleteAccount.serializer,
+            this,
+          )
+          as Map<String, dynamic>);
 
   static GDeleteAccountData_deleteAccount? fromJson(
-          Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(
-        GDeleteAccountData_deleteAccount.serializer,
-        json,
-      );
+    Map<String, dynamic> json,
+  ) => _i1.serializers.deserializeWith(
+    GDeleteAccountData_deleteAccount.serializer,
+    json,
+  );
 }

@@ -23,9 +23,9 @@ abstract class GResetPasswordReq
         _i1.OperationRequest<_i2.GResetPasswordData, _i3.GResetPasswordVars> {
   GResetPasswordReq._();
 
-  factory GResetPasswordReq(
-          [void Function(GResetPasswordReqBuilder b) updates]) =
-      _$GResetPasswordReq;
+  factory GResetPasswordReq([
+    void Function(GResetPasswordReqBuilder b) updates,
+  ]) = _$GResetPasswordReq;
 
   static void _initializeBuilder(GResetPasswordReqBuilder b) => b
     ..operation = _i4.Operation(
@@ -40,10 +40,10 @@ abstract class GResetPasswordReq
   _i4.Operation get operation;
   @override
   _i4.Request get execRequest => _i4.Request(
-        operation: operation,
-        variables: vars.toJson(),
-        context: context ?? const _i4.Context(),
-      );
+    operation: operation,
+    variables: vars.toJson(),
+    context: context ?? const _i4.Context(),
+  );
 
   @override
   String? get requestId;
@@ -52,7 +52,8 @@ abstract class GResetPasswordReq
   _i2.GResetPasswordData? Function(
     _i2.GResetPasswordData?,
     _i2.GResetPasswordData?,
-  )? get updateResult;
+  )?
+  get updateResult;
   @override
   _i2.GResetPasswordData? get optimisticResponse;
   @override
@@ -78,20 +79,16 @@ abstract class GResetPasswordReq
 
   @override
   _i1.OperationRequest<_i2.GResetPasswordData, _i3.GResetPasswordVars>
-      transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
-          this.rebuild((b) => b..operation = transform(operation));
+  transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
+      this.rebuild((b) => b..operation = transform(operation));
 
   static Serializer<GResetPasswordReq> get serializer =>
       _$gResetPasswordReqSerializer;
 
-  Map<String, dynamic> toJson() => (_i6.serializers.serializeWith(
-        GResetPasswordReq.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i6.serializers.serializeWith(GResetPasswordReq.serializer, this)
+          as Map<String, dynamic>);
 
   static GResetPasswordReq? fromJson(Map<String, dynamic> json) =>
-      _i6.serializers.deserializeWith(
-        GResetPasswordReq.serializer,
-        json,
-      );
+      _i6.serializers.deserializeWith(GResetPasswordReq.serializer, json);
 }

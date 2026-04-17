@@ -39,19 +39,17 @@ abstract class GRegisterReq
   _i4.Operation get operation;
   @override
   _i4.Request get execRequest => _i4.Request(
-        operation: operation,
-        variables: vars.toJson(),
-        context: context ?? const _i4.Context(),
-      );
+    operation: operation,
+    variables: vars.toJson(),
+    context: context ?? const _i4.Context(),
+  );
 
   @override
   String? get requestId;
   @override
   @BuiltValueField(serialize: false)
-  _i2.GRegisterData? Function(
-    _i2.GRegisterData?,
-    _i2.GRegisterData?,
-  )? get updateResult;
+  _i2.GRegisterData? Function(_i2.GRegisterData?, _i2.GRegisterData?)?
+  get updateResult;
   @override
   _i2.GRegisterData? get optimisticResponse;
   @override
@@ -77,19 +75,15 @@ abstract class GRegisterReq
 
   @override
   _i1.OperationRequest<_i2.GRegisterData, _i3.GRegisterVars> transformOperation(
-          _i4.Operation Function(_i4.Operation) transform) =>
-      this.rebuild((b) => b..operation = transform(operation));
+    _i4.Operation Function(_i4.Operation) transform,
+  ) => this.rebuild((b) => b..operation = transform(operation));
 
   static Serializer<GRegisterReq> get serializer => _$gRegisterReqSerializer;
 
-  Map<String, dynamic> toJson() => (_i6.serializers.serializeWith(
-        GRegisterReq.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i6.serializers.serializeWith(GRegisterReq.serializer, this)
+          as Map<String, dynamic>);
 
   static GRegisterReq? fromJson(Map<String, dynamic> json) =>
-      _i6.serializers.deserializeWith(
-        GRegisterReq.serializer,
-        json,
-      );
+      _i6.serializers.deserializeWith(GRegisterReq.serializer, json);
 }

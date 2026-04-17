@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../features/chat/presentation/pages/chats_list_page.dart';
 import 'package:gaspzero/core/di/injection.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/pages/intro_page.dart';
@@ -12,7 +13,7 @@ import '../../features/donations/domain/entities/donation.dart';
 import '../../features/donations/presentation/pages/donations_list_page.dart';
 import '../../features/donations/presentation/bloc/donations_bloc.dart';
 import '../../features/donations/presentation/bloc/donations_event.dart';
-import '../../features/chat/presentation/pages/chat_placeholder_page.dart';
+import '../../features/chat/presentation/pages/chat_page.dart';
 import '../../features/ranks/presentation/pages/ranks_placeholder_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/donations/presentation/pages/add_donation_page.dart';
@@ -111,7 +112,19 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: '/chat',
-      builder: (context, state) => const ChatPlaceholderPage(),
+      builder: (context, state) {
+        final reservationId = state.extra as String?;
+        if (reservationId == null) {
+          return const Scaffold(body: Center(child: Text('Invalid chat')));
+        }
+        return ChatPage(reservationId: reservationId);
+      },
+    ),
+    GoRoute(
+      path: '/chats',
+      builder: (context, state) {
+        return const ChatsListPage();
+      },
     ),
     // ─── Main app routes (with bottom nav) ───
     StatefulShellRoute.indexedStack(

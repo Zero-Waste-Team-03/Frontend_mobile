@@ -13,22 +13,18 @@ abstract class GGetDonationByIdVars
     implements Built<GGetDonationByIdVars, GGetDonationByIdVarsBuilder> {
   GGetDonationByIdVars._();
 
-  factory GGetDonationByIdVars(
-          [void Function(GGetDonationByIdVarsBuilder b) updates]) =
-      _$GGetDonationByIdVars;
+  factory GGetDonationByIdVars([
+    void Function(GGetDonationByIdVarsBuilder b) updates,
+  ]) = _$GGetDonationByIdVars;
 
   String get id;
   static Serializer<GGetDonationByIdVars> get serializer =>
       _$gGetDonationByIdVarsSerializer;
 
-  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
-        GGetDonationByIdVars.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i1.serializers.serializeWith(GGetDonationByIdVars.serializer, this)
+          as Map<String, dynamic>);
 
   static GGetDonationByIdVars? fromJson(Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(
-        GGetDonationByIdVars.serializer,
-        json,
-      );
+      _i1.serializers.deserializeWith(GGetDonationByIdVars.serializer, json);
 }

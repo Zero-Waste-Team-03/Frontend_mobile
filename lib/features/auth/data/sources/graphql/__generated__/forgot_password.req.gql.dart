@@ -23,9 +23,9 @@ abstract class GForgotPasswordReq
         _i1.OperationRequest<_i2.GForgotPasswordData, _i3.GForgotPasswordVars> {
   GForgotPasswordReq._();
 
-  factory GForgotPasswordReq(
-          [void Function(GForgotPasswordReqBuilder b) updates]) =
-      _$GForgotPasswordReq;
+  factory GForgotPasswordReq([
+    void Function(GForgotPasswordReqBuilder b) updates,
+  ]) = _$GForgotPasswordReq;
 
   static void _initializeBuilder(GForgotPasswordReqBuilder b) => b
     ..operation = _i4.Operation(
@@ -40,10 +40,10 @@ abstract class GForgotPasswordReq
   _i4.Operation get operation;
   @override
   _i4.Request get execRequest => _i4.Request(
-        operation: operation,
-        variables: vars.toJson(),
-        context: context ?? const _i4.Context(),
-      );
+    operation: operation,
+    variables: vars.toJson(),
+    context: context ?? const _i4.Context(),
+  );
 
   @override
   String? get requestId;
@@ -52,7 +52,8 @@ abstract class GForgotPasswordReq
   _i2.GForgotPasswordData? Function(
     _i2.GForgotPasswordData?,
     _i2.GForgotPasswordData?,
-  )? get updateResult;
+  )?
+  get updateResult;
   @override
   _i2.GForgotPasswordData? get optimisticResponse;
   @override
@@ -79,20 +80,16 @@ abstract class GForgotPasswordReq
 
   @override
   _i1.OperationRequest<_i2.GForgotPasswordData, _i3.GForgotPasswordVars>
-      transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
-          this.rebuild((b) => b..operation = transform(operation));
+  transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
+      this.rebuild((b) => b..operation = transform(operation));
 
   static Serializer<GForgotPasswordReq> get serializer =>
       _$gForgotPasswordReqSerializer;
 
-  Map<String, dynamic> toJson() => (_i6.serializers.serializeWith(
-        GForgotPasswordReq.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i6.serializers.serializeWith(GForgotPasswordReq.serializer, this)
+          as Map<String, dynamic>);
 
   static GForgotPasswordReq? fromJson(Map<String, dynamic> json) =>
-      _i6.serializers.deserializeWith(
-        GForgotPasswordReq.serializer,
-        json,
-      );
+      _i6.serializers.deserializeWith(GForgotPasswordReq.serializer, json);
 }

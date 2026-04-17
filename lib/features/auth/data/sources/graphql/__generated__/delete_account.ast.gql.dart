@@ -9,22 +9,26 @@ const DeleteAccount = _i1.OperationDefinitionNode(
   name: _i1.NameNode(value: 'DeleteAccount'),
   variableDefinitions: [],
   directives: [],
-  selectionSet: _i1.SelectionSetNode(selections: [
-    _i1.FieldNode(
-      name: _i1.NameNode(value: 'deleteAccount'),
-      alias: null,
-      arguments: [],
-      directives: [],
-      selectionSet: _i1.SelectionSetNode(selections: [
-        _i1.FieldNode(
-          name: _i1.NameNode(value: 'message'),
-          alias: null,
-          arguments: [],
-          directives: [],
-          selectionSet: null,
-        )
-      ]),
-    )
-  ]),
+  selectionSet: _i1.SelectionSetNode(
+    selections: [
+      _i1.FieldNode(
+        name: _i1.NameNode(value: 'deleteAccount'),
+        alias: null,
+        arguments: [],
+        directives: [],
+        selectionSet: _i1.SelectionSetNode(
+          selections: [
+            _i1.FieldNode(
+              name: _i1.NameNode(value: 'message'),
+              alias: null,
+              arguments: [],
+              directives: [],
+              selectionSet: null,
+            ),
+          ],
+        ),
+      ),
+    ],
+  ),
 );
 const document = _i1.DocumentNode(definitions: [DeleteAccount]);

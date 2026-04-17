@@ -23,9 +23,9 @@ abstract class GRefreshTokensReq
         _i1.OperationRequest<_i2.GRefreshTokensData, _i3.GRefreshTokensVars> {
   GRefreshTokensReq._();
 
-  factory GRefreshTokensReq(
-          [void Function(GRefreshTokensReqBuilder b) updates]) =
-      _$GRefreshTokensReq;
+  factory GRefreshTokensReq([
+    void Function(GRefreshTokensReqBuilder b) updates,
+  ]) = _$GRefreshTokensReq;
 
   static void _initializeBuilder(GRefreshTokensReqBuilder b) => b
     ..operation = _i4.Operation(
@@ -40,10 +40,10 @@ abstract class GRefreshTokensReq
   _i4.Operation get operation;
   @override
   _i4.Request get execRequest => _i4.Request(
-        operation: operation,
-        variables: vars.toJson(),
-        context: context ?? const _i4.Context(),
-      );
+    operation: operation,
+    variables: vars.toJson(),
+    context: context ?? const _i4.Context(),
+  );
 
   @override
   String? get requestId;
@@ -52,7 +52,8 @@ abstract class GRefreshTokensReq
   _i2.GRefreshTokensData? Function(
     _i2.GRefreshTokensData?,
     _i2.GRefreshTokensData?,
-  )? get updateResult;
+  )?
+  get updateResult;
   @override
   _i2.GRefreshTokensData? get optimisticResponse;
   @override
@@ -78,20 +79,16 @@ abstract class GRefreshTokensReq
 
   @override
   _i1.OperationRequest<_i2.GRefreshTokensData, _i3.GRefreshTokensVars>
-      transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
-          this.rebuild((b) => b..operation = transform(operation));
+  transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
+      this.rebuild((b) => b..operation = transform(operation));
 
   static Serializer<GRefreshTokensReq> get serializer =>
       _$gRefreshTokensReqSerializer;
 
-  Map<String, dynamic> toJson() => (_i6.serializers.serializeWith(
-        GRefreshTokensReq.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i6.serializers.serializeWith(GRefreshTokensReq.serializer, this)
+          as Map<String, dynamic>);
 
   static GRefreshTokensReq? fromJson(Map<String, dynamic> json) =>
-      _i6.serializers.deserializeWith(
-        GRefreshTokensReq.serializer,
-        json,
-      );
+      _i6.serializers.deserializeWith(GRefreshTokensReq.serializer, json);
 }

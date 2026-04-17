@@ -39,10 +39,10 @@ abstract class GGetDonationsReq
   _i4.Operation get operation;
   @override
   _i4.Request get execRequest => _i4.Request(
-        operation: operation,
-        variables: vars.toJson(),
-        context: context ?? const _i4.Context(),
-      );
+    operation: operation,
+    variables: vars.toJson(),
+    context: context ?? const _i4.Context(),
+  );
 
   @override
   String? get requestId;
@@ -51,7 +51,8 @@ abstract class GGetDonationsReq
   _i2.GGetDonationsData? Function(
     _i2.GGetDonationsData?,
     _i2.GGetDonationsData?,
-  )? get updateResult;
+  )?
+  get updateResult;
   @override
   _i2.GGetDonationsData? get optimisticResponse;
   @override
@@ -77,20 +78,16 @@ abstract class GGetDonationsReq
 
   @override
   _i1.OperationRequest<_i2.GGetDonationsData, _i3.GGetDonationsVars>
-      transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
-          this.rebuild((b) => b..operation = transform(operation));
+  transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
+      this.rebuild((b) => b..operation = transform(operation));
 
   static Serializer<GGetDonationsReq> get serializer =>
       _$gGetDonationsReqSerializer;
 
-  Map<String, dynamic> toJson() => (_i6.serializers.serializeWith(
-        GGetDonationsReq.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i6.serializers.serializeWith(GGetDonationsReq.serializer, this)
+          as Map<String, dynamic>);
 
   static GGetDonationsReq? fromJson(Map<String, dynamic> json) =>
-      _i6.serializers.deserializeWith(
-        GGetDonationsReq.serializer,
-        json,
-      );
+      _i6.serializers.deserializeWith(GGetDonationsReq.serializer, json);
 }

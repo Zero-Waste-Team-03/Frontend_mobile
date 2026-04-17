@@ -108,9 +108,9 @@ abstract class GReservationFieldsData
         GReservationFields {
   GReservationFieldsData._();
 
-  factory GReservationFieldsData(
-          [void Function(GReservationFieldsDataBuilder b) updates]) =
-      _$GReservationFieldsData;
+  factory GReservationFieldsData([
+    void Function(GReservationFieldsDataBuilder b) updates,
+  ]) = _$GReservationFieldsData;
 
   static void _initializeBuilder(GReservationFieldsDataBuilder b) =>
       b..G__typename = 'Reservation';
@@ -140,28 +140,26 @@ abstract class GReservationFieldsData
       _$gReservationFieldsDataSerializer;
 
   @override
-  Map<String, dynamic> toJson() => (_i2.serializers.serializeWith(
-        GReservationFieldsData.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i2.serializers.serializeWith(GReservationFieldsData.serializer, this)
+          as Map<String, dynamic>);
 
   static GReservationFieldsData? fromJson(Map<String, dynamic> json) =>
-      _i2.serializers.deserializeWith(
-        GReservationFieldsData.serializer,
-        json,
-      );
+      _i2.serializers.deserializeWith(GReservationFieldsData.serializer, json);
 }
 
 abstract class GReservationFieldsData_donation
     implements
-        Built<GReservationFieldsData_donation,
-            GReservationFieldsData_donationBuilder>,
+        Built<
+          GReservationFieldsData_donation,
+          GReservationFieldsData_donationBuilder
+        >,
         GReservationFields_donation {
   GReservationFieldsData_donation._();
 
-  factory GReservationFieldsData_donation(
-          [void Function(GReservationFieldsData_donationBuilder b) updates]) =
-      _$GReservationFieldsData_donation;
+  factory GReservationFieldsData_donation([
+    void Function(GReservationFieldsData_donationBuilder b) updates,
+  ]) = _$GReservationFieldsData_donation;
 
   static void _initializeBuilder(GReservationFieldsData_donationBuilder b) =>
       b..G__typename = 'Donation';
@@ -197,10 +195,12 @@ abstract class GReservationFieldsData_donation
       _$gReservationFieldsDataDonationSerializer;
 
   @override
-  Map<String, dynamic> toJson() => (_i2.serializers.serializeWith(
-        GReservationFieldsData_donation.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i2.serializers.serializeWith(
+            GReservationFieldsData_donation.serializer,
+            this,
+          )
+          as Map<String, dynamic>);
 
   static GReservationFieldsData_donation? fromJson(Map<String, dynamic> json) =>
       _i2.serializers.deserializeWith(
@@ -211,18 +211,20 @@ abstract class GReservationFieldsData_donation
 
 abstract class GReservationFieldsData_donation_category
     implements
-        Built<GReservationFieldsData_donation_category,
-            GReservationFieldsData_donation_categoryBuilder>,
+        Built<
+          GReservationFieldsData_donation_category,
+          GReservationFieldsData_donation_categoryBuilder
+        >,
         GReservationFields_donation_category {
   GReservationFieldsData_donation_category._();
 
-  factory GReservationFieldsData_donation_category(
-      [void Function(GReservationFieldsData_donation_categoryBuilder b)
-          updates]) = _$GReservationFieldsData_donation_category;
+  factory GReservationFieldsData_donation_category([
+    void Function(GReservationFieldsData_donation_categoryBuilder b) updates,
+  ]) = _$GReservationFieldsData_donation_category;
 
   static void _initializeBuilder(
-          GReservationFieldsData_donation_categoryBuilder b) =>
-      b..G__typename = 'Category';
+    GReservationFieldsData_donation_categoryBuilder b,
+  ) => b..G__typename = 'Category';
 
   @override
   @BuiltValueField(wireName: '__typename')
@@ -235,33 +237,38 @@ abstract class GReservationFieldsData_donation_category
       _$gReservationFieldsDataDonationCategorySerializer;
 
   @override
-  Map<String, dynamic> toJson() => (_i2.serializers.serializeWith(
-        GReservationFieldsData_donation_category.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i2.serializers.serializeWith(
+            GReservationFieldsData_donation_category.serializer,
+            this,
+          )
+          as Map<String, dynamic>);
 
   static GReservationFieldsData_donation_category? fromJson(
-          Map<String, dynamic> json) =>
-      _i2.serializers.deserializeWith(
-        GReservationFieldsData_donation_category.serializer,
-        json,
-      );
+    Map<String, dynamic> json,
+  ) => _i2.serializers.deserializeWith(
+    GReservationFieldsData_donation_category.serializer,
+    json,
+  );
 }
 
 abstract class GReservationFieldsData_donation_mainAttachment
     implements
-        Built<GReservationFieldsData_donation_mainAttachment,
-            GReservationFieldsData_donation_mainAttachmentBuilder>,
+        Built<
+          GReservationFieldsData_donation_mainAttachment,
+          GReservationFieldsData_donation_mainAttachmentBuilder
+        >,
         GReservationFields_donation_mainAttachment {
   GReservationFieldsData_donation_mainAttachment._();
 
-  factory GReservationFieldsData_donation_mainAttachment(
-      [void Function(GReservationFieldsData_donation_mainAttachmentBuilder b)
-          updates]) = _$GReservationFieldsData_donation_mainAttachment;
+  factory GReservationFieldsData_donation_mainAttachment([
+    void Function(GReservationFieldsData_donation_mainAttachmentBuilder b)
+    updates,
+  ]) = _$GReservationFieldsData_donation_mainAttachment;
 
   static void _initializeBuilder(
-          GReservationFieldsData_donation_mainAttachmentBuilder b) =>
-      b..G__typename = 'Attachment';
+    GReservationFieldsData_donation_mainAttachmentBuilder b,
+  ) => b..G__typename = 'Attachment';
 
   @override
   @BuiltValueField(wireName: '__typename')
@@ -269,37 +276,40 @@ abstract class GReservationFieldsData_donation_mainAttachment
   @override
   String? get url;
   static Serializer<GReservationFieldsData_donation_mainAttachment>
-      get serializer =>
-          _$gReservationFieldsDataDonationMainAttachmentSerializer;
+  get serializer => _$gReservationFieldsDataDonationMainAttachmentSerializer;
 
   @override
-  Map<String, dynamic> toJson() => (_i2.serializers.serializeWith(
-        GReservationFieldsData_donation_mainAttachment.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i2.serializers.serializeWith(
+            GReservationFieldsData_donation_mainAttachment.serializer,
+            this,
+          )
+          as Map<String, dynamic>);
 
   static GReservationFieldsData_donation_mainAttachment? fromJson(
-          Map<String, dynamic> json) =>
-      _i2.serializers.deserializeWith(
-        GReservationFieldsData_donation_mainAttachment.serializer,
-        json,
-      );
+    Map<String, dynamic> json,
+  ) => _i2.serializers.deserializeWith(
+    GReservationFieldsData_donation_mainAttachment.serializer,
+    json,
+  );
 }
 
 abstract class GReservationFieldsData_donation_location
     implements
-        Built<GReservationFieldsData_donation_location,
-            GReservationFieldsData_donation_locationBuilder>,
+        Built<
+          GReservationFieldsData_donation_location,
+          GReservationFieldsData_donation_locationBuilder
+        >,
         GReservationFields_donation_location {
   GReservationFieldsData_donation_location._();
 
-  factory GReservationFieldsData_donation_location(
-      [void Function(GReservationFieldsData_donation_locationBuilder b)
-          updates]) = _$GReservationFieldsData_donation_location;
+  factory GReservationFieldsData_donation_location([
+    void Function(GReservationFieldsData_donation_locationBuilder b) updates,
+  ]) = _$GReservationFieldsData_donation_location;
 
   static void _initializeBuilder(
-          GReservationFieldsData_donation_locationBuilder b) =>
-      b..G__typename = 'Location';
+    GReservationFieldsData_donation_locationBuilder b,
+  ) => b..G__typename = 'Location';
 
   @override
   @BuiltValueField(wireName: '__typename')
@@ -312,33 +322,37 @@ abstract class GReservationFieldsData_donation_location
       _$gReservationFieldsDataDonationLocationSerializer;
 
   @override
-  Map<String, dynamic> toJson() => (_i2.serializers.serializeWith(
-        GReservationFieldsData_donation_location.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i2.serializers.serializeWith(
+            GReservationFieldsData_donation_location.serializer,
+            this,
+          )
+          as Map<String, dynamic>);
 
   static GReservationFieldsData_donation_location? fromJson(
-          Map<String, dynamic> json) =>
-      _i2.serializers.deserializeWith(
-        GReservationFieldsData_donation_location.serializer,
-        json,
-      );
+    Map<String, dynamic> json,
+  ) => _i2.serializers.deserializeWith(
+    GReservationFieldsData_donation_location.serializer,
+    json,
+  );
 }
 
 abstract class GReservationFieldsData_donation_user
     implements
-        Built<GReservationFieldsData_donation_user,
-            GReservationFieldsData_donation_userBuilder>,
+        Built<
+          GReservationFieldsData_donation_user,
+          GReservationFieldsData_donation_userBuilder
+        >,
         GReservationFields_donation_user {
   GReservationFieldsData_donation_user._();
 
-  factory GReservationFieldsData_donation_user(
-      [void Function(GReservationFieldsData_donation_userBuilder b)
-          updates]) = _$GReservationFieldsData_donation_user;
+  factory GReservationFieldsData_donation_user([
+    void Function(GReservationFieldsData_donation_userBuilder b) updates,
+  ]) = _$GReservationFieldsData_donation_user;
 
   static void _initializeBuilder(
-          GReservationFieldsData_donation_userBuilder b) =>
-      b..G__typename = 'User';
+    GReservationFieldsData_donation_userBuilder b,
+  ) => b..G__typename = 'User';
 
   @override
   @BuiltValueField(wireName: '__typename')
@@ -351,29 +365,33 @@ abstract class GReservationFieldsData_donation_user
       _$gReservationFieldsDataDonationUserSerializer;
 
   @override
-  Map<String, dynamic> toJson() => (_i2.serializers.serializeWith(
-        GReservationFieldsData_donation_user.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i2.serializers.serializeWith(
+            GReservationFieldsData_donation_user.serializer,
+            this,
+          )
+          as Map<String, dynamic>);
 
   static GReservationFieldsData_donation_user? fromJson(
-          Map<String, dynamic> json) =>
-      _i2.serializers.deserializeWith(
-        GReservationFieldsData_donation_user.serializer,
-        json,
-      );
+    Map<String, dynamic> json,
+  ) => _i2.serializers.deserializeWith(
+    GReservationFieldsData_donation_user.serializer,
+    json,
+  );
 }
 
 abstract class GReservationFieldsData_beneficiary
     implements
-        Built<GReservationFieldsData_beneficiary,
-            GReservationFieldsData_beneficiaryBuilder>,
+        Built<
+          GReservationFieldsData_beneficiary,
+          GReservationFieldsData_beneficiaryBuilder
+        >,
         GReservationFields_beneficiary {
   GReservationFieldsData_beneficiary._();
 
-  factory GReservationFieldsData_beneficiary(
-      [void Function(GReservationFieldsData_beneficiaryBuilder b)
-          updates]) = _$GReservationFieldsData_beneficiary;
+  factory GReservationFieldsData_beneficiary([
+    void Function(GReservationFieldsData_beneficiaryBuilder b) updates,
+  ]) = _$GReservationFieldsData_beneficiary;
 
   static void _initializeBuilder(GReservationFieldsData_beneficiaryBuilder b) =>
       b..G__typename = 'User';
@@ -407,33 +425,37 @@ abstract class GReservationFieldsData_beneficiary
       _$gReservationFieldsDataBeneficiarySerializer;
 
   @override
-  Map<String, dynamic> toJson() => (_i2.serializers.serializeWith(
-        GReservationFieldsData_beneficiary.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i2.serializers.serializeWith(
+            GReservationFieldsData_beneficiary.serializer,
+            this,
+          )
+          as Map<String, dynamic>);
 
   static GReservationFieldsData_beneficiary? fromJson(
-          Map<String, dynamic> json) =>
-      _i2.serializers.deserializeWith(
-        GReservationFieldsData_beneficiary.serializer,
-        json,
-      );
+    Map<String, dynamic> json,
+  ) => _i2.serializers.deserializeWith(
+    GReservationFieldsData_beneficiary.serializer,
+    json,
+  );
 }
 
 abstract class GReservationFieldsData_beneficiary_location
     implements
-        Built<GReservationFieldsData_beneficiary_location,
-            GReservationFieldsData_beneficiary_locationBuilder>,
+        Built<
+          GReservationFieldsData_beneficiary_location,
+          GReservationFieldsData_beneficiary_locationBuilder
+        >,
         GReservationFields_beneficiary_location {
   GReservationFieldsData_beneficiary_location._();
 
-  factory GReservationFieldsData_beneficiary_location(
-      [void Function(GReservationFieldsData_beneficiary_locationBuilder b)
-          updates]) = _$GReservationFieldsData_beneficiary_location;
+  factory GReservationFieldsData_beneficiary_location([
+    void Function(GReservationFieldsData_beneficiary_locationBuilder b) updates,
+  ]) = _$GReservationFieldsData_beneficiary_location;
 
   static void _initializeBuilder(
-          GReservationFieldsData_beneficiary_locationBuilder b) =>
-      b..G__typename = 'Location';
+    GReservationFieldsData_beneficiary_locationBuilder b,
+  ) => b..G__typename = 'Location';
 
   @override
   @BuiltValueField(wireName: '__typename')
@@ -449,36 +471,40 @@ abstract class GReservationFieldsData_beneficiary_location
   @override
   String? get neighborhood;
   static Serializer<GReservationFieldsData_beneficiary_location>
-      get serializer => _$gReservationFieldsDataBeneficiaryLocationSerializer;
+  get serializer => _$gReservationFieldsDataBeneficiaryLocationSerializer;
 
   @override
-  Map<String, dynamic> toJson() => (_i2.serializers.serializeWith(
-        GReservationFieldsData_beneficiary_location.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i2.serializers.serializeWith(
+            GReservationFieldsData_beneficiary_location.serializer,
+            this,
+          )
+          as Map<String, dynamic>);
 
   static GReservationFieldsData_beneficiary_location? fromJson(
-          Map<String, dynamic> json) =>
-      _i2.serializers.deserializeWith(
-        GReservationFieldsData_beneficiary_location.serializer,
-        json,
-      );
+    Map<String, dynamic> json,
+  ) => _i2.serializers.deserializeWith(
+    GReservationFieldsData_beneficiary_location.serializer,
+    json,
+  );
 }
 
 abstract class GReservationFieldsData_beneficiary_avatar
     implements
-        Built<GReservationFieldsData_beneficiary_avatar,
-            GReservationFieldsData_beneficiary_avatarBuilder>,
+        Built<
+          GReservationFieldsData_beneficiary_avatar,
+          GReservationFieldsData_beneficiary_avatarBuilder
+        >,
         GReservationFields_beneficiary_avatar {
   GReservationFieldsData_beneficiary_avatar._();
 
-  factory GReservationFieldsData_beneficiary_avatar(
-      [void Function(GReservationFieldsData_beneficiary_avatarBuilder b)
-          updates]) = _$GReservationFieldsData_beneficiary_avatar;
+  factory GReservationFieldsData_beneficiary_avatar([
+    void Function(GReservationFieldsData_beneficiary_avatarBuilder b) updates,
+  ]) = _$GReservationFieldsData_beneficiary_avatar;
 
   static void _initializeBuilder(
-          GReservationFieldsData_beneficiary_avatarBuilder b) =>
-      b..G__typename = 'Attachment';
+    GReservationFieldsData_beneficiary_avatarBuilder b,
+  ) => b..G__typename = 'Attachment';
 
   @override
   @BuiltValueField(wireName: '__typename')
@@ -491,15 +517,17 @@ abstract class GReservationFieldsData_beneficiary_avatar
       _$gReservationFieldsDataBeneficiaryAvatarSerializer;
 
   @override
-  Map<String, dynamic> toJson() => (_i2.serializers.serializeWith(
-        GReservationFieldsData_beneficiary_avatar.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i2.serializers.serializeWith(
+            GReservationFieldsData_beneficiary_avatar.serializer,
+            this,
+          )
+          as Map<String, dynamic>);
 
   static GReservationFieldsData_beneficiary_avatar? fromJson(
-          Map<String, dynamic> json) =>
-      _i2.serializers.deserializeWith(
-        GReservationFieldsData_beneficiary_avatar.serializer,
-        json,
-      );
+    Map<String, dynamic> json,
+  ) => _i2.serializers.deserializeWith(
+    GReservationFieldsData_beneficiary_avatar.serializer,
+    json,
+  );
 }

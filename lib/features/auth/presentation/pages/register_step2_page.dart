@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -56,16 +56,19 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
   @override
   void initState() {
     super.initState();
-    _locationController =
-        TextEditingController(text: widget.formData['location'] ?? '');
+    _locationController = TextEditingController(
+      text: widget.formData['location'] ?? '',
+    );
     final currentYear = DateTime.now().year;
     _years = List<int>.generate(100, (index) => currentYear - 99 + index);
     _hydrateBirthdayFromFormData();
-    _monthScrollController =
-        FixedExtentScrollController(initialItem: _monthIndex);
+    _monthScrollController = FixedExtentScrollController(
+      initialItem: _monthIndex,
+    );
     _dayScrollController = FixedExtentScrollController(initialItem: _dayIndex);
-    _yearScrollController =
-        FixedExtentScrollController(initialItem: _yearIndex);
+    _yearScrollController = FixedExtentScrollController(
+      initialItem: _yearIndex,
+    );
   }
 
   @override
@@ -191,9 +194,9 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
 
       _locationController.text = value;
       FocusScope.of(context).unfocus();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Location detected: $value')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Location detected: $value')));
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -214,18 +217,18 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
 
       // Dispatch the action to send OTP
       context.read<AuthBloc>().add(
-            AuthSignUpRequested(
-              firstName: widget.formData['firstName'] ?? '',
-              lastName: widget.formData['lastName'] ?? '',
-              email: widget.formData['email'] ?? '',
-              phoneNumber: widget.formData['phone'] ?? '',
-              password: widget.formData['password'] ?? '',
-            ),
-          );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter your city')),
+        AuthSignUpRequested(
+          firstName: widget.formData['firstName'] ?? '',
+          lastName: widget.formData['lastName'] ?? '',
+          email: widget.formData['email'] ?? '',
+          phoneNumber: widget.formData['phone'] ?? '',
+          password: widget.formData['password'] ?? '',
+        ),
       );
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please enter your city')));
     }
   }
 
@@ -237,9 +240,9 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
           // Move to OTP step via parent callback
           widget.onNext();
         } else if (state is AuthError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.message)));
         }
       },
       child: Builder(
@@ -290,7 +293,8 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(
-                          AppDimensions.borderRadiusLarge.r),
+                        AppDimensions.borderRadiusLarge.r,
+                      ),
                     ),
                     elevation: 0,
                   ),
@@ -299,7 +303,9 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
                           width: AppDimensions.iconSize.w,
                           height: AppDimensions.iconSize.h,
                           child: const CircularProgressIndicator(
-                              strokeWidth: 2, color: Colors.white),
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
                         )
                       : Text(
                           'Send Verification OTP',
@@ -338,15 +344,17 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
       child: TextField(
         controller: controller,
         style: TextStyle(
-            color: AuthColors.headingText,
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w400),
+          color: AuthColors.headingText,
+          fontSize: 16.sp,
+          fontWeight: FontWeight.w400,
+        ),
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: TextStyle(
-              color: AuthColors.inputText,
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w400),
+            color: AuthColors.inputText,
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w400,
+          ),
           border: InputBorder.none,
           isDense: true,
           contentPadding: EdgeInsets.symmetric(
@@ -419,7 +427,9 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
                 setState(() {
                   _monthIndex = index;
                   final maxDay = DateUtils.getDaysInMonth(
-                      _years[_yearIndex], _monthIndex + 1);
+                    _years[_yearIndex],
+                    _monthIndex + 1,
+                  );
                   if (_dayIndex + 1 > maxDay) {
                     _dayIndex = maxDay - 1;
                     _dayScrollController.jumpToItem(_dayIndex);
@@ -432,8 +442,9 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
           Expanded(
             child: _buildPickerColumn(
               title: 'Day',
-              values:
-                  dayItems.map((d) => d.toString().padLeft(2, '0')).toList(),
+              values: dayItems
+                  .map((d) => d.toString().padLeft(2, '0'))
+                  .toList(),
               controller: _dayScrollController,
               selectedIndex: _dayIndex,
               onSelected: (index) => setState(() => _dayIndex = index),
@@ -450,7 +461,9 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
                 setState(() {
                   _yearIndex = index;
                   final maxDay = DateUtils.getDaysInMonth(
-                      _years[_yearIndex], _monthIndex + 1);
+                    _years[_yearIndex],
+                    _monthIndex + 1,
+                  );
                   if (_dayIndex + 1 > maxDay) {
                     _dayIndex = maxDay - 1;
                     _dayScrollController.jumpToItem(_dayIndex);
@@ -507,8 +520,9 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
                     width: double.infinity,
                     margin: EdgeInsets.symmetric(horizontal: 6.w),
                     decoration: BoxDecoration(
-                      color:
-                          isSelected ? AuthColors.primary : Colors.transparent,
+                      color: isSelected
+                          ? AuthColors.primary
+                          : Colors.transparent,
                       borderRadius: BorderRadius.circular(6.r),
                     ),
                     alignment: Alignment.center,
@@ -516,8 +530,9 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
                       value,
                       style: TextStyle(
                         fontSize: 14.sp,
-                        fontWeight:
-                            isSelected ? FontWeight.w700 : FontWeight.w400,
+                        fontWeight: isSelected
+                            ? FontWeight.w700
+                            : FontWeight.w400,
                         color: isSelected ? Colors.white : AuthColors.inputText,
                       ),
                     ),

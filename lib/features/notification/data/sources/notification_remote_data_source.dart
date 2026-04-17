@@ -1,7 +1,7 @@
-import 'package:gaspzero/features/notification/domain/entities/notification.dart' show NotificationType, NotificationTypeExt;
+import 'package:gaspzero/features/notification/domain/entities/notification.dart'
+    show NotificationType, NotificationTypeExt;
 
 import '../models/notification_model.dart';
-
 
 abstract class NotificationRemoteDataSource {
   Future<List<NotificationModel>> getNotifications({

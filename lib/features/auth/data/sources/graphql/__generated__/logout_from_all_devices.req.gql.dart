@@ -20,13 +20,15 @@ part 'logout_from_all_devices.req.gql.g.dart';
 abstract class GLogoutFromAllDevicesReq
     implements
         Built<GLogoutFromAllDevicesReq, GLogoutFromAllDevicesReqBuilder>,
-        _i1.OperationRequest<_i2.GLogoutFromAllDevicesData,
-            _i3.GLogoutFromAllDevicesVars> {
+        _i1.OperationRequest<
+          _i2.GLogoutFromAllDevicesData,
+          _i3.GLogoutFromAllDevicesVars
+        > {
   GLogoutFromAllDevicesReq._();
 
-  factory GLogoutFromAllDevicesReq(
-          [void Function(GLogoutFromAllDevicesReqBuilder b) updates]) =
-      _$GLogoutFromAllDevicesReq;
+  factory GLogoutFromAllDevicesReq([
+    void Function(GLogoutFromAllDevicesReqBuilder b) updates,
+  ]) = _$GLogoutFromAllDevicesReq;
 
   static void _initializeBuilder(GLogoutFromAllDevicesReqBuilder b) => b
     ..operation = _i4.Operation(
@@ -41,10 +43,10 @@ abstract class GLogoutFromAllDevicesReq
   _i4.Operation get operation;
   @override
   _i4.Request get execRequest => _i4.Request(
-        operation: operation,
-        variables: vars.toJson(),
-        context: context ?? const _i4.Context(),
-      );
+    operation: operation,
+    variables: vars.toJson(),
+    context: context ?? const _i4.Context(),
+  );
 
   @override
   String? get requestId;
@@ -53,7 +55,8 @@ abstract class GLogoutFromAllDevicesReq
   _i2.GLogoutFromAllDevicesData? Function(
     _i2.GLogoutFromAllDevicesData?,
     _i2.GLogoutFromAllDevicesData?,
-  )? get updateResult;
+  )?
+  get updateResult;
   @override
   _i2.GLogoutFromAllDevicesData? get optimisticResponse;
   @override
@@ -79,22 +82,21 @@ abstract class GLogoutFromAllDevicesReq
       data.toJson();
 
   @override
-  _i1.OperationRequest<_i2.GLogoutFromAllDevicesData,
-      _i3.GLogoutFromAllDevicesVars> transformOperation(
-          _i4.Operation Function(_i4.Operation) transform) =>
+  _i1.OperationRequest<
+    _i2.GLogoutFromAllDevicesData,
+    _i3.GLogoutFromAllDevicesVars
+  >
+  transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
       this.rebuild((b) => b..operation = transform(operation));
 
   static Serializer<GLogoutFromAllDevicesReq> get serializer =>
       _$gLogoutFromAllDevicesReqSerializer;
 
-  Map<String, dynamic> toJson() => (_i6.serializers.serializeWith(
-        GLogoutFromAllDevicesReq.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i6.serializers.serializeWith(GLogoutFromAllDevicesReq.serializer, this)
+          as Map<String, dynamic>);
 
-  static GLogoutFromAllDevicesReq? fromJson(Map<String, dynamic> json) =>
-      _i6.serializers.deserializeWith(
-        GLogoutFromAllDevicesReq.serializer,
-        json,
-      );
+  static GLogoutFromAllDevicesReq? fromJson(Map<String, dynamic> json) => _i6
+      .serializers
+      .deserializeWith(GLogoutFromAllDevicesReq.serializer, json);
 }

@@ -1,3 +1,4 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -32,86 +33,104 @@ class _MainShellState extends State<MainShell> {
     return BlocProvider(
       create: (context) =>
           getIt<DonationsBloc>()..add(const LoadDonationsEvent()),
-      child: Scaffold(
-        body: Stack(
-          children: [
-            widget.navigationShell,
-            Positioned(
-              left: _chatPos.dx,
-              top: _chatPos.dy,
-              child: Draggable(
-                feedback: _buildChatButtonUI(isDragging: true),
-                childWhenDragging: const SizedBox.shrink(),
-                onDragEnd: (details) {
-                  setState(() {
-                    double dx = details.offset.dx;
-                    double dy = details.offset.dy;
-                    final screenSize = MediaQuery.of(context).size;
-                    if (dx < 0) dx = 0;
-                    if (dx > screenSize.width - 64) dx = screenSize.width - 64;
-                    if (dy < kToolbarHeight) dy = kToolbarHeight;
-                    if (dy > screenSize.height - 100)
-                      dy = screenSize.height - 100;
-                    _chatPos = Offset(dx, dy);
-                  });
-                },
-                child: _buildChatButtonUI(isDragging: false),
-              ),
-            ),
-          ],
-        ),
-        bottomNavigationBar: Container(
-          decoration: BoxDecoration(
-            color: colorScheme.surface,
-            boxShadow: [
-              BoxShadow(
-                color: AuthColors.headingText.withValues(alpha: 0.06),
-                blurRadius: 16,
-                offset: const Offset(0, -4),
-              ),
-            ],
-          ),
-          child: SafeArea(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _NavItem(
-                    icon: AppIcons.home,
-                    label: 'Home',
-                    isSelected: widget.navigationShell.currentIndex == 0,
-                    onTap: () => widget.navigationShell.goBranch(0),
+      child: Stack(
+        children: [
+          Scaffold(
+            extendBody: true,
+            body: widget.navigationShell,
+            bottomNavigationBar: ClipRRect(
+              child: BackdropFilter(
+                filter: ui.ImageFilter.blur(sigmaX: 24.0, sigmaY: 24.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.8),
+                    border: Border(
+                      top: BorderSide(
+                        color: const Color(
+                          0xFFF1F5F9,
+                        ), // Light border from Figma
+                        width: 1,
+                      ),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 20,
+                        offset: const Offset(0, -4),
+                      ),
+                    ],
                   ),
-                  _NavItem(
-                    icon: AppIcons.search,
-                    label: 'Browse',
-                    isSelected: widget.navigationShell.currentIndex == 1,
-                    onTap: () => widget.navigationShell.goBranch(1),
+                  child: SafeArea(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 12.h),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          _NavItem(
+                            icon: AppIcons.home,
+                            label: 'Home',
+                            isSelected:
+                                widget.navigationShell.currentIndex == 0,
+                            onTap: () => widget.navigationShell.goBranch(0),
+                          ),
+                          _NavItem(
+                            icon: AppIcons.search,
+                            label: 'Browse',
+                            isSelected:
+                                widget.navigationShell.currentIndex == 1,
+                            onTap: () => widget.navigationShell.goBranch(1),
+                          ),
+                          _NavItem(
+                            icon: AppIcons.add,
+                            label: 'Donate',
+                            isSelected: false,
+                            onTap: () => context.push('/add-donation'),
+                          ),
+                          _NavItem(
+                            icon: AppIcons.ranks,
+                            label: 'Ranks',
+                            isSelected:
+                                widget.navigationShell.currentIndex == 2,
+                            onTap: () => widget.navigationShell.goBranch(2),
+                          ),
+                          _NavItem(
+                            icon: AppIcons.profile,
+                            label: 'Profile',
+                            isSelected:
+                                widget.navigationShell.currentIndex == 3,
+                            onTap: () => widget.navigationShell.goBranch(3),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  _NavItem(
-                    icon: AppIcons.add,
-                    label: 'Donate',
-                    isSelected: false,
-                    onTap: () => context.push('/add-donation'),
-                  ),
-                  _NavItem(
-                    icon: AppIcons.ranks,
-                    label: 'Ranks',
-                    isSelected: widget.navigationShell.currentIndex == 2,
-                    onTap: () => widget.navigationShell.goBranch(2),
-                  ),
-                  _NavItem(
-                    icon: AppIcons.profile,
-                    label: 'Profile',
-                    isSelected: widget.navigationShell.currentIndex == 3,
-                    onTap: () => widget.navigationShell.goBranch(3),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
+          Positioned(
+            left: _chatPos.dx,
+            top: _chatPos.dy,
+            child: Draggable(
+              feedback: _buildChatButtonUI(isDragging: true),
+              childWhenDragging: const SizedBox.shrink(),
+              onDragEnd: (details) {
+                setState(() {
+                  double dx = details.offset.dx;
+                  double dy = details.offset.dy;
+                  final screenSize = MediaQuery.of(context).size;
+                  if (dx < 0) dx = 0;
+                  if (dx > screenSize.width - 64) dx = screenSize.width - 64;
+                  if (dy < kToolbarHeight) dy = kToolbarHeight;
+                  if (dy > screenSize.height - 100)
+                    dy = screenSize.height - 100;
+                  _chatPos = Offset(dx, dy);
+                });
+              },
+              child: _buildChatButtonUI(isDragging: false),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -119,7 +138,7 @@ class _MainShellState extends State<MainShell> {
   Widget _buildChatButtonUI({required bool isDragging}) {
     final colorScheme = Theme.of(context).colorScheme;
     return GestureDetector(
-      onTap: () => context.push('/chat'),
+      onTap: () => context.push('/chats'),
       child: Material(
         color: colorScheme.surface.withValues(alpha: 0),
         elevation: isDragging ? 10 : 6,
@@ -169,34 +188,38 @@ class _NavItem extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: Container(
-        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0),
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFFD1FAE5) : Colors.transparent,
+          borderRadius: BorderRadius.circular(8.r),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: isSelected
+                  ? const Color(0xFF064E3B)
+                  : const Color(0xFF94A3B8),
+              size: 24.sp,
+            ),
+            SizedBox(height: 4.h),
+            Text(
+              label.toUpperCase(),
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.w600,
+                fontSize: 10.sp,
+                letterSpacing: 0.25,
                 color: isSelected
-                    ? AuthColors.primary
+                    ? const Color(0xFF064E3B)
                     : const Color(0xFF94A3B8),
-                size: isSelected ? 26.sp : 24.sp,
               ),
-              if (isSelected) ...[
-                SizedBox(height: 6.h),
-                Container(
-                  width: 4.w,
-                  height: 4.w,
-                  decoration: BoxDecoration(
-                    color: AuthColors.primary,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ],
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

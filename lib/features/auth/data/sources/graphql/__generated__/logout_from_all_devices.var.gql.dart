@@ -14,21 +14,18 @@ abstract class GLogoutFromAllDevicesVars
         Built<GLogoutFromAllDevicesVars, GLogoutFromAllDevicesVarsBuilder> {
   GLogoutFromAllDevicesVars._();
 
-  factory GLogoutFromAllDevicesVars(
-          [void Function(GLogoutFromAllDevicesVarsBuilder b) updates]) =
-      _$GLogoutFromAllDevicesVars;
+  factory GLogoutFromAllDevicesVars([
+    void Function(GLogoutFromAllDevicesVarsBuilder b) updates,
+  ]) = _$GLogoutFromAllDevicesVars;
 
   static Serializer<GLogoutFromAllDevicesVars> get serializer =>
       _$gLogoutFromAllDevicesVarsSerializer;
 
-  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
-        GLogoutFromAllDevicesVars.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i1.serializers.serializeWith(GLogoutFromAllDevicesVars.serializer, this)
+          as Map<String, dynamic>);
 
-  static GLogoutFromAllDevicesVars? fromJson(Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(
-        GLogoutFromAllDevicesVars.serializer,
-        json,
-      );
+  static GLogoutFromAllDevicesVars? fromJson(Map<String, dynamic> json) => _i1
+      .serializers
+      .deserializeWith(GLogoutFromAllDevicesVars.serializer, json);
 }

@@ -13,21 +13,17 @@ abstract class GRefreshTokensVars
     implements Built<GRefreshTokensVars, GRefreshTokensVarsBuilder> {
   GRefreshTokensVars._();
 
-  factory GRefreshTokensVars(
-          [void Function(GRefreshTokensVarsBuilder b) updates]) =
-      _$GRefreshTokensVars;
+  factory GRefreshTokensVars([
+    void Function(GRefreshTokensVarsBuilder b) updates,
+  ]) = _$GRefreshTokensVars;
 
   static Serializer<GRefreshTokensVars> get serializer =>
       _$gRefreshTokensVarsSerializer;
 
-  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
-        GRefreshTokensVars.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i1.serializers.serializeWith(GRefreshTokensVars.serializer, this)
+          as Map<String, dynamic>);
 
   static GRefreshTokensVars? fromJson(Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(
-        GRefreshTokensVars.serializer,
-        json,
-      );
+      _i1.serializers.deserializeWith(GRefreshTokensVars.serializer, json);
 }

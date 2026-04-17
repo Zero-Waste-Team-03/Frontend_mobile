@@ -330,7 +330,9 @@ class _DonationsListPageState extends State<DonationsListPage> {
 
   Widget _buildDonationCard(Donation donation, int index) {
     String distanceStr = 'Distance unknown';
-    if (_currentPosition != null && donation.latitude != null && donation.longitude != null) {
+    if (_currentPosition != null &&
+        donation.latitude != null &&
+        donation.longitude != null) {
       final distanceInMeters = const Distance().as(
         LengthUnit.Meter,
         _currentPosition!,

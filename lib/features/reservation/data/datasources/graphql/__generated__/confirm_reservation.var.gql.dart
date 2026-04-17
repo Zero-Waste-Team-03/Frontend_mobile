@@ -13,22 +13,18 @@ abstract class GConfirmReservationVars
     implements Built<GConfirmReservationVars, GConfirmReservationVarsBuilder> {
   GConfirmReservationVars._();
 
-  factory GConfirmReservationVars(
-          [void Function(GConfirmReservationVarsBuilder b) updates]) =
-      _$GConfirmReservationVars;
+  factory GConfirmReservationVars([
+    void Function(GConfirmReservationVarsBuilder b) updates,
+  ]) = _$GConfirmReservationVars;
 
   String get id;
   static Serializer<GConfirmReservationVars> get serializer =>
       _$gConfirmReservationVarsSerializer;
 
-  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
-        GConfirmReservationVars.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i1.serializers.serializeWith(GConfirmReservationVars.serializer, this)
+          as Map<String, dynamic>);
 
   static GConfirmReservationVars? fromJson(Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(
-        GConfirmReservationVars.serializer,
-        json,
-      );
+      _i1.serializers.deserializeWith(GConfirmReservationVars.serializer, json);
 }

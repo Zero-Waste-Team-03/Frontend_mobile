@@ -13,9 +13,9 @@ abstract class GChangePasswordData
     implements Built<GChangePasswordData, GChangePasswordDataBuilder> {
   GChangePasswordData._();
 
-  factory GChangePasswordData(
-          [void Function(GChangePasswordDataBuilder b) updates]) =
-      _$GChangePasswordData;
+  factory GChangePasswordData([
+    void Function(GChangePasswordDataBuilder b) updates,
+  ]) = _$GChangePasswordData;
 
   static void _initializeBuilder(GChangePasswordDataBuilder b) =>
       b..G__typename = 'Mutation';
@@ -26,27 +26,25 @@ abstract class GChangePasswordData
   static Serializer<GChangePasswordData> get serializer =>
       _$gChangePasswordDataSerializer;
 
-  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
-        GChangePasswordData.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i1.serializers.serializeWith(GChangePasswordData.serializer, this)
+          as Map<String, dynamic>);
 
   static GChangePasswordData? fromJson(Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(
-        GChangePasswordData.serializer,
-        json,
-      );
+      _i1.serializers.deserializeWith(GChangePasswordData.serializer, json);
 }
 
 abstract class GChangePasswordData_changePassword
     implements
-        Built<GChangePasswordData_changePassword,
-            GChangePasswordData_changePasswordBuilder> {
+        Built<
+          GChangePasswordData_changePassword,
+          GChangePasswordData_changePasswordBuilder
+        > {
   GChangePasswordData_changePassword._();
 
-  factory GChangePasswordData_changePassword(
-      [void Function(GChangePasswordData_changePasswordBuilder b)
-          updates]) = _$GChangePasswordData_changePassword;
+  factory GChangePasswordData_changePassword([
+    void Function(GChangePasswordData_changePasswordBuilder b) updates,
+  ]) = _$GChangePasswordData_changePassword;
 
   static void _initializeBuilder(GChangePasswordData_changePasswordBuilder b) =>
       b..G__typename = 'MessageResponse';
@@ -57,15 +55,17 @@ abstract class GChangePasswordData_changePassword
   static Serializer<GChangePasswordData_changePassword> get serializer =>
       _$gChangePasswordDataChangePasswordSerializer;
 
-  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
-        GChangePasswordData_changePassword.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i1.serializers.serializeWith(
+            GChangePasswordData_changePassword.serializer,
+            this,
+          )
+          as Map<String, dynamic>);
 
   static GChangePasswordData_changePassword? fromJson(
-          Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(
-        GChangePasswordData_changePassword.serializer,
-        json,
-      );
+    Map<String, dynamic> json,
+  ) => _i1.serializers.deserializeWith(
+    GChangePasswordData_changePassword.serializer,
+    json,
+  );
 }

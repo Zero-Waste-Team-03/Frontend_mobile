@@ -15,22 +15,18 @@ abstract class GCreateDonationVars
     implements Built<GCreateDonationVars, GCreateDonationVarsBuilder> {
   GCreateDonationVars._();
 
-  factory GCreateDonationVars(
-          [void Function(GCreateDonationVarsBuilder b) updates]) =
-      _$GCreateDonationVars;
+  factory GCreateDonationVars([
+    void Function(GCreateDonationVarsBuilder b) updates,
+  ]) = _$GCreateDonationVars;
 
   _i1.GCreateDonationInput get input;
   static Serializer<GCreateDonationVars> get serializer =>
       _$gCreateDonationVarsSerializer;
 
-  Map<String, dynamic> toJson() => (_i2.serializers.serializeWith(
-        GCreateDonationVars.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i2.serializers.serializeWith(GCreateDonationVars.serializer, this)
+          as Map<String, dynamic>);
 
   static GCreateDonationVars? fromJson(Map<String, dynamic> json) =>
-      _i2.serializers.deserializeWith(
-        GCreateDonationVars.serializer,
-        json,
-      );
+      _i2.serializers.deserializeWith(GCreateDonationVars.serializer, json);
 }

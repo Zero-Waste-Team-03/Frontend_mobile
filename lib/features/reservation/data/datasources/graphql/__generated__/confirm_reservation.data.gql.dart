@@ -17,9 +17,9 @@ abstract class GConfirmReservationData
     implements Built<GConfirmReservationData, GConfirmReservationDataBuilder> {
   GConfirmReservationData._();
 
-  factory GConfirmReservationData(
-          [void Function(GConfirmReservationDataBuilder b) updates]) =
-      _$GConfirmReservationData;
+  factory GConfirmReservationData([
+    void Function(GConfirmReservationDataBuilder b) updates,
+  ]) = _$GConfirmReservationData;
 
   static void _initializeBuilder(GConfirmReservationDataBuilder b) =>
       b..G__typename = 'Mutation';
@@ -30,32 +30,30 @@ abstract class GConfirmReservationData
   static Serializer<GConfirmReservationData> get serializer =>
       _$gConfirmReservationDataSerializer;
 
-  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
-        GConfirmReservationData.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i1.serializers.serializeWith(GConfirmReservationData.serializer, this)
+          as Map<String, dynamic>);
 
   static GConfirmReservationData? fromJson(Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(
-        GConfirmReservationData.serializer,
-        json,
-      );
+      _i1.serializers.deserializeWith(GConfirmReservationData.serializer, json);
 }
 
 abstract class GConfirmReservationData_confirmReservation
     implements
-        Built<GConfirmReservationData_confirmReservation,
-            GConfirmReservationData_confirmReservationBuilder>,
+        Built<
+          GConfirmReservationData_confirmReservation,
+          GConfirmReservationData_confirmReservationBuilder
+        >,
         _i2.GReservationFields {
   GConfirmReservationData_confirmReservation._();
 
-  factory GConfirmReservationData_confirmReservation(
-      [void Function(GConfirmReservationData_confirmReservationBuilder b)
-          updates]) = _$GConfirmReservationData_confirmReservation;
+  factory GConfirmReservationData_confirmReservation([
+    void Function(GConfirmReservationData_confirmReservationBuilder b) updates,
+  ]) = _$GConfirmReservationData_confirmReservation;
 
   static void _initializeBuilder(
-          GConfirmReservationData_confirmReservationBuilder b) =>
-      b..G__typename = 'Reservation';
+    GConfirmReservationData_confirmReservationBuilder b,
+  ) => b..G__typename = 'Reservation';
 
   @override
   @BuiltValueField(wireName: '__typename')
@@ -79,37 +77,41 @@ abstract class GConfirmReservationData_confirmReservation
   @override
   GConfirmReservationData_confirmReservation_beneficiary? get beneficiary;
   static Serializer<GConfirmReservationData_confirmReservation>
-      get serializer => _$gConfirmReservationDataConfirmReservationSerializer;
+  get serializer => _$gConfirmReservationDataConfirmReservationSerializer;
 
   @override
-  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
-        GConfirmReservationData_confirmReservation.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i1.serializers.serializeWith(
+            GConfirmReservationData_confirmReservation.serializer,
+            this,
+          )
+          as Map<String, dynamic>);
 
   static GConfirmReservationData_confirmReservation? fromJson(
-          Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(
-        GConfirmReservationData_confirmReservation.serializer,
-        json,
-      );
+    Map<String, dynamic> json,
+  ) => _i1.serializers.deserializeWith(
+    GConfirmReservationData_confirmReservation.serializer,
+    json,
+  );
 }
 
 abstract class GConfirmReservationData_confirmReservation_donation
     implements
-        Built<GConfirmReservationData_confirmReservation_donation,
-            GConfirmReservationData_confirmReservation_donationBuilder>,
+        Built<
+          GConfirmReservationData_confirmReservation_donation,
+          GConfirmReservationData_confirmReservation_donationBuilder
+        >,
         _i2.GReservationFields_donation {
   GConfirmReservationData_confirmReservation_donation._();
 
-  factory GConfirmReservationData_confirmReservation_donation(
-      [void Function(
-              GConfirmReservationData_confirmReservation_donationBuilder b)
-          updates]) = _$GConfirmReservationData_confirmReservation_donation;
+  factory GConfirmReservationData_confirmReservation_donation([
+    void Function(GConfirmReservationData_confirmReservation_donationBuilder b)
+    updates,
+  ]) = _$GConfirmReservationData_confirmReservation_donation;
 
   static void _initializeBuilder(
-          GConfirmReservationData_confirmReservation_donationBuilder b) =>
-      b..G__typename = 'Donation';
+    GConfirmReservationData_confirmReservation_donationBuilder b,
+  ) => b..G__typename = 'Donation';
 
   @override
   @BuiltValueField(wireName: '__typename')
@@ -134,47 +136,50 @@ abstract class GConfirmReservationData_confirmReservation_donation
   String? get mainAttachmentId;
   @override
   GConfirmReservationData_confirmReservation_donation_mainAttachment?
-      get mainAttachment;
+  get mainAttachment;
   @override
   GConfirmReservationData_confirmReservation_donation_location? get location;
   @override
   GConfirmReservationData_confirmReservation_donation_user get user;
   static Serializer<GConfirmReservationData_confirmReservation_donation>
-      get serializer =>
-          _$gConfirmReservationDataConfirmReservationDonationSerializer;
+  get serializer =>
+      _$gConfirmReservationDataConfirmReservationDonationSerializer;
 
   @override
-  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
-        GConfirmReservationData_confirmReservation_donation.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i1.serializers.serializeWith(
+            GConfirmReservationData_confirmReservation_donation.serializer,
+            this,
+          )
+          as Map<String, dynamic>);
 
   static GConfirmReservationData_confirmReservation_donation? fromJson(
-          Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(
-        GConfirmReservationData_confirmReservation_donation.serializer,
-        json,
-      );
+    Map<String, dynamic> json,
+  ) => _i1.serializers.deserializeWith(
+    GConfirmReservationData_confirmReservation_donation.serializer,
+    json,
+  );
 }
 
 abstract class GConfirmReservationData_confirmReservation_donation_category
     implements
-        Built<GConfirmReservationData_confirmReservation_donation_category,
-            GConfirmReservationData_confirmReservation_donation_categoryBuilder>,
+        Built<
+          GConfirmReservationData_confirmReservation_donation_category,
+          GConfirmReservationData_confirmReservation_donation_categoryBuilder
+        >,
         _i2.GReservationFields_donation_category {
   GConfirmReservationData_confirmReservation_donation_category._();
 
-  factory GConfirmReservationData_confirmReservation_donation_category(
-          [void Function(
-                  GConfirmReservationData_confirmReservation_donation_categoryBuilder
-                      b)
-              updates]) =
-      _$GConfirmReservationData_confirmReservation_donation_category;
+  factory GConfirmReservationData_confirmReservation_donation_category([
+    void Function(
+      GConfirmReservationData_confirmReservation_donation_categoryBuilder b,
+    )
+    updates,
+  ]) = _$GConfirmReservationData_confirmReservation_donation_category;
 
   static void _initializeBuilder(
-          GConfirmReservationData_confirmReservation_donation_categoryBuilder
-              b) =>
-      b..G__typename = 'Category';
+    GConfirmReservationData_confirmReservation_donation_categoryBuilder b,
+  ) => b..G__typename = 'Category';
 
   @override
   @BuiltValueField(wireName: '__typename')
@@ -184,43 +189,48 @@ abstract class GConfirmReservationData_confirmReservation_donation_category
   @override
   String get name;
   static Serializer<
-          GConfirmReservationData_confirmReservation_donation_category>
-      get serializer =>
-          _$gConfirmReservationDataConfirmReservationDonationCategorySerializer;
+    GConfirmReservationData_confirmReservation_donation_category
+  >
+  get serializer =>
+      _$gConfirmReservationDataConfirmReservationDonationCategorySerializer;
 
   @override
-  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
-        GConfirmReservationData_confirmReservation_donation_category.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i1.serializers.serializeWith(
+            GConfirmReservationData_confirmReservation_donation_category
+                .serializer,
+            this,
+          )
+          as Map<String, dynamic>);
 
   static GConfirmReservationData_confirmReservation_donation_category? fromJson(
-          Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(
-        GConfirmReservationData_confirmReservation_donation_category.serializer,
-        json,
-      );
+    Map<String, dynamic> json,
+  ) => _i1.serializers.deserializeWith(
+    GConfirmReservationData_confirmReservation_donation_category.serializer,
+    json,
+  );
 }
 
 abstract class GConfirmReservationData_confirmReservation_donation_mainAttachment
     implements
         Built<
-            GConfirmReservationData_confirmReservation_donation_mainAttachment,
-            GConfirmReservationData_confirmReservation_donation_mainAttachmentBuilder>,
+          GConfirmReservationData_confirmReservation_donation_mainAttachment,
+          GConfirmReservationData_confirmReservation_donation_mainAttachmentBuilder
+        >,
         _i2.GReservationFields_donation_mainAttachment {
   GConfirmReservationData_confirmReservation_donation_mainAttachment._();
 
-  factory GConfirmReservationData_confirmReservation_donation_mainAttachment(
-          [void Function(
-                  GConfirmReservationData_confirmReservation_donation_mainAttachmentBuilder
-                      b)
-              updates]) =
-      _$GConfirmReservationData_confirmReservation_donation_mainAttachment;
+  factory GConfirmReservationData_confirmReservation_donation_mainAttachment([
+    void Function(
+      GConfirmReservationData_confirmReservation_donation_mainAttachmentBuilder
+      b,
+    )
+    updates,
+  ]) = _$GConfirmReservationData_confirmReservation_donation_mainAttachment;
 
   static void _initializeBuilder(
-          GConfirmReservationData_confirmReservation_donation_mainAttachmentBuilder
-              b) =>
-      b..G__typename = 'Attachment';
+    GConfirmReservationData_confirmReservation_donation_mainAttachmentBuilder b,
+  ) => b..G__typename = 'Attachment';
 
   @override
   @BuiltValueField(wireName: '__typename')
@@ -228,43 +238,47 @@ abstract class GConfirmReservationData_confirmReservation_donation_mainAttachmen
   @override
   String? get url;
   static Serializer<
-          GConfirmReservationData_confirmReservation_donation_mainAttachment>
-      get serializer =>
-          _$gConfirmReservationDataConfirmReservationDonationMainAttachmentSerializer;
+    GConfirmReservationData_confirmReservation_donation_mainAttachment
+  >
+  get serializer =>
+      _$gConfirmReservationDataConfirmReservationDonationMainAttachmentSerializer;
 
   @override
-  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
-        GConfirmReservationData_confirmReservation_donation_mainAttachment
-            .serializer,
-        this,
-      ) as Map<String, dynamic>);
-
-  static GConfirmReservationData_confirmReservation_donation_mainAttachment?
-      fromJson(Map<String, dynamic> json) => _i1.serializers.deserializeWith(
+  Map<String, dynamic> toJson() =>
+      (_i1.serializers.serializeWith(
             GConfirmReservationData_confirmReservation_donation_mainAttachment
                 .serializer,
-            json,
-          );
+            this,
+          )
+          as Map<String, dynamic>);
+
+  static GConfirmReservationData_confirmReservation_donation_mainAttachment?
+  fromJson(Map<String, dynamic> json) => _i1.serializers.deserializeWith(
+    GConfirmReservationData_confirmReservation_donation_mainAttachment
+        .serializer,
+    json,
+  );
 }
 
 abstract class GConfirmReservationData_confirmReservation_donation_location
     implements
-        Built<GConfirmReservationData_confirmReservation_donation_location,
-            GConfirmReservationData_confirmReservation_donation_locationBuilder>,
+        Built<
+          GConfirmReservationData_confirmReservation_donation_location,
+          GConfirmReservationData_confirmReservation_donation_locationBuilder
+        >,
         _i2.GReservationFields_donation_location {
   GConfirmReservationData_confirmReservation_donation_location._();
 
-  factory GConfirmReservationData_confirmReservation_donation_location(
-          [void Function(
-                  GConfirmReservationData_confirmReservation_donation_locationBuilder
-                      b)
-              updates]) =
-      _$GConfirmReservationData_confirmReservation_donation_location;
+  factory GConfirmReservationData_confirmReservation_donation_location([
+    void Function(
+      GConfirmReservationData_confirmReservation_donation_locationBuilder b,
+    )
+    updates,
+  ]) = _$GConfirmReservationData_confirmReservation_donation_location;
 
   static void _initializeBuilder(
-          GConfirmReservationData_confirmReservation_donation_locationBuilder
-              b) =>
-      b..G__typename = 'Location';
+    GConfirmReservationData_confirmReservation_donation_locationBuilder b,
+  ) => b..G__typename = 'Location';
 
   @override
   @BuiltValueField(wireName: '__typename')
@@ -274,39 +288,47 @@ abstract class GConfirmReservationData_confirmReservation_donation_location
   @override
   double? get longitude;
   static Serializer<
-          GConfirmReservationData_confirmReservation_donation_location>
-      get serializer =>
-          _$gConfirmReservationDataConfirmReservationDonationLocationSerializer;
+    GConfirmReservationData_confirmReservation_donation_location
+  >
+  get serializer =>
+      _$gConfirmReservationDataConfirmReservationDonationLocationSerializer;
 
   @override
-  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
-        GConfirmReservationData_confirmReservation_donation_location.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i1.serializers.serializeWith(
+            GConfirmReservationData_confirmReservation_donation_location
+                .serializer,
+            this,
+          )
+          as Map<String, dynamic>);
 
   static GConfirmReservationData_confirmReservation_donation_location? fromJson(
-          Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(
-        GConfirmReservationData_confirmReservation_donation_location.serializer,
-        json,
-      );
+    Map<String, dynamic> json,
+  ) => _i1.serializers.deserializeWith(
+    GConfirmReservationData_confirmReservation_donation_location.serializer,
+    json,
+  );
 }
 
 abstract class GConfirmReservationData_confirmReservation_donation_user
     implements
-        Built<GConfirmReservationData_confirmReservation_donation_user,
-            GConfirmReservationData_confirmReservation_donation_userBuilder>,
+        Built<
+          GConfirmReservationData_confirmReservation_donation_user,
+          GConfirmReservationData_confirmReservation_donation_userBuilder
+        >,
         _i2.GReservationFields_donation_user {
   GConfirmReservationData_confirmReservation_donation_user._();
 
-  factory GConfirmReservationData_confirmReservation_donation_user(
-      [void Function(
-              GConfirmReservationData_confirmReservation_donation_userBuilder b)
-          updates]) = _$GConfirmReservationData_confirmReservation_donation_user;
+  factory GConfirmReservationData_confirmReservation_donation_user([
+    void Function(
+      GConfirmReservationData_confirmReservation_donation_userBuilder b,
+    )
+    updates,
+  ]) = _$GConfirmReservationData_confirmReservation_donation_user;
 
   static void _initializeBuilder(
-          GConfirmReservationData_confirmReservation_donation_userBuilder b) =>
-      b..G__typename = 'User';
+    GConfirmReservationData_confirmReservation_donation_userBuilder b,
+  ) => b..G__typename = 'User';
 
   @override
   @BuiltValueField(wireName: '__typename')
@@ -316,38 +338,44 @@ abstract class GConfirmReservationData_confirmReservation_donation_user
   @override
   String get email;
   static Serializer<GConfirmReservationData_confirmReservation_donation_user>
-      get serializer =>
-          _$gConfirmReservationDataConfirmReservationDonationUserSerializer;
+  get serializer =>
+      _$gConfirmReservationDataConfirmReservationDonationUserSerializer;
 
   @override
-  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
-        GConfirmReservationData_confirmReservation_donation_user.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i1.serializers.serializeWith(
+            GConfirmReservationData_confirmReservation_donation_user.serializer,
+            this,
+          )
+          as Map<String, dynamic>);
 
   static GConfirmReservationData_confirmReservation_donation_user? fromJson(
-          Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(
-        GConfirmReservationData_confirmReservation_donation_user.serializer,
-        json,
-      );
+    Map<String, dynamic> json,
+  ) => _i1.serializers.deserializeWith(
+    GConfirmReservationData_confirmReservation_donation_user.serializer,
+    json,
+  );
 }
 
 abstract class GConfirmReservationData_confirmReservation_beneficiary
     implements
-        Built<GConfirmReservationData_confirmReservation_beneficiary,
-            GConfirmReservationData_confirmReservation_beneficiaryBuilder>,
+        Built<
+          GConfirmReservationData_confirmReservation_beneficiary,
+          GConfirmReservationData_confirmReservation_beneficiaryBuilder
+        >,
         _i2.GReservationFields_beneficiary {
   GConfirmReservationData_confirmReservation_beneficiary._();
 
-  factory GConfirmReservationData_confirmReservation_beneficiary(
-      [void Function(
-              GConfirmReservationData_confirmReservation_beneficiaryBuilder b)
-          updates]) = _$GConfirmReservationData_confirmReservation_beneficiary;
+  factory GConfirmReservationData_confirmReservation_beneficiary([
+    void Function(
+      GConfirmReservationData_confirmReservation_beneficiaryBuilder b,
+    )
+    updates,
+  ]) = _$GConfirmReservationData_confirmReservation_beneficiary;
 
   static void _initializeBuilder(
-          GConfirmReservationData_confirmReservation_beneficiaryBuilder b) =>
-      b..G__typename = 'User';
+    GConfirmReservationData_confirmReservation_beneficiaryBuilder b,
+  ) => b..G__typename = 'User';
 
   @override
   @BuiltValueField(wireName: '__typename')
@@ -375,41 +403,44 @@ abstract class GConfirmReservationData_confirmReservation_beneficiary
   @override
   GConfirmReservationData_confirmReservation_beneficiary_avatar? get avatar;
   static Serializer<GConfirmReservationData_confirmReservation_beneficiary>
-      get serializer =>
-          _$gConfirmReservationDataConfirmReservationBeneficiarySerializer;
+  get serializer =>
+      _$gConfirmReservationDataConfirmReservationBeneficiarySerializer;
 
   @override
-  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
-        GConfirmReservationData_confirmReservation_beneficiary.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i1.serializers.serializeWith(
+            GConfirmReservationData_confirmReservation_beneficiary.serializer,
+            this,
+          )
+          as Map<String, dynamic>);
 
   static GConfirmReservationData_confirmReservation_beneficiary? fromJson(
-          Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(
-        GConfirmReservationData_confirmReservation_beneficiary.serializer,
-        json,
-      );
+    Map<String, dynamic> json,
+  ) => _i1.serializers.deserializeWith(
+    GConfirmReservationData_confirmReservation_beneficiary.serializer,
+    json,
+  );
 }
 
 abstract class GConfirmReservationData_confirmReservation_beneficiary_location
     implements
-        Built<GConfirmReservationData_confirmReservation_beneficiary_location,
-            GConfirmReservationData_confirmReservation_beneficiary_locationBuilder>,
+        Built<
+          GConfirmReservationData_confirmReservation_beneficiary_location,
+          GConfirmReservationData_confirmReservation_beneficiary_locationBuilder
+        >,
         _i2.GReservationFields_beneficiary_location {
   GConfirmReservationData_confirmReservation_beneficiary_location._();
 
-  factory GConfirmReservationData_confirmReservation_beneficiary_location(
-          [void Function(
-                  GConfirmReservationData_confirmReservation_beneficiary_locationBuilder
-                      b)
-              updates]) =
-      _$GConfirmReservationData_confirmReservation_beneficiary_location;
+  factory GConfirmReservationData_confirmReservation_beneficiary_location([
+    void Function(
+      GConfirmReservationData_confirmReservation_beneficiary_locationBuilder b,
+    )
+    updates,
+  ]) = _$GConfirmReservationData_confirmReservation_beneficiary_location;
 
   static void _initializeBuilder(
-          GConfirmReservationData_confirmReservation_beneficiary_locationBuilder
-              b) =>
-      b..G__typename = 'Location';
+    GConfirmReservationData_confirmReservation_beneficiary_locationBuilder b,
+  ) => b..G__typename = 'Location';
 
   @override
   @BuiltValueField(wireName: '__typename')
@@ -425,43 +456,46 @@ abstract class GConfirmReservationData_confirmReservation_beneficiary_location
   @override
   String? get neighborhood;
   static Serializer<
-          GConfirmReservationData_confirmReservation_beneficiary_location>
-      get serializer =>
-          _$gConfirmReservationDataConfirmReservationBeneficiaryLocationSerializer;
+    GConfirmReservationData_confirmReservation_beneficiary_location
+  >
+  get serializer =>
+      _$gConfirmReservationDataConfirmReservationBeneficiaryLocationSerializer;
 
   @override
-  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
-        GConfirmReservationData_confirmReservation_beneficiary_location
-            .serializer,
-        this,
-      ) as Map<String, dynamic>);
-
-  static GConfirmReservationData_confirmReservation_beneficiary_location?
-      fromJson(Map<String, dynamic> json) => _i1.serializers.deserializeWith(
+  Map<String, dynamic> toJson() =>
+      (_i1.serializers.serializeWith(
             GConfirmReservationData_confirmReservation_beneficiary_location
                 .serializer,
-            json,
-          );
+            this,
+          )
+          as Map<String, dynamic>);
+
+  static GConfirmReservationData_confirmReservation_beneficiary_location?
+  fromJson(Map<String, dynamic> json) => _i1.serializers.deserializeWith(
+    GConfirmReservationData_confirmReservation_beneficiary_location.serializer,
+    json,
+  );
 }
 
 abstract class GConfirmReservationData_confirmReservation_beneficiary_avatar
     implements
-        Built<GConfirmReservationData_confirmReservation_beneficiary_avatar,
-            GConfirmReservationData_confirmReservation_beneficiary_avatarBuilder>,
+        Built<
+          GConfirmReservationData_confirmReservation_beneficiary_avatar,
+          GConfirmReservationData_confirmReservation_beneficiary_avatarBuilder
+        >,
         _i2.GReservationFields_beneficiary_avatar {
   GConfirmReservationData_confirmReservation_beneficiary_avatar._();
 
-  factory GConfirmReservationData_confirmReservation_beneficiary_avatar(
-          [void Function(
-                  GConfirmReservationData_confirmReservation_beneficiary_avatarBuilder
-                      b)
-              updates]) =
-      _$GConfirmReservationData_confirmReservation_beneficiary_avatar;
+  factory GConfirmReservationData_confirmReservation_beneficiary_avatar([
+    void Function(
+      GConfirmReservationData_confirmReservation_beneficiary_avatarBuilder b,
+    )
+    updates,
+  ]) = _$GConfirmReservationData_confirmReservation_beneficiary_avatar;
 
   static void _initializeBuilder(
-          GConfirmReservationData_confirmReservation_beneficiary_avatarBuilder
-              b) =>
-      b..G__typename = 'Attachment';
+    GConfirmReservationData_confirmReservation_beneficiary_avatarBuilder b,
+  ) => b..G__typename = 'Attachment';
 
   @override
   @BuiltValueField(wireName: '__typename')
@@ -471,21 +505,23 @@ abstract class GConfirmReservationData_confirmReservation_beneficiary_avatar
   @override
   String? get url;
   static Serializer<
-          GConfirmReservationData_confirmReservation_beneficiary_avatar>
-      get serializer =>
-          _$gConfirmReservationDataConfirmReservationBeneficiaryAvatarSerializer;
+    GConfirmReservationData_confirmReservation_beneficiary_avatar
+  >
+  get serializer =>
+      _$gConfirmReservationDataConfirmReservationBeneficiaryAvatarSerializer;
 
   @override
-  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
-        GConfirmReservationData_confirmReservation_beneficiary_avatar
-            .serializer,
-        this,
-      ) as Map<String, dynamic>);
-
-  static GConfirmReservationData_confirmReservation_beneficiary_avatar?
-      fromJson(Map<String, dynamic> json) => _i1.serializers.deserializeWith(
+  Map<String, dynamic> toJson() =>
+      (_i1.serializers.serializeWith(
             GConfirmReservationData_confirmReservation_beneficiary_avatar
                 .serializer,
-            json,
-          );
+            this,
+          )
+          as Map<String, dynamic>);
+
+  static GConfirmReservationData_confirmReservation_beneficiary_avatar?
+  fromJson(Map<String, dynamic> json) => _i1.serializers.deserializeWith(
+    GConfirmReservationData_confirmReservation_beneficiary_avatar.serializer,
+    json,
+  );
 }

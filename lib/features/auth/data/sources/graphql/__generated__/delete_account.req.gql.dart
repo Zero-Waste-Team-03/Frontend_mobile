@@ -23,9 +23,9 @@ abstract class GDeleteAccountReq
         _i1.OperationRequest<_i2.GDeleteAccountData, _i3.GDeleteAccountVars> {
   GDeleteAccountReq._();
 
-  factory GDeleteAccountReq(
-          [void Function(GDeleteAccountReqBuilder b) updates]) =
-      _$GDeleteAccountReq;
+  factory GDeleteAccountReq([
+    void Function(GDeleteAccountReqBuilder b) updates,
+  ]) = _$GDeleteAccountReq;
 
   static void _initializeBuilder(GDeleteAccountReqBuilder b) => b
     ..operation = _i4.Operation(
@@ -40,10 +40,10 @@ abstract class GDeleteAccountReq
   _i4.Operation get operation;
   @override
   _i4.Request get execRequest => _i4.Request(
-        operation: operation,
-        variables: vars.toJson(),
-        context: context ?? const _i4.Context(),
-      );
+    operation: operation,
+    variables: vars.toJson(),
+    context: context ?? const _i4.Context(),
+  );
 
   @override
   String? get requestId;
@@ -52,7 +52,8 @@ abstract class GDeleteAccountReq
   _i2.GDeleteAccountData? Function(
     _i2.GDeleteAccountData?,
     _i2.GDeleteAccountData?,
-  )? get updateResult;
+  )?
+  get updateResult;
   @override
   _i2.GDeleteAccountData? get optimisticResponse;
   @override
@@ -78,20 +79,16 @@ abstract class GDeleteAccountReq
 
   @override
   _i1.OperationRequest<_i2.GDeleteAccountData, _i3.GDeleteAccountVars>
-      transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
-          this.rebuild((b) => b..operation = transform(operation));
+  transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
+      this.rebuild((b) => b..operation = transform(operation));
 
   static Serializer<GDeleteAccountReq> get serializer =>
       _$gDeleteAccountReqSerializer;
 
-  Map<String, dynamic> toJson() => (_i6.serializers.serializeWith(
-        GDeleteAccountReq.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i6.serializers.serializeWith(GDeleteAccountReq.serializer, this)
+          as Map<String, dynamic>);
 
   static GDeleteAccountReq? fromJson(Map<String, dynamic> json) =>
-      _i6.serializers.deserializeWith(
-        GDeleteAccountReq.serializer,
-        json,
-      );
+      _i6.serializers.deserializeWith(GDeleteAccountReq.serializer, json);
 }

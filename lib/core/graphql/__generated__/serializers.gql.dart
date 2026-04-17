@@ -8,26 +8,51 @@ import 'package:ferry_exec/ferry_exec.dart';
 import 'package:gaspzero/core/graphql/__generated__/schema.schema.gql.dart'
     show
         GAdminCreateAccountInput,
+        GAdminDashboardStatsInput,
         GAppearanceTheme,
-        GCategorySensitivityValues,
+        GApproveSensitiveMessageInput,
+        GCategorySensitivity,
         GChangePasswordInput,
+        GConversationMessagesInput,
+        GConversationStatus,
+        GCoordinateInput,
+        GCreateBadgeInput,
         GCreateCategoryInput,
         GCreateDonationInput,
+        GCreateReportInput,
+        GDateRangeInput,
         GDateTime,
+        GDonationBehaviorContextInput,
         GDonationStatusValues,
         GDonationUrgencyValues,
         GDonationsFilterInput,
+        GDonationsHeatmapInput,
+        GDonationsMapInput,
         GJSON,
         GJSONObject,
         GLocationInput,
         GLoginInput,
+        GMapBoundsInput,
+        GMarkTransactionCompletedInput,
+        GMarkerColorValues,
         GPaginationInput,
         GPaginationQueryInput,
         GRegisterInput,
         GRegisterLocationInput,
+        GReportStatsInput,
+        GReportStatsPeriod,
+        GReportStatsStatusFilter,
+        GReportStatus,
+        GReportTargetType,
         GReservationStatus,
+        GReservationsFilterInput,
         GResetPasswordInput,
+        GReviewReportInput,
+        GSendMessageInput,
         GSendNotificationInput,
+        GStatsGrowthInput,
+        GStatsGrowthPeriod,
+        GUpdateBadgeInput,
         GUpdateCategoryInput,
         GUpdateDonationInput,
         GUpdateProfileInput,
@@ -135,6 +160,46 @@ import 'package:gaspzero/features/auth/data/sources/graphql/__generated__/user_f
     show GUserFieldsReq;
 import 'package:gaspzero/features/auth/data/sources/graphql/__generated__/user_fields.var.gql.dart'
     show GUserFieldsVars;
+import 'package:gaspzero/features/chat/data/datasources/graphql/__generated__/conversation_messages.data.gql.dart'
+    show
+        GGetConversationMessagesData,
+        GGetConversationMessagesData_conversationMessages,
+        GGetConversationMessagesData_conversationMessages_items;
+import 'package:gaspzero/features/chat/data/datasources/graphql/__generated__/conversation_messages.req.gql.dart'
+    show GGetConversationMessagesReq;
+import 'package:gaspzero/features/chat/data/datasources/graphql/__generated__/conversation_messages.var.gql.dart'
+    show GGetConversationMessagesVars;
+import 'package:gaspzero/features/chat/data/datasources/graphql/__generated__/get_or_create_conversation.data.gql.dart'
+    show
+        GGetOrCreateConversationData,
+        GGetOrCreateConversationData_getOrCreateConversation;
+import 'package:gaspzero/features/chat/data/datasources/graphql/__generated__/get_or_create_conversation.req.gql.dart'
+    show GGetOrCreateConversationReq;
+import 'package:gaspzero/features/chat/data/datasources/graphql/__generated__/get_or_create_conversation.var.gql.dart'
+    show GGetOrCreateConversationVars;
+import 'package:gaspzero/features/chat/data/datasources/graphql/__generated__/mark_transaction_completed.data.gql.dart'
+    show
+        GMarkTransactionCompletedData,
+        GMarkTransactionCompletedData_markTransactionCompleted;
+import 'package:gaspzero/features/chat/data/datasources/graphql/__generated__/mark_transaction_completed.req.gql.dart'
+    show GMarkTransactionCompletedReq;
+import 'package:gaspzero/features/chat/data/datasources/graphql/__generated__/mark_transaction_completed.var.gql.dart'
+    show GMarkTransactionCompletedVars;
+import 'package:gaspzero/features/chat/data/datasources/graphql/__generated__/my_active_conversations.data.gql.dart'
+    show
+        GMyActiveConversationsData,
+        GMyActiveConversationsData_myActiveConversations,
+        GMyActiveConversationsData_myActiveConversations_counterpart;
+import 'package:gaspzero/features/chat/data/datasources/graphql/__generated__/my_active_conversations.req.gql.dart'
+    show GMyActiveConversationsReq;
+import 'package:gaspzero/features/chat/data/datasources/graphql/__generated__/my_active_conversations.var.gql.dart'
+    show GMyActiveConversationsVars;
+import 'package:gaspzero/features/chat/data/datasources/graphql/__generated__/send_message.data.gql.dart'
+    show GSendMessageData, GSendMessageData_sendMessage;
+import 'package:gaspzero/features/chat/data/datasources/graphql/__generated__/send_message.req.gql.dart'
+    show GSendMessageReq;
+import 'package:gaspzero/features/chat/data/datasources/graphql/__generated__/send_message.var.gql.dart'
+    show GSendMessageVars;
 import 'package:gaspzero/features/donations/data/sources/graphql/__generated__/create_donation.data.gql.dart'
     show
         GCreateDonationData,
@@ -271,8 +336,10 @@ final SerializersBuilder _serializersBuilder = _$serializers.toBuilder()
   ..addPlugin(StandardJsonPlugin());
 @SerializersFor([
   GAdminCreateAccountInput,
+  GAdminDashboardStatsInput,
   GAppearanceTheme,
-  GCategorySensitivityValues,
+  GApproveSensitiveMessageInput,
+  GCategorySensitivity,
   GChangePasswordData,
   GChangePasswordData_changePassword,
   GChangePasswordInput,
@@ -290,6 +357,10 @@ final SerializersBuilder _serializersBuilder = _$serializers.toBuilder()
   GConfirmReservationData_confirmReservation_donation_user,
   GConfirmReservationReq,
   GConfirmReservationVars,
+  GConversationMessagesInput,
+  GConversationStatus,
+  GCoordinateInput,
+  GCreateBadgeInput,
   GCreateCategoryInput,
   GCreateDonationData,
   GCreateDonationData_createDonation,
@@ -300,14 +371,19 @@ final SerializersBuilder _serializersBuilder = _$serializers.toBuilder()
   GCreateDonationInput,
   GCreateDonationReq,
   GCreateDonationVars,
+  GCreateReportInput,
+  GDateRangeInput,
   GDateTime,
   GDeleteAccountData,
   GDeleteAccountData_deleteAccount,
   GDeleteAccountReq,
   GDeleteAccountVars,
+  GDonationBehaviorContextInput,
   GDonationStatusValues,
   GDonationUrgencyValues,
   GDonationsFilterInput,
+  GDonationsHeatmapInput,
+  GDonationsMapInput,
   GForgotPasswordData,
   GForgotPasswordData_forgotPassword,
   GForgotPasswordReq,
@@ -317,6 +393,11 @@ final SerializersBuilder _serializersBuilder = _$serializers.toBuilder()
   GGetCategoriesData_categories_items,
   GGetCategoriesReq,
   GGetCategoriesVars,
+  GGetConversationMessagesData,
+  GGetConversationMessagesData_conversationMessages,
+  GGetConversationMessagesData_conversationMessages_items,
+  GGetConversationMessagesReq,
+  GGetConversationMessagesVars,
   GGetCurrentUserData,
   GGetCurrentUserData_currentUser,
   GGetCurrentUserData_currentUser_avatar,
@@ -340,6 +421,10 @@ final SerializersBuilder _serializersBuilder = _$serializers.toBuilder()
   GGetDonationsData_donations_items_user,
   GGetDonationsReq,
   GGetDonationsVars,
+  GGetOrCreateConversationData,
+  GGetOrCreateConversationData_getOrCreateConversation,
+  GGetOrCreateConversationReq,
+  GGetOrCreateConversationVars,
   GJSON,
   GJSONObject,
   GLocationInput,
@@ -355,6 +440,18 @@ final SerializersBuilder _serializersBuilder = _$serializers.toBuilder()
   GLogoutFromAllDevicesData_logoutFromAllDevices,
   GLogoutFromAllDevicesReq,
   GLogoutFromAllDevicesVars,
+  GMapBoundsInput,
+  GMarkTransactionCompletedData,
+  GMarkTransactionCompletedData_markTransactionCompleted,
+  GMarkTransactionCompletedInput,
+  GMarkTransactionCompletedReq,
+  GMarkTransactionCompletedVars,
+  GMarkerColorValues,
+  GMyActiveConversationsData,
+  GMyActiveConversationsData_myActiveConversations,
+  GMyActiveConversationsData_myActiveConversations_counterpart,
+  GMyActiveConversationsReq,
+  GMyActiveConversationsVars,
   GMyReservationData,
   GMyReservationData_myReservation,
   GMyReservationData_myReservation_beneficiary,
@@ -399,6 +496,11 @@ final SerializersBuilder _serializersBuilder = _$serializers.toBuilder()
   GRegisterLocationInput,
   GRegisterReq,
   GRegisterVars,
+  GReportStatsInput,
+  GReportStatsPeriod,
+  GReportStatsStatusFilter,
+  GReportStatus,
+  GReportTargetType,
   GReservationFieldsData,
   GReservationFieldsData_beneficiary,
   GReservationFieldsData_beneficiary_avatar,
@@ -411,6 +513,7 @@ final SerializersBuilder _serializersBuilder = _$serializers.toBuilder()
   GReservationFieldsReq,
   GReservationFieldsVars,
   GReservationStatus,
+  GReservationsFilterInput,
   GReserveDonationData,
   GReserveDonationData_reserveDonation,
   GReserveDonationData_reserveDonation_beneficiary,
@@ -428,11 +531,20 @@ final SerializersBuilder _serializersBuilder = _$serializers.toBuilder()
   GResetPasswordInput,
   GResetPasswordReq,
   GResetPasswordVars,
+  GReviewReportInput,
+  GSendMessageData,
+  GSendMessageData_sendMessage,
+  GSendMessageInput,
+  GSendMessageReq,
+  GSendMessageVars,
   GSendNotificationInput,
   GSendVerificationData,
   GSendVerificationData_sendVerification,
   GSendVerificationReq,
   GSendVerificationVars,
+  GStatsGrowthInput,
+  GStatsGrowthPeriod,
+  GUpdateBadgeInput,
   GUpdateCategoryInput,
   GUpdateDonationInput,
   GUpdateProfileData,

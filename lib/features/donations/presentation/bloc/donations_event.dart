@@ -27,7 +27,14 @@ class LoadDonationsEvent extends DonationsEvent {
   });
 
   @override
-  List<Object?> get props => [categoryId, searchQuery, latitude, longitude, radius, append];
+  List<Object?> get props => [
+    categoryId,
+    searchQuery,
+    latitude,
+    longitude,
+    radius,
+    append,
+  ];
 }
 
 class UploadDonationImageEvent extends DonationsEvent {
@@ -69,17 +76,17 @@ class AddDonationEvent extends DonationsEvent {
 
   @override
   List<Object?> get props => [
-        title,
-        description,
-        categoryId,
-        quantity,
-        foodWeightKg,
-        urgency,
-        mainAttachmentId,
-        attachmentIds,
-        expiryDate,
-        safetyChecklistCompleted,
-        latitude,
-        longitude,
-      ];
+    title,
+    description,
+    categoryId,
+    quantity,
+    foodWeightKg,
+    urgency,
+    mainAttachmentId,
+    attachmentIds,
+    expiryDate,
+    safetyChecklistCompleted,
+    latitude,
+    longitude,
+  ];
 }

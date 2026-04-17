@@ -14,9 +14,9 @@ abstract class GGetCategoriesData
     implements Built<GGetCategoriesData, GGetCategoriesDataBuilder> {
   GGetCategoriesData._();
 
-  factory GGetCategoriesData(
-          [void Function(GGetCategoriesDataBuilder b) updates]) =
-      _$GGetCategoriesData;
+  factory GGetCategoriesData([
+    void Function(GGetCategoriesDataBuilder b) updates,
+  ]) = _$GGetCategoriesData;
 
   static void _initializeBuilder(GGetCategoriesDataBuilder b) =>
       b..G__typename = 'Query';
@@ -27,27 +27,25 @@ abstract class GGetCategoriesData
   static Serializer<GGetCategoriesData> get serializer =>
       _$gGetCategoriesDataSerializer;
 
-  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
-        GGetCategoriesData.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i1.serializers.serializeWith(GGetCategoriesData.serializer, this)
+          as Map<String, dynamic>);
 
   static GGetCategoriesData? fromJson(Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(
-        GGetCategoriesData.serializer,
-        json,
-      );
+      _i1.serializers.deserializeWith(GGetCategoriesData.serializer, json);
 }
 
 abstract class GGetCategoriesData_categories
     implements
-        Built<GGetCategoriesData_categories,
-            GGetCategoriesData_categoriesBuilder> {
+        Built<
+          GGetCategoriesData_categories,
+          GGetCategoriesData_categoriesBuilder
+        > {
   GGetCategoriesData_categories._();
 
-  factory GGetCategoriesData_categories(
-          [void Function(GGetCategoriesData_categoriesBuilder b) updates]) =
-      _$GGetCategoriesData_categories;
+  factory GGetCategoriesData_categories([
+    void Function(GGetCategoriesData_categoriesBuilder b) updates,
+  ]) = _$GGetCategoriesData_categories;
 
   static void _initializeBuilder(GGetCategoriesData_categoriesBuilder b) =>
       b..G__typename = 'PaginatedCategories';
@@ -58,10 +56,12 @@ abstract class GGetCategoriesData_categories
   static Serializer<GGetCategoriesData_categories> get serializer =>
       _$gGetCategoriesDataCategoriesSerializer;
 
-  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
-        GGetCategoriesData_categories.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i1.serializers.serializeWith(
+            GGetCategoriesData_categories.serializer,
+            this,
+          )
+          as Map<String, dynamic>);
 
   static GGetCategoriesData_categories? fromJson(Map<String, dynamic> json) =>
       _i1.serializers.deserializeWith(
@@ -72,17 +72,19 @@ abstract class GGetCategoriesData_categories
 
 abstract class GGetCategoriesData_categories_items
     implements
-        Built<GGetCategoriesData_categories_items,
-            GGetCategoriesData_categories_itemsBuilder> {
+        Built<
+          GGetCategoriesData_categories_items,
+          GGetCategoriesData_categories_itemsBuilder
+        > {
   GGetCategoriesData_categories_items._();
 
-  factory GGetCategoriesData_categories_items(
-      [void Function(GGetCategoriesData_categories_itemsBuilder b)
-          updates]) = _$GGetCategoriesData_categories_items;
+  factory GGetCategoriesData_categories_items([
+    void Function(GGetCategoriesData_categories_itemsBuilder b) updates,
+  ]) = _$GGetCategoriesData_categories_items;
 
   static void _initializeBuilder(
-          GGetCategoriesData_categories_itemsBuilder b) =>
-      b..G__typename = 'Category';
+    GGetCategoriesData_categories_itemsBuilder b,
+  ) => b..G__typename = 'Category';
 
   @BuiltValueField(wireName: '__typename')
   String get G__typename;
@@ -91,15 +93,17 @@ abstract class GGetCategoriesData_categories_items
   static Serializer<GGetCategoriesData_categories_items> get serializer =>
       _$gGetCategoriesDataCategoriesItemsSerializer;
 
-  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
-        GGetCategoriesData_categories_items.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i1.serializers.serializeWith(
+            GGetCategoriesData_categories_items.serializer,
+            this,
+          )
+          as Map<String, dynamic>);
 
   static GGetCategoriesData_categories_items? fromJson(
-          Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(
-        GGetCategoriesData_categories_items.serializer,
-        json,
-      );
+    Map<String, dynamic> json,
+  ) => _i1.serializers.deserializeWith(
+    GGetCategoriesData_categories_items.serializer,
+    json,
+  );
 }

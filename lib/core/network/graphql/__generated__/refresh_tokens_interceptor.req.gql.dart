@@ -19,15 +19,19 @@ part 'refresh_tokens_interceptor.req.gql.g.dart';
 
 abstract class GRefreshTokensForInterceptorReq
     implements
-        Built<GRefreshTokensForInterceptorReq,
-            GRefreshTokensForInterceptorReqBuilder>,
-        _i1.OperationRequest<_i2.GRefreshTokensForInterceptorData,
-            _i3.GRefreshTokensForInterceptorVars> {
+        Built<
+          GRefreshTokensForInterceptorReq,
+          GRefreshTokensForInterceptorReqBuilder
+        >,
+        _i1.OperationRequest<
+          _i2.GRefreshTokensForInterceptorData,
+          _i3.GRefreshTokensForInterceptorVars
+        > {
   GRefreshTokensForInterceptorReq._();
 
-  factory GRefreshTokensForInterceptorReq(
-          [void Function(GRefreshTokensForInterceptorReqBuilder b) updates]) =
-      _$GRefreshTokensForInterceptorReq;
+  factory GRefreshTokensForInterceptorReq([
+    void Function(GRefreshTokensForInterceptorReqBuilder b) updates,
+  ]) = _$GRefreshTokensForInterceptorReq;
 
   static void _initializeBuilder(GRefreshTokensForInterceptorReqBuilder b) => b
     ..operation = _i4.Operation(
@@ -42,10 +46,10 @@ abstract class GRefreshTokensForInterceptorReq
   _i4.Operation get operation;
   @override
   _i4.Request get execRequest => _i4.Request(
-        operation: operation,
-        variables: vars.toJson(),
-        context: context ?? const _i4.Context(),
-      );
+    operation: operation,
+    variables: vars.toJson(),
+    context: context ?? const _i4.Context(),
+  );
 
   @override
   String? get requestId;
@@ -54,7 +58,8 @@ abstract class GRefreshTokensForInterceptorReq
   _i2.GRefreshTokensForInterceptorData? Function(
     _i2.GRefreshTokensForInterceptorData?,
     _i2.GRefreshTokensForInterceptorData?,
-  )? get updateResult;
+  )?
+  get updateResult;
   @override
   _i2.GRefreshTokensForInterceptorData? get optimisticResponse;
   @override
@@ -80,18 +85,22 @@ abstract class GRefreshTokensForInterceptorReq
       data.toJson();
 
   @override
-  _i1.OperationRequest<_i2.GRefreshTokensForInterceptorData,
-      _i3.GRefreshTokensForInterceptorVars> transformOperation(
-          _i4.Operation Function(_i4.Operation) transform) =>
+  _i1.OperationRequest<
+    _i2.GRefreshTokensForInterceptorData,
+    _i3.GRefreshTokensForInterceptorVars
+  >
+  transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
       this.rebuild((b) => b..operation = transform(operation));
 
   static Serializer<GRefreshTokensForInterceptorReq> get serializer =>
       _$gRefreshTokensForInterceptorReqSerializer;
 
-  Map<String, dynamic> toJson() => (_i6.serializers.serializeWith(
-        GRefreshTokensForInterceptorReq.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i6.serializers.serializeWith(
+            GRefreshTokensForInterceptorReq.serializer,
+            this,
+          )
+          as Map<String, dynamic>);
 
   static GRefreshTokensForInterceptorReq? fromJson(Map<String, dynamic> json) =>
       _i6.serializers.deserializeWith(

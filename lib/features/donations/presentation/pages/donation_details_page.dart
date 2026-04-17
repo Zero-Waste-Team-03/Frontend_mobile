@@ -259,9 +259,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
       onRetry: () {
         // Retry the reservation
         context.read<ReservationBloc>().add(
-          CreateReservationEvent(
-            donationId: widget.donation.id,
-          ),
+          CreateReservationEvent(donationId: widget.donation.id),
         );
       },
     );
@@ -270,7 +268,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
   Widget _buildChatButtonUI({required bool isDragging}) {
     return GestureDetector(
       onTap: () {
-        context.go('/chat');
+        context.push('/chats');
       },
       child: Material(
         color: Colors.transparent,

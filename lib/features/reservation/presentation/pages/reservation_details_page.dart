@@ -171,12 +171,7 @@ class _ReservationDetailsPageState extends State<ReservationDetailsPage> {
                             const User(id: 'user-1', name: 'Marcus'),
                         title: 'Donor',
                         onChatPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text('Chat feature coming soon'),
-                              backgroundColor: AuthColors.primary,
-                            ),
-                          );
+                          context.push('/chat', extra: reservation.id);
                         },
                         onCallPressed: () {
                           ScaffoldMessenger.of(context).showSnackBar(

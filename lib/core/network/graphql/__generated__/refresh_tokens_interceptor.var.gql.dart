@@ -11,26 +11,30 @@ part 'refresh_tokens_interceptor.var.gql.g.dart';
 
 abstract class GRefreshTokensForInterceptorVars
     implements
-        Built<GRefreshTokensForInterceptorVars,
-            GRefreshTokensForInterceptorVarsBuilder> {
+        Built<
+          GRefreshTokensForInterceptorVars,
+          GRefreshTokensForInterceptorVarsBuilder
+        > {
   GRefreshTokensForInterceptorVars._();
 
-  factory GRefreshTokensForInterceptorVars(
-          [void Function(GRefreshTokensForInterceptorVarsBuilder b) updates]) =
-      _$GRefreshTokensForInterceptorVars;
+  factory GRefreshTokensForInterceptorVars([
+    void Function(GRefreshTokensForInterceptorVarsBuilder b) updates,
+  ]) = _$GRefreshTokensForInterceptorVars;
 
   static Serializer<GRefreshTokensForInterceptorVars> get serializer =>
       _$gRefreshTokensForInterceptorVarsSerializer;
 
-  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
-        GRefreshTokensForInterceptorVars.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i1.serializers.serializeWith(
+            GRefreshTokensForInterceptorVars.serializer,
+            this,
+          )
+          as Map<String, dynamic>);
 
   static GRefreshTokensForInterceptorVars? fromJson(
-          Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(
-        GRefreshTokensForInterceptorVars.serializer,
-        json,
-      );
+    Map<String, dynamic> json,
+  ) => _i1.serializers.deserializeWith(
+    GRefreshTokensForInterceptorVars.serializer,
+    json,
+  );
 }

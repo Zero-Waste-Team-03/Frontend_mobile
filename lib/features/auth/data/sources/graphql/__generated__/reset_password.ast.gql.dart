@@ -9,39 +9,45 @@ const ResetPassword = _i1.OperationDefinitionNode(
   name: _i1.NameNode(value: 'ResetPassword'),
   variableDefinitions: [
     _i1.VariableDefinitionNode(
-      variable:
-          _i1.VariableNode(name: _i1.NameNode(value: 'resetPasswordInput')),
+      variable: _i1.VariableNode(
+        name: _i1.NameNode(value: 'resetPasswordInput'),
+      ),
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'ResetPasswordInput'),
         isNonNull: true,
       ),
       defaultValue: _i1.DefaultValueNode(value: null),
       directives: [],
-    )
+    ),
   ],
   directives: [],
-  selectionSet: _i1.SelectionSetNode(selections: [
-    _i1.FieldNode(
-      name: _i1.NameNode(value: 'resetPassword'),
-      alias: null,
-      arguments: [
-        _i1.ArgumentNode(
-          name: _i1.NameNode(value: 'resetPasswordInput'),
-          value:
-              _i1.VariableNode(name: _i1.NameNode(value: 'resetPasswordInput')),
-        )
-      ],
-      directives: [],
-      selectionSet: _i1.SelectionSetNode(selections: [
-        _i1.FieldNode(
-          name: _i1.NameNode(value: 'message'),
-          alias: null,
-          arguments: [],
-          directives: [],
-          selectionSet: null,
-        )
-      ]),
-    )
-  ]),
+  selectionSet: _i1.SelectionSetNode(
+    selections: [
+      _i1.FieldNode(
+        name: _i1.NameNode(value: 'resetPassword'),
+        alias: null,
+        arguments: [
+          _i1.ArgumentNode(
+            name: _i1.NameNode(value: 'resetPasswordInput'),
+            value: _i1.VariableNode(
+              name: _i1.NameNode(value: 'resetPasswordInput'),
+            ),
+          ),
+        ],
+        directives: [],
+        selectionSet: _i1.SelectionSetNode(
+          selections: [
+            _i1.FieldNode(
+              name: _i1.NameNode(value: 'message'),
+              alias: null,
+              arguments: [],
+              directives: [],
+              selectionSet: null,
+            ),
+          ],
+        ),
+      ),
+    ],
+  ),
 );
 const document = _i1.DocumentNode(definitions: [ResetPassword]);

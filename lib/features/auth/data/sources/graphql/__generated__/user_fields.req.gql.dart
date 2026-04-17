@@ -51,14 +51,10 @@ abstract class GUserFieldsReq
   static Serializer<GUserFieldsReq> get serializer =>
       _$gUserFieldsReqSerializer;
 
-  Map<String, dynamic> toJson() => (_i6.serializers.serializeWith(
-        GUserFieldsReq.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i6.serializers.serializeWith(GUserFieldsReq.serializer, this)
+          as Map<String, dynamic>);
 
   static GUserFieldsReq? fromJson(Map<String, dynamic> json) =>
-      _i6.serializers.deserializeWith(
-        GUserFieldsReq.serializer,
-        json,
-      );
+      _i6.serializers.deserializeWith(GUserFieldsReq.serializer, json);
 }

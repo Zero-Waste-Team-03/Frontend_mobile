@@ -6,9 +6,7 @@ class RanksPlaceholderPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      body: Center(
-        child: Text('Leaderboard / Ranks (Placeholder)'),
-      ),
+      body: Center(child: Text('Leaderboard / Ranks (Placeholder)')),
     );
   }
 }

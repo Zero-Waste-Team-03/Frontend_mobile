@@ -65,7 +65,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
     }
   }
 
-
   String? _validatePhoneNumber(String? value) {
     if (value == null || value.isEmpty) {
       return 'Phone number is required';
@@ -175,7 +174,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                               height: 100.w,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: AuthColors.primary.withValues(alpha: 0.1),
+                                color: AuthColors.primary.withValues(
+                                  alpha: 0.1,
+                                ),
                                 border: Border.all(
                                   color: AuthColors.primary,
                                   width: 2.w,
@@ -294,7 +295,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         keyboardType: TextInputType.name,
                       ),
                       SizedBox(height: AppDimensions.paddingLarge.h),
-
 
                       // Phone Number Field
                       _buildLabel('Phone Number'),

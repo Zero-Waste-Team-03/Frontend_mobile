@@ -15,22 +15,18 @@ abstract class GMyReservationsVars
     implements Built<GMyReservationsVars, GMyReservationsVarsBuilder> {
   GMyReservationsVars._();
 
-  factory GMyReservationsVars(
-          [void Function(GMyReservationsVarsBuilder b) updates]) =
-      _$GMyReservationsVars;
+  factory GMyReservationsVars([
+    void Function(GMyReservationsVarsBuilder b) updates,
+  ]) = _$GMyReservationsVars;
 
   _i1.GPaginationInput? get pagination;
   static Serializer<GMyReservationsVars> get serializer =>
       _$gMyReservationsVarsSerializer;
 
-  Map<String, dynamic> toJson() => (_i2.serializers.serializeWith(
-        GMyReservationsVars.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i2.serializers.serializeWith(GMyReservationsVars.serializer, this)
+          as Map<String, dynamic>);
 
   static GMyReservationsVars? fromJson(Map<String, dynamic> json) =>
-      _i2.serializers.deserializeWith(
-        GMyReservationsVars.serializer,
-        json,
-      );
+      _i2.serializers.deserializeWith(GMyReservationsVars.serializer, json);
 }

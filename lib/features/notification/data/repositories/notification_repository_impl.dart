@@ -46,7 +46,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
       );
       return Right(notifications.map((model) => model.toEntity()).toList());
     } catch (e) {
-      return Left(ServerFailure( e.toString()));
+      return Left(ServerFailure(e.toString()));
     }
   }
 
@@ -58,7 +58,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
       final notification = await remoteDataSource.markAsRead(notificationId);
       return Right(notification.toEntity());
     } catch (e) {
-      return Left(ServerFailure( e.toString()));
+      return Left(ServerFailure(e.toString()));
     }
   }
 
@@ -68,7 +68,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
       await remoteDataSource.markAllAsRead(userId);
       return const Right(null);
     } catch (e) {
-      return Left(ServerFailure( e.toString()));
+      return Left(ServerFailure(e.toString()));
     }
   }
 }

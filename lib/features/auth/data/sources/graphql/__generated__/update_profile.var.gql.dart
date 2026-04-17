@@ -15,22 +15,18 @@ abstract class GUpdateProfileVars
     implements Built<GUpdateProfileVars, GUpdateProfileVarsBuilder> {
   GUpdateProfileVars._();
 
-  factory GUpdateProfileVars(
-          [void Function(GUpdateProfileVarsBuilder b) updates]) =
-      _$GUpdateProfileVars;
+  factory GUpdateProfileVars([
+    void Function(GUpdateProfileVarsBuilder b) updates,
+  ]) = _$GUpdateProfileVars;
 
   _i1.GUpdateProfileInput get updateProfileInput;
   static Serializer<GUpdateProfileVars> get serializer =>
       _$gUpdateProfileVarsSerializer;
 
-  Map<String, dynamic> toJson() => (_i2.serializers.serializeWith(
-        GUpdateProfileVars.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i2.serializers.serializeWith(GUpdateProfileVars.serializer, this)
+          as Map<String, dynamic>);
 
   static GUpdateProfileVars? fromJson(Map<String, dynamic> json) =>
-      _i2.serializers.deserializeWith(
-        GUpdateProfileVars.serializer,
-        json,
-      );
+      _i2.serializers.deserializeWith(GUpdateProfileVars.serializer, json);
 }

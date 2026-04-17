@@ -23,9 +23,9 @@ abstract class GGetCategoriesReq
         _i1.OperationRequest<_i2.GGetCategoriesData, _i3.GGetCategoriesVars> {
   GGetCategoriesReq._();
 
-  factory GGetCategoriesReq(
-          [void Function(GGetCategoriesReqBuilder b) updates]) =
-      _$GGetCategoriesReq;
+  factory GGetCategoriesReq([
+    void Function(GGetCategoriesReqBuilder b) updates,
+  ]) = _$GGetCategoriesReq;
 
   static void _initializeBuilder(GGetCategoriesReqBuilder b) => b
     ..operation = _i4.Operation(
@@ -40,10 +40,10 @@ abstract class GGetCategoriesReq
   _i4.Operation get operation;
   @override
   _i4.Request get execRequest => _i4.Request(
-        operation: operation,
-        variables: vars.toJson(),
-        context: context ?? const _i4.Context(),
-      );
+    operation: operation,
+    variables: vars.toJson(),
+    context: context ?? const _i4.Context(),
+  );
 
   @override
   String? get requestId;
@@ -52,7 +52,8 @@ abstract class GGetCategoriesReq
   _i2.GGetCategoriesData? Function(
     _i2.GGetCategoriesData?,
     _i2.GGetCategoriesData?,
-  )? get updateResult;
+  )?
+  get updateResult;
   @override
   _i2.GGetCategoriesData? get optimisticResponse;
   @override
@@ -78,20 +79,16 @@ abstract class GGetCategoriesReq
 
   @override
   _i1.OperationRequest<_i2.GGetCategoriesData, _i3.GGetCategoriesVars>
-      transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
-          this.rebuild((b) => b..operation = transform(operation));
+  transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
+      this.rebuild((b) => b..operation = transform(operation));
 
   static Serializer<GGetCategoriesReq> get serializer =>
       _$gGetCategoriesReqSerializer;
 
-  Map<String, dynamic> toJson() => (_i6.serializers.serializeWith(
-        GGetCategoriesReq.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i6.serializers.serializeWith(GGetCategoriesReq.serializer, this)
+          as Map<String, dynamic>);
 
   static GGetCategoriesReq? fromJson(Map<String, dynamic> json) =>
-      _i6.serializers.deserializeWith(
-        GGetCategoriesReq.serializer,
-        json,
-      );
+      _i6.serializers.deserializeWith(GGetCategoriesReq.serializer, json);
 }

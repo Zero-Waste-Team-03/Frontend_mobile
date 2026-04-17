@@ -15,22 +15,18 @@ abstract class GResetPasswordVars
     implements Built<GResetPasswordVars, GResetPasswordVarsBuilder> {
   GResetPasswordVars._();
 
-  factory GResetPasswordVars(
-          [void Function(GResetPasswordVarsBuilder b) updates]) =
-      _$GResetPasswordVars;
+  factory GResetPasswordVars([
+    void Function(GResetPasswordVarsBuilder b) updates,
+  ]) = _$GResetPasswordVars;
 
   _i1.GResetPasswordInput get resetPasswordInput;
   static Serializer<GResetPasswordVars> get serializer =>
       _$gResetPasswordVarsSerializer;
 
-  Map<String, dynamic> toJson() => (_i2.serializers.serializeWith(
-        GResetPasswordVars.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i2.serializers.serializeWith(GResetPasswordVars.serializer, this)
+          as Map<String, dynamic>);
 
   static GResetPasswordVars? fromJson(Map<String, dynamic> json) =>
-      _i2.serializers.deserializeWith(
-        GResetPasswordVars.serializer,
-        json,
-      );
+      _i2.serializers.deserializeWith(GResetPasswordVars.serializer, json);
 }

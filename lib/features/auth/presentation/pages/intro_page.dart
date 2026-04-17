@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'auth_colors.dart';
@@ -12,7 +12,10 @@ class IntroPage extends StatelessWidget {
       backgroundColor: AuthColors.background,
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: AppDimensions.paddingLarge.w, vertical: 40.0.h),
+          padding: EdgeInsets.symmetric(
+            horizontal: AppDimensions.paddingLarge.w,
+            vertical: 40.0.h,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -27,7 +30,11 @@ class IntroPage extends StatelessWidget {
                       color: AuthColors.background,
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(Icons.eco, color: AuthColors.primary, size: AppDimensions.logoIconSize.sp),
+                    child: Icon(
+                      Icons.eco,
+                      color: AuthColors.primary,
+                      size: AppDimensions.logoIconSize.sp,
+                    ),
                   ),
                   SizedBox(width: AppDimensions.paddingSmall.w),
                   Text(
@@ -64,7 +71,7 @@ class IntroPage extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 48.h),
-              
+
               // Action Buttons
               ElevatedButton(
                 onPressed: () => context.push('/register'),
@@ -73,15 +80,21 @@ class IntroPage extends StatelessWidget {
                   backgroundColor: AuthColors.primary,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppDimensions.borderRadiusExtraLarge.r),
+                    borderRadius: BorderRadius.circular(
+                      AppDimensions.borderRadiusExtraLarge.r,
+                    ),
                   ),
                   elevation: 0,
                 ),
-                child: Text('Join the Community', style: TextStyle(
-                  fontSize: AppDimensions.primaryButtonTextSize.sp, 
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.015 * AppDimensions.primaryButtonTextSize.sp,
-                )),
+                child: Text(
+                  'Join the Community',
+                  style: TextStyle(
+                    fontSize: AppDimensions.primaryButtonTextSize.sp,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing:
+                        0.015 * AppDimensions.primaryButtonTextSize.sp,
+                  ),
+                ),
               ),
               SizedBox(height: AppDimensions.paddingMedium.h),
               ElevatedButton(
@@ -91,18 +104,24 @@ class IntroPage extends StatelessWidget {
                   backgroundColor: AuthColors.primary.withValues(alpha: 0.1),
                   foregroundColor: AuthColors.primary,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppDimensions.borderRadiusExtraLarge.r),
+                    borderRadius: BorderRadius.circular(
+                      AppDimensions.borderRadiusExtraLarge.r,
+                    ),
                   ),
                   elevation: 0,
                 ),
-                child: Text('Sign In', style: TextStyle(
-                  fontSize: AppDimensions.primaryButtonTextSize.sp, 
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.015 * AppDimensions.primaryButtonTextSize.sp,
-                )),
+                child: Text(
+                  'Sign In',
+                  style: TextStyle(
+                    fontSize: AppDimensions.primaryButtonTextSize.sp,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing:
+                        0.015 * AppDimensions.primaryButtonTextSize.sp,
+                  ),
+                ),
               ),
               const Spacer(),
-              
+
               // Footer / App Info
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection.dart';
@@ -21,17 +21,11 @@ class HomePlaceholderPage extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: AuthColors.subText),
-            ),
+            child: Text('Cancel', style: TextStyle(color: AuthColors.subText)),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(
-              'Logout',
-              style: TextStyle(color: Colors.red.shade600),
-            ),
+            child: Text('Logout', style: TextStyle(color: Colors.red.shade600)),
           ),
         ],
       ),

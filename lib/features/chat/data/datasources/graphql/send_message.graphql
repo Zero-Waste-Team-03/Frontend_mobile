@@ -1,0 +1,10 @@
+mutation SendMessage($input: SendMessageInput!) {
+  sendMessage(input: $input) {
+    id
+    content
+    createdAt
+    isModerated
+    senderId
+    conversationId
+  }
+}

@@ -63,6 +63,7 @@ class DonationImageUploadError extends DonationsState {
 }
 
 class DonationAddLoading extends DonationsState {}
+
 class DonationAddError extends DonationsState {
   final String message;
   const DonationAddError(this.message);

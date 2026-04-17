@@ -11,13 +11,15 @@ part 'refresh_tokens_interceptor.data.gql.g.dart';
 
 abstract class GRefreshTokensForInterceptorData
     implements
-        Built<GRefreshTokensForInterceptorData,
-            GRefreshTokensForInterceptorDataBuilder> {
+        Built<
+          GRefreshTokensForInterceptorData,
+          GRefreshTokensForInterceptorDataBuilder
+        > {
   GRefreshTokensForInterceptorData._();
 
-  factory GRefreshTokensForInterceptorData(
-          [void Function(GRefreshTokensForInterceptorDataBuilder b) updates]) =
-      _$GRefreshTokensForInterceptorData;
+  factory GRefreshTokensForInterceptorData([
+    void Function(GRefreshTokensForInterceptorDataBuilder b) updates,
+  ]) = _$GRefreshTokensForInterceptorData;
 
   static void _initializeBuilder(GRefreshTokensForInterceptorDataBuilder b) =>
       b..G__typename = 'Mutation';
@@ -28,50 +30,56 @@ abstract class GRefreshTokensForInterceptorData
   static Serializer<GRefreshTokensForInterceptorData> get serializer =>
       _$gRefreshTokensForInterceptorDataSerializer;
 
-  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
-        GRefreshTokensForInterceptorData.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i1.serializers.serializeWith(
+            GRefreshTokensForInterceptorData.serializer,
+            this,
+          )
+          as Map<String, dynamic>);
 
   static GRefreshTokensForInterceptorData? fromJson(
-          Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(
-        GRefreshTokensForInterceptorData.serializer,
-        json,
-      );
+    Map<String, dynamic> json,
+  ) => _i1.serializers.deserializeWith(
+    GRefreshTokensForInterceptorData.serializer,
+    json,
+  );
 }
 
 abstract class GRefreshTokensForInterceptorData_refreshTokens
     implements
-        Built<GRefreshTokensForInterceptorData_refreshTokens,
-            GRefreshTokensForInterceptorData_refreshTokensBuilder> {
+        Built<
+          GRefreshTokensForInterceptorData_refreshTokens,
+          GRefreshTokensForInterceptorData_refreshTokensBuilder
+        > {
   GRefreshTokensForInterceptorData_refreshTokens._();
 
-  factory GRefreshTokensForInterceptorData_refreshTokens(
-      [void Function(GRefreshTokensForInterceptorData_refreshTokensBuilder b)
-          updates]) = _$GRefreshTokensForInterceptorData_refreshTokens;
+  factory GRefreshTokensForInterceptorData_refreshTokens([
+    void Function(GRefreshTokensForInterceptorData_refreshTokensBuilder b)
+    updates,
+  ]) = _$GRefreshTokensForInterceptorData_refreshTokens;
 
   static void _initializeBuilder(
-          GRefreshTokensForInterceptorData_refreshTokensBuilder b) =>
-      b..G__typename = 'AuthResponse';
+    GRefreshTokensForInterceptorData_refreshTokensBuilder b,
+  ) => b..G__typename = 'AuthResponse';
 
   @BuiltValueField(wireName: '__typename')
   String get G__typename;
   String get accessToken;
   String get refreshToken;
   static Serializer<GRefreshTokensForInterceptorData_refreshTokens>
-      get serializer =>
-          _$gRefreshTokensForInterceptorDataRefreshTokensSerializer;
+  get serializer => _$gRefreshTokensForInterceptorDataRefreshTokensSerializer;
 
-  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
-        GRefreshTokensForInterceptorData_refreshTokens.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i1.serializers.serializeWith(
+            GRefreshTokensForInterceptorData_refreshTokens.serializer,
+            this,
+          )
+          as Map<String, dynamic>);
 
   static GRefreshTokensForInterceptorData_refreshTokens? fromJson(
-          Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(
-        GRefreshTokensForInterceptorData_refreshTokens.serializer,
-        json,
-      );
+    Map<String, dynamic> json,
+  ) => _i1.serializers.deserializeWith(
+    GRefreshTokensForInterceptorData_refreshTokens.serializer,
+    json,
+  );
 }

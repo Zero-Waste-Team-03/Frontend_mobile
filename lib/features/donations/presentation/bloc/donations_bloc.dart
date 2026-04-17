@@ -8,7 +8,8 @@ import 'donations_state.dart';
 class DonationsBloc extends Bloc<DonationsEvent, DonationsState> {
   final DonationRepository donationRepository;
 
-  DonationsBloc({required this.donationRepository}) : super(DonationsInitial()) {
+  DonationsBloc({required this.donationRepository})
+    : super(DonationsInitial()) {
     on<LoadDonationsEvent>(_onLoadDonations);
     on<UploadDonationImageEvent>(_onUploadImage);
     on<AddDonationEvent>(_onAddDonation);
@@ -20,7 +21,9 @@ class DonationsBloc extends Bloc<DonationsEvent, DonationsState> {
   ) async {
     emit(DonationImageUploadLoading());
     try {
-      final attachmentId = await donationRepository.uploadDonationImage(event.imageFile);
+      final attachmentId = await donationRepository.uploadDonationImage(
+        event.imageFile,
+      );
       emit(DonationImageUploadSuccess(attachmentId));
     } catch (e) {
       emit(DonationImageUploadError(e.toString()));
@@ -42,7 +45,8 @@ class DonationsBloc extends Bloc<DonationsEvent, DonationsState> {
     }
 
     try {
-      final categories = existingCategories ?? await donationRepository.getCategories();
+      final categories =
+          existingCategories ?? await donationRepository.getCategories();
       final donations = await donationRepository.getDonations(
         categoryId: event.categoryId,
         searchQuery: event.searchQuery,
@@ -56,17 +60,21 @@ class DonationsBloc extends Bloc<DonationsEvent, DonationsState> {
           for (var d in existingDonations) d.id: d,
           for (var d in donations) d.id: d,
         };
-        emit(DonationsLoaded(
-          donations: merged.values.toList(),
-          categories: categories,
-          selectedCategoryId: event.categoryId,
-        ));
+        emit(
+          DonationsLoaded(
+            donations: merged.values.toList(),
+            categories: categories,
+            selectedCategoryId: event.categoryId,
+          ),
+        );
       } else {
-        emit(DonationsLoaded(
-          donations: donations,
-          categories: categories,
-          selectedCategoryId: event.categoryId,
-        ));
+        emit(
+          DonationsLoaded(
+            donations: donations,
+            categories: categories,
+            selectedCategoryId: event.categoryId,
+          ),
+        );
       }
     } catch (e) {
       if (!event.append) {

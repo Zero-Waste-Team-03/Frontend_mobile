@@ -20,13 +20,15 @@ part 'send_verification.req.gql.g.dart';
 abstract class GSendVerificationReq
     implements
         Built<GSendVerificationReq, GSendVerificationReqBuilder>,
-        _i1.OperationRequest<_i2.GSendVerificationData,
-            _i3.GSendVerificationVars> {
+        _i1.OperationRequest<
+          _i2.GSendVerificationData,
+          _i3.GSendVerificationVars
+        > {
   GSendVerificationReq._();
 
-  factory GSendVerificationReq(
-          [void Function(GSendVerificationReqBuilder b) updates]) =
-      _$GSendVerificationReq;
+  factory GSendVerificationReq([
+    void Function(GSendVerificationReqBuilder b) updates,
+  ]) = _$GSendVerificationReq;
 
   static void _initializeBuilder(GSendVerificationReqBuilder b) => b
     ..operation = _i4.Operation(
@@ -41,10 +43,10 @@ abstract class GSendVerificationReq
   _i4.Operation get operation;
   @override
   _i4.Request get execRequest => _i4.Request(
-        operation: operation,
-        variables: vars.toJson(),
-        context: context ?? const _i4.Context(),
-      );
+    operation: operation,
+    variables: vars.toJson(),
+    context: context ?? const _i4.Context(),
+  );
 
   @override
   String? get requestId;
@@ -53,7 +55,8 @@ abstract class GSendVerificationReq
   _i2.GSendVerificationData? Function(
     _i2.GSendVerificationData?,
     _i2.GSendVerificationData?,
-  )? get updateResult;
+  )?
+  get updateResult;
   @override
   _i2.GSendVerificationData? get optimisticResponse;
   @override
@@ -80,20 +83,16 @@ abstract class GSendVerificationReq
 
   @override
   _i1.OperationRequest<_i2.GSendVerificationData, _i3.GSendVerificationVars>
-      transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
-          this.rebuild((b) => b..operation = transform(operation));
+  transformOperation(_i4.Operation Function(_i4.Operation) transform) =>
+      this.rebuild((b) => b..operation = transform(operation));
 
   static Serializer<GSendVerificationReq> get serializer =>
       _$gSendVerificationReqSerializer;
 
-  Map<String, dynamic> toJson() => (_i6.serializers.serializeWith(
-        GSendVerificationReq.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i6.serializers.serializeWith(GSendVerificationReq.serializer, this)
+          as Map<String, dynamic>);
 
   static GSendVerificationReq? fromJson(Map<String, dynamic> json) =>
-      _i6.serializers.deserializeWith(
-        GSendVerificationReq.serializer,
-        json,
-      );
+      _i6.serializers.deserializeWith(GSendVerificationReq.serializer, json);
 }

@@ -13,21 +13,17 @@ abstract class GDeleteAccountVars
     implements Built<GDeleteAccountVars, GDeleteAccountVarsBuilder> {
   GDeleteAccountVars._();
 
-  factory GDeleteAccountVars(
-          [void Function(GDeleteAccountVarsBuilder b) updates]) =
-      _$GDeleteAccountVars;
+  factory GDeleteAccountVars([
+    void Function(GDeleteAccountVarsBuilder b) updates,
+  ]) = _$GDeleteAccountVars;
 
   static Serializer<GDeleteAccountVars> get serializer =>
       _$gDeleteAccountVarsSerializer;
 
-  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
-        GDeleteAccountVars.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i1.serializers.serializeWith(GDeleteAccountVars.serializer, this)
+          as Map<String, dynamic>);
 
   static GDeleteAccountVars? fromJson(Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(
-        GDeleteAccountVars.serializer,
-        json,
-      );
+      _i1.serializers.deserializeWith(GDeleteAccountVars.serializer, json);
 }

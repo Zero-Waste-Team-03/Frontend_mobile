@@ -13,22 +13,18 @@ abstract class GMyReservationVars
     implements Built<GMyReservationVars, GMyReservationVarsBuilder> {
   GMyReservationVars._();
 
-  factory GMyReservationVars(
-          [void Function(GMyReservationVarsBuilder b) updates]) =
-      _$GMyReservationVars;
+  factory GMyReservationVars([
+    void Function(GMyReservationVarsBuilder b) updates,
+  ]) = _$GMyReservationVars;
 
   String get id;
   static Serializer<GMyReservationVars> get serializer =>
       _$gMyReservationVarsSerializer;
 
-  Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
-        GMyReservationVars.serializer,
-        this,
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() =>
+      (_i1.serializers.serializeWith(GMyReservationVars.serializer, this)
+          as Map<String, dynamic>);
 
   static GMyReservationVars? fromJson(Map<String, dynamic> json) =>
-      _i1.serializers.deserializeWith(
-        GMyReservationVars.serializer,
-        json,
-      );
+      _i1.serializers.deserializeWith(GMyReservationVars.serializer, json);
 }

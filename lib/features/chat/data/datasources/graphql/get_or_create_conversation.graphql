@@ -1,0 +1,9 @@
+mutation GetOrCreateConversation($reservationId: ID!) {
+  getOrCreateConversation(reservationId: $reservationId) {
+    id
+    createdAt
+    status
+    lastMessage
+    reservationId
+  }
+}

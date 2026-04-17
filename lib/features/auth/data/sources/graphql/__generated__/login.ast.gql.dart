@@ -18,52 +18,55 @@ const Login = _i1.OperationDefinitionNode(
       ),
       defaultValue: _i1.DefaultValueNode(value: null),
       directives: [],
-    )
+    ),
   ],
   directives: [],
-  selectionSet: _i1.SelectionSetNode(selections: [
-    _i1.FieldNode(
-      name: _i1.NameNode(value: 'login'),
-      alias: null,
-      arguments: [
-        _i1.ArgumentNode(
-          name: _i1.NameNode(value: 'loginInput'),
-          value: _i1.VariableNode(name: _i1.NameNode(value: 'loginInput')),
-        )
-      ],
-      directives: [],
-      selectionSet: _i1.SelectionSetNode(selections: [
-        _i1.FieldNode(
-          name: _i1.NameNode(value: 'accessToken'),
-          alias: null,
-          arguments: [],
-          directives: [],
-          selectionSet: null,
-        ),
-        _i1.FieldNode(
-          name: _i1.NameNode(value: 'refreshToken'),
-          alias: null,
-          arguments: [],
-          directives: [],
-          selectionSet: null,
-        ),
-        _i1.FieldNode(
-          name: _i1.NameNode(value: 'user'),
-          alias: null,
-          arguments: [],
-          directives: [],
-          selectionSet: _i1.SelectionSetNode(selections: [
-            _i1.FragmentSpreadNode(
-              name: _i1.NameNode(value: 'UserFields'),
+  selectionSet: _i1.SelectionSetNode(
+    selections: [
+      _i1.FieldNode(
+        name: _i1.NameNode(value: 'login'),
+        alias: null,
+        arguments: [
+          _i1.ArgumentNode(
+            name: _i1.NameNode(value: 'loginInput'),
+            value: _i1.VariableNode(name: _i1.NameNode(value: 'loginInput')),
+          ),
+        ],
+        directives: [],
+        selectionSet: _i1.SelectionSetNode(
+          selections: [
+            _i1.FieldNode(
+              name: _i1.NameNode(value: 'accessToken'),
+              alias: null,
+              arguments: [],
               directives: [],
-            )
-          ]),
+              selectionSet: null,
+            ),
+            _i1.FieldNode(
+              name: _i1.NameNode(value: 'refreshToken'),
+              alias: null,
+              arguments: [],
+              directives: [],
+              selectionSet: null,
+            ),
+            _i1.FieldNode(
+              name: _i1.NameNode(value: 'user'),
+              alias: null,
+              arguments: [],
+              directives: [],
+              selectionSet: _i1.SelectionSetNode(
+                selections: [
+                  _i1.FragmentSpreadNode(
+                    name: _i1.NameNode(value: 'UserFields'),
+                    directives: [],
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
-      ]),
-    )
-  ]),
+      ),
+    ],
+  ),
 );
-const document = _i1.DocumentNode(definitions: [
-  Login,
-  _i2.UserFields,
-]);
+const document = _i1.DocumentNode(definitions: [Login, _i2.UserFields]);
