@@ -276,7 +276,7 @@ class _DonationsHomePageState extends State<DonationsHomePage>
                         _buildMap(donationsWithLocation),
                         Positioned(
                           right: 16.w,
-                          bottom: 130.h,
+                          bottom: _selectedDonation != null ? 220.h : 160.h,
                           child: FloatingActionButton(
                             mini: true,
                             backgroundColor: Colors.white,
@@ -302,7 +302,7 @@ class _DonationsHomePageState extends State<DonationsHomePage>
                         Positioned(
                           left: 16.w,
                           right: 16.w,
-                          bottom: 16.h,
+                          bottom: 110.h,
                           child: _buildBottomCard(donationsWithLocation),
                         ),
                       ],
