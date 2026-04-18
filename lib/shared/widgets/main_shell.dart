@@ -1,6 +1,7 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gaspzero/core/theme/app_colors.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/app_icons.dart';
@@ -66,39 +67,49 @@ class _MainShellState extends State<MainShell> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          _NavItem(
-                            icon: AppIcons.home,
-                            label: 'Home',
-                            isSelected:
-                                widget.navigationShell.currentIndex == 0,
-                            onTap: () => widget.navigationShell.goBranch(0),
+                          Expanded(
+                            child: _NavItem(
+                              icon: AppIcons.home,
+                              label: 'Home',
+                              isSelected:
+                                  widget.navigationShell.currentIndex == 0,
+                              onTap: () => widget.navigationShell.goBranch(0),
+                            ),
                           ),
-                          _NavItem(
-                            icon: AppIcons.search,
-                            label: 'Browse',
-                            isSelected:
-                                widget.navigationShell.currentIndex == 1,
-                            onTap: () => widget.navigationShell.goBranch(1),
+                          Expanded(
+                            child: _NavItem(
+                              icon: AppIcons.search,
+                              label: 'Browse',
+                              isSelected:
+                                  widget.navigationShell.currentIndex == 1,
+                              onTap: () => widget.navigationShell.goBranch(1),
+                            ),
                           ),
-                          _NavItem(
-                            icon: AppIcons.add,
-                            label: 'Donate',
-                            isSelected: false,
-                            onTap: () => context.push('/add-donation'),
+                          Expanded(
+                            child: _NavItem(
+                              icon: AppIcons.add,
+                              label: 'Donate',
+                              isSelected: false,
+                              onTap: () => context.push('/add-donation'),
+                            ),
                           ),
-                          _NavItem(
-                            icon: AppIcons.leaderboard,
-                            label: 'Leaderboard',
-                            isSelected:
-                                widget.navigationShell.currentIndex == 2,
-                            onTap: () => widget.navigationShell.goBranch(2),
+                          Expanded(
+                            child: _NavItem(
+                              icon: AppIcons.leaderboard,
+                              label: 'Leaderboard',
+                              isSelected:
+                                  widget.navigationShell.currentIndex == 2,
+                              onTap: () => widget.navigationShell.goBranch(2),
+                            ),
                           ),
-                          _NavItem(
-                            icon: AppIcons.profile,
-                            label: 'Profile',
-                            isSelected:
-                                widget.navigationShell.currentIndex == 3,
-                            onTap: () => widget.navigationShell.goBranch(3),
+                          Expanded(
+                            child: _NavItem(
+                              icon: AppIcons.profile,
+                              label: 'Profile',
+                              isSelected:
+                                  widget.navigationShell.currentIndex == 3,
+                              onTap: () => widget.navigationShell.goBranch(3),
+                            ),
                           ),
                         ],
                       ),
@@ -147,11 +158,11 @@ class _MainShellState extends State<MainShell> {
           width: 56.w,
           height: 56.w,
           decoration: BoxDecoration(
-            color: AuthColors.primary,
+            color: AppColors.primary,
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: AuthColors.primary.withValues(alpha: 0.3),
+                color: AppColors.primary.withValues(alpha: 0.3),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -192,7 +203,9 @@ class _NavItem extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFD1FAE5) : Colors.transparent,
+          color: isSelected
+              ? AppColors.primary.withValues(alpha: 0.1)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(8.r),
         ),
         child: Column(
@@ -202,21 +215,23 @@ class _NavItem extends StatelessWidget {
             Icon(
               icon,
               color: isSelected
-                  ? const Color(0xFF064E3B)
-                  : const Color(0xFF94A3B8),
+                  ? AppColors.primary
+                  : AppColors.onSurface.withValues(alpha: 0.7),
               size: 24.sp,
             ),
             SizedBox(height: 4.h),
             Text(
               label.toUpperCase(),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w600,
                 fontSize: 10.sp,
                 letterSpacing: 0.25,
                 color: isSelected
-                    ? const Color(0xFF064E3B)
-                    : const Color(0xFF94A3B8),
+                    ? AppColors.primary
+                    : AppColors.onSurface.withValues(alpha: 0.7),
               ),
             ),
           ],
