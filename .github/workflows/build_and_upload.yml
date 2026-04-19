@@ -66,6 +66,9 @@ jobs:
           ENABLE_ANALYTICS=false
           EOF
 
+      - name: Run Build Runner
+        run: dart run build_runner build --delete-conflicting-outputs
+
       - name: Flutter analyze
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
 
