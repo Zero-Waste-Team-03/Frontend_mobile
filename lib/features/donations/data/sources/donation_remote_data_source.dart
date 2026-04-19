@@ -212,7 +212,7 @@ class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
   }) async {
     _logger.i(
       'createDonation called with title=$title, categoryId=$categoryId, '
-      'urgency=$urgency, expiryDate=$expiryDate',
+      'urgency=$urgency, expiryDate=$expiryDate, foodWeightKg=$foodWeightKg, quantity=$quantity, safetyChecklistCompleted=$safetyChecklistCompleted, ',
     );
 
     try {
@@ -224,6 +224,7 @@ class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
         'description': description,
         'categoryId': categoryId,
         'quantity': quantity,
+        'foodWeightKg': foodWeightKg,
         'urgency': allowedUrgency.contains(normalizedUrgency)
             ? normalizedUrgency
             : 'MEDIUM',

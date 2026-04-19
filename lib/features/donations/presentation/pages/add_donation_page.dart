@@ -35,6 +35,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
 
   // Step 2 Data
   final TextEditingController _amountController = TextEditingController();
+  final TextEditingController _weightController = TextEditingController();
   String _selectedUnit = 'Items/Units';
   String _pickupPreference = 'Home'; // Home, Public Spot
   DateTime? _expirationDate;
@@ -59,7 +60,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
   void dispose() {
     _pageController.dispose();
     _itemNameController.dispose();
-    _amountController.dispose();
+    _weightController.dispose();
     _notesController.dispose();
     super.dispose();
   }
@@ -441,62 +442,28 @@ class _AddDonationPageState extends State<AddDonationPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            spacing: 16.w,
             children: [
               Expanded(
-                flex: 40,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildLabel('Amount'),
-                    _buildTextField(
-                      controller: _amountController,
-                      hintText: '1',
-                      keyboardType: TextInputType.number,
-                    ),
-                  ],
+                child: _buildTextField(
+                  controller: _amountController,
+                  label: 'Quantity',
+                  hintText: 'Quantity',
+                  keyboardType: TextInputType.numberWithOptions(
+                    decimal: false,
+                    signed: false,
+                  ),
                 ),
               ),
-              SizedBox(width: 16.w),
               Expanded(
-                flex: 60,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildLabel('Unit'),
-                    Wrap(
-                      spacing: 8.w,
-                      runSpacing: 8.h,
-                      children: ['Items/Units', 'kg', 'Liters'].map((unit) {
-                        final isSelected = _selectedUnit == unit;
-                        return ChoiceChip(
-                          label: Text(unit),
-                          selected: isSelected,
-                          onSelected: (val) {
-                            if (val) setState(() => _selectedUnit = unit);
-                          },
-                          selectedColor: AuthColors.primary,
-                          backgroundColor: const Color(0xFFF1F5F9),
-                          labelStyle: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: isSelected
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                            color: isSelected
-                                ? Colors.white
-                                : AuthColors.subText,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.r),
-                            side: BorderSide(
-                              color: isSelected
-                                  ? AuthColors.primary
-                                  : Colors.transparent,
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ],
+                child: _buildTextField(
+                  controller: _weightController,
+                  label: 'Weight (kg)',
+                  hintText: 'Weight (kg)',
+                  keyboardType: TextInputType.numberWithOptions(
+                    decimal: true,
+                    signed: false,
+                  ),
                 ),
               ),
             ],
@@ -951,6 +918,26 @@ class _AddDonationPageState extends State<AddDonationPage> {
                               );
                               return;
                             }
+                            if (_weightController.text.isEmpty ||
+                                (double.tryParse(_weightController.text) ==
+                                    null)) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Please enter a valid weight.'),
+                                ),
+                              );
+                              return;
+                            }
+                            if (_expirationDate == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Please set an expiration date.',
+                                  ),
+                                ),
+                              );
+                              return;
+                            }
                             if (_expirationDate == null) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
@@ -1056,6 +1043,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
   Widget _buildTextField({
     required TextEditingController controller,
     required String hintText,
+    String? label,
     int maxLines = 1,
     TextInputType keyboardType = TextInputType.text,
   }) {
@@ -1065,6 +1053,16 @@ class _AddDonationPageState extends State<AddDonationPage> {
       keyboardType: keyboardType,
       style: GoogleFonts.inter(fontSize: 14.sp, color: AuthColors.headingText),
       decoration: InputDecoration(
+        label: label != null
+            ? Text(
+                label,
+                style: GoogleFonts.inter(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                  color: AuthColors.labelText,
+                ),
+              )
+            : null,
         hintText: hintText,
         hintStyle: GoogleFonts.inter(
           fontSize: 14.sp,

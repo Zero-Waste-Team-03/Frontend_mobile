@@ -4,6 +4,7 @@ mutation CreateDonation($input: CreateDonationInput!) {
     title
     description
     quantity
+    foodWeightKg
     categoryId
     category {
       id

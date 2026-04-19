@@ -46,3 +46,6 @@ app.*.map.json
 opencode.json
 
 .github/skills/*
+
+# Generated graphql files in all directories
+/**/__generated__/*
