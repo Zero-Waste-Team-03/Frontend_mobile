@@ -1,4 +1,4 @@
-﻿/// Base exception class for all app exceptions
+/// Base exception class for all app exceptions
 abstract class AppException implements Exception {
   final String message;
   final String? code;
@@ -12,11 +12,8 @@ abstract class AppException implements Exception {
 
 /// Network-related exceptions
 class NetworkException extends AppException {
-  const NetworkException(
-    String message, {
-    String? code,
-    dynamic originalError,
-  }) : super(message, code: code, originalError: originalError);
+  const NetworkException(String message, {String? code, dynamic originalError})
+    : super(message, code: code, originalError: originalError);
 
   factory NetworkException.noInternet() =>
       const NetworkException('No internet connection');
@@ -103,21 +100,17 @@ class GraphQLException extends AppException {
   }) : super(message, code: code, originalError: originalError);
 
   factory GraphQLException.fromGraphQLErrors(List<dynamic> errors) {
-    final messages = errors.map((e) => e['message'] ?? 'Unknown error').join(', ');
-    return GraphQLException(
-      messages,
-      graphqlErrors: errors,
-    );
+    final messages = errors
+        .map((e) => e['message'] ?? 'Unknown error')
+        .join(', ');
+    return GraphQLException(messages, graphqlErrors: errors);
   }
 }
 
 /// Cache-related exceptions
 class CacheException extends AppException {
-  const CacheException(
-    String message, {
-    String? code,
-    dynamic originalError,
-  }) : super(message, code: code, originalError: originalError);
+  const CacheException(String message, {String? code, dynamic originalError})
+    : super(message, code: code, originalError: originalError);
 
   factory CacheException.notFound() =>
       const CacheException('Data not found in cache');
@@ -135,7 +128,7 @@ class ExceptionHandler {
     if (error is AppException) {
       return error.message;
     }
-    
+
     if (error is Exception) {
       return error.toString().replaceFirst('Exception: ', '');
     }

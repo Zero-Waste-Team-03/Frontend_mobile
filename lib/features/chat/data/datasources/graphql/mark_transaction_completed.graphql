@@ -1,0 +1,7 @@
+mutation MarkTransactionCompleted($input: MarkTransactionCompletedInput!) {
+  markTransactionCompleted(input: $input) {
+    id
+    status
+    lastMessage
+  }
+}

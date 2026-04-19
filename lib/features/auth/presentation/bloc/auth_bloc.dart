@@ -1,4 +1,4 @@
-﻿import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:logger/logger.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -29,7 +29,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   void _onAuthCheckRequested(
-      AuthCheckRequested event, Emitter<AuthState> emit) async {
+    AuthCheckRequested event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(AuthLoading());
     final result = await authRepository.getCurrentUser();
     result.fold(
@@ -39,7 +41,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   void _onAuthLoginRequested(
-      AuthLoginRequested event, Emitter<AuthState> emit) async {
+    AuthLoginRequested event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(AuthLoading());
     final result = await authRepository.login(event.email, event.password);
     result.fold(
@@ -49,7 +53,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   void _onAuthSignUpRequested(
-      AuthSignUpRequested event, Emitter<AuthState> emit) async {
+    AuthSignUpRequested event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(AuthLoading());
     final result = await authRepository.sendOtp(event.email);
     result.fold(
@@ -59,7 +65,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   void _onAuthVerifyOtpRequested(
-      AuthVerifyOtpRequested event, Emitter<AuthState> emit) async {
+    AuthVerifyOtpRequested event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(AuthLoading());
     final displayName = '${event.firstName} ${event.lastName}'.trim();
     final registerResult = await authRepository.register(
@@ -75,8 +83,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (failure) async => emit(AuthError(failure.message)),
       (_) async {
         // Registration successful, now auto-login to get tokens
-        final loginResult =
-            await authRepository.login(event.email, event.password);
+        final loginResult = await authRepository.login(
+          event.email,
+          event.password,
+        );
         loginResult.fold(
           (failure) => emit(AuthError(failure.message)),
           (response) => emit(AuthSuccess(response.user)),
@@ -86,7 +96,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   void _onAuthGoogleLoginRequested(
-      AuthGoogleLoginRequested event, Emitter<AuthState> emit) async {
+    AuthGoogleLoginRequested event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(AuthLoading());
     _logger.i('ðŸŸ¡ [AuthBloc] Google OAuth requested');
     final result = await authRepository.googleSignIn();
@@ -103,7 +115,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   void _onAuthForgotPasswordRequested(
-      AuthForgotPasswordRequested event, Emitter<AuthState> emit) async {
+    AuthForgotPasswordRequested event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(AuthLoading());
     final result = await authRepository.forgotPassword(event.email);
     result.fold(
@@ -113,10 +127,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   void _onAuthResetPasswordRequested(
-      AuthResetPasswordRequested event, Emitter<AuthState> emit) async {
+    AuthResetPasswordRequested event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(AuthLoading());
-    final result =
-        await authRepository.resetPassword(event.token, event.newPassword);
+    final result = await authRepository.resetPassword(
+      event.token,
+      event.newPassword,
+    );
     result.fold(
       (failure) => emit(AuthError(failure.message)),
       (_) => emit(AuthResetPasswordSuccess()),

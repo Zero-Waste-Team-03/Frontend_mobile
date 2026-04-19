@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -73,10 +73,12 @@ class _RegisterFlowPageState extends State<RegisterFlowPage>
     setState(() => _currentStep = step);
 
     _progressAnimation = Tween<double>(begin: oldProgress, end: newProgress)
-        .animate(CurvedAnimation(
-      parent: _progressAnimationController,
-      curve: Curves.easeInOutCubic,
-    ));
+        .animate(
+          CurvedAnimation(
+            parent: _progressAnimationController,
+            curve: Curves.easeInOutCubic,
+          ),
+        );
     _progressAnimationController.forward(from: 0);
 
     _pageController.animateToPage(
@@ -120,8 +122,11 @@ class _RegisterFlowPageState extends State<RegisterFlowPage>
           ),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back,
-              color: AuthColors.headingText, size: AppDimensions.iconSize.sp),
+          icon: Icon(
+            Icons.arrow_back,
+            color: AuthColors.headingText,
+            size: AppDimensions.iconSize.sp,
+          ),
           onPressed: () {
             if (_currentStep > 0) {
               _goToStep(_currentStep - 1);
@@ -143,7 +148,8 @@ class _RegisterFlowPageState extends State<RegisterFlowPage>
               // Animated progress header
               Padding(
                 padding: EdgeInsets.symmetric(
-                    horizontal: AppDimensions.paddingLarge.w),
+                  horizontal: AppDimensions.paddingLarge.w,
+                ),
                 child: Column(
                   children: [
                     Row(
@@ -205,11 +211,13 @@ class _RegisterFlowPageState extends State<RegisterFlowPage>
                       builder: (context, child) {
                         return ClipRRect(
                           borderRadius: BorderRadius.circular(
-                              AppDimensions.borderRadiusMedium.r),
+                            AppDimensions.borderRadiusMedium.r,
+                          ),
                           child: LinearProgressIndicator(
                             value: _progressAnimation.value,
-                            backgroundColor:
-                                AuthColors.primary.withValues(alpha: 0.2),
+                            backgroundColor: AuthColors.primary.withValues(
+                              alpha: 0.2,
+                            ),
                             color: AuthColors.primary,
                             minHeight: 10.h,
                           ),

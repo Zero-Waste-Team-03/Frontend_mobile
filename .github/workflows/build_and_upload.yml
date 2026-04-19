@@ -2,7 +2,7 @@ name: Build APK & Publish
 
 on:
   push:
-    branches: [master, islam_auth, islam_cicd]
+    branches: [master, islam_auth, islam_cicd, develop]
   workflow_dispatch:
 
 # Cancel any in-progress runs for the same branch
@@ -65,6 +65,9 @@ jobs:
           GRAPHQL_ENDPOINT=${{ secrets.GRAPHQL_ENDPOINT }}
           ENABLE_ANALYTICS=false
           EOF
+
+      - name: Run Build Runner
+        run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Flutter analyze
         run: flutter analyze --no-fatal-infos --no-fatal-warnings

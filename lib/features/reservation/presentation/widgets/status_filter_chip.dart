@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../shared/theme/app_colors.dart';
+
 class StatusFilterChip extends StatelessWidget {
   final String label;
   final bool isSelected;

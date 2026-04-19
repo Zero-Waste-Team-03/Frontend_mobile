@@ -344,9 +344,7 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
       timestamp: timestamp,
       onRetry: () {
         context.read<ReservationBloc>().add(
-          CreateReservationEvent(
-            donationId: widget.donation.id,
-          ),
+          CreateReservationEvent(donationId: widget.donation.id),
         );
       },
     );

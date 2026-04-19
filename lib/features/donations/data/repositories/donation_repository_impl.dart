@@ -35,10 +35,13 @@ class DonationRepositoryImpl implements DonationRepository {
 
     if (searchQuery != null && searchQuery.isNotEmpty) {
       final query = searchQuery.toLowerCase();
-      filtered = filtered.where((d) => 
-        d.title.toLowerCase().contains(query) ||
-        d.description.toLowerCase().contains(query)
-      ).toList();
+      filtered = filtered
+          .where(
+            (d) =>
+                d.title.toLowerCase().contains(query) ||
+                d.description.toLowerCase().contains(query),
+          )
+          .toList();
     }
 
     if (latitude != null && longitude != null && radius != null) {

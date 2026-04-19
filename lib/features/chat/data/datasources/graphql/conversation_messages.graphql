@@ -1,0 +1,17 @@
+query GetConversationMessages($input: ConversationMessagesInput!) {
+  conversationMessages(input: $input) {
+    totalCount
+    page
+    limit
+    hasNextPage
+    hasPreviousPage
+    items {
+      id
+      content
+      createdAt
+      isModerated
+      senderId
+      conversationId
+    }
+  }
+}

@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,8 +19,10 @@ class OtpVerificationPage extends StatefulWidget {
 }
 
 class _OtpVerificationPageState extends State<OtpVerificationPage> {
-  final List<TextEditingController> _otpControllers =
-      List.generate(6, (_) => TextEditingController());
+  final List<TextEditingController> _otpControllers = List.generate(
+    6,
+    (_) => TextEditingController(),
+  );
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
 
   Timer? _timer;
@@ -82,8 +84,6 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     setState(() {}); // Rebuild for visual state changes
   }
 
-
-
   void _onVerify() {
     final otp = _otpControllers.map((c) => c.text).join();
     if (otp.length == 6) {
@@ -92,17 +92,17 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
         node.unfocus();
       }
       context.read<AuthBloc>().add(
-            AuthVerifyOtpRequested(
-              firstName: widget.userData['firstName'] ?? '',
-              lastName: widget.userData['lastName'] ?? '',
-              email: widget.userData['email'] ?? '',
-              phoneNumber: widget.userData['phone'] ?? '',
-              password: widget.userData['password'] ?? '',
-              confirmPassword: widget.userData['confirmPassword'] ?? '',
-              location: widget.userData['location'] ?? '',
-              otp: otp,
-            ),
-          );
+        AuthVerifyOtpRequested(
+          firstName: widget.userData['firstName'] ?? '',
+          lastName: widget.userData['lastName'] ?? '',
+          email: widget.userData['email'] ?? '',
+          phoneNumber: widget.userData['phone'] ?? '',
+          password: widget.userData['password'] ?? '',
+          confirmPassword: widget.userData['confirmPassword'] ?? '',
+          location: widget.userData['location'] ?? '',
+          otp: otp,
+        ),
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please enter the full 6-digit code')),
@@ -119,9 +119,9 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
         } else if (state is AuthError) {
           // Reset auto-submit flag on error so user can retry
           _hasAutoSubmitted = false;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.message)));
         }
       },
       builder: (context, state) {
@@ -205,15 +205,18 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                           contentPadding: EdgeInsets.zero,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(
-                                AppDimensions.borderRadiusLarge.r),
+                              AppDimensions.borderRadiusLarge.r,
+                            ),
                             borderSide: BorderSide(
-                                color: isFilled
-                                    ? AuthColors.primary
-                                    : AuthColors.primary.withValues(alpha: 0.2)),
+                              color: isFilled
+                                  ? AuthColors.primary
+                                  : AuthColors.primary.withValues(alpha: 0.2),
+                            ),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(
-                                AppDimensions.borderRadiusLarge.r),
+                              AppDimensions.borderRadiusLarge.r,
+                            ),
                             borderSide: BorderSide(
                               color: isFilled
                                   ? AuthColors.primary.withValues(alpha: 0.6)
@@ -223,9 +226,12 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(
-                                AppDimensions.borderRadiusLarge.r),
+                              AppDimensions.borderRadiusLarge.r,
+                            ),
                             borderSide: const BorderSide(
-                                color: AuthColors.primary, width: 2),
+                              color: AuthColors.primary,
+                              width: 2,
+                            ),
                           ),
                         ),
                         onChanged: (value) {
@@ -246,8 +252,11 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                   ? Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.timer,
-                            color: AuthColors.primary, size: 20.sp),
+                        Icon(
+                          Icons.timer,
+                          color: AuthColors.primary,
+                          size: 20.sp,
+                        ),
                         SizedBox(width: AppDimensions.paddingSmall.w),
                         Text(
                           "Resend code in 0:${_timeLeft.toString().padLeft(2, '0')}",
@@ -274,20 +283,18 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                               ? null
                               : () {
                                   context.read<AuthBloc>().add(
-                                        AuthSignUpRequested(
-                                          firstName:
-                                              widget.userData['firstName'] ??
-                                                  '',
-                                          lastName:
-                                              widget.userData['lastName'] ?? '',
-                                          email:
-                                              widget.userData['email'] ?? '',
-                                          phoneNumber: 
-                                              widget.userData['phone'] ?? '',  
-                                          password:
-                                              widget.userData['password'] ?? '',
-                                        ),
-                                      );
+                                    AuthSignUpRequested(
+                                      firstName:
+                                          widget.userData['firstName'] ?? '',
+                                      lastName:
+                                          widget.userData['lastName'] ?? '',
+                                      email: widget.userData['email'] ?? '',
+                                      phoneNumber:
+                                          widget.userData['phone'] ?? '',
+                                      password:
+                                          widget.userData['password'] ?? '',
+                                    ),
+                                  );
                                   _startTimer();
                                   // Clear existing OTP and reset
                                   for (var c in _otpControllers) {
@@ -316,8 +323,9 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                   backgroundColor: AuthColors.primary,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(AppDimensions.borderRadiusLarge.r),
+                    borderRadius: BorderRadius.circular(
+                      AppDimensions.borderRadiusLarge.r,
+                    ),
                   ),
                   elevation: 0,
                 ),
@@ -326,7 +334,9 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                         width: AppDimensions.iconSize.w,
                         height: AppDimensions.iconSize.h,
                         child: const CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white),
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
                       )
                     : Text(
                         'Verify & Continue',
