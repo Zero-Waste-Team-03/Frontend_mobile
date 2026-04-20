@@ -184,11 +184,22 @@ class _DonationsListPageState extends State<DonationsListPage> {
       decoration: InputDecoration(
         hintText: l10n.browseSearchHint,
         prefixIcon: const Icon(AppIcons.search),
-        suffixIcon: IconButton(
-          icon: const Icon(AppIcons.notifications),
-          onPressed: () {
-            context.push('/notifications');
-          },
+        suffixIcon: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            IconButton(
+              icon: const Icon(AppIcons.notifications),
+              onPressed: () {
+                context.push('/notifications');
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.shopping_bag_outlined),
+              onPressed: () {
+                context.push('/my-activities');
+              },
+            ),
+          ],
         ),
         filled: true,
         fillColor: Colors.white,
