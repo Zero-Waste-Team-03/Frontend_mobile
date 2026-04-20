@@ -97,6 +97,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statusUnknown => 'Unknown';
 
   @override
+  String get donationUrgencyHigh => 'High';
+
+  @override
+  String get donationUrgencyMedium => 'Medium';
+
+  @override
+  String get donationUrgencyLow => 'Low';
+
+  @override
   String get detailsPickupLocation => 'Pickup location';
 
   @override

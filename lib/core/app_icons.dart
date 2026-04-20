@@ -26,6 +26,9 @@ class AppIcons {
   static const IconData clock = Icons.access_time_rounded;
   static const IconData badge = Icons.badge_outlined;
   static const IconData warning = Icons.error;
+  static const IconData urgencyHigh = Icons.priority_high_rounded;
+  static const IconData urgencyMedium = Icons.access_time_filled_rounded;
+  static const IconData urgencyLow = Icons.check_circle_rounded;
 
   static const String donationCategoryFreshSvg =
       'assets/icons/donations/category_fresh.svg';

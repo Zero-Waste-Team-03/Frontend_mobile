@@ -17,6 +17,7 @@ import '../bloc/donations_state.dart';
 import '../widgets/donation_card_skeleton.dart';
 import '../widgets/featured_donation_card.dart';
 import '../widgets/standard_donation_card.dart';
+import '../../../../shared/theme/app_colors.dart';
 
 class DonationsListPage extends StatefulWidget {
   const DonationsListPage({super.key});
@@ -140,6 +141,7 @@ class _DonationsListPageState extends State<DonationsListPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            _buildPageHeader(),
                             _buildSearchField(),
                             SizedBox(height: 12.h),
                             _buildFilters(),
@@ -172,6 +174,39 @@ class _DonationsListPageState extends State<DonationsListPage> {
     );
   }
 
+  Widget _buildPageHeader() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          'Browse donations',
+          style: TextStyle(
+            fontSize: AppDimensions.appBarTitleSize.sp,
+            fontWeight: FontWeight.bold,
+            color: AuthColors.primary,
+            fontFamily: AppFonts.primaryFont,
+          ),
+        ),
+        IconButton(
+          icon: Icon(
+            Icons.notifications_none_rounded,
+            color: AuthColors.primary,
+            size: AppDimensions.iconSize.sp,
+          ),
+          style: IconButton.styleFrom(
+            backgroundColor: AuthColors.lightGrayBackground,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.r),
+            ),
+          ),
+          onPressed: () {
+            context.push('/notifications');
+          },
+        ),
+      ],
+    );
+  }
+
   Widget _buildSearchField() {
     final l10n = AppLocalizations.of(context);
 
@@ -184,23 +219,6 @@ class _DonationsListPageState extends State<DonationsListPage> {
       decoration: InputDecoration(
         hintText: l10n.browseSearchHint,
         prefixIcon: const Icon(AppIcons.search),
-        suffixIcon: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconButton(
-              icon: const Icon(AppIcons.notifications),
-              onPressed: () {
-                context.push('/notifications');
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.shopping_bag_outlined),
-              onPressed: () {
-                context.push('/my-activities');
-              },
-            ),
-          ],
-        ),
         filled: true,
         fillColor: Colors.white,
         contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),

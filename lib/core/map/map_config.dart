@@ -4,7 +4,7 @@ import '../env.dart';
 
 class MapConfig {
   static const String _mapTilerStyleBaseUrl =
-      'https://api.maptiler.com/maps/basic-v2/style.json';
+      'https://api.maptiler.com/maps/positron/style.json';
   static const String _fallbackStyleUrl =
       'https://demotiles.maplibre.org/style.json';
 
@@ -26,7 +26,7 @@ class MapConfig {
       double.tryParse((Env.get('MAP_DEFAULT_LONGITUDE') ?? '').trim()) ?? 0.0;
 
   static double get defaultZoom =>
-      double.tryParse((Env.get('MAP_DEFAULT_ZOOM') ?? '').trim()) ?? 12.0;
+      double.tryParse((Env.get('MAP_DEFAULT_ZOOM') ?? '').trim()) ?? 15.0;
 
   static LatLng get defaultTarget => LatLng(defaultLatitude, defaultLongitude);
 
