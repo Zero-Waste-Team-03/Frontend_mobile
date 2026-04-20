@@ -254,6 +254,24 @@ abstract class AppLocalizations {
   /// **'Unknown'**
   String get statusUnknown;
 
+  /// No description provided for @donationUrgencyHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get donationUrgencyHigh;
+
+  /// No description provided for @donationUrgencyMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get donationUrgencyMedium;
+
+  /// No description provided for @donationUrgencyLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get donationUrgencyLow;
+
   /// No description provided for @detailsPickupLocation.
   ///
   /// In en, this message translates to:

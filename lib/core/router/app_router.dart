@@ -5,6 +5,7 @@ import 'package:gaspzero/features/leaderboard/presentation/pages/leaderboard_pag
 import 'package:gaspzero/features/leaderboard/presentation/bloc/leaderboard_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import 'app_routes.dart';
 import '../../features/auth/presentation/pages/forgot_password_page.dart';
 import '../../features/auth/presentation/pages/intro_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
@@ -50,7 +51,7 @@ final appRouter = GoRouter(
       builder: (context, state) => const ForgotPasswordPage(),
     ),
     GoRoute(
-      path: '/donation-details',
+      path: AppRoutes.donationDetails,
       builder: (context, state) {
         final donation = state.extra as Donation;
         return DonationDetailsPage(donation: donation);
