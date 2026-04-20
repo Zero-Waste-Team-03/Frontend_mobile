@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import '../../../../core/app_icons.dart';
 import '../../../../shared/theme/app_colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection.dart';
@@ -65,7 +66,7 @@ class _DonationsListPageState extends State<DonationsListPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 16.h),
+              _buildHeader(),
               _buildSearchBar(),
               SizedBox(height: 16.h),
               BlocBuilder<DonationsBloc, DonationsState>(
@@ -111,7 +112,7 @@ class _DonationsListPageState extends State<DonationsListPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            'Browse Donations',
+            'Browse donations',
             style: TextStyle(
               fontSize: AppDimensions.appBarTitleSize.sp,
               fontWeight: FontWeight.w700,
@@ -120,40 +121,38 @@ class _DonationsListPageState extends State<DonationsListPage> {
           ),
           Row(
             children: [
-              // My Reservations Button
-              GestureDetector(
-                onTap: () => context.push('/my-reservations'),
-                child: Icon(
+              IconButton(
+                icon: Icon(
                   Icons.shopping_bag_outlined,
-                  size: 28.sp,
                   color: AuthColors.primary,
+                  size: AppDimensions.iconSize.sp,
                 ),
+                style: IconButton.styleFrom(
+                  backgroundColor: AuthColors.lightGrayBackground,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                ),
+                onPressed: () {
+                  context.push('/my-reservations');
+                },
               ),
               SizedBox(width: 12.w),
-              // Notifications Icon
-              GestureDetector(
-                onTap: () => context.push('/notifications'),
-                child: Stack(
-                  children: [
-                    Icon(
-                      Icons.notifications_none_rounded,
-                      size: 28.sp,
-                      color: AuthColors.primary,
-                    ),
-                    Positioned(
-                      right: 2,
-                      top: 2,
-                      child: Container(
-                        width: 8,
-                        height: 8,
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ),
-                  ],
+              IconButton(
+                icon: Icon(
+                  AppIcons.notifications,
+                  color: AuthColors.primary,
+                  size: AppDimensions.iconSize.sp,
                 ),
+                style: IconButton.styleFrom(
+                  backgroundColor: AuthColors.lightGrayBackground,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                ),
+                onPressed: () {
+                  context.push('/notifications');
+                },
               ),
             ],
           ),
@@ -165,50 +164,34 @@ class _DonationsListPageState extends State<DonationsListPage> {
   Widget _buildSearchBar() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
-      child: SearchAnchor(
-        builder: (BuildContext context, SearchController controller) {
-          return SearchBar(
-            controller: controller,
-            padding: const WidgetStatePropertyAll<EdgeInsets>(
-              EdgeInsets.only(left: 16.0, right: 8.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
-            onTap: () {
-              controller.openView();
-            },
-            onChanged: (_) {
-              controller.openView();
-            },
+          ],
+        ),
+        child: TextField(
+          onChanged: (value) {
+            setState(() {
+              _selectedCategory = 'All';
+              _selectedCategoryId = null;
+            });
+            context.read<DonationsBloc>().add(
+              LoadDonationsEvent(searchQuery: value),
+            );
+          },
+          decoration: const InputDecoration(
             hintText: 'Search donations...',
-            leading: const Icon(Icons.search),
-            trailing: <Widget>[
-              Tooltip(
-                message: 'Reservations',
-                child: IconButton(
-                  onPressed: () {
-                    context.push('/my-reservations');
-                  },
-                  icon: const Icon(Icons.shopping_bag_outlined),
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.7),
-                ),
-              ),
-              Tooltip(
-                message: 'Notifications',
-                child: IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.notifications_none_rounded),
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.7),
-                ),
-              ),
-            ],
-          );
-        },
-        suggestionsBuilder: (BuildContext context, SearchController controller) {
-          return []; // No dynamic suggestions for now, just rely on the search results page
-        },
+            prefixIcon: Icon(AppIcons.search),
+            border: InputBorder.none,
+          ),
+        ),
       ),
     );
   }
