@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:shimmer/shimmer.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:latlong2/latlong.dart';
-import '../../../../shared/theme/app_colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../core/app_icons.dart';
 import '../../../../core/di/injection.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../shared/widgets/app_empty_state.dart';
+import '../../../../shared/widgets/app_error_state.dart';
+import '../../domain/entities/donation.dart';
 import '../bloc/donations_bloc.dart';
 import '../bloc/donations_event.dart';
 import '../bloc/donations_state.dart';
-import '../../domain/entities/donation.dart';
-import '../../domain/entities/category.dart';
+import '../widgets/donation_card_skeleton.dart';
+import '../widgets/featured_donation_card.dart';
+import '../widgets/standard_donation_card.dart';
 
 class DonationsListPage extends StatefulWidget {
   const DonationsListPage({super.key});
@@ -22,10 +26,15 @@ class DonationsListPage extends StatefulWidget {
 }
 
 class _DonationsListPageState extends State<DonationsListPage> {
-  List<Donation> _donations = [];
-  String _selectedCategory = 'All';
-  String? _selectedCategoryId;
-  LatLng? _currentPosition;
+  static const String _filterAll = 'ALL';
+  static const String _filterPublished = 'PUBLISHED';
+  static const String _filterReserved = 'RESERVED';
+  static const String _filterCompleted = 'COMPLETED';
+
+  String _selectedFilter = _filterAll;
+  String _searchQuery = '';
+  double? _userLatitude;
+  double? _userLongitude;
 
   @override
   void initState() {
@@ -41,227 +50,199 @@ class _DonationsListPageState extends State<DonationsListPage> {
       var permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) return;
       }
-      if (permission == LocationPermission.deniedForever) return;
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        return;
+      }
 
       final position = await Geolocator.getCurrentPosition();
-      if (mounted) {
-        setState(() {
-          _currentPosition = LatLng(position.latitude, position.longitude);
-        });
-      }
-    } catch (_) {}
+      if (!mounted) return;
+
+      setState(() {
+        _userLatitude = position.latitude;
+        _userLongitude = position.longitude;
+      });
+
+      context.read<DonationsBloc>().add(
+        LoadDonationsEvent(
+          latitude: _userLatitude,
+          longitude: _userLongitude,
+          radius: 10,
+        ),
+      );
+    } catch (_) {
+      // Keep browsing available even when location is unavailable.
+    }
+  }
+
+  void _loadDonations() {
+    context.read<DonationsBloc>().add(
+      LoadDonationsEvent(
+        latitude: _userLatitude,
+        longitude: _userLongitude,
+        radius: 10,
+      ),
+    );
+  }
+
+  List<Donation> _applyFilters(List<Donation> source) {
+    final statusFiltered = _selectedFilter == _filterAll
+        ? source
+        : source
+              .where(
+                (donation) =>
+                    donation.status.trim().toUpperCase() == _selectedFilter,
+              )
+              .toList();
+
+    if (_searchQuery.trim().isEmpty) {
+      return statusFiltered;
+    }
+
+    final query = _searchQuery.trim().toLowerCase();
+    return statusFiltered
+        .where(
+          (donation) =>
+              donation.title.toLowerCase().contains(query) ||
+              donation.description.toLowerCase().contains(query),
+        )
+        .toList();
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return BlocProvider(
-      create: (context) =>
-          getIt<DonationsBloc>()..add(const LoadDonationsEvent()),
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF8F9FA),
-        body: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 16.h),
-              _buildSearchBar(),
-              SizedBox(height: 16.h),
-              BlocBuilder<DonationsBloc, DonationsState>(
-                builder: (context, state) {
-                  final categories = state is DonationsLoaded
-                      ? state.categories
-                      : const <Category>[];
-                  return _buildCategoryFilters(categories);
-                },
-              ),
-              SizedBox(height: 16.h),
-              _buildListMetadata(),
-              Expanded(
-                child: BlocBuilder<DonationsBloc, DonationsState>(
-                  builder: (context, state) {
-                    if (state is DonationsLoading ||
-                        state is DonationsInitial) {
-                      return _buildLoadingSkeleton();
-                    } else if (state is DonationsLoaded) {
-                      _donations = state.donations;
-                      if (_donations.isEmpty) {
-                        return const Center(child: Text('No donations found.'));
-                      }
-                      return _buildDonationsList();
-                    } else if (state is DonationsError) {
-                      return Center(child: Text('Error: ${state.message}'));
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
-              ),
-            ],
+      create: (_) => getIt<DonationsBloc>()
+        ..add(
+          LoadDonationsEvent(
+            latitude: _userLatitude,
+            longitude: _userLongitude,
+            radius: 10,
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            'Browse Donations',
-            style: TextStyle(
-              fontSize: AppDimensions.appBarTitleSize.sp,
-              fontWeight: FontWeight.w700,
-              color: AuthColors.primary,
-            ),
-          ),
-          Row(
-            children: [
-              // My Reservations Button
-              GestureDetector(
-                onTap: () => context.push('/my-reservations'),
-                child: Icon(
-                  Icons.shopping_bag_outlined,
-                  size: 28.sp,
-                  color: AuthColors.primary,
-                ),
-              ),
-              SizedBox(width: 12.w),
-              // Notifications Icon
-              GestureDetector(
-                onTap: () => context.push('/notifications'),
-                child: Stack(
-                  children: [
-                    Icon(
-                      Icons.notifications_none_rounded,
-                      size: 28.sp,
-                      color: AuthColors.primary,
-                    ),
-                    Positioned(
-                      right: 2,
-                      top: 2,
-                      child: Container(
-                        width: 8,
-                        height: 8,
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF7FAF8),
+        body: SafeArea(
+          child: BlocBuilder<DonationsBloc, DonationsState>(
+            builder: (context, state) {
+              return RefreshIndicator(
+                onRefresh: () async {
+                  _loadDonations();
+                },
+                child: CustomScrollView(
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 10.h),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildSearchField(),
+                            SizedBox(height: 12.h),
+                            _buildFilters(),
+                          ],
                         ),
                       ),
                     ),
+                    if (state is DonationsInitial || state is DonationsLoading)
+                      _buildLoadingContent()
+                    else if (state is DonationsError)
+                      SliverFillRemaining(
+                        hasScrollBody: false,
+                        child: AppErrorState(
+                          message: state.message,
+                          retryLabel: l10n.browseErrorRetry,
+                          onRetry: _loadDonations,
+                        ),
+                      )
+                    else if (state is DonationsLoaded)
+                      ..._buildLoadedContent(state)
+                    else
+                      const SliverToBoxAdapter(child: SizedBox.shrink()),
                   ],
                 ),
-              ),
-            ],
+              );
+            },
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildSearchBar() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.w),
-      child: SearchAnchor(
-        builder: (BuildContext context, SearchController controller) {
-          return SearchBar(
-            controller: controller,
-            padding: const WidgetStatePropertyAll<EdgeInsets>(
-              EdgeInsets.only(left: 16.0, right: 8.0),
-            ),
-            onTap: () {
-              controller.openView();
-            },
-            onChanged: (_) {
-              controller.openView();
-            },
-            hintText: 'Search donations...',
-            leading: const Icon(Icons.search),
-            trailing: <Widget>[
-              Tooltip(
-                message: 'Reservations',
-                child: IconButton(
-                  onPressed: () {
-                    context.push('/my-reservations');
-                  },
-                  icon: const Icon(Icons.shopping_bag_outlined),
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.7),
-                ),
-              ),
-              Tooltip(
-                message: 'Notifications',
-                child: IconButton(
-                  onPressed: () {
-                    context.push('/notifications');
-                  },
-                  icon: const Icon(Icons.notifications_none_rounded),
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.7),
-                ),
-              ),
-            ],
-          );
-        },
-        suggestionsBuilder: (BuildContext context, SearchController controller) {
-          return []; // No dynamic suggestions for now, just rely on the search results page
-        },
+  Widget _buildSearchField() {
+    final l10n = AppLocalizations.of(context);
+
+    return TextField(
+      onChanged: (value) {
+        setState(() {
+          _searchQuery = value;
+        });
+      },
+      decoration: InputDecoration(
+        hintText: l10n.browseSearchHint,
+        prefixIcon: const Icon(AppIcons.search),
+        suffixIcon: IconButton(
+          icon: const Icon(AppIcons.notifications),
+          onPressed: () {
+            context.push('/notifications');
+          },
+        ),
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14.r),
+          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14.r),
+          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+        ),
       ),
     );
   }
 
-  Widget _buildCategoryFilters(List<Category> categories) {
-    final labels = ['All', ...categories.map((c) => c.name)];
+  Widget _buildFilters() {
+    final l10n = AppLocalizations.of(context);
+
+    final filters = [
+      (_filterAll, l10n.browseFilterAll),
+      (_filterPublished, l10n.browseFilterPublished),
+      (_filterReserved, l10n.browseFilterReserved),
+      (_filterCompleted, l10n.browseFilterCompleted),
+    ];
+
     return SizedBox(
       height: 36.h,
       child: ListView.builder(
+        itemCount: filters.length,
         scrollDirection: Axis.horizontal,
-        itemCount: labels.length,
-        padding: EdgeInsets.symmetric(horizontal: 20.w),
         itemBuilder: (context, index) {
-          final category = labels[index];
-          final isSelected = category == _selectedCategory;
+          final filter = filters[index];
+          final selected = _selectedFilter == filter.$1;
           return Padding(
             padding: EdgeInsets.only(right: 8.w),
-            child: GestureDetector(
-              onTap: () {
+            child: ChoiceChip(
+              showCheckmark: false,
+              selected: selected,
+              label: Text(filter.$2),
+              onSelected: (_) {
                 setState(() {
-                  _selectedCategory = category;
-                  _selectedCategoryId = index == 0
-                      ? null
-                      : categories[index - 1].id;
+                  _selectedFilter = filter.$1;
                 });
-                context.read<DonationsBloc>().add(
-                  LoadDonationsEvent(categoryId: _selectedCategoryId),
-                );
               },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: isSelected ? AuthColors.primary : Colors.white,
-                  borderRadius: BorderRadius.circular(20.r),
-                  border: Border.all(
-                    color: isSelected
-                        ? AuthColors.primary
-                        : Colors.grey.shade300,
-                    width: 1,
-                  ),
-                ),
-                child: Text(
-                  category,
-                  style: TextStyle(
-                    color: isSelected ? Colors.white : const Color(0xFF4A5550),
-                    fontSize: 13.sp,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                  ),
-                ),
+              backgroundColor: Colors.white,
+              selectedColor: AppColors.primary.withValues(alpha: 0.12),
+              side: BorderSide(
+                color: selected ? AppColors.primary : const Color(0xFFE2E8F0),
+              ),
+              labelStyle: TextStyle(
+                color: selected ? AppColors.primary : AppColors.textSecondary,
+                fontWeight: FontWeight.w600,
+                fontSize: 12.sp,
               ),
             ),
           );
@@ -270,223 +251,128 @@ class _DonationsListPageState extends State<DonationsListPage> {
     );
   }
 
-  Widget _buildListMetadata() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            '${_donations.length} donations nearby',
-            style: TextStyle(
-              fontSize: 13.sp,
-              color: const Color(0xFF64748B),
-              fontWeight: FontWeight.w500,
+  SliverList _buildLoadingContent() {
+    return SliverList(
+      delegate: SliverChildListDelegate([
+        Padding(
+          padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 8.h),
+          child: SizedBox(
+            height: 186.h,
+            child: ListView.builder(
+              itemCount: 2,
+              scrollDirection: Axis.horizontal,
+              itemBuilder: (_, __) =>
+                  const DonationCardSkeleton(featured: true),
             ),
           ),
-          // Row(
-          //   children: [
-          //     Icon(Icons.sort_rounded, size: 16.sp, color: AuthColors.primary),
-          //     SizedBox(width: 4.w),
-          //     Text(
-          //       'Nearest',
-          //       style: TextStyle(
-          //         fontSize: 13.sp,
-          //         color: AuthColors.primary,
-          //         fontWeight: FontWeight.w600,
-          //       ),
-          //     ),
-          //   ],
-          // ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDonationsList() {
-    return RefreshIndicator(
-      onRefresh: () async {
-        if (!mounted) return;
-        context.read<DonationsBloc>().add(
-          LoadDonationsEvent(categoryId: _selectedCategoryId),
-        );
-        await Future.delayed(const Duration(milliseconds: 500));
-      },
-      color: AuthColors.primary,
-      backgroundColor: Colors.white,
-      child: ListView.builder(
-        padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 80.h),
-        itemCount: _donations.length,
-        itemBuilder: (context, index) {
-          final donation = _donations[index];
-          return _buildDonationCard(donation, index);
-        },
-      ),
-    );
-  }
-
-  Widget _buildDonationCard(Donation donation, int index) {
-    String distanceStr = 'Distance unknown';
-    if (_currentPosition != null &&
-        donation.latitude != null &&
-        donation.longitude != null) {
-      final distanceInMeters = const Distance().as(
-        LengthUnit.Meter,
-        _currentPosition!,
-        LatLng(donation.latitude!, donation.longitude!),
-      );
-      if (distanceInMeters < 1000) {
-        distanceStr = '${distanceInMeters.round()} m away';
-      } else {
-        distanceStr = '${(distanceInMeters / 1000).toStringAsFixed(1)} km away';
-      }
-    }
-
-    // Determine condition tag colors
-    Color tagBgColor;
-    Color tagTextColor;
-    if (donation.condition.toUpperCase() == 'DRY') {
-      tagBgColor = const Color(0xFFFFF0E6);
-      tagTextColor = const Color(0xFFE87C3E);
-    } else if (donation.condition.toUpperCase() == 'FRESH') {
-      tagBgColor = const Color(0xFFE6F7ED);
-      tagTextColor = const Color(0xFF2D6C50);
-    } else {
-      tagBgColor = const Color(0xFFE6F0FF);
-      tagTextColor = const Color(0xFF3B82F6);
-    }
-
-    return GestureDetector(
-      onTap: () {
-        context.push('/donation-details', extra: donation);
-      },
-      child: Container(
-        margin: EdgeInsets.only(bottom: 16.h),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16.r),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
         ),
+        Padding(
+          padding: EdgeInsets.fromLTRB(16.w, 6.h, 16.w, 90.h),
+          child: Column(
+            children: List.generate(4, (_) => const DonationCardSkeleton()),
+          ),
+        ),
+      ]),
+    );
+  }
+
+  List<Widget> _buildLoadedContent(DonationsLoaded state) {
+    final l10n = AppLocalizations.of(context);
+    final featured = _applyFilters(state.featuredDonations);
+    final standard = _applyFilters(state.standardDonations);
+
+    if (featured.isEmpty && standard.isEmpty) {
+      return [
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: AppEmptyState(
+            title: l10n.browseEmptyTitle,
+            description: l10n.browseEmptyDescription,
+          ),
+        ),
+      ];
+    }
+
+    return [
+      if (featured.isNotEmpty)
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 6.h),
+            child: _buildSectionHeader(
+              l10n.browseFeaturedSectionTitle,
+              l10n.browseFeaturedSectionSubtitle,
+            ),
+          ),
+        ),
+      if (featured.isNotEmpty)
+        SliverToBoxAdapter(
+          child: SizedBox(
+            height: 210.h,
+            child: ListView.builder(
+              itemCount: featured.length,
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.only(left: 16.w, right: 4.w),
+              itemBuilder: (context, index) {
+                final donation = featured[index];
+                return FeaturedDonationCard(
+                  donation: donation,
+                  userLatitude: _userLatitude,
+                  userLongitude: _userLongitude,
+                  onTap: () {
+                    context.push('/donation-details', extra: donation);
+                  },
+                );
+              },
+            ),
+          ),
+        ),
+      SliverToBoxAdapter(
         child: Padding(
-          padding: EdgeInsets.all(12.w),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Hero(
-                tag: 'donation_img_${donation.id}',
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12.r),
-                  child: CachedNetworkImage(
-                    imageUrl: donation.imageUrl,
-                    width: 76.w,
-                    height: 76.w,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) =>
-                        Container(color: Colors.grey[200]),
-                    errorWidget: (context, url, error) => Container(
-                      color: Colors.grey[200],
-                      child: const Icon(Icons.error, color: Colors.grey),
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(width: 14.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            donation.title,
-                            style: TextStyle(
-                              fontSize: 15.sp,
-                              fontWeight: FontWeight.bold,
-                              color: const Color(0xFF131615),
-                              height: 1.2,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        SizedBox(width: 8.w),
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 8.w,
-                            vertical: 4.h,
-                          ),
-                          decoration: BoxDecoration(
-                            color: tagBgColor,
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                          child: Text(
-                            donation.condition.toUpperCase(),
-                            style: TextStyle(
-                              fontSize: 9.sp,
-                              color: tagTextColor,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 8.h),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.location_on_outlined,
-                          size: 14.sp,
-                          color: const Color(0xFF64748B),
-                        ),
-                        SizedBox(width: 4.w),
-                        Text(
-                          distanceStr,
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            color: const Color(0xFF64748B),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 8.h),
+          child: _buildSectionHeader(
+            l10n.browseStandardSectionTitle,
+            l10n.browseStandardSectionSubtitle,
           ),
         ),
       ),
-    );
+      SliverPadding(
+        padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 92.h),
+        sliver: SliverList.builder(
+          itemCount: standard.length,
+          itemBuilder: (context, index) {
+            final donation = standard[index];
+            return StandardDonationCard(
+              donation: donation,
+              userLatitude: _userLatitude,
+              userLongitude: _userLongitude,
+              onTap: () {
+                context.push('/donation-details', extra: donation);
+              },
+            );
+          },
+        ),
+      ),
+    ];
   }
 
-  Widget _buildLoadingSkeleton() {
-    return ListView.builder(
-      padding: EdgeInsets.fromLTRB(20.w, 4.h, 20.w, 80.h),
-      itemCount: 5,
-      itemBuilder: (context, index) {
-        return Shimmer.fromColors(
-          baseColor: Colors.grey[300]!,
-          highlightColor: Colors.grey[100]!,
-          child: Container(
-            margin: EdgeInsets.only(bottom: 12.h),
-            height: 100.h,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16.r),
-            ),
+  Widget _buildSectionHeader(String title, String subtitle) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 17.sp,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textPrimary,
           ),
-        );
-      },
+        ),
+        SizedBox(height: 2.h),
+        Text(
+          subtitle,
+          style: TextStyle(fontSize: 12.sp, color: AppColors.textSecondary),
+        ),
+      ],
     );
   }
 }
