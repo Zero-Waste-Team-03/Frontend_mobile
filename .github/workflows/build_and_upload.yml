@@ -39,9 +39,10 @@ jobs:
         env:
           API_BASE_URL: ${{ secrets.API_BASE_URL }}
           GRAPHQL_ENDPOINT: ${{ secrets.GRAPHQL_ENDPOINT }}
+          MAPTILER_API_KEY: ${{ secrets.MAPTILER_API_KEY }}
         run: |
           missing=0
-          for v in API_BASE_URL GRAPHQL_ENDPOINT; do
+          for v in API_BASE_URL GRAPHQL_ENDPOINT MAPTILER_API_KEY; do
             if [ -z "${!v}" ]; then
               echo "::error::Missing required secret: $v"
               missing=1
@@ -64,6 +65,10 @@ jobs:
           API_BASE_URL=${{ secrets.API_BASE_URL }}
           GRAPHQL_ENDPOINT=${{ secrets.GRAPHQL_ENDPOINT }}
           ENABLE_ANALYTICS=false
+          MAPTILER_API_KEY=${{ secrets.MAPTILER_API_KEY }}
+          MAP_DEFAULT_LATITUDE=35.21029256506365
+          MAP_DEFAULT_LONGITUDE=-0.6348826555869873
+          MAP_DEFAULT_ZOOM=12
           EOF
 
       - name: Run Build Runner
