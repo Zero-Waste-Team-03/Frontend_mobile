@@ -37,6 +37,10 @@ class DonationMarkerWidget extends StatelessWidget {
           decoration: BoxDecoration(
             color: color,
             shape: BoxShape.circle,
+            border: Border.all(
+              color: AppMarkerColors.markerIconForeground,
+              width: 2,
+            ),
             boxShadow: const [
               BoxShadow(
                 color: AppMarkerColors.markerCircleShadow,
@@ -60,7 +64,7 @@ class DonationMarkerWidget extends StatelessWidget {
             vertical: labelVerticalPadding,
           ),
           decoration: BoxDecoration(
-            color: labelBackground,
+            color: AppMarkerColors.markerIconForeground,
             borderRadius: BorderRadius.circular(999),
             boxShadow: const [
               BoxShadow(
@@ -74,8 +78,8 @@ class DonationMarkerWidget extends StatelessWidget {
             label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: AppMarkerColors.markerIconForeground,
+            style: TextStyle(
+              color: color,
               fontSize: labelFontSize,
               fontWeight: FontWeight.w700,
               height: 1,
