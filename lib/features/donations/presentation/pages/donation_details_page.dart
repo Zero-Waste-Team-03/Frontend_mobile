@@ -1,19 +1,22 @@
+import 'dart:convert';
+import 'dart:math';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:latlong2/latlong.dart';
-import 'dart:convert';
+import 'package:maplibre_gl/maplibre_gl.dart';
+
+import '../../../../core/di/injection.dart';
+import '../../../../core/map/map_config.dart';
 import '../../../../shared/theme/app_colors.dart';
-import '../../domain/entities/donation.dart';
-import '../../../reservation/presentation/widgets/reservation_pending_dialog.dart';
-import '../../../reservation/presentation/widgets/api_error_dialog.dart';
 import '../../../reservation/presentation/bloc/reservation_bloc.dart';
 import '../../../reservation/presentation/bloc/reservation_event.dart';
 import '../../../reservation/presentation/bloc/reservation_state.dart';
-import '../../../../core/di/injection.dart';
+import '../../../reservation/presentation/widgets/api_error_dialog.dart';
+import '../../../reservation/presentation/widgets/reservation_pending_dialog.dart';
+import '../../domain/entities/donation.dart';
 
 class DonationDetailsPage extends StatefulWidget {
   final Donation donation;
@@ -25,11 +28,9 @@ class DonationDetailsPage extends StatefulWidget {
 }
 
 class _DonationDetailsPageState extends State<DonationDetailsPage> {
-  // UI colors based on urgency/condition
   late Color tagBgColor;
   late Color tagTextColor;
 
-  // Chat button position
   Offset _chatPos = const Offset(300, 500);
   final GlobalKey _stackKey = GlobalKey();
   static const double _chatButtonSize = 56;
@@ -61,6 +62,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
         size,
       );
     }
+
     return BlocProvider(
       create: (context) => getIt<ReservationBloc>(),
       child: BlocListener<ReservationBloc, ReservationState>(
@@ -104,17 +106,13 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                           _buildDescriptionSection(),
                           _buildPostedBySection(),
                           _buildPickupLocationSection(),
-                          SizedBox(
-                            height: 120.h,
-                          ), // Spacing for bottom action bar
+                          SizedBox(height: 120.h),
                         ],
                       ),
                     ),
                   ),
                 ],
               ),
-
-              // Bottom Sticky Action Bar
               Positioned(
                 bottom: 0,
                 left: 0,
@@ -204,8 +202,6 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                   ),
                 ),
               ),
-
-              // Global Chat Floating Button Layer (for consistency, over the nav bar)
               Positioned(
                 left: _chatPos.dx,
                 top: _chatPos.dy,
@@ -214,18 +210,18 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                   childWhenDragging: const SizedBox.shrink(),
                   onDragEnd: (details) {
                     setState(() {
-                      final stackBox =
-                          _stackKey.currentContext?.findRenderObject()
-                              as RenderBox?;
-                      final localOffset =
-                          stackBox?.globalToLocal(details.offset) ??
-                          details.offset;
-                      final size = stackBox?.size ?? MediaQuery.sizeOf(context);
-
-                      _chatPos = _clampChatPosition(
-                        Offset(localOffset.dx, localOffset.dy),
-                        size,
-                      );
+                      double dx = details.offset.dx;
+                      double dy = details.offset.dy;
+                      final screenSize = MediaQuery.sizeOf(context);
+                      if (dx < 0) dx = 0;
+                      if (dx > screenSize.width - 64) {
+                        dx = screenSize.width - 64;
+                      }
+                      if (dy < kToolbarHeight) dy = kToolbarHeight;
+                      if (dy > screenSize.height - 100) {
+                        dy = screenSize.height - 100;
+                      }
+                      _chatPos = Offset(dx, dy);
                     });
                   },
                   child: _buildChatButtonUI(isDragging: false),
@@ -239,13 +235,11 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
   }
 
   void _showErrorDialog(BuildContext context, String errorMessage) {
-    // Try to parse error message if it's a JSON error response
     String displayMessage = errorMessage;
     String? statusCode;
     String? timestamp;
 
     try {
-      // Check if error message contains JSON
       if (errorMessage.contains('{') && errorMessage.contains('}')) {
         final jsonStr = errorMessage.substring(
           errorMessage.indexOf('{'),
@@ -257,8 +251,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
         statusCode = jsonData['statusCode']?.toString() ?? 'Unknown';
         timestamp = jsonData['timestamp'];
       }
-    } catch (e) {
-      // If parsing fails, use the original message
+    } catch (_) {
       displayMessage = errorMessage;
     }
 
@@ -268,7 +261,6 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
       statusCode: statusCode,
       timestamp: timestamp,
       onRetry: () {
-        // Retry the reservation
         context.read<ReservationBloc>().add(
           CreateReservationEvent(donationId: widget.donation.id),
         );
@@ -324,7 +316,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
       expandedHeight: 300.h,
       pinned: true,
       backgroundColor: AuthColors.primary,
-      automaticallyImplyLeading: false, // We'll build custom buttons
+      automaticallyImplyLeading: false,
       flexibleSpace: FlexibleSpaceBar(
         background: Stack(
           fit: StackFit.expand,
@@ -589,70 +581,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
             ),
           ),
           SizedBox(height: 12.h),
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 20.r,
-                backgroundColor: AuthColors.primary.withValues(alpha: 0.15),
-                child: Text(
-                  (widget.donation.author.isEmpty
-                          ? 'U'
-                          : widget.donation.author.characters.first)
-                      .toUpperCase(),
-                  style: TextStyle(
-                    color: AuthColors.primary,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16.sp,
-                  ),
-                ),
-              ),
-              SizedBox(width: 12.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.donation.author.isEmpty
-                          ? 'Elena Simmons'
-                          : widget.donation.author,
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF131615),
-                      ),
-                    ),
-                    SizedBox(height: 2.h),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.badge_outlined,
-                          size: 14.sp,
-                          color: const Color(0xFF64748B),
-                        ),
-                        SizedBox(width: 4.w),
-                        Text(
-                          widget.donation.category?.name ??
-                              'Category not available',
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            color: const Color(0xFF64748B),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              Text(
-                'Qty ${widget.donation.quantity}',
-                style: TextStyle(
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w600,
-                  color: AuthColors.primary,
-                ),
-              ),
-            ],
-          ),
+          _OwnerCard(donation: widget.donation),
         ],
       ),
     );
@@ -688,70 +617,126 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
             ],
           ),
           SizedBox(height: 12.h),
-          Container(
-            height: 120.h,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(16.r),
+          _LocationMapCard(donation: widget.donation),
+        ],
+      ),
+    );
+  }
+}
+
+class _OwnerCard extends StatelessWidget {
+  final Donation donation;
+
+  const _OwnerCard({required this.donation});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(14.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 20.r,
+            backgroundColor: AuthColors.primary.withValues(alpha: 0.15),
+            child: Icon(
+              Icons.person_rounded,
+              color: AuthColors.primary,
+              size: 20.sp,
             ),
-            clipBehavior: Clip.antiAlias,
-            child: FlutterMap(
-              options: MapOptions(
-                initialCenter: LatLng(
-                  widget.donation.latitude ?? 21.4225,
-                  widget.donation.longitude ?? 39.8262,
-                ),
-                initialZoom: 15.0,
-                interactionOptions: const InteractionOptions(
-                  flags: InteractiveFlag.all,
-                ),
-              ),
+          ),
+          SizedBox(width: 10.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TileLayer(
-                  urlTemplate:
-                      'https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+                Text(
+                  donation.author,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF131615),
+                  ),
                 ),
-                MarkerLayer(
-                  markers: [
-                    Marker(
-                      point: LatLng(
-                        widget.donation.latitude ?? 21.4225,
-                        widget.donation.longitude ?? 39.8262,
-                      ),
-                      width: 40.w,
-                      height: 40.w,
-                      child: Center(
-                        child: Container(
-                          width: 32.w,
-                          height: 32.w,
-                          decoration: BoxDecoration(
-                            color: AuthColors.primary.withValues(alpha: 0.2),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Center(
-                            child: Container(
-                              width: 14.w,
-                              height: 14.w,
-                              decoration: BoxDecoration(
-                                color: AuthColors.primary,
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: Colors.white,
-                                  width: 2,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                SizedBox(height: 2.h),
+                Text(
+                  donation.status,
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    color: const Color(0xFF64748B),
+                  ),
                 ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _LocationMapCard extends StatelessWidget {
+  final Donation donation;
+
+  const _LocationMapCard({required this.donation});
+
+  @override
+  Widget build(BuildContext context) {
+    final hasLocation = donation.latitude != null && donation.longitude != null;
+    final target = hasLocation
+        ? LatLng(donation.latitude!, donation.longitude!)
+        : MapConfig.defaultTarget;
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16.r),
+      child: SizedBox(
+        height: 120.h,
+        width: double.infinity,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            MapLibreMap(
+              styleString: MapConfig.styleUrl,
+              initialCameraPosition: MapConfig.cameraPosition(
+                target: target,
+                zoom: hasLocation ? 14 : MapConfig.defaultZoom,
+              ),
+              compassEnabled: false,
+              rotateGesturesEnabled: false,
+              scrollGesturesEnabled: false,
+              zoomGesturesEnabled: false,
+              tiltGesturesEnabled: false,
+              attributionButtonMargins: Point<double>(12.w, 12.h),
+            ),
+            Container(
+              width: 32.w,
+              height: 32.w,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.18),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Icon(
+                Icons.location_on,
+                color: AuthColors.primary,
+                size: 18.sp,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

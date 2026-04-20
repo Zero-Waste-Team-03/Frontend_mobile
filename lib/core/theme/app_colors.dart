@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../enums/donation_status_value.dart';
+
 class AppColors {
   static const Color primary = Color(0xFF2D6C50);
   static const Color secondary = Color(0xFF334155);
@@ -29,6 +31,24 @@ class AppColors {
   static const Color statusCompletedText = Color(0xFF065F46);
   static const Color statusExpiredBackground = Color(0xFFE5E7EB);
   static const Color statusExpiredText = Color(0xFF6B7280);
+
+  static const Map<DonationStatusValue, Color> donationStatusBadgeBackground = {
+    DonationStatusValue.draft: Color(0xFFE2E8F0),
+    DonationStatusValue.published: Color(0xFFD1FAE5),
+    DonationStatusValue.reserved: Color(0xFFFEF3C7),
+    DonationStatusValue.completed: Color(0xFFDBEAFE),
+    DonationStatusValue.expired: Color(0xFFE5E7EB),
+    DonationStatusValue.unknown: Color(0xFFF1F5F9),
+  };
+
+  static const Map<DonationStatusValue, Color> donationStatusBadgeText = {
+    DonationStatusValue.draft: Color(0xFF475569),
+    DonationStatusValue.published: Color(0xFF065F46),
+    DonationStatusValue.reserved: Color(0xFF92400E),
+    DonationStatusValue.completed: Color(0xFF1D4ED8),
+    DonationStatusValue.expired: Color(0xFF6B7280),
+    DonationStatusValue.unknown: Color(0xFF334155),
+  };
 
   // Notification status colors
   static const Color notificationAlertBackground = Color(0xFFFFA500);

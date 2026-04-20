@@ -53,8 +53,7 @@ dependencies:
   # Caching
   path_provider: ^2.1.5
   socket_io_client: ^3.1.4
-  flutter_map: ^8.2.2
-  latlong2: ^0.9.1
+  maplibre_gl: ^0.23.0
   geolocator: ^14.0.2
   geocoding: ^4.0.0
   image_picker: ^1.2.1

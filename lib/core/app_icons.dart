@@ -10,6 +10,14 @@ class AppIcons {
   static const IconData profile = Icons.person_rounded;
   static const IconData notifications = Icons.notifications_none_rounded;
   static const IconData location = Icons.location_on_outlined;
+  static const IconData locationPin = Icons.place_rounded;
+  static const IconData distance = Icons.near_me_rounded;
+  static const IconData quantity = Icons.inventory_2_rounded;
+  static const IconData expiry = Icons.event_rounded;
+  static const IconData user = Icons.person_rounded;
+  static const IconData category = Icons.category_rounded;
+  static const IconData currentLocation = Icons.my_location_rounded;
+  static const IconData check = Icons.check_rounded;
   static const IconData filter = Icons.tune_rounded;
   static const IconData sort = Icons.sort_rounded;
   static const IconData back = Icons.arrow_back;

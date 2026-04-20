@@ -1,5 +1,4 @@
 import 'package:gaspzero/features/auth/data/models/user_model.dart';
-import 'package:gaspzero/features/auth/domain/entities/user.dart';
 
 import '../../domain/entities/reservation.dart';
 import '../../../../core/entities/attachment.dart';
@@ -33,17 +32,29 @@ class ReservationModel extends Reservation {
         print(
           '[ReservationModel] Donation JSON keys: ${donationJson.keys.toList()}',
         );
-        var userJson = json['donation']?['user'] ;
-        if (userJson == null) {
+        final rawUserJson = donationJson['user'];
+        Map<String, dynamic> userJson = rawUserJson is Map<String, dynamic>
+            ? rawUserJson
+            : <String, dynamic>{};
+        if (userJson.isEmpty) {
           print('[ReservationModel] WARNING: No user info found in donation');
-          userJson = {'id': '0', 'displayName': 'Unknown User', 'phoneNumber': 'No phone number'};
+          userJson = {
+            'id': _asString(donationJson['userId']) ?? '0',
+            'displayName': 'Unknown User',
+            'phoneNumber': 'No phone number',
+          };
         } else {
-          print(
-            '[ReservationModel] User JSON keys: ${(userJson as Map<String, dynamic>).keys.toList()}',
-          );
-        };
-          var author = UserModel.fromJson(userJson);
-          
+          // Donation.user from GraphQL may omit `id`; UserModel requires it.
+          userJson = {
+            ...userJson,
+            'id':
+                _asString(userJson['id']) ??
+                _asString(donationJson['userId']) ??
+                '0',
+          };
+          print('[ReservationModel] User JSON keys: ${userJson.keys.toList()}');
+        }
+        final author = UserModel.fromJson(userJson);
 
         // Parse attachments
         List<Attachment> attachments = [];
@@ -55,7 +66,7 @@ class ReservationModel extends Reservation {
           attachments = attachmentIds
               .map(
                 (id) => Attachment(
-                  id: id as String,
+                  id: _asString(id) ?? '',
                   url: '', // Would be fetched from backend
                   fileName: 'attachment_$id',
                   fileType: 'image/jpeg',
@@ -79,25 +90,25 @@ class ReservationModel extends Reservation {
         }
 
         donation = Donation(
-          id: donationJson['id'] as String? ?? '',
-          title: donationJson['title'] as String? ?? 'Untitled',
-          description: donationJson['description'] as String? ?? '',
+          id: _asString(donationJson['id']) ?? '',
+          title: _asString(donationJson['title']) ?? 'Untitled',
+          description: _asString(donationJson['description']) ?? '',
           quantity: (donationJson['quantity'] as num?)?.toInt() ?? 1,
-          categoryId: donationJson['categoryId'] as String? ?? 'unknown',
+          categoryId: _asString(donationJson['categoryId']) ?? 'unknown',
           category: null, // Could be fetched separately
-          condition: donationJson['urgency'] as String? ?? 'MEDIUM',
-          status: donationJson['status'] as String? ?? 'PUBLISHED',
-          author: donationJson['userId'] as String? ?? 'Unknown',
+          condition: _asString(donationJson['urgency']) ?? 'MEDIUM',
+          status: _asString(donationJson['status']) ?? 'PUBLISHED',
+          author: _asString(donationJson['userId']) ?? 'Unknown',
           imageUrl: imageUrl,
           latitude: null,
           longitude: null,
           attachments: attachments,
-          userId: donationJson['userId'] as String?,
+          userId: _asString(donationJson['userId']),
           foodWeightKg: (donationJson['foodWeightKg'] as num?)?.toDouble(),
           expiryDate: donationJson['expiryDate'] != null
-              ? DateTime.parse(donationJson['expiryDate'] as String)
+              ? DateTime.tryParse(_asString(donationJson['expiryDate']) ?? '')
               : null,
-          urgency: donationJson['urgency'] as String?,
+          urgency: _asString(donationJson['urgency']),
           isLikedByMe: donationJson['isLikedByMe'] as bool?,
           authorDetails: author,
         );
@@ -109,28 +120,29 @@ class ReservationModel extends Reservation {
       }
 
       print('[ReservationModel] Creating ReservationModel...');
-      final reservationId = json['id'] as String;
+      final reservationId = _asString(json['id']) ?? 'unknown_reservation';
       print('[ReservationModel] Reservation ID: $reservationId');
-      
+
       final model = ReservationModel(
         id: reservationId,
-        donationId: json['donation']?['id'] as String? ?? '',
+        donationId: _asString(json['donation']?['id']) ?? '',
         beneficiaryId: null, // Not included in new myReservations query
         donation: donation,
         beneficiary: null, // Not included in new myReservations query
         status: ReservationStatusExt.fromString(
-          json['status'] as String? ?? 'PENDING',
+          _asString(json['status']) ?? 'PENDING',
         ),
         createdAt: json['createdAt'] != null
-            ? DateTime.parse(json['createdAt'] as String)
+            ? DateTime.tryParse(_asString(json['createdAt']) ?? '') ??
+                  DateTime.now()
             : DateTime.now(),
         confirmedAt: json['confirmedAt'] != null
-            ? DateTime.parse(json['confirmedAt'] as String)
+            ? DateTime.tryParse(_asString(json['confirmedAt']) ?? '')
             : null,
         pickedUpAt: null, // Not in new response
         expiresAt: null, // Not in new response
         updatedAt: json['updatedAt'] != null
-            ? DateTime.parse(json['updatedAt'] as String)
+            ? DateTime.tryParse(_asString(json['updatedAt']) ?? '')
             : null,
       );
 
@@ -140,6 +152,13 @@ class ReservationModel extends Reservation {
       print('[ReservationModel] ERROR during parsing: ${e.runtimeType} - $e');
       rethrow;
     }
+  }
+
+  static String? _asString(dynamic value) {
+    if (value == null) {
+      return null;
+    }
+    return value.toString();
   }
 
   Map<String, dynamic> toJson() {

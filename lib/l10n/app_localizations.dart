@@ -103,6 +103,246 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Gasp\'Zero'**
   String get appTitle;
+
+  /// No description provided for @browseFeaturedSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Featured nearby'**
+  String get browseFeaturedSectionTitle;
+
+  /// No description provided for @browseFeaturedSectionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fresh donations that match your area'**
+  String get browseFeaturedSectionSubtitle;
+
+  /// No description provided for @browseStandardSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'More donations'**
+  String get browseStandardSectionTitle;
+
+  /// No description provided for @browseStandardSectionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'All available opportunities'**
+  String get browseStandardSectionSubtitle;
+
+  /// No description provided for @browseFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get browseFilterAll;
+
+  /// No description provided for @browseFilterPublished.
+  ///
+  /// In en, this message translates to:
+  /// **'Published'**
+  String get browseFilterPublished;
+
+  /// No description provided for @browseFilterReserved.
+  ///
+  /// In en, this message translates to:
+  /// **'Reserved'**
+  String get browseFilterReserved;
+
+  /// No description provided for @browseFilterCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get browseFilterCompleted;
+
+  /// No description provided for @browseFilterDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get browseFilterDraft;
+
+  /// No description provided for @browseSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search donations...'**
+  String get browseSearchHint;
+
+  /// Nearby donations count label
+  ///
+  /// In en, this message translates to:
+  /// **'{count} donations nearby'**
+  String donationsNearbyCount(int count);
+
+  /// No description provided for @browseEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No donations found'**
+  String get browseEmptyTitle;
+
+  /// No description provided for @browseEmptyDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Try another filter or adjust your search.'**
+  String get browseEmptyDescription;
+
+  /// No description provided for @browseErrorRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get browseErrorRetry;
+
+  /// No description provided for @featuredBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Featured'**
+  String get featuredBadge;
+
+  /// Distance in kilometers for a donation card
+  ///
+  /// In en, this message translates to:
+  /// **'{value} km'**
+  String donationCardDistanceKm(String value);
+
+  /// Available quantity for a donation card
+  ///
+  /// In en, this message translates to:
+  /// **'{count} portions'**
+  String donationCardQuantity(int count);
+
+  /// Expiry label on a donation card
+  ///
+  /// In en, this message translates to:
+  /// **'Expires {date}'**
+  String donationCardExpiresLabel(String date);
+
+  /// No description provided for @donationCardAnonymousDonor.
+  ///
+  /// In en, this message translates to:
+  /// **'Anonymous donor'**
+  String get donationCardAnonymousDonor;
+
+  /// No description provided for @statusDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get statusDraft;
+
+  /// No description provided for @statusPublished.
+  ///
+  /// In en, this message translates to:
+  /// **'Published'**
+  String get statusPublished;
+
+  /// No description provided for @statusReserved.
+  ///
+  /// In en, this message translates to:
+  /// **'Reserved'**
+  String get statusReserved;
+
+  /// No description provided for @statusCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get statusCompleted;
+
+  /// No description provided for @statusExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get statusExpired;
+
+  /// No description provided for @statusUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get statusUnknown;
+
+  /// No description provided for @detailsPickupLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup location'**
+  String get detailsPickupLocation;
+
+  /// No description provided for @detailsCategoryFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get detailsCategoryFallback;
+
+  /// No description provided for @detailsNoExpiry.
+  ///
+  /// In en, this message translates to:
+  /// **'No expiry'**
+  String get detailsNoExpiry;
+
+  /// No description provided for @detailsReserveNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Reserve now'**
+  String get detailsReserveNow;
+
+  /// No description provided for @addDonationLocationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Donation location'**
+  String get addDonationLocationTitle;
+
+  /// No description provided for @addDonationLocationSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap and drag the map to place your pin.'**
+  String get addDonationLocationSubtitle;
+
+  /// No description provided for @addDonationLocationInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the pin on the exact pickup point.'**
+  String get addDonationLocationInstruction;
+
+  /// No description provided for @addDonationLocationConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm location'**
+  String get addDonationLocationConfirm;
+
+  /// No description provided for @addDonationLocationChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get addDonationLocationChange;
+
+  /// No description provided for @addDonationLocationUseCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Use my location'**
+  String get addDonationLocationUseCurrent;
+
+  /// No description provided for @addDonationLocationSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected location'**
+  String get addDonationLocationSelected;
+
+  /// No description provided for @mapLocationPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission is denied.'**
+  String get mapLocationPermissionDenied;
+
+  /// No description provided for @mapLocationPermissionDeniedForever.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission is permanently denied.'**
+  String get mapLocationPermissionDeniedForever;
+
+  /// No description provided for @mapLocationMyLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'My location'**
+  String get mapLocationMyLocation;
+
+  /// No description provided for @mapLocationLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading map...'**
+  String get mapLocationLoading;
 }
 
 class _AppLocalizationsDelegate

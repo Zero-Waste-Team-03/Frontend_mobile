@@ -3,8 +3,7 @@ import '../../domain/entities/category.dart';
 import '../../domain/entities/donation.dart';
 import '../../domain/repositories/donation_repository.dart';
 import '../sources/donation_remote_data_source.dart';
-
-import 'package:latlong2/latlong.dart';
+import 'package:geolocator/geolocator.dart';
 
 class DonationRepositoryImpl implements DonationRepository {
   final DonationRemoteDataSource remoteDataSource;
@@ -45,12 +44,16 @@ class DonationRepositoryImpl implements DonationRepository {
     }
 
     if (latitude != null && longitude != null && radius != null) {
-      final Distance distance = const Distance();
-      final center = LatLng(latitude, longitude);
       filtered = filtered.where((d) {
         if (d.latitude == null || d.longitude == null) return false;
-        final dLatLng = LatLng(d.latitude!, d.longitude!);
-        final distKm = distance.as(LengthUnit.Meter, center, dLatLng) / 1000.0;
+        final distKm =
+            Geolocator.distanceBetween(
+              latitude,
+              longitude,
+              d.latitude!,
+              d.longitude!,
+            ) /
+            1000.0;
         return distKm <= radius;
       }).toList();
     }

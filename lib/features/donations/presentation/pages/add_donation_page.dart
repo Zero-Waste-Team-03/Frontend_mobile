@@ -8,6 +8,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:maplibre_gl/maplibre_gl.dart';
+import '../../../../core/app_icons.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../shared/widgets/app_location_picker.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../domain/entities/category.dart';
 import '../bloc/donations_bloc.dart';
@@ -136,11 +140,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_rounded,
-            color: AuthColors.headingText,
-            size: 24.sp,
-          ),
+          icon: Icon(AppIcons.back, color: AuthColors.headingText, size: 24.sp),
           onPressed: _prevStep,
         ),
         title: Text(
@@ -504,11 +504,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
               ),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.calendar_today_rounded,
-                    color: AuthColors.subText,
-                    size: 20.sp,
-                  ),
+                  Icon(AppIcons.expiry, color: AuthColors.subText, size: 20.sp),
                   SizedBox(width: 12.w),
                   Text(
                     _expirationDate == null
@@ -556,7 +552,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            Icons.home_rounded,
+                            AppIcons.home,
                             color: _pickupPreference == 'Home'
                                 ? Colors.white
                                 : AuthColors.subText,
@@ -596,7 +592,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            Icons.location_on_rounded,
+                            AppIcons.locationPin,
                             color: _pickupPreference == 'Public Spot'
                                 ? Colors.white
                                 : AuthColors.subText,
@@ -625,112 +621,33 @@ class _AddDonationPageState extends State<AddDonationPage> {
           ),
           SizedBox(height: 24.h),
 
-          // Pickup Location Map Placeholder
+          // Interactive location picker
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildLabel('Pickup Location'),
-              GestureDetector(
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Opening Location Picker...')),
-                  );
-                },
-                child: Text(
-                  'Change',
-                  style: GoogleFonts.inter(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
-                    color: AuthColors.primary,
-                  ),
+              _buildLabel(
+                AppLocalizations.of(context).addDonationLocationTitle,
+              ),
+              Text(
+                AppLocalizations.of(context).addDonationLocationSelected,
+                style: GoogleFonts.inter(
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w600,
+                  color: AuthColors.primary,
                 ),
               ),
             ],
           ),
-          GestureDetector(
-            onTap: () {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('Opening Maps...')));
+          SizedBox(height: 8.h),
+          AppLocationPicker(
+            initialLatitude: _latitude,
+            initialLongitude: _longitude,
+            onLocationConfirmed: (LatLng value) {
+              setState(() {
+                _latitude = value.latitude;
+                _longitude = value.longitude;
+              });
             },
-            child: Container(
-              margin: EdgeInsets.only(top: 8.h),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12.r),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
-                color: Colors.white,
-              ),
-              child: Column(
-                children: [
-                  // Map placeholder (clip)
-                  Container(
-                    height: 120.h,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE2E8F0),
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(12.r),
-                      ),
-                    ),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Positioned(
-                          top: 40.h,
-                          right: -20,
-                          left: -20,
-                          child: Container(height: 8.h, color: Colors.white),
-                        ),
-                        Positioned(
-                          top: -20,
-                          bottom: -20,
-                          right: 100.w,
-                          child: Container(width: 8.w, color: Colors.white),
-                        ),
-                        Icon(
-                          Icons.location_on,
-                          color: AuthColors.primary,
-                          size: 48.sp,
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Address Field
-                  Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 16.w,
-                      vertical: 12.h,
-                    ),
-                    decoration: const BoxDecoration(
-                      border: Border(top: BorderSide(color: Color(0xFFE2E8F0))),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.my_location_rounded,
-                          color: AuthColors.subText,
-                          size: 20.sp,
-                        ),
-                        SizedBox(width: 12.w),
-                        Expanded(
-                          child: Text(
-                            '742 Evergreen Terrace, Springfield',
-                            style: GoogleFonts.inter(
-                              fontSize: 14.sp,
-                              color: AuthColors.headingText,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ),
         ],
       ),
@@ -1113,7 +1030,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
                 ),
               ),
               child: value
-                  ? Icon(Icons.check, color: Colors.white, size: 16.sp)
+                  ? Icon(AppIcons.check, color: Colors.white, size: 16.sp)
                   : null,
             ),
             SizedBox(width: 12.w),

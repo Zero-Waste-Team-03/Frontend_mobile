@@ -1,7 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/enums/donation_card_tier.dart';
 import '../../domain/repositories/donation_repository.dart';
 import '../../domain/entities/donation.dart';
 import '../../domain/entities/category.dart';
+import '../../domain/utils/donation_split_criteria.dart';
 import 'donations_event.dart';
 import 'donations_state.dart';
 
@@ -28,7 +30,14 @@ class DonationsBloc extends Bloc<DonationsEvent, DonationsState> {
         return;
       }
 
-      emit(DonationsLoaded(donations: const [], categories: _cachedCategories));
+      emit(
+        DonationsLoaded(
+          donations: const [],
+          featuredDonations: const [],
+          standardDonations: const [],
+          categories: _cachedCategories,
+        ),
+      );
       return;
     }
 
@@ -44,6 +53,12 @@ class DonationsBloc extends Bloc<DonationsEvent, DonationsState> {
       emit(
         DonationsLoaded(
           donations: donations,
+          featuredDonations: currentState is DonationsLoaded
+              ? currentState.featuredDonations
+              : const [],
+          standardDonations: currentState is DonationsLoaded
+              ? currentState.standardDonations
+              : const [],
           categories: _cachedCategories,
           selectedCategoryId: selectedCategoryId,
         ),
@@ -110,17 +125,32 @@ class DonationsBloc extends Bloc<DonationsEvent, DonationsState> {
           for (var d in existingDonations) d.id: d,
           for (var d in donations) d.id: d,
         };
+        final mergedDonations = merged.values.toList();
+        final split = _splitDonations(
+          mergedDonations,
+          event.latitude,
+          event.longitude,
+        );
         emit(
           DonationsLoaded(
-            donations: merged.values.toList(),
+            donations: mergedDonations,
+            featuredDonations: split.$1,
+            standardDonations: split.$2,
             categories: categories,
             selectedCategoryId: event.categoryId,
           ),
         );
       } else {
+        final split = _splitDonations(
+          donations,
+          event.latitude,
+          event.longitude,
+        );
         emit(
           DonationsLoaded(
             donations: donations,
+            featuredDonations: split.$1,
+            standardDonations: split.$2,
             categories: categories,
             selectedCategoryId: event.categoryId,
           ),
@@ -158,5 +188,30 @@ class DonationsBloc extends Bloc<DonationsEvent, DonationsState> {
     } catch (e) {
       emit(DonationAddError(e.toString()));
     }
+  }
+
+  (List<Donation>, List<Donation>) _splitDonations(
+    List<Donation> donations,
+    double? userLatitude,
+    double? userLongitude,
+  ) {
+    final featured = <Donation>[];
+    final standard = <Donation>[];
+
+    for (final donation in donations) {
+      final tier = resolveDonationCardTier(
+        donation: donation,
+        userLatitude: userLatitude,
+        userLongitude: userLongitude,
+      );
+
+      if (tier == DonationCardTier.featured) {
+        featured.add(donation);
+      } else {
+        standard.add(donation);
+      }
+    }
+
+    return (featured, standard);
   }
 }
