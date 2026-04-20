@@ -12,6 +12,8 @@ import 'package:maplibre_gl/maplibre_gl.dart';
 import '../../../../core/app_icons.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/map/map_config.dart';
+import '../../../../core/map/map_marker_utils.dart';
+import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../bloc/donations_bloc.dart';
@@ -33,9 +35,7 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
   MapLibreMapController? _mapController;
   CameraPosition _cameraPosition = MapConfig.cameraPosition();
   Timer? _cameraDebounce;
-
-  final Map<String, Circle> _circlesByDonationId = {};
-  final Map<String, String> _donationIdByCircleId = {};
+  String _lastMarkerSignature = '';
 
   List<Donation> _mapDonations = const [];
   Donation? _selectedDonation;
@@ -80,7 +80,7 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
       final position = await Geolocator.getCurrentPosition();
       _cameraPosition = MapConfig.cameraPosition(
         target: LatLng(position.latitude, position.longitude),
-        zoom: 13.5,
+        zoom: 15.0,
       );
 
       await _mapController?.animateCamera(
@@ -128,37 +128,48 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
         .toList();
   }
 
+  String _markerSignature(List<Donation> donations) {
+    final withCoordinates = donations
+        .where((d) => d.latitude != null && d.longitude != null)
+        .toList();
+    return withCoordinates
+        .map(
+          (d) =>
+              '${d.id}_${d.latitude}_${d.longitude}_${d.urgency ?? d.condition}',
+        )
+        .join('|');
+  }
+
+  void _scheduleMarkersSync(List<Donation> donations) {
+    final signature = _markerSignature(donations);
+    if (signature == _lastMarkerSignature) {
+      return;
+    }
+    _lastMarkerSignature = signature;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _syncMarkers(donations);
+    });
+  }
+
   Future<void> _syncMarkers(List<Donation> donations) async {
     final controller = _mapController;
     if (controller == null) return;
 
-    final withLocation = donations
-        .where((d) => d.latitude != null && d.longitude != null)
-        .toList();
-
-    await controller.clearCircles();
-    _circlesByDonationId.clear();
-    _donationIdByCircleId.clear();
-
-    for (final donation in withLocation) {
-      final circle = await controller.addCircle(
-        CircleOptions(
-          geometry: LatLng(donation.latitude!, donation.longitude!),
-          circleRadius: 6,
-          circleColor: '#2D6C50',
-          circleOpacity: 0.9,
-          circleStrokeColor: '#FFFFFF',
-          circleStrokeWidth: 2,
-        ),
-      );
-      _circlesByDonationId[donation.id] = circle;
-      _donationIdByCircleId[circle.id] = donation.id;
-    }
+    await MapMarkerUtils.registerDonationMarkers(
+      donations: donations,
+      controller: controller,
+      context: context,
+      l10n: AppLocalizations.of(context),
+    );
   }
 
-  void _selectDonationFromCircle(Circle circle) {
-    final donationId = _donationIdByCircleId[circle.id];
-    if (donationId == null) return;
+  void _selectDonationFromSymbol(Symbol symbol) {
+    final rawData = symbol.data;
+    final donationId = rawData is Map
+        ? rawData['donationId']?.toString()
+        : null;
+    if (donationId == null || donationId.isEmpty) return;
     if (_mapDonations.isEmpty) return;
 
     final donation = _mapDonations.firstWhere(
@@ -191,9 +202,7 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
               _selectedDonation = null;
             }
 
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _syncMarkers(_mapDonations);
-            });
+            _scheduleMarkersSync(_mapDonations);
 
             return Stack(
               children: [
@@ -208,9 +217,10 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
                         _cameraPosition =
                             controller.cameraPosition ?? _cameraPosition;
                       });
-                      controller.onCircleTapped.add(_selectDonationFromCircle);
+                      controller.onSymbolTapped.add(_selectDonationFromSymbol);
                     },
                     onStyleLoadedCallback: () {
+                      _lastMarkerSignature = '';
                       _syncMarkers(_mapDonations);
                     },
                     onCameraIdle: () {
@@ -265,7 +275,9 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
                   left: 12.w,
                   right: 12.w,
                   bottom: 100.h,
-                  child: _buildBottomCard(),
+                  child: donations.isEmpty
+                      ? _buildBottomCard()
+                      : const SizedBox.shrink(),
                 ),
                 if (_selectedDonation != null)
                   Positioned(
@@ -309,7 +321,7 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
           suffixIcon: IconButton(
             icon: const Icon(AppIcons.notifications),
             onPressed: () {
-              context.push('/notifications');
+              context.push(AppRoutes.notifications);
             },
           ),
         ),
@@ -318,42 +330,34 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
   }
 
   Widget _buildBottomCard() {
-    final l10n = AppLocalizations.of(context);
-
-    return GestureDetector(
-      onTap: () {
-        context.push('/browse');
-      },
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14.r),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Icon(AppIcons.explore, color: AppColors.primary, size: 20.sp),
-            SizedBox(width: 8.w),
-            Expanded(
-              child: Text(
-                l10n.donationsNearbyCount(_mapDonations.length),
-                style: TextStyle(
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
-                ),
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Icon(AppIcons.explore, color: AppColors.primary, size: 20.sp),
+          SizedBox(width: 8.w),
+          Expanded(
+            child: Text(
+              "No donations found in this area.",
+              style: TextStyle(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
               ),
             ),
-            Icon(AppIcons.back, size: 16.sp, color: AppColors.textSecondary),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -361,7 +365,7 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
   Widget _buildSelectedDonationCard(Donation donation) {
     return GestureDetector(
       onTap: () {
-        context.push('/donation-details', extra: donation);
+        context.push(AppRoutes.donationDetails, extra: donation);
       },
       child: Container(
         padding: EdgeInsets.all(10.w),
@@ -421,7 +425,6 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
                 ],
               ),
             ),
-            Icon(AppIcons.share, size: 18.sp, color: AppColors.textSecondary),
           ],
         ),
       ),

@@ -95,6 +95,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get statusUnknown => 'غير معروف';
 
   @override
+  String get donationUrgencyHigh => 'مرتفع';
+
+  @override
+  String get donationUrgencyMedium => 'متوسط';
+
+  @override
+  String get donationUrgencyLow => 'منخفض';
+
+  @override
   String get detailsPickupLocation => 'موقع الاستلام';
 
   @override

@@ -102,7 +102,7 @@ class _MainShellState extends State<MainShell> {
                           Expanded(
                             child: _NavItem(
                               icon: AppIcons.leaderboard,
-                              label: 'Leaderboard',
+                              label: 'Ranks',
                               isSelected:
                                   widget.navigationShell.currentIndex == 2,
                               onTap: () => widget.navigationShell.goBranch(2),
