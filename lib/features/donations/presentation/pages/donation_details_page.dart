@@ -32,6 +32,10 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
   late Color tagTextColor;
 
   Offset _chatPos = const Offset(300, 500);
+  final GlobalKey _stackKey = GlobalKey();
+  static const double _chatButtonSize = 56;
+  static const double _chatTopLimit = 116;
+  static const double _chatBottomLimit = 118;
 
   @override
   void initState() {
@@ -53,7 +57,10 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
   Widget build(BuildContext context) {
     if (_chatPos == const Offset(300, 500)) {
       final size = MediaQuery.sizeOf(context);
-      _chatPos = Offset(size.width - 72.w, size.height - 180.h);
+      _chatPos = _clampChatPosition(
+        Offset(size.width - 72.w, size.height - 180.h),
+        size,
+      );
     }
 
     return BlocProvider(
@@ -75,6 +82,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
         child: Scaffold(
           backgroundColor: const Color(0xFFF8F9FA),
           body: Stack(
+            key: _stackKey,
             children: [
               CustomScrollView(
                 paintOrder: SliverPaintOrder.lastIsTop,
@@ -293,6 +301,14 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
         ),
       ),
     );
+  }
+
+  Offset _clampChatPosition(Offset raw, Size size) {
+    final maxX = size.width - _chatButtonSize;
+    final maxY = size.height - _chatBottomLimit;
+    final dx = raw.dx.clamp(0.0, maxX);
+    final dy = raw.dy.clamp(_chatTopLimit, maxY);
+    return Offset(dx, dy);
   }
 
   Widget _buildSliverAppBar() {

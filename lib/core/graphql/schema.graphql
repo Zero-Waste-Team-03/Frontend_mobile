@@ -801,6 +801,14 @@ type Query {
   donations(behaviorContext: DonationBehaviorContextInput, filter: DonationsFilterInput, pagination: PaginationInput): PaginatedDonations!
 
   """
+  Get donation listings owned by the current authenticated user
+  """
+  myDonations(
+    filter: DonationsFilterInput
+    pagination: PaginationInput
+  ): PaginatedDonations!
+
+  """
   Get viewport-based donation activity heatmap cells with normalized score
   """
   donationsHeatmap(input: DonationsHeatmapInput!): DonationsHeatmap!

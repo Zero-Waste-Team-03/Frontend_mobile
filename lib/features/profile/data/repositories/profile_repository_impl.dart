@@ -5,13 +5,19 @@ import '../../../../core/errors/failures.dart';
 import '../../../../core/exceptions/exceptions.dart';
 import '../../../auth/domain/entities/user.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
+import '../../domain/entities/profile_activities_page.dart';
+import '../datasources/profile_activities_remote_data_source.dart';
 import '../../domain/repositories/profile_repository.dart';
 
 @LazySingleton(as: ProfileRepository)
 class ProfileRepositoryImpl implements ProfileRepository {
   final AuthRepository authRepository;
+  final ProfileActivitiesRemoteDataSource profileActivitiesRemoteDataSource;
 
-  ProfileRepositoryImpl({required this.authRepository});
+  ProfileRepositoryImpl({
+    required this.authRepository,
+    required this.profileActivitiesRemoteDataSource,
+  });
 
   @override
   Future<Either<Failure, User>> getCachedOrRemoteUser() async {
@@ -97,6 +103,29 @@ class ProfileRepositoryImpl implements ProfileRepository {
         avatarAttachmentId,
       );
       return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, ProfileActivitiesPage>> getUserActivities({
+    required String userId,
+    String? statusFilter,
+    int page = 1,
+    int limit = 10,
+  }) async {
+    try {
+      final activities = await profileActivitiesRemoteDataSource
+          .getUserActivities(
+            userId: userId,
+            statusFilter: statusFilter,
+            page: page,
+            limit: limit,
+          );
+      return Right(activities);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {

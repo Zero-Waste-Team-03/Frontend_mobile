@@ -1,11 +1,10 @@
-import 'dart:ui' as ui;
+﻿import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gaspzero/core/theme/app_colors.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/app_icons.dart';
-import '../../shared/theme/app_colors.dart';
 import '../../core/di/injection.dart';
 import '../../features/donations/presentation/bloc/donations_bloc.dart';
 import '../../features/donations/presentation/bloc/donations_event.dart';
@@ -23,18 +22,25 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   // Chat button position
   Offset _chatPos = const Offset(300, 500);
+  final GlobalKey _stackKey = GlobalKey();
+  static const double _chatButtonSize = 56;
+  static const double _chatTopLimit = 112;
+  static const double _chatBottomLimit = 106;
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     if (_chatPos == const Offset(300, 500)) {
-      final size = MediaQuery.of(context).size;
-      _chatPos = Offset(size.width - 72.w, size.height - 180.h);
+      final size = MediaQuery.sizeOf(context);
+      _chatPos = _clampChatPosition(
+        Offset(size.width - 72.w, size.height - 180.h),
+        size,
+      );
     }
     return BlocProvider(
       create: (context) =>
           getIt<DonationsBloc>()..add(const LoadDonationsEvent()),
       child: Stack(
+        key: _stackKey,
         children: [
           Scaffold(
             extendBody: true,
@@ -119,28 +125,31 @@ class _MainShellState extends State<MainShell> {
               ),
             ),
           ),
-          Positioned(
-            left: _chatPos.dx,
-            top: _chatPos.dy,
-            child: Draggable(
-              feedback: _buildChatButtonUI(isDragging: true),
-              childWhenDragging: const SizedBox.shrink(),
-              onDragEnd: (details) {
-                setState(() {
-                  double dx = details.offset.dx;
-                  double dy = details.offset.dy;
-                  final screenSize = MediaQuery.of(context).size;
-                  if (dx < 0) dx = 0;
-                  if (dx > screenSize.width - 64) dx = screenSize.width - 64;
-                  if (dy < kToolbarHeight) dy = kToolbarHeight;
-                  if (dy > screenSize.height - 100)
-                    dy = screenSize.height - 100;
-                  _chatPos = Offset(dx, dy);
-                });
-              },
-              child: _buildChatButtonUI(isDragging: false),
+          if (widget.navigationShell.currentIndex != 2)
+            Positioned(
+              left: _chatPos.dx,
+              top: _chatPos.dy,
+              child: Draggable(
+                feedback: _buildChatButtonUI(isDragging: true),
+                childWhenDragging: const SizedBox.shrink(),
+                onDragEnd: (details) {
+                  setState(() {
+                    final stackBox =
+                        _stackKey.currentContext?.findRenderObject()
+                            as RenderBox?;
+                    final localOffset =
+                        stackBox?.globalToLocal(details.offset) ??
+                        details.offset;
+                    final size = stackBox?.size ?? MediaQuery.sizeOf(context);
+                    _chatPos = _clampChatPosition(
+                      Offset(localOffset.dx, localOffset.dy),
+                      size,
+                    );
+                  });
+                },
+                child: _buildChatButtonUI(isDragging: false),
+              ),
             ),
-          ),
         ],
       ),
     );
@@ -178,6 +187,14 @@ class _MainShellState extends State<MainShell> {
         ),
       ),
     );
+  }
+
+  Offset _clampChatPosition(Offset raw, Size size) {
+    final maxX = size.width - _chatButtonSize;
+    final maxY = size.height - _chatBottomLimit;
+    final dx = raw.dx.clamp(0.0, maxX);
+    final dy = raw.dy.clamp(_chatTopLimit, maxY);
+    return Offset(dx, dy);
   }
 }
 

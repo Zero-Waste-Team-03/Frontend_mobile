@@ -60,6 +60,28 @@ class AppDimensions {
   static const double iconSize = 24.0;
   static const double inputHeight = 48.0;
   static const double inputMinHeight = 8.0;
+
+  static const double leaderboardTogglePadding = 4.0;
+  static const double leaderboardToggleHeight = 46.0;
+  static const double leaderboardToggleRadius = 22.0;
+  static const double leaderboardToggleSegmentRadius = 18.0;
+  static const double leaderboardToggleFontSize = 16.0;
+
+  static const double leaderboardTopAvatarSecondarySize = 62.0;
+  static const double leaderboardTopAvatarPrimarySize = 86.0;
+  static const double leaderboardTopBadgeFontSize = 14.0;
+  static const double leaderboardTopNameFontSize = 16.0;
+  static const double leaderboardTopWeightFontSize = 14.0;
+
+  static const double leaderboardCardHorizontalPadding = 14.0;
+  static const double leaderboardCardVerticalPadding = 10.0;
+  static const double leaderboardCardRadius = 24.0;
+  static const double leaderboardRankWidth = 40.0;
+  static const double leaderboardAvatarRadius = 20.0;
+  static const double leaderboardCardNameFontSize = 16.0;
+  static const double leaderboardCardSubTextSize = 12.0;
+  static const double leaderboardPointsFontSize = 17.0;
+  static const double leaderboardPointsLabelFontSize = 11.0;
 }
 
 class AppFonts {

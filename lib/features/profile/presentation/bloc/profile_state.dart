@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import '../../../auth/domain/entities/user.dart';
+import '../../../donations/domain/entities/donation.dart';
 
 abstract class ProfileState extends Equatable {
   const ProfileState();
@@ -47,6 +48,47 @@ class ProfileError extends ProfileState {
   final String message;
 
   const ProfileError(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
+class ProfileActivitiesLoading extends ProfileState {
+  const ProfileActivitiesLoading();
+}
+
+class ProfileActivitiesLoaded extends ProfileState {
+  final List<Donation> activities;
+  final String? activeFilter;
+  final int currentPage;
+  final int totalCount;
+  final bool isLoadingMore;
+  final bool hasReachedMax;
+
+  const ProfileActivitiesLoaded(
+    this.activities, {
+    this.activeFilter,
+    this.currentPage = 1,
+    this.totalCount = 0,
+    this.isLoadingMore = false,
+    this.hasReachedMax = false,
+  });
+
+  @override
+  List<Object?> get props => [
+    activities,
+    activeFilter,
+    currentPage,
+    totalCount,
+    isLoadingMore,
+    hasReachedMax,
+  ];
+}
+
+class ProfileActivitiesError extends ProfileState {
+  final String message;
+
+  const ProfileActivitiesError(this.message);
 
   @override
   List<Object?> get props => [message];

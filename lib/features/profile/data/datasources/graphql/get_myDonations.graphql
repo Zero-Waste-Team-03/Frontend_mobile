@@ -1,0 +1,35 @@
+query MyDonations($pagination: PaginationInput, $filter: DonationsFilterInput) {
+  myDonations(filter: $filter, pagination: $pagination) {
+    hasNextPage
+    hasPreviousPage
+    limit
+    page
+    totalCount
+    items {
+      id
+      title
+      description
+      quantity
+      categoryId
+      category {
+        id
+        name
+      }
+      status
+      urgency
+      mainAttachmentId
+      mainAttachment {
+        url
+      }
+      locationId
+      location {
+        latitude
+        longitude
+      }
+      user {
+        displayName
+        email
+      }
+    }
+  }
+}
