@@ -421,7 +421,6 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
                 ],
               ),
             ),
-            Icon(AppIcons.share, size: 18.sp, color: AppColors.textSecondary),
           ],
         ),
       ),
