@@ -180,8 +180,6 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
     setState(() {
       _selectedDonation = donation;
     });
-
-    context.push(AppRoutes.donationDetails, extra: donation);
   }
 
   @override
@@ -277,7 +275,9 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
                   left: 12.w,
                   right: 12.w,
                   bottom: 100.h,
-                  child: _buildBottomCard(),
+                  child: donations.isEmpty
+                      ? _buildBottomCard()
+                      : const SizedBox.shrink(),
                 ),
                 if (_selectedDonation != null)
                   Positioned(
@@ -330,42 +330,34 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
   }
 
   Widget _buildBottomCard() {
-    final l10n = AppLocalizations.of(context);
-
-    return GestureDetector(
-      onTap: () {
-        context.push(AppRoutes.browse);
-      },
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14.r),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Icon(AppIcons.explore, color: AppColors.primary, size: 20.sp),
-            SizedBox(width: 8.w),
-            Expanded(
-              child: Text(
-                l10n.donationsNearbyCount(_mapDonations.length),
-                style: TextStyle(
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
-                ),
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Icon(AppIcons.explore, color: AppColors.primary, size: 20.sp),
+          SizedBox(width: 8.w),
+          Expanded(
+            child: Text(
+              "No donations found in this area.",
+              style: TextStyle(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
               ),
             ),
-            Icon(AppIcons.back, size: 16.sp, color: AppColors.textSecondary),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
