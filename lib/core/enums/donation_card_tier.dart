@@ -1,0 +1,1 @@
+enum DonationCardTier { featured, standard }

@@ -1,4 +1,80 @@
 {
   "@@locale": "en",
-  "appTitle": "Gasp'Zero"
+  "appTitle": "Gasp'Zero",
+  "browseFeaturedSectionTitle": "Featured nearby",
+  "browseFeaturedSectionSubtitle": "Fresh donations that match your area",
+  "browseStandardSectionTitle": "More donations",
+  "browseStandardSectionSubtitle": "All available opportunities",
+  "browseFilterAll": "All",
+  "browseFilterPublished": "Published",
+  "browseFilterReserved": "Reserved",
+  "browseFilterCompleted": "Completed",
+  "browseFilterDraft": "Draft",
+  "browseSearchHint": "Search donations...",
+  "donationsNearbyCount": "{count} donations nearby",
+  "@donationsNearbyCount": {
+    "description": "Nearby donations count label",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      }
+    }
+  },
+  "browseEmptyTitle": "No donations found",
+  "browseEmptyDescription": "Try another filter or adjust your search.",
+  "browseErrorRetry": "Retry",
+  "featuredBadge": "Featured",
+  "donationCardDistanceKm": "{value} km",
+  "@donationCardDistanceKm": {
+    "description": "Distance in kilometers for a donation card",
+    "placeholders": {
+      "value": {
+        "type": "String",
+        "example": "2.8"
+      }
+    }
+  },
+  "donationCardQuantity": "{count} portions",
+  "@donationCardQuantity": {
+    "description": "Available quantity for a donation card",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "4"
+      }
+    }
+  },
+  "donationCardExpiresLabel": "Expires {date}",
+  "@donationCardExpiresLabel": {
+    "description": "Expiry label on a donation card",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "21 Apr"
+      }
+    }
+  },
+  "donationCardAnonymousDonor": "Anonymous donor",
+  "statusDraft": "Draft",
+  "statusPublished": "Published",
+  "statusReserved": "Reserved",
+  "statusCompleted": "Completed",
+  "statusExpired": "Expired",
+  "statusUnknown": "Unknown",
+  "detailsPickupLocation": "Pickup location",
+  "detailsCategoryFallback": "Category",
+  "detailsNoExpiry": "No expiry",
+  "detailsReserveNow": "Reserve now",
+  "addDonationLocationTitle": "Donation location",
+  "addDonationLocationSubtitle": "Tap and drag the map to place your pin.",
+  "addDonationLocationInstruction": "Keep the pin on the exact pickup point.",
+  "addDonationLocationConfirm": "Confirm location",
+  "addDonationLocationChange": "Change",
+  "addDonationLocationUseCurrent": "Use my location",
+  "addDonationLocationSelected": "Selected location",
+  "mapLocationPermissionDenied": "Location permission is denied.",
+  "mapLocationPermissionDeniedForever": "Location permission is permanently denied.",
+  "mapLocationMyLocation": "My location",
+  "mapLocationLoading": "Loading map..."
 }

@@ -9,5 +9,135 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
-  String get appTitle => 'مشروع فلاتر';
+  String get appTitle => 'غاسپ زيرو';
+
+  @override
+  String get browseFeaturedSectionTitle => 'الأقرب والمميزة';
+
+  @override
+  String get browseFeaturedSectionSubtitle => 'تبرعات جديدة ضمن نطاقك';
+
+  @override
+  String get browseStandardSectionTitle => 'مزيد من التبرعات';
+
+  @override
+  String get browseStandardSectionSubtitle => 'كل الفرص المتاحة';
+
+  @override
+  String get browseFilterAll => 'الكل';
+
+  @override
+  String get browseFilterPublished => 'منشور';
+
+  @override
+  String get browseFilterReserved => 'محجوز';
+
+  @override
+  String get browseFilterCompleted => 'مكتمل';
+
+  @override
+  String get browseFilterDraft => 'مسودة';
+
+  @override
+  String get browseSearchHint => 'ابحث عن التبرعات...';
+
+  @override
+  String donationsNearbyCount(int count) {
+    return '$count تبرع قريب';
+  }
+
+  @override
+  String get browseEmptyTitle => 'لا توجد تبرعات';
+
+  @override
+  String get browseEmptyDescription => 'جرّب فلتر آخر أو عدّل البحث.';
+
+  @override
+  String get browseErrorRetry => 'إعادة المحاولة';
+
+  @override
+  String get featuredBadge => 'مميز';
+
+  @override
+  String donationCardDistanceKm(String value) {
+    return '$value كم';
+  }
+
+  @override
+  String donationCardQuantity(int count) {
+    return '$count حصة';
+  }
+
+  @override
+  String donationCardExpiresLabel(String date) {
+    return 'ينتهي في $date';
+  }
+
+  @override
+  String get donationCardAnonymousDonor => 'متبرع مجهول';
+
+  @override
+  String get statusDraft => 'مسودة';
+
+  @override
+  String get statusPublished => 'منشور';
+
+  @override
+  String get statusReserved => 'محجوز';
+
+  @override
+  String get statusCompleted => 'مكتمل';
+
+  @override
+  String get statusExpired => 'منتهي';
+
+  @override
+  String get statusUnknown => 'غير معروف';
+
+  @override
+  String get detailsPickupLocation => 'موقع الاستلام';
+
+  @override
+  String get detailsCategoryFallback => 'الفئة';
+
+  @override
+  String get detailsNoExpiry => 'بدون تاريخ انتهاء';
+
+  @override
+  String get detailsReserveNow => 'احجز الآن';
+
+  @override
+  String get addDonationLocationTitle => 'موقع التبرع';
+
+  @override
+  String get addDonationLocationSubtitle =>
+      'حرّك الخريطة وضع المؤشر على النقطة الصحيحة.';
+
+  @override
+  String get addDonationLocationInstruction =>
+      'ثبّت المؤشر على موقع الاستلام بدقة.';
+
+  @override
+  String get addDonationLocationConfirm => 'تأكيد الموقع';
+
+  @override
+  String get addDonationLocationChange => 'تغيير';
+
+  @override
+  String get addDonationLocationUseCurrent => 'استخدام موقعي';
+
+  @override
+  String get addDonationLocationSelected => 'الموقع المختار';
+
+  @override
+  String get mapLocationPermissionDenied => 'تم رفض إذن الموقع.';
+
+  @override
+  String get mapLocationPermissionDeniedForever => 'تم رفض إذن الموقع نهائيا.';
+
+  @override
+  String get mapLocationMyLocation => 'موقعي';
+
+  @override
+  String get mapLocationLoading => 'جاري تحميل الخريطة...';
 }

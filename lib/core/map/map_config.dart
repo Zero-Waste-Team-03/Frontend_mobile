@@ -1,0 +1,39 @@
+import 'package:maplibre_gl/maplibre_gl.dart';
+
+import '../env.dart';
+
+class MapConfig {
+  static const String _mapTilerStyleBaseUrl =
+      'https://api.maptiler.com/maps/basic-v2/style.json';
+  static const String _fallbackStyleUrl =
+      'https://demotiles.maplibre.org/style.json';
+
+  static String get mapTilerApiKey =>
+      (Env.get('MAPTILER_API_KEY') ?? '').trim();
+
+  static String get styleUrl {
+    final key = mapTilerApiKey;
+    if (key.isEmpty) {
+      return _fallbackStyleUrl;
+    }
+    return '$_mapTilerStyleBaseUrl?key=${Uri.encodeQueryComponent(key)}';
+  }
+
+  static double get defaultLatitude =>
+      double.tryParse((Env.get('MAP_DEFAULT_LATITUDE') ?? '').trim()) ?? 0.0;
+
+  static double get defaultLongitude =>
+      double.tryParse((Env.get('MAP_DEFAULT_LONGITUDE') ?? '').trim()) ?? 0.0;
+
+  static double get defaultZoom =>
+      double.tryParse((Env.get('MAP_DEFAULT_ZOOM') ?? '').trim()) ?? 12.0;
+
+  static LatLng get defaultTarget => LatLng(defaultLatitude, defaultLongitude);
+
+  static CameraPosition cameraPosition({LatLng? target, double? zoom}) {
+    return CameraPosition(
+      target: target ?? defaultTarget,
+      zoom: zoom ?? defaultZoom,
+    );
+  }
+}

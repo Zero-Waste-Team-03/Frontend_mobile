@@ -15,17 +15,27 @@ class DonationsLoading extends DonationsState {}
 
 class DonationsLoaded extends DonationsState {
   final List<Donation> donations;
+  final List<Donation> featuredDonations;
+  final List<Donation> standardDonations;
   final List<Category> categories;
   final String? selectedCategoryId;
 
   const DonationsLoaded({
     required this.donations,
+    required this.featuredDonations,
+    required this.standardDonations,
     required this.categories,
     this.selectedCategoryId,
   });
 
   @override
-  List<Object?> get props => [donations, categories, selectedCategoryId];
+  List<Object?> get props => [
+    donations,
+    featuredDonations,
+    standardDonations,
+    categories,
+    selectedCategoryId,
+  ];
 }
 
 class DonationsError extends DonationsState {
