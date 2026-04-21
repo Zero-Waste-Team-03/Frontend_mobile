@@ -1,5 +1,6 @@
 import 'package:injectable/injectable.dart';
 import 'package:ferry/ferry.dart' hide ServerException;
+import 'package:ferry_exec/ferry_exec.dart' show FetchPolicy;
 import 'package:logger/logger.dart';
 
 import '../../../../core/exceptions/exceptions.dart';
@@ -60,7 +61,11 @@ class ProfileActivitiesRemoteDataSourceImpl
       }
 
       final data = await _executeRequest(
-        GMyDonationsReq((b) => b.vars = vars.toBuilder()),
+        GMyDonationsReq(
+          (b) => b
+            ..vars = vars.toBuilder()
+            ..fetchPolicy = FetchPolicy.NetworkOnly,
+        ),
         'myDonations',
       );
 

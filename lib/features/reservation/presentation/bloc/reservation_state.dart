@@ -45,11 +45,26 @@ class UserReservationsLoading extends ReservationState {
 class UserReservationsLoaded extends ReservationState {
   final List<Reservation> reservations;
   final String? activeFilter;
+  final int currentPage;
+  final bool isLoadingMore;
+  final bool hasReachedMax;
 
-  const UserReservationsLoaded(this.reservations, {this.activeFilter});
+  const UserReservationsLoaded(
+    this.reservations, {
+    this.activeFilter,
+    this.currentPage = 1,
+    this.isLoadingMore = false,
+    this.hasReachedMax = false,
+  });
 
   @override
-  List<Object?> get props => [reservations, activeFilter];
+  List<Object?> get props => [
+    reservations,
+    activeFilter,
+    currentPage,
+    isLoadingMore,
+    hasReachedMax,
+  ];
 }
 
 class UserReservationsError extends ReservationState {

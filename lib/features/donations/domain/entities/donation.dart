@@ -24,6 +24,7 @@ class Donation {
   final String? urgency;
   final bool? isLikedByMe;
   final UserModel? authorDetails;
+  final DateTime? createdAt;
 
   const Donation({
     required this.id,
@@ -46,5 +47,6 @@ class Donation {
     this.urgency,
     this.isLikedByMe,
     this.authorDetails,
+    this.createdAt,
   });
 }

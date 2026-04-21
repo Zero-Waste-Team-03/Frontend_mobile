@@ -1,5 +1,5 @@
-query MyDonations($pagination: PaginationInput, $filter: DonationsFilterInput) {
-  myDonations(filter: $filter, pagination: $pagination) {
+query LikedDonations($pagination: PaginationInput) {
+  likedDonations(pagination: $pagination) {
     hasNextPage
     hasPreviousPage
     limit
@@ -19,6 +19,7 @@ query MyDonations($pagination: PaginationInput, $filter: DonationsFilterInput) {
       status
       urgency
       isLikedByMe
+      expiryDate
       mainAttachmentId
       mainAttachment {
         url

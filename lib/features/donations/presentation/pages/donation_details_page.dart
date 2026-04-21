@@ -11,11 +11,12 @@ import 'package:maplibre_gl/maplibre_gl.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/map/map_config.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../favorites/domain/repositories/favorites_repository.dart';
 import '../../../reservation/presentation/bloc/reservation_bloc.dart';
 import '../../../reservation/presentation/bloc/reservation_event.dart';
 import '../../../reservation/presentation/bloc/reservation_state.dart';
 import '../../../reservation/presentation/widgets/api_error_dialog.dart';
-import '../../../reservation/presentation/widgets/reservation_pending_dialog.dart';
+import '../../../reservation/presentation/widgets/reservation_confirmed_dialog.dart';
 import '../../domain/entities/donation.dart';
 
 class DonationDetailsPage extends StatefulWidget {
@@ -30,6 +31,8 @@ class DonationDetailsPage extends StatefulWidget {
 class _DonationDetailsPageState extends State<DonationDetailsPage> {
   late Color tagBgColor;
   late Color tagTextColor;
+  late bool _isLiked;
+  bool _isLikeUpdating = false;
 
   Offset _chatPos = const Offset(300, 500);
   final GlobalKey _stackKey = GlobalKey();
@@ -40,6 +43,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
   @override
   void initState() {
     super.initState();
+    _isLiked = widget.donation.isLikedByMe ?? false;
     if (widget.donation.condition.toUpperCase() == 'DRY') {
       tagBgColor = const Color(0xFFFFF0E6);
       tagTextColor = const Color(0xFFE87C3E);
@@ -50,6 +54,44 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
     } else {
       tagBgColor = const Color(0xFFE6F0FF);
       tagTextColor = const Color(0xFF3B82F6);
+    }
+  }
+
+  Future<void> _toggleFavorite() async {
+    if (_isLikeUpdating) {
+      return;
+    }
+
+    setState(() => _isLikeUpdating = true);
+
+    try {
+      final favoritesRepository = getIt<FavoritesRepository>();
+      if (_isLiked) {
+        await favoritesRepository.unlikeDonation(widget.donation.id);
+      } else {
+        await favoritesRepository.likeDonation(widget.donation.id);
+      }
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() => _isLiked = !_isLiked);
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to update favorite: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLikeUpdating = false);
+      }
     }
   }
 
@@ -68,12 +110,17 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
       child: BlocListener<ReservationBloc, ReservationState>(
         listener: (context, state) {
           if (state is ReservationCreated) {
-            showReservationPendingDialog(
+            showReservationConfirmedDialog(
               context,
               onDismiss: () {
                 Navigator.of(context).pop();
               },
               donationTitle: widget.donation.title,
+              expiryAt: state.reservation.expiresAt != null
+                  ? state.reservation.expiresAt!.toLocal().toString().split(
+                      '.',
+                    )[0]
+                  : 'N/A',
             );
           } else if (state is ReservationCreationError) {
             _showErrorDialog(context, state.message);
@@ -392,18 +439,29 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
         Padding(
           padding: const EdgeInsets.only(right: 16.0, top: 8.0, bottom: 8.0),
           child: GestureDetector(
-            onTap: () {},
+            onTap: _toggleFavorite,
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: const Color(0xFF131615).withValues(alpha: 0.4),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
-                Icons.favorite_border_rounded,
-                color: Colors.white,
-                size: 20,
-              ),
+              child: _isLikeUpdating
+                  ? SizedBox(
+                      width: 20.w,
+                      height: 20.w,
+                      child: const CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : Icon(
+                      _isLiked
+                          ? Icons.favorite_rounded
+                          : Icons.favorite_border_rounded,
+                      color: _isLiked ? const Color(0xFFFF6B6B) : Colors.white,
+                      size: 20,
+                    ),
             ),
           ),
         ),

@@ -18,6 +18,8 @@ class DonationModel extends Donation {
     super.longitude,
     super.expiryDate,
     super.urgency,
+    super.createdAt,
+    super.isLikedByMe,
   });
 
   factory DonationModel.fromJson(Map<String, dynamic> json) {
@@ -66,6 +68,11 @@ class DonationModel extends Donation {
         ? DateTime.tryParse(expiryDateRaw)
         : null;
     final urgency = json['urgency'] as String?;
+    final createdAtRaw = json['createdAt'] as String?;
+    final createdAt = createdAtRaw != null
+        ? DateTime.tryParse(createdAtRaw)
+        : null;
+    final isLikedByMe = json['isLikedByMe'] as bool?;
 
     return DonationModel(
       id: json['id'] as String,
@@ -84,6 +91,8 @@ class DonationModel extends Donation {
       longitude: lng,
       expiryDate: expiryDate,
       urgency: urgency,
+      createdAt: createdAt,
+      isLikedByMe: isLikedByMe,
     );
   }
 }

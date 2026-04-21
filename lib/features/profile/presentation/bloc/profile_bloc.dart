@@ -12,6 +12,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final ProfileRepository profileRepository;
   String? _currentActivitiesUserId;
   String? _currentActivitiesFilter;
+  int _currentActivitiesLimit = 10;
   final Logger _logger = Logger(
     printer: PrettyPrinter(
       methodCount: 0,
@@ -177,7 +178,8 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       );
     }
 
-    _currentActivitiesFilter = event.statusFilter ?? _currentActivitiesFilter;
+    _currentActivitiesFilter = event.statusFilter;
+    _currentActivitiesLimit = event.limit;
 
     if (_currentActivitiesUserId == null) {
       final userResult = await profileRepository.getCachedOrRemoteUser();
@@ -231,9 +233,17 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       },
       (activitiesPage) {
         if (isFirstPage || currentState is! ProfileActivitiesLoaded) {
+          final sortedActivities = List.of(activitiesPage.activities)
+            ..sort(
+              (a, b) => (b.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0))
+                  .compareTo(
+                    a.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0),
+                  ),
+            );
+
           emit(
             ProfileActivitiesLoaded(
-              activitiesPage.activities,
+              sortedActivities,
               activeFilter: _currentActivitiesFilter,
               currentPage: activitiesPage.page,
               totalCount: activitiesPage.totalCount,
@@ -251,9 +261,17 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           existingById[donation.id] = donation;
         }
 
+        final mergedActivities = existingById.values.toList()
+          ..sort(
+            (a, b) => (b.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0))
+                .compareTo(
+                  a.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0),
+                ),
+          );
+
         emit(
           ProfileActivitiesLoaded(
-            existingById.values.toList(),
+            mergedActivities,
             activeFilter: _currentActivitiesFilter,
             currentPage: activitiesPage.page,
             totalCount: activitiesPage.totalCount,
@@ -274,7 +292,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     add(
       ProfileActivitiesLoadRequested(
         page: 1,
-        limit: 10,
+        limit: _currentActivitiesLimit,
         statusFilter: _currentActivitiesFilter,
       ),
     );

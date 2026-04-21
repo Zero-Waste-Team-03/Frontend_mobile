@@ -15,6 +15,7 @@ import '../bloc/donations_state.dart';
 import '../../domain/entities/donation.dart';
 import '../../domain/entities/category.dart';
 
+
 class DonationsListPage extends StatefulWidget {
   const DonationsListPage({super.key});
 
@@ -123,7 +124,7 @@ class _DonationsListPageState extends State<DonationsListPage> {
             children: [
               IconButton(
                 icon: Icon(
-                  Icons.shopping_bag_outlined,
+                  Icons.volunteer_activism_outlined,
                   color: AuthColors.primary,
                   size: AppDimensions.iconSize.sp,
                 ),
@@ -137,7 +138,6 @@ class _DonationsListPageState extends State<DonationsListPage> {
                   context.push('/my-reservations');
                 },
               ),
-              SizedBox(width: 12.w),
               IconButton(
                 icon: Icon(
                   AppIcons.notifications,

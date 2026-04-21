@@ -3,7 +3,6 @@ import '../../domain/repositories/reservation_repository.dart';
 import '../../domain/usecases/create_reservation_usecase.dart';
 import '../../domain/usecases/get_user_donations_usecase.dart';
 import '../../domain/usecases/get_user_reservations_usecase.dart';
-import '../../domain/entities/reservation.dart';
 import 'reservation_event.dart';
 import 'reservation_state.dart';
 
@@ -15,7 +14,8 @@ class ReservationBloc extends Bloc<ReservationEvent, ReservationState> {
 
   // Store current user ID and filter for refetching
   String? _currentUserId;
-  String? _currentDonationsFilter;
+  String? _currentReservationsFilter;
+  int _currentReservationsLimit = 20;
 
   ReservationBloc({
     required this.getUserDonationsUseCase,
@@ -41,7 +41,6 @@ class ReservationBloc extends Bloc<ReservationEvent, ReservationState> {
 
     // Store user ID and filter for later refetching
     _currentUserId = event.userId;
-    _currentDonationsFilter = event.statusFilter;
 
     final result = await getUserDonationsUseCase(
       userId: event.userId,
@@ -60,21 +59,93 @@ class ReservationBloc extends Bloc<ReservationEvent, ReservationState> {
     FetchUserReservationsEvent event,
     Emitter<ReservationState> emit,
   ) async {
-    emit(const UserReservationsLoading());
+    final currentState = state;
+    final isFirstPage = event.page == 1;
+
+    if (isFirstPage) {
+      emit(const UserReservationsLoading());
+    } else if (currentState is UserReservationsLoaded) {
+      if (currentState.hasReachedMax || currentState.isLoadingMore) {
+        return;
+      }
+
+      emit(
+        UserReservationsLoaded(
+          currentState.reservations,
+          activeFilter: currentState.activeFilter,
+          currentPage: currentState.currentPage,
+          isLoadingMore: true,
+          hasReachedMax: currentState.hasReachedMax,
+        ),
+      );
+    }
 
     // Store user ID for later refetching
     _currentUserId = event.userId;
+    _currentReservationsFilter = event.statusFilter;
+    _currentReservationsLimit = event.limit;
 
     final result = await getUserReservationsUseCase(
       userId: event.userId,
       status: event.statusFilter,
+      page: event.page,
+      limit: event.limit,
     );
 
     result.fold(
-      (failure) => emit(UserReservationsError(failure.message)),
-      (reservations) => emit(
-        UserReservationsLoaded(reservations, activeFilter: event.statusFilter),
-      ),
+      (failure) {
+        if (!isFirstPage && currentState is UserReservationsLoaded) {
+          emit(
+            UserReservationsLoaded(
+              currentState.reservations,
+              activeFilter: currentState.activeFilter,
+              currentPage: currentState.currentPage,
+              isLoadingMore: false,
+              hasReachedMax: currentState.hasReachedMax,
+            ),
+          );
+        } else {
+          emit(UserReservationsError(failure.message));
+        }
+      },
+      (reservations) {
+        final hasReachedMax = reservations.length < event.limit;
+
+        if (isFirstPage || currentState is! UserReservationsLoaded) {
+          emit(
+            UserReservationsLoaded(
+              reservations,
+              activeFilter: event.statusFilter,
+              currentPage: event.page,
+              isLoadingMore: false,
+              hasReachedMax: hasReachedMax,
+            ),
+          );
+          return;
+        }
+
+        final existingById = {
+          for (final reservation in currentState.reservations)
+            reservation.id: reservation,
+        };
+
+        for (final reservation in reservations) {
+          existingById[reservation.id] = reservation;
+        }
+
+        final mergedReservations = existingById.values.toList()
+          ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+        emit(
+          UserReservationsLoaded(
+            mergedReservations,
+            activeFilter: currentState.activeFilter,
+            currentPage: event.page,
+            isLoadingMore: false,
+            hasReachedMax: hasReachedMax,
+          ),
+        );
+      },
     );
   }
 
@@ -135,7 +206,7 @@ class ReservationBloc extends Bloc<ReservationEvent, ReservationState> {
     UpdateReservationStatusEvent event,
     Emitter<ReservationState> emit,
   ) async {
-    emit(const ReservationStatusUpdating());
+    final previousState = state;
 
     final result = await repository.updateReservationStatus(
       reservationId: event.reservationId,
@@ -143,8 +214,42 @@ class ReservationBloc extends Bloc<ReservationEvent, ReservationState> {
     );
 
     result.fold(
-      (failure) => emit(ReservationStatusUpdateError(failure.message)),
-      (reservation) => emit(ReservationStatusUpdated(reservation)),
+      (failure) {
+        emit(ReservationStatusUpdateError(failure.message));
+
+        // Restore previous UI state so pages don't get stuck after a failed update.
+        if (previousState is ReservationDetailsLoaded) {
+          emit(previousState);
+        } else if (previousState is UserReservationsLoaded) {
+          emit(previousState);
+        }
+      },
+      (reservation) {
+        // Keep state shape aligned with the active page, similar to notification flow.
+        if (previousState is ReservationDetailsLoaded) {
+          emit(ReservationDetailsLoaded(reservation));
+          return;
+        }
+
+        if (previousState is UserReservationsLoaded) {
+          final updatedReservations = previousState.reservations
+              .map((item) => item.id == reservation.id ? reservation : item)
+              .toList();
+
+          emit(
+            UserReservationsLoaded(
+              updatedReservations,
+              activeFilter: previousState.activeFilter,
+              currentPage: previousState.currentPage,
+              isLoadingMore: false,
+              hasReachedMax: previousState.hasReachedMax,
+            ),
+          );
+          return;
+        }
+
+        emit(ReservationStatusUpdated(reservation));
+      },
     );
   }
 
@@ -154,7 +259,6 @@ class ReservationBloc extends Bloc<ReservationEvent, ReservationState> {
   ) async {
     if (_currentUserId != null) {
       emit(const UserDonationsLoading());
-      _currentDonationsFilter = event.statusFilter;
 
       final result = await getUserDonationsUseCase(
         userId: _currentUserId!,
@@ -175,20 +279,14 @@ class ReservationBloc extends Bloc<ReservationEvent, ReservationState> {
     Emitter<ReservationState> emit,
   ) async {
     if (_currentUserId != null) {
-      emit(const UserReservationsLoading());
+      _currentReservationsFilter = event.statusFilter;
 
-      final result = await getUserReservationsUseCase(
-        userId: _currentUserId!,
-        status: event.statusFilter,
-      );
-
-      result.fold(
-        (failure) => emit(UserReservationsError(failure.message)),
-        (reservations) => emit(
-          UserReservationsLoaded(
-            reservations,
-            activeFilter: event.statusFilter,
-          ),
+      add(
+        FetchUserReservationsEvent(
+          _currentUserId!,
+          statusFilter: _currentReservationsFilter,
+          page: 1,
+          limit: _currentReservationsLimit,
         ),
       );
     }

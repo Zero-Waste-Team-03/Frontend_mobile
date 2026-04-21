@@ -52,6 +52,8 @@ class ReservationRepositoryImpl implements ReservationRepository {
   Future<Either<Failure, List<Reservation>>> getUserReservations({
     required String userId,
     String? status,
+    int page = 1,
+    int limit = 20,
   }) async {
     print(
       '[ReservationRepository] Fetching user reservations - userId: $userId, status: $status',
@@ -69,15 +71,17 @@ class ReservationRepositoryImpl implements ReservationRepository {
       final reservationModels = await remoteDataSource!.getUserReservations(
         userId: userId,
         statusFilter: status,
+        page: page,
+        limit: limit,
       );
       print(
         '[ReservationRepository] Received ${reservationModels.length} reservations from API',
       );
 
       // Convert models to entities
-      final reservations = reservationModels
-          .map((model) => model.toEntity())
-          .toList();
+      final reservations =
+          reservationModels.map((model) => model.toEntity()).toList()
+            ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
       print(
         '[ReservationRepository] Converted ${reservations.length} reservations to entities',

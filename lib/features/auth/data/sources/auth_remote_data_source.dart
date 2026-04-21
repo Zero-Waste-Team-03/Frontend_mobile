@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:ferry/ferry.dart' hide ServerException;
+import 'package:ferry_exec/ferry_exec.dart' show FetchPolicy;
 import 'package:injectable/injectable.dart';
 import 'package:logger/logger.dart';
 
@@ -195,7 +196,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<UserModel> getCurrentUser() async {
-    final data = await _executeRequest(GGetCurrentUserReq(), 'getCurrentUser');
+    final data = await _executeRequest(
+      GGetCurrentUserReq((b) => b..fetchPolicy = FetchPolicy.NetworkOnly),
+      'getCurrentUser',
+    );
     return UserModel.fromJson(
       Map<String, dynamic>.from(data.currentUser.toJson()),
     );
