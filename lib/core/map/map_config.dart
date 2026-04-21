@@ -4,9 +4,9 @@ import '../env.dart';
 
 class MapConfig {
   static const String _mapTilerStyleBaseUrl =
-      'https://api.maptiler.com/maps/positron/style.json';
+      'https://api.maptiler.com/maps/streets-v2/style.json';
   static const String _fallbackStyleUrl =
-      'https://demotiles.maplibre.org/style.json';
+      'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
 
   static String get mapTilerApiKey =>
       (Env.get('MAPTILER_API_KEY') ?? '').trim();

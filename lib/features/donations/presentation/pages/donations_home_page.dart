@@ -432,7 +432,7 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
   }
 
   double _bottomNavBaseInset(BuildContext context) {
-    return MediaQuery.paddingOf(context).bottom + 88.h;
+    return MediaQuery.paddingOf(context).bottom + 56.h;
   }
 
   double _bottomCardOffset(BuildContext context) {
@@ -440,11 +440,11 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
   }
 
   double _selectedCardOffset(BuildContext context) {
-    return _bottomNavBaseInset(context) + 60.h;
+    return _bottomNavBaseInset(context);
   }
 
   double _fabBottomOffset(BuildContext context) {
     final base = _bottomNavBaseInset(context);
-    return _selectedDonation == null ? base + 52.h : base + 150.h;
+    return _selectedDonation == null ? base + 84.h : base + 84.h;
   }
 }
