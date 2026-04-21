@@ -11,20 +11,59 @@ class GraphQLClientFactory {
 
   final AuthLocalDataSource _authLocalDataSource;
 
+  bool _isPlaceholderEndpoint(String value) {
+    return value.contains('api.example.com') ||
+        value.contains('your-api.com') ||
+        value.contains('localhost/graphql');
+  }
+
   Client create() {
-    final endpoint = Env.get('GRAPHQL_ENDPOINT');
-    if (endpoint == null || endpoint.isEmpty) {
-      throw StateError('GRAPHQL_ENDPOINT is missing in environment');
-    }
+    final rawGraphQLEndpoint = Env.get('GRAPHQL_ENDPOINT')?.trim();
+    final configuredBaseUrl =
+        Env.get('API_BASE_URL')?.trim() ??
+        const String.fromEnvironment(
+          'API_BASE_URL',
+          defaultValue: 'https://api.gaspzero.qzz.io/',
+        );
+
+    final fallbackEndpoint = Uri.parse(
+      configuredBaseUrl.endsWith('/')
+          ? configuredBaseUrl
+          : '$configuredBaseUrl/',
+    ).resolve('graphql').toString();
+
+    final endpoint =
+        rawGraphQLEndpoint == null ||
+            rawGraphQLEndpoint.isEmpty ||
+            _isPlaceholderEndpoint(rawGraphQLEndpoint)
+        ? fallbackEndpoint
+        : rawGraphQLEndpoint;
 
     final httpLink = HttpLink(endpoint);
 
     final authLink = Link.function((request, [forward]) async* {
-      final token = await _authLocalDataSource.getAccessToken();
+      final operationName = request.operation.operationName;
+      final isRefreshOperation =
+          operationName == 'RefreshTokens' ||
+          operationName == 'RefreshTokensForInterceptor';
+
+      final existingHeaders =
+          request.context.entry<HttpLinkHeaders>()?.headers ??
+          const <String, String>{};
+      final hasAuthorizationHeader =
+          existingHeaders.containsKey('Authorization') ||
+          existingHeaders.containsKey('authorization');
+
       final headers = <String, String>{};
-      if (token != null && token.isNotEmpty) {
-        headers['Authorization'] = 'Bearer $token';
+      if (!hasAuthorizationHeader) {
+        final token = isRefreshOperation
+            ? await _authLocalDataSource.getRefreshToken()
+            : await _authLocalDataSource.getAccessToken();
+        if (token != null && token.isNotEmpty) {
+          headers['Authorization'] = 'Bearer $token';
+        }
       }
+
       final next = request.updateContextEntry<HttpLinkHeaders>(
         (existing) =>
             HttpLinkHeaders(headers: {...?existing?.headers, ...headers}),

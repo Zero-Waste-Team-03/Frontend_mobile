@@ -249,7 +249,7 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
                 ),
                 Positioned(
                   right: 16.w,
-                  bottom: _selectedDonation == null ? 152.h : 250.h,
+                  bottom: _fabBottomOffset(context),
                   child: FloatingActionButton(
                     mini: true,
                     backgroundColor: Colors.white,
@@ -274,7 +274,7 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
                 Positioned(
                   left: 12.w,
                   right: 12.w,
-                  bottom: 100.h,
+                  bottom: _bottomCardOffset(context),
                   child: donations.isEmpty
                       ? _buildBottomCard()
                       : const SizedBox.shrink(),
@@ -283,7 +283,7 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
                   Positioned(
                     left: 12.w,
                     right: 12.w,
-                    bottom: 160.h,
+                    bottom: _selectedCardOffset(context),
                     child: _buildSelectedDonationCard(_selectedDonation!),
                   ),
               ],
@@ -429,5 +429,22 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
         ),
       ),
     );
+  }
+
+  double _bottomNavBaseInset(BuildContext context) {
+    return MediaQuery.paddingOf(context).bottom + 88.h;
+  }
+
+  double _bottomCardOffset(BuildContext context) {
+    return _bottomNavBaseInset(context);
+  }
+
+  double _selectedCardOffset(BuildContext context) {
+    return _bottomNavBaseInset(context) + 60.h;
+  }
+
+  double _fabBottomOffset(BuildContext context) {
+    final base = _bottomNavBaseInset(context);
+    return _selectedDonation == null ? base + 52.h : base + 150.h;
   }
 }
