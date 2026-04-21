@@ -188,8 +188,8 @@ class ReservationRemoteDataSourceImpl implements ReservationRemoteDataSource {
   Future<ReservationModel> markAsPickedUp(String reservationId) async {
     // Temporary fallback until a dedicated pickup mutation is available in schema.
     final mutation = '''
-      mutation MarkReservationAsPickedUp(\$reservationId: ID!) {
-        markReservationAsPickedUp(reservationId: \$reservationId) {
+      mutation confirmReservationCompleted(\$reservationId: ID!) {
+        confirmReservationCompleted(reservationId: \$reservationId) {
           id
           donationId
           beneficiaryId
@@ -225,12 +225,12 @@ class ReservationRemoteDataSourceImpl implements ReservationRemoteDataSource {
       }
 
       if (response.data['data'] == null ||
-          response.data['data']['markReservationAsPickedUp'] == null) {
+          response.data['data']['confirmReservationCompleted'] == null) {
         throw ServerException('Invalid response format');
       }
 
       return ReservationModel.fromJson(
-        response.data['data']['markReservationAsPickedUp']
+        response.data['data']['confirmReservationCompleted']
             as Map<String, dynamic>,
       );
     } on DioException catch (e) {
