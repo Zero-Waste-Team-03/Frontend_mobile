@@ -1,0 +1,5 @@
+mutation UnlikeDonation($donationId: ID!) {
+  unlikeDonation(donationId: $donationId) {
+    message
+  }
+}

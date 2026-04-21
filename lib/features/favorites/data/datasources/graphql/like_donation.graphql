@@ -1,0 +1,5 @@
+mutation LikeDonation($donationId: ID!) {
+  likeDonation(donationId: $donationId) {
+    message
+  }
+}

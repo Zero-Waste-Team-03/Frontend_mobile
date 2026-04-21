@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:ferry/ferry.dart' hide ServerException;
+import 'package:ferry_exec/ferry_exec.dart' show FetchPolicy;
 import '../../../../core/exceptions/exceptions.dart';
 import '../../domain/entities/reservation.dart';
 import '../models/reservation_model.dart';
@@ -77,7 +78,11 @@ class ReservationRemoteDataSourceImpl implements ReservationRemoteDataSource {
       }
 
       final data = await _executeRequest(
-        GMyReservationsReq((b) => b.vars = vars.toBuilder()),
+        GMyReservationsReq(
+          (b) => b
+            ..vars = vars.toBuilder()
+            ..fetchPolicy = FetchPolicy.NetworkOnly,
+        ),
         'myReservations',
       );
 
@@ -146,7 +151,11 @@ class ReservationRemoteDataSourceImpl implements ReservationRemoteDataSource {
         '[ReservationRemoteDataSource] Executing GraphQL query: myReservation',
       );
       final data = await _executeRequest(
-        GMyReservationReq((b) => b.vars = vars.toBuilder()),
+        GMyReservationReq(
+          (b) => b
+            ..vars = vars.toBuilder()
+            ..fetchPolicy = FetchPolicy.NetworkOnly,
+        ),
         'myReservation',
       );
 

@@ -20,11 +20,18 @@ class FetchUserDonationsEvent extends ReservationEvent {
 class FetchUserReservationsEvent extends ReservationEvent {
   final String userId;
   final String? statusFilter;
+  final int page;
+  final int limit;
 
-  const FetchUserReservationsEvent(this.userId, {this.statusFilter});
+  const FetchUserReservationsEvent(
+    this.userId, {
+    this.statusFilter,
+    this.page = 1,
+    this.limit = 20,
+  });
 
   @override
-  List<Object?> get props => [userId, statusFilter];
+  List<Object?> get props => [userId, statusFilter, page, limit];
 }
 
 class FetchDonationDetailsEvent extends ReservationEvent {

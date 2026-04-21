@@ -460,15 +460,15 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                             ),
                           ),
-                          
+
                           GestureDetector(
                             onTap: () {
                               context.push('/my-activities');
                             },
                             child: Container(
                               padding: EdgeInsets.symmetric(
-                              horizontal: AppDimensions.paddingLarge.w,
-                            ),
+                                horizontal: AppDimensions.paddingLarge.w,
+                              ),
                               decoration: BoxDecoration(
                                 color: AppColors.background,
                                 borderRadius: BorderRadius.circular(
@@ -514,6 +514,79 @@ class _ProfilePageState extends State<ProfilePage> {
                                         SizedBox(height: 4.h),
                                         Text(
                                           'View your past donations',
+                                          style: TextStyle(
+                                            fontSize:
+                                                AppDimensions.captionSize.sp,
+                                            fontWeight: FontWeight.w400,
+                                            color: AuthColors.subText,
+                                            fontFamily: AppFonts.primaryFont,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.chevron_right_rounded,
+                                    color: AuthColors.subText,
+                                    size: AppDimensions.iconSize.sp,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: AppDimensions.paddingMedium.h),
+
+                          GestureDetector(
+                            onTap: () {
+                              context.push('/favorites');
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: AppDimensions.paddingLarge.w,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.background,
+                                borderRadius: BorderRadius.circular(
+                                  AppDimensions.borderRadiusLarge.r,
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 40.w,
+                                    height: 40.w,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.red.withValues(alpha: 0.12),
+                                    ),
+                                    child: Center(
+                                      child: Icon(
+                                        Icons.favorite_rounded,
+                                        color: Colors.redAccent,
+                                        size: 20.sp,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: AppDimensions.paddingMedium.w,
+                                  ),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Favorite Donations',
+                                          style: TextStyle(
+                                            fontSize: AppDimensions.bodySize.sp,
+                                            fontWeight: FontWeight.w600,
+                                            color: AuthColors.headingText,
+                                            fontFamily: AppFonts.primaryFont,
+                                          ),
+                                        ),
+                                        SizedBox(height: 4.h),
+                                        Text(
+                                          'Manage your liked donation list',
                                           style: TextStyle(
                                             fontSize:
                                                 AppDimensions.captionSize.sp,

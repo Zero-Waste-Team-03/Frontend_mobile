@@ -6,7 +6,7 @@ import 'package:gaspzero/core/di/injection.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../donations/domain/entities/donation.dart';
 import '../widgets/status_badge.dart';
-import '../widgets/reservation_pending_dialog.dart';
+import '../widgets/reservation_confirmed_dialog.dart';
 import '../widgets/api_error_dialog.dart';
 import '../bloc/reservation_bloc.dart';
 import '../bloc/reservation_event.dart';
@@ -31,12 +31,15 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
       child: BlocListener<ReservationBloc, ReservationState>(
         listener: (context, state) {
           if (state is ReservationCreated) {
-            showReservationPendingDialog(
+            showReservationConfirmedDialog(
               context,
               onDismiss: () {
                 Navigator.of(context).pop();
               },
               donationTitle: widget.donation.title,
+              expiryAt: state.reservation.expiresAt != null
+                  ? state.reservation.expiresAt!.toLocal().toString().split('.')[0]
+                  : null,
             );
           } else if (state is ReservationCreationError) {
             _showErrorDialog(context, state.message);

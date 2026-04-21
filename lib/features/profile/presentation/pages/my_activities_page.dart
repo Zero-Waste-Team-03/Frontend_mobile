@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'dart:async';
 import '../../../../shared/theme/app_colors.dart';
 import '../bloc/profile_bloc.dart';
 import '../bloc/profile_event.dart';
@@ -20,6 +21,7 @@ class _MyActivitiesPageState extends State<MyActivitiesPage> {
   late ScrollController _scrollController;
   static const int _pageSize = 10;
   String? _selectedFilter;
+  Completer<void>? _refreshCompleter;
 
   @override
   void initState() {
@@ -45,6 +47,18 @@ class _MyActivitiesPageState extends State<MyActivitiesPage> {
     }
   }
 
+  Future<void> _onRefresh() async {
+    _refreshCompleter = Completer<void>();
+    context.read<ProfileBloc>().add(
+      ProfileActivitiesLoadRequested(
+        page: 1,
+        limit: _pageSize,
+        statusFilter: _selectedFilter,
+      ),
+    );
+    return _refreshCompleter!.future;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,7 +67,7 @@ class _MyActivitiesPageState extends State<MyActivitiesPage> {
         backgroundColor: AuthColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AuthColors.headingText),
+          icon: Icon(Icons.arrow_back, color: AuthColors.primary),
           onPressed: () => context.pop(),
         ),
         title: Text(
@@ -61,7 +75,7 @@ class _MyActivitiesPageState extends State<MyActivitiesPage> {
           style: TextStyle(
             fontSize: AppDimensions.appBarTitleSize.sp,
             fontWeight: FontWeight.bold,
-            color: AuthColors.headingText,
+            color: AuthColors.primary,
             fontFamily: AppFonts.primaryFont,
           ),
         ),
@@ -150,6 +164,29 @@ class _MyActivitiesPageState extends State<MyActivitiesPage> {
               Expanded(
                 child: BlocBuilder<ProfileBloc, ProfileState>(
                   builder: (context, state) {
+                    if (state is ProfileActivitiesLoaded &&
+                        state.currentPage == 1 &&
+                        _refreshCompleter != null &&
+                        !_refreshCompleter!.isCompleted) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (_refreshCompleter != null &&
+                            !_refreshCompleter!.isCompleted) {
+                          _refreshCompleter!.complete();
+                        }
+                      });
+                    }
+
+                    if (state is ProfileActivitiesError &&
+                        _refreshCompleter != null &&
+                        !_refreshCompleter!.isCompleted) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (_refreshCompleter != null &&
+                            !_refreshCompleter!.isCompleted) {
+                          _refreshCompleter!.complete();
+                        }
+                      });
+                    }
+
                     if (state is ProfileActivitiesLoading) {
                       return Center(
                         child: CircularProgressIndicator(
@@ -177,6 +214,16 @@ class _MyActivitiesPageState extends State<MyActivitiesPage> {
                                 fontFamily: AppFonts.primaryFont,
                               ),
                             ),
+                            SizedBox(height: AppDimensions.paddingMedium.h),
+                            ElevatedButton.icon(
+                              onPressed: _onRefresh,
+                              icon: Icon(Icons.refresh_rounded, size: 18.sp),
+                              label: const Text('Retry'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AuthColors.primary,
+                                foregroundColor: Colors.white,
+                              ),
+                            ),
                           ],
                         ),
                       );
@@ -184,22 +231,35 @@ class _MyActivitiesPageState extends State<MyActivitiesPage> {
 
                     if (state is ProfileActivitiesLoaded) {
                       if (state.activities.isEmpty) {
-                        return Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                        return RefreshIndicator(
+                          onRefresh: _onRefresh,
+                          color: AuthColors.primary,
+                          backgroundColor: AuthColors.background,
+                          child: ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
                             children: [
-                              Icon(
-                                Icons.inventory_2_outlined,
-                                size: 48.sp,
-                                color: AuthColors.inputText,
-                              ),
-                              SizedBox(height: AppDimensions.paddingMedium.h),
-                              Text(
-                                'No donations found',
-                                style: TextStyle(
-                                  fontSize: AppDimensions.bodySize.sp,
-                                  color: AuthColors.subText,
-                                  fontFamily: AppFonts.primaryFont,
+                              SizedBox(height: 120.h),
+                              Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.inventory_2_outlined,
+                                      size: 48.sp,
+                                      color: AuthColors.inputText,
+                                    ),
+                                    SizedBox(
+                                      height: AppDimensions.paddingMedium.h,
+                                    ),
+                                    Text(
+                                      'No donations found',
+                                      style: TextStyle(
+                                        fontSize: AppDimensions.bodySize.sp,
+                                        color: AuthColors.subText,
+                                        fontFamily: AppFonts.primaryFont,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
@@ -207,39 +267,45 @@ class _MyActivitiesPageState extends State<MyActivitiesPage> {
                         );
                       }
 
-                      return ListView.builder(
-                        controller: _scrollController,
-                        itemCount: state.activities.length,
-                        padding: EdgeInsets.only(
-                          bottom: AppDimensions.paddingMedium.h,
-                        ),
-                        itemBuilder: (context, index) {
-                          final donation = state.activities[index];
-                          return Column(
-                            children: [
-                              DonationCard(
-                                donation: donation,
-                                onTap: () {
-                                  context.push(
-                                    '/donation-details-full',
-                                    extra: donation,
-                                  );
-                                },
-                              ),
-                              if (index == state.activities.length - 1 &&
-                                  state.isLoadingMore)
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                    top: AppDimensions.paddingMedium.h,
-                                    bottom: AppDimensions.paddingMedium.h,
-                                  ),
+                      return RefreshIndicator(
+                        onRefresh: _onRefresh,
+                        color: AuthColors.primary,
+                        backgroundColor: AuthColors.background,
+                        child: ListView.builder(
+                          controller: _scrollController,
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          itemCount:
+                              state.activities.length +
+                              (state.isLoadingMore ? 1 : 0),
+                          padding: EdgeInsets.only(
+                            bottom: AppDimensions.paddingMedium.h,
+                          ),
+                          itemBuilder: (context, index) {
+                            if (index == state.activities.length) {
+                              return Padding(
+                                padding: EdgeInsets.symmetric(
+                                  vertical: AppDimensions.paddingMedium.h,
+                                ),
+                                child: Center(
                                   child: CircularProgressIndicator(
                                     color: AuthColors.primary,
                                   ),
                                 ),
-                            ],
-                          );
-                        },
+                              );
+                            }
+
+                            final donation = state.activities[index];
+                            return DonationCard(
+                              donation: donation,
+                              onTap: () {
+                                context.push(
+                                  '/donation-details-full',
+                                  extra: donation,
+                                );
+                              },
+                            );
+                          },
+                        ),
                       );
                     }
 
