@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 
 import 'package:app_links/app_links.dart';
 import 'package:dartz/dartz.dart';
@@ -63,6 +63,9 @@ class AuthRepositoryImpl implements AuthRepository {
       }
 
       if (responseModel.accessToken != null) {
+        _logger.i(
+          '🔑 Login Tokens Received:\nAccess: ${responseModel.accessToken}\nRefresh: ${responseModel.refreshToken}',
+        );
         await localDataSource.cacheTokens(
           responseModel.accessToken!,
           responseModel.refreshToken,
@@ -253,7 +256,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
       await localDataSource.cacheTokens(accessToken, refreshToken);
       _logger.i('ðŸ’¾ [OAuth] Tokens cached in secure storage');
-      final userModel = await remoteDataSource.getCurrentUser();
+      final userModel = await _getCurrentUserWithRefreshRetry();
       final user = userModel.toEntity();
       _logger.i(
         'ðŸ‘¤ [OAuth] currentUser loaded: id=${user.id} email=${user.email}',
@@ -288,7 +291,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, User>> getCurrentUser() async {
     try {
-      final userModel = await remoteDataSource.getCurrentUser();
+      final userModel = await _getCurrentUserWithRefreshRetry();
       final user = userModel.toEntity();
 
       // Block admin users from using the mobile app
@@ -387,6 +390,9 @@ class AuthRepositoryImpl implements AuthRepository {
       }
 
       if (responseModel.accessToken != null) {
+        _logger.i(
+          '🔄 Refresh Tokens Received:\nAccess: ${responseModel.accessToken}\nRefresh: ${responseModel.refreshToken}',
+        );
         await localDataSource.cacheTokens(
           responseModel.accessToken!,
           responseModel.refreshToken,
@@ -538,5 +544,40 @@ class AuthRepositoryImpl implements AuthRepository {
     if (token == null || token.isEmpty) return '<none>';
     if (token.length <= 14) return token;
     return '${token.substring(0, 8)}...${token.substring(token.length - 6)}';
+  }
+
+  bool _isUnauthorizedMessage(String message) {
+    final lower = message.toLowerCase();
+    return lower.contains('unauthorized') ||
+        lower.contains('unauthenticated') ||
+        lower.contains('401');
+  }
+
+  Future<dynamic> _refreshAndCacheTokens() async {
+    final refreshed = await remoteDataSource.refreshTokens();
+    final nextAccessToken = refreshed.accessToken;
+    if (nextAccessToken == null || nextAccessToken.isEmpty) {
+      throw ServerException('RefreshTokens returned no access token');
+    }
+    await localDataSource.cacheTokens(nextAccessToken, refreshed.refreshToken);
+    _logger.i('🔄 [AuthRepository] Tokens refreshed and cached');
+    return refreshed;
+  }
+
+  Future<dynamic> _getCurrentUserWithRefreshRetry() async {
+    try {
+      return await remoteDataSource.getCurrentUser();
+    } on ServerException catch (e) {
+      if (!_isUnauthorizedMessage(e.message)) {
+        rethrow;
+      }
+
+      _logger.w(
+        '⚠️ [AuthRepository] getCurrentUser unauthorized; trying refreshTokens then retry',
+      );
+
+      await _refreshAndCacheTokens();
+      return await remoteDataSource.getCurrentUser();
+    }
   }
 }

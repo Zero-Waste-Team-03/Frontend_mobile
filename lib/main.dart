@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'core/router/app_router.dart';
@@ -36,25 +36,25 @@ class GaspZeroApp extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
-        return MaterialApp.router(
-          title: "Gasp'Zero",
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.light,
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          builder: (context, child) {
-            return BlocProvider(
-              create: (_) => getIt<AuthBloc>()..add(AuthCheckRequested()),
-              child: BlocListener<AuthBloc, AuthState>(
+        return BlocProvider(
+          create: (_) => getIt<AuthBloc>()..add(AuthCheckRequested()),
+          child: MaterialApp.router(
+            title: "Gasp'Zero",
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.light,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            builder: (context, child) {
+              return BlocListener<AuthBloc, AuthState>(
                 listenWhen: (previous, current) => current is AuthSuccess,
                 listener: (context, state) {
                   appRouter.go('/home');
                 },
                 child: child ?? const SizedBox.shrink(),
-              ),
-            );
-          },
-          routerConfig: appRouter,
+              );
+            },
+            routerConfig: appRouter,
+          ),
         );
       },
     );
