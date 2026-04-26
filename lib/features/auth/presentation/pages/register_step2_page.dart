@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gaspzero/l10n/app_localizations.dart';
+import 'package:gaspzero/shared/widgets/app_bottom_sheet.dart';
+import 'package:gaspzero/shared/widgets/app_button.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
@@ -30,20 +32,6 @@ class RegisterStep2Page extends StatefulWidget {
 
 class _RegisterStep2PageState extends State<RegisterStep2Page> {
   late final TextEditingController _locationController;
-  final List<String> _months = const [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ];
   late final List<int> _years;
   late final FixedExtentScrollController _monthScrollController;
   late final FixedExtentScrollController _dayScrollController;
@@ -215,7 +203,6 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
       widget.formData['birthday'] = birthday;
       widget.formData['location'] = location;
 
-      // Dispatch the action to send OTP
       context.read<AuthBloc>().add(
         AuthSignUpRequested(
           firstName: widget.formData['firstName'] ?? '',
@@ -237,7 +224,6 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthOtpSentSuccess) {
-          // Move to OTP step via parent callback
           widget.onNext();
         } else if (state is AuthError) {
           ScaffoldMessenger.of(
@@ -323,6 +309,117 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
     );
   }
 
+  Future<void> _showDateOfBirthPicker() {
+    final l10n = AppLocalizations.of(context);
+
+    return AppBottomSheet.show<void>(
+      context: context,
+      title: l10n.registerStep2DatePickerTitle,
+      content: StatefulBuilder(
+        builder: (context, setSheetState) {
+          final monthValues = _monthValues(l10n);
+          final dayValues = List<int>.generate(
+            DateUtils.getDaysInMonth(_years[_yearIndex], _monthIndex + 1),
+            (index) => index + 1,
+          );
+
+          if (_dayIndex >= dayValues.length) {
+            _dayIndex = dayValues.length - 1;
+          }
+
+          return SizedBox(
+            height: 240.h,
+            child: Row(
+              children: [
+                Expanded(
+                  child: _buildPickerColumn(
+                    title: l10n.registerStep2PickerMonthLabel,
+                    values: monthValues,
+                    controller: _monthScrollController,
+                    selectedIndex: _monthIndex,
+                    onSelected: (index) {
+                      setState(() {
+                        _monthIndex = index;
+                        final maxDay = DateUtils.getDaysInMonth(
+                          _years[_yearIndex],
+                          _monthIndex + 1,
+                        );
+                        if (_dayIndex + 1 > maxDay) {
+                          _dayIndex = maxDay - 1;
+                          _dayScrollController.jumpToItem(_dayIndex);
+                        }
+                      });
+                      setSheetState(() {});
+                    },
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                Expanded(
+                  child: _buildPickerColumn(
+                    title: l10n.registerStep2PickerDayLabel,
+                    values: dayValues
+                        .map((value) => value.toString().padLeft(2, '0'))
+                        .toList(),
+                    controller: _dayScrollController,
+                    selectedIndex: _dayIndex,
+                    onSelected: (index) {
+                      setState(() => _dayIndex = index);
+                      setSheetState(() {});
+                    },
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                Expanded(
+                  child: _buildPickerColumn(
+                    title: l10n.registerStep2PickerYearLabel,
+                    values: _years.map((year) => year.toString()).toList(),
+                    controller: _yearScrollController,
+                    selectedIndex: _yearIndex,
+                    onSelected: (index) {
+                      setState(() {
+                        _yearIndex = index;
+                        final maxDay = DateUtils.getDaysInMonth(
+                          _years[_yearIndex],
+                          _monthIndex + 1,
+                        );
+                        if (_dayIndex + 1 > maxDay) {
+                          _dayIndex = maxDay - 1;
+                          _dayScrollController.jumpToItem(_dayIndex);
+                        }
+                      });
+                      setSheetState(() {});
+                    },
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+      footer: AppButton(
+        label: l10n.registerStep2PickerConfirm,
+        onPressed: () => Navigator.of(context).pop(),
+      ),
+    );
+  }
+
+  List<String> _monthValues(AppLocalizations l10n) {
+    return [
+      l10n.registerStep2MonthJan,
+      l10n.registerStep2MonthFeb,
+      l10n.registerStep2MonthMar,
+      l10n.registerStep2MonthApr,
+      l10n.registerStep2MonthMay,
+      l10n.registerStep2MonthJun,
+      l10n.registerStep2MonthJul,
+      l10n.registerStep2MonthAug,
+      l10n.registerStep2MonthSep,
+      l10n.registerStep2MonthOct,
+      l10n.registerStep2MonthNov,
+      l10n.registerStep2MonthDec,
+    ];
+  }
+
   Widget _buildLabel(String text) {
     return Text(
       text,
@@ -405,74 +502,42 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
   }
 
   Widget _buildDateOfBirthPicker() {
-    final dayItems = List<int>.generate(
-      DateUtils.getDaysInMonth(_years[_yearIndex], _monthIndex + 1),
-      (index) => index + 1,
-    );
-    if (_dayIndex >= dayItems.length) {
-      _dayIndex = dayItems.length - 1;
-    }
+    final locale = Localizations.localeOf(context).toLanguageTag();
+    final formatted = DateFormat.yMMMd(locale).format(_selectedBirthDate());
 
-    return SizedBox(
-      height: 132.h,
-      child: Row(
-        children: [
-          Expanded(
-            child: _buildPickerColumn(
-              title: 'Month',
-              values: _months,
-              controller: _monthScrollController,
-              selectedIndex: _monthIndex,
-              onSelected: (index) {
-                setState(() {
-                  _monthIndex = index;
-                  final maxDay = DateUtils.getDaysInMonth(
-                    _years[_yearIndex],
-                    _monthIndex + 1,
-                  );
-                  if (_dayIndex + 1 > maxDay) {
-                    _dayIndex = maxDay - 1;
-                    _dayScrollController.jumpToItem(_dayIndex);
-                  }
-                });
-              },
-            ),
+    return InkWell(
+      borderRadius: BorderRadius.circular(AppDimensions.borderRadiusLarge.r),
+      onTap: _showDateOfBirthPicker,
+      child: Container(
+        height: 56.h,
+        decoration: BoxDecoration(
+          color: AuthColors.primary.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(
+            AppDimensions.borderRadiusLarge.r,
           ),
-          SizedBox(width: 8.w),
-          Expanded(
-            child: _buildPickerColumn(
-              title: 'Day',
-              values: dayItems
-                  .map((d) => d.toString().padLeft(2, '0'))
-                  .toList(),
-              controller: _dayScrollController,
-              selectedIndex: _dayIndex,
-              onSelected: (index) => setState(() => _dayIndex = index),
+        ),
+        padding: EdgeInsets.symmetric(
+          horizontal: AppDimensions.paddingMedium.w,
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                formatted,
+                style: TextStyle(
+                  color: AuthColors.headingText,
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
             ),
-          ),
-          SizedBox(width: 8.w),
-          Expanded(
-            child: _buildPickerColumn(
-              title: 'Year',
-              values: _years.map((y) => y.toString()).toList(),
-              controller: _yearScrollController,
-              selectedIndex: _yearIndex,
-              onSelected: (index) {
-                setState(() {
-                  _yearIndex = index;
-                  final maxDay = DateUtils.getDaysInMonth(
-                    _years[_yearIndex],
-                    _monthIndex + 1,
-                  );
-                  if (_dayIndex + 1 > maxDay) {
-                    _dayIndex = maxDay - 1;
-                    _dayScrollController.jumpToItem(_dayIndex);
-                  }
-                });
-              },
+            Icon(
+              Icons.keyboard_arrow_down_rounded,
+              color: AuthColors.inputText,
+              size: AppDimensions.iconSize.sp,
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -506,39 +571,44 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
             ),
           ),
           Expanded(
-            child: CupertinoPicker(
+            child: ListWheelScrollView.useDelegate(
               itemExtent: 28.h,
-              scrollController: controller,
-              selectionOverlay: const SizedBox.shrink(),
+              controller: controller,
               onSelectedItemChanged: onSelected,
-              children: values.asMap().entries.map((entry) {
-                final index = entry.key;
-                final value = entry.value;
-                final isSelected = index == effectiveIndex;
-                return Center(
-                  child: Container(
-                    width: double.infinity,
-                    margin: EdgeInsets.symmetric(horizontal: 6.w),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? AuthColors.primary
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(6.r),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      value,
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: isSelected
-                            ? FontWeight.w700
-                            : FontWeight.w400,
-                        color: isSelected ? Colors.white : AuthColors.inputText,
+              physics: const FixedExtentScrollPhysics(),
+              childDelegate: ListWheelChildBuilderDelegate(
+                childCount: values.length,
+                builder: (context, index) {
+                  final value = values[index];
+                  final isSelected = index == effectiveIndex;
+
+                  return Center(
+                    child: Container(
+                      width: double.infinity,
+                      margin: EdgeInsets.symmetric(horizontal: 6.w),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? AuthColors.primary
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(6.r),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        value,
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: isSelected
+                              ? FontWeight.w700
+                              : FontWeight.w400,
+                          color: isSelected
+                              ? Colors.white
+                              : AuthColors.inputText,
+                        ),
                       ),
                     ),
-                  ),
-                );
-              }).toList(),
+                  );
+                },
+              ),
             ),
           ),
         ],

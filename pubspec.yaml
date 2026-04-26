@@ -10,7 +10,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.9
   flutter_bloc: ^9.0.0
   equatable: ^2.0.8
   flutter_dotenv: ^6.0.0
@@ -92,7 +91,12 @@ flutter:
   generate: true  # Enable code generation for localizations
   assets:
     - .env
-    - assets/l10n/
-    - assets/images/
-    - assets/icons/donations/
+    - assets/l10n/ar.json
+    - assets/l10n/en.json
+    - assets/images/google_logo.svg
+    - assets/icons/donations/category_bakery.svg
+    - assets/icons/donations/category_cooked.svg
+    - assets/icons/donations/category_dry.svg
+    - assets/icons/donations/category_fresh.svg
+    - assets/icons/donations/upload_photo.svg
 

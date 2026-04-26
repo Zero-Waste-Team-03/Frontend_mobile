@@ -79,5 +79,22 @@
   "mapLocationPermissionDenied": "تم رفض إذن الموقع.",
   "mapLocationPermissionDeniedForever": "تم رفض إذن الموقع نهائيا.",
   "mapLocationMyLocation": "موقعي",
-  "mapLocationLoading": "جاري تحميل الخريطة..."
+  "mapLocationLoading": "جاري تحميل الخريطة...",
+  "registerStep2DatePickerTitle": "اختر تاريخ الميلاد",
+  "registerStep2PickerMonthLabel": "الشهر",
+  "registerStep2PickerDayLabel": "اليوم",
+  "registerStep2PickerYearLabel": "السنة",
+  "registerStep2PickerConfirm": "تأكيد",
+  "registerStep2MonthJan": "ينا",
+  "registerStep2MonthFeb": "فبر",
+  "registerStep2MonthMar": "مار",
+  "registerStep2MonthApr": "أبر",
+  "registerStep2MonthMay": "ماي",
+  "registerStep2MonthJun": "يون",
+  "registerStep2MonthJul": "يول",
+  "registerStep2MonthAug": "أغس",
+  "registerStep2MonthSep": "سبت",
+  "registerStep2MonthOct": "أكت",
+  "registerStep2MonthNov": "نوف",
+  "registerStep2MonthDec": "ديس"
 }
