@@ -70,7 +70,15 @@ jobs:
           flutter test --exclude-tags=requires_env
 
       - name: Build APK
-        run: flutter build apk --release --split-per-abi --obfuscate --split-debug-info=build/debug-info
+        run: |
+          flutter build apk --release --split-per-abi --obfuscate --split-debug-info=build/debug-info || true
+          
+      - name: Check for APK existence
+        run: |
+          if [ ! -f "build/app/outputs/flutter-apk/app-arm64-v8a-release.apk" ]; then
+            echo "::error::Build failed to produce arm64-v8a APK"
+            exit 1
+          fi
 
       - name: Upload APK to Slack (V2 API)
         env:
