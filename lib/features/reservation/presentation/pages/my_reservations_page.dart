@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'dart:async';
 import '../../../../shared/theme/app_colors.dart';
 import '../bloc/reservation_bloc.dart';
 import '../bloc/reservation_event.dart';
@@ -19,13 +20,39 @@ class MyReservationsPage extends StatefulWidget {
 }
 
 class _MyReservationsPageState extends State<MyReservationsPage> {
+  static const int _pageSize = 20;
   String? _selectedFilter;
-  late String _currentUserId;
+  String? _currentUserId;
+  late ScrollController _scrollController;
+  Completer<void>? _refreshCompleter;
 
   @override
   void initState() {
     super.initState();
+    _scrollController = ScrollController();
+    _scrollController.addListener(_onScroll);
     _loadUserData();
+  }
+
+  void _onScroll() {
+    final currentState = context.read<ReservationBloc>().state;
+    if (currentState is! UserReservationsLoaded) {
+      return;
+    }
+
+    if (_scrollController.position.extentAfter < 400 &&
+        !currentState.isLoadingMore &&
+        !currentState.hasReachedMax &&
+        _currentUserId != null) {
+      context.read<ReservationBloc>().add(
+        FetchUserReservationsEvent(
+          _currentUserId!,
+          statusFilter: _selectedFilter,
+          page: currentState.currentPage + 1,
+          limit: _pageSize,
+        ),
+      );
+    }
   }
 
   void _loadUserData() async {
@@ -44,13 +71,24 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
   }
 
   void _fetchReservations() {
+    if (_currentUserId == null) {
+      return;
+    }
+
     context.read<ReservationBloc>().add(
-      FetchUserReservationsEvent(_currentUserId, statusFilter: _selectedFilter),
+      FetchUserReservationsEvent(
+        _currentUserId!,
+        statusFilter: _selectedFilter,
+        page: 1,
+        limit: _pageSize,
+      ),
     );
   }
 
   Future<void> _onRefresh() async {
+    _refreshCompleter = Completer<void>();
     _fetchReservations();
+    return _refreshCompleter!.future;
   }
 
   @override
@@ -61,7 +99,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
         backgroundColor: AuthColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AuthColors.headingText),
+          icon: Icon(Icons.arrow_back, color: AuthColors.primary),
           onPressed: () => context.pop(),
         ),
         title: Text(
@@ -69,7 +107,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
           style: TextStyle(
             fontSize: AppDimensions.appBarTitleSize.sp,
             fontWeight: FontWeight.bold,
-            color: AuthColors.headingText,
+            color: AuthColors.primary,
             fontFamily: AppFonts.primaryFont,
           ),
         ),
@@ -158,6 +196,29 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
               Expanded(
                 child: BlocBuilder<ReservationBloc, ReservationState>(
                   builder: (context, state) {
+                    if (state is UserReservationsLoaded &&
+                        state.currentPage == 1 &&
+                        _refreshCompleter != null &&
+                        !_refreshCompleter!.isCompleted) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (_refreshCompleter != null &&
+                            !_refreshCompleter!.isCompleted) {
+                          _refreshCompleter!.complete();
+                        }
+                      });
+                    }
+
+                    if (state is UserReservationsError &&
+                        _refreshCompleter != null &&
+                        !_refreshCompleter!.isCompleted) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (_refreshCompleter != null &&
+                            !_refreshCompleter!.isCompleted) {
+                          _refreshCompleter!.complete();
+                        }
+                      });
+                    }
+
                     if (state is UserReservationsLoading) {
                       return Center(
                         child: CircularProgressIndicator(
@@ -267,26 +328,39 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                         color: AuthColors.primary,
                         backgroundColor: AuthColors.background,
                         child: ListView.builder(
-                          itemCount: state.reservations
-                              .where((r) => r.donation != null)
-                              .length,
+                          controller: _scrollController,
+                          itemCount:
+                              state.reservations.length +
+                              (state.isLoadingMore ? 1 : 0),
                           padding: EdgeInsets.only(
                             bottom: AppDimensions.paddingMedium.h,
                           ),
                           itemBuilder: (context, index) {
-                            final filteredReservations = state.reservations
-                                .where((r) => r.donation != null)
-                                .toList();
-                            final reservation = filteredReservations[index];
+                            if (index == state.reservations.length) {
+                              return Padding(
+                                padding: EdgeInsets.symmetric(vertical: 16.h),
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    color: AuthColors.primary,
+                                  ),
+                                ),
+                              );
+                            }
+
+                            final reservation = state.reservations[index];
 
                             return ReservationCard(
                               reservation: reservation,
-                              onTap: () {
+                              onTap: () async {
                                 // Navigate to reservation details with reservation ID
-                                context.push(
+                                await context.push(
                                   '/reservation-details',
                                   extra: reservation.id,
                                 );
+
+                                if (mounted) {
+                                  _fetchReservations();
+                                }
                               },
                             );
                           },
@@ -303,5 +377,11 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 }

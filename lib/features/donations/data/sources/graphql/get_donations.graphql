@@ -5,6 +5,7 @@ query GetDonations(
   donations(pagination: $pagination, filter: $filter) {
     items {
       id
+      createdAt
       title
       description
       quantity
@@ -15,6 +16,7 @@ query GetDonations(
       }
       status
       urgency
+      isLikedByMe
       mainAttachmentId
       mainAttachment {
         url

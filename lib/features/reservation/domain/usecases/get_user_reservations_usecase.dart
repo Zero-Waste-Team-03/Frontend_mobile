@@ -1,6 +1,5 @@
 import 'package:dartz/dartz.dart';
 import 'package:gaspzero/core/errors/failures.dart';
-import 'package:gaspzero/features/donations/domain/entities/donation.dart';
 import 'package:gaspzero/features/reservation/domain/entities/reservation.dart';
 import '../repositories/reservation_repository.dart';
 
@@ -12,7 +11,14 @@ class GetUserReservationsUseCase {
   Future<Either<Failure, List<Reservation>>> call({
     required String userId,
     String? status,
+    int page = 1,
+    int limit = 20,
   }) async {
-    return repository.getUserReservations(userId: userId, status: status);
+    return repository.getUserReservations(
+      userId: userId,
+      status: status,
+      page: page,
+      limit: limit,
+    );
   }
 }

@@ -118,14 +118,30 @@ class ProfileRepositoryImpl implements ProfileRepository {
     int limit = 10,
   }) async {
     try {
-      final activities = await profileActivitiesRemoteDataSource
+      final activitiesPage = await profileActivitiesRemoteDataSource
           .getUserActivities(
             userId: userId,
             statusFilter: statusFilter,
             page: page,
             limit: limit,
           );
-      return Right(activities);
+
+      final sortedActivities = List.of(activitiesPage.activities)
+        ..sort(
+          (a, b) => (b.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0))
+              .compareTo(a.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0)),
+        );
+
+      return Right(
+        ProfileActivitiesPage(
+          activities: sortedActivities,
+          hasNextPage: activitiesPage.hasNextPage,
+          hasPreviousPage: activitiesPage.hasPreviousPage,
+          limit: activitiesPage.limit,
+          page: activitiesPage.page,
+          totalCount: activitiesPage.totalCount,
+        ),
+      );
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {

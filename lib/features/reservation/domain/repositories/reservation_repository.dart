@@ -14,6 +14,8 @@ abstract class ReservationRepository {
   Future<Either<Failure, List<Reservation>>> getUserReservations({
     required String userId,
     String? status,
+    int page = 1,
+    int limit = 20,
   });
 
   /// Get donation details by ID

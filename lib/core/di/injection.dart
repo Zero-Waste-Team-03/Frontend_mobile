@@ -26,6 +26,10 @@ import '../../features/donations/data/sources/donation_remote_data_source.dart';
 import '../../features/donations/data/repositories/donation_repository_impl.dart';
 import '../../features/donations/domain/repositories/donation_repository.dart';
 import '../../features/donations/presentation/bloc/donations_bloc.dart';
+import '../../features/favorites/data/datasources/favorites_remote_data_source.dart';
+import '../../features/favorites/data/repositories/favorites_repository_impl.dart';
+import '../../features/favorites/domain/repositories/favorites_repository.dart';
+import '../../features/favorites/presentation/bloc/favorites_bloc.dart';
 
 import '../../features/reservation/data/repositories/reservation_repository_impl.dart';
 import '../../features/reservation/domain/repositories/reservation_repository.dart';
@@ -151,6 +155,15 @@ Future<void> configureDependencies() async {
     () => DonationRepositoryImpl(remoteDataSource: getIt()),
   );
   getIt.registerFactory(() => DonationsBloc(donationRepository: getIt()));
+
+  // ── Favorites ──
+  getIt.registerLazySingleton<FavoritesRemoteDataSource>(
+    () => FavoritesRemoteDataSourceImpl(getIt<Client>()),
+  );
+  getIt.registerLazySingleton<FavoritesRepository>(
+    () => FavoritesRepositoryImpl(remoteDataSource: getIt()),
+  );
+  getIt.registerFactory(() => FavoritesBloc(favoritesRepository: getIt()));
 
   // ── Reservation ──
   getIt.registerLazySingleton<ReservationRemoteDataSource>(

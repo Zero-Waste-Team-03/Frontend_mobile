@@ -1,6 +1,7 @@
 query GetDonationById($id: ID!) {
   donation(id: $id) {
     id
+    createdAt
     title
     description
     quantity
@@ -11,6 +12,7 @@ query GetDonationById($id: ID!) {
     }
     status
     urgency
+    isLikedByMe
     mainAttachmentId
     mainAttachment {
       url

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:ferry/ferry.dart' hide ServerException;
+import 'package:ferry_exec/ferry_exec.dart' show FetchPolicy;
 import '../../../../core/exceptions/exceptions.dart';
 import '../../domain/entities/reservation.dart';
 import '../models/reservation_model.dart';
@@ -77,7 +78,11 @@ class ReservationRemoteDataSourceImpl implements ReservationRemoteDataSource {
       }
 
       final data = await _executeRequest(
-        GMyReservationsReq((b) => b.vars = vars.toBuilder()),
+        GMyReservationsReq(
+          (b) => b
+            ..vars = vars.toBuilder()
+            ..fetchPolicy = FetchPolicy.NetworkOnly,
+        ),
         'myReservations',
       );
 
@@ -146,7 +151,11 @@ class ReservationRemoteDataSourceImpl implements ReservationRemoteDataSource {
         '[ReservationRemoteDataSource] Executing GraphQL query: myReservation',
       );
       final data = await _executeRequest(
-        GMyReservationReq((b) => b.vars = vars.toBuilder()),
+        GMyReservationReq(
+          (b) => b
+            ..vars = vars.toBuilder()
+            ..fetchPolicy = FetchPolicy.NetworkOnly,
+        ),
         'myReservation',
       );
 
@@ -179,8 +188,8 @@ class ReservationRemoteDataSourceImpl implements ReservationRemoteDataSource {
   Future<ReservationModel> markAsPickedUp(String reservationId) async {
     // Temporary fallback until a dedicated pickup mutation is available in schema.
     final mutation = '''
-      mutation MarkReservationAsPickedUp(\$reservationId: ID!) {
-        markReservationAsPickedUp(reservationId: \$reservationId) {
+      mutation confirmReservationCompleted(\$reservationId: ID!) {
+        confirmReservationCompleted(reservationId: \$reservationId) {
           id
           donationId
           beneficiaryId
@@ -216,12 +225,12 @@ class ReservationRemoteDataSourceImpl implements ReservationRemoteDataSource {
       }
 
       if (response.data['data'] == null ||
-          response.data['data']['markReservationAsPickedUp'] == null) {
+          response.data['data']['confirmReservationCompleted'] == null) {
         throw ServerException('Invalid response format');
       }
 
       return ReservationModel.fromJson(
-        response.data['data']['markReservationAsPickedUp']
+        response.data['data']['confirmReservationCompleted']
             as Map<String, dynamic>,
       );
     } on DioException catch (e) {

@@ -36,6 +36,9 @@ class DonationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final imageToUse = donation.imageUrl;
+    final createdAtLabel = donation.createdAt != null
+        ? donation.createdAt!.toLocal().toString().split(' ')[0]
+        : 'N/A';
 
     return GestureDetector(
       onTap: onTap,
@@ -109,7 +112,7 @@ class DonationCard extends StatelessWidget {
                       ),
                       SizedBox(width: 4.w),
                       Text(
-                        'Oct 24, 2023',
+                        createdAtLabel,
                         style: TextStyle(
                           fontSize: AppDimensions.bodySize.sp,
                           color: AuthColors.subText,
