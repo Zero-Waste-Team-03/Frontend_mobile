@@ -84,30 +84,40 @@ jobs:
       - name: Build release APK
         run: flutter build apk --release
 
-      # ── Rename APK with version & commit info ─────────────────
-      - name: Rename APK
-        run: |
-          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
-          DATE=$(date +'%Y%m%d')
-          APK_NAME="gaspzero-${DATE}-${SHORT_SHA}.apk"
-          cp build/app/outputs/flutter-apk/app-release.apk "${APK_NAME}"
-          echo "APK_NAME=${APK_NAME}" >> $GITHUB_ENV
 
-      # ── Upload APK as GitHub artifact (backup) ────────────────
-      - name: Upload APK as GitHub Artifact
-        uses: actions/upload-artifact@v4
+      # The Upload Step
+      - name: Upload APK to Google Drive
+        uses: adityak74/google-drive-upload-git-action@main
         with:
-          name: release-apk
-          path: ${{ env.APK_NAME }}
-          retention-days: 30
+          credentials: ${{ secrets.GDRIVE_CREDENTIALS }}
+          filename: apks/app-release-v${{ github.run_number }}.apk
+          folderId: ${{ secrets.FOLDER_ID }}
+          overwrite: "true" # Optional: replaces the file if it exists
 
-      # ── Post download links in job summary ─────────────────────
-      - name: Display download links
-        if: always()
-        run: |
-          echo "## 📦 APK Download" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**GitHub Artifact:** available in this workflow run under Artifacts (name: \`release-apk\`)." >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**File:** \`${{ env.APK_NAME }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+      # # ── Rename APK with version & commit info ─────────────────
+      # - name: Rename APK
+      #   run: |
+      #     SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+      #     DATE=$(date +'%Y%m%d')
+      #     APK_NAME="gaspzero-${DATE}-${SHORT_SHA}.apk"
+      #     cp build/app/outputs/flutter-apk/app-release.apk "${APK_NAME}"
+      #     echo "APK_NAME=${APK_NAME}" >> $GITHUB_ENV
+
+      # # ── Upload APK as GitHub artifact (backup) ────────────────
+      # - name: Upload APK as GitHub Artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: release-apk
+      #     path: ${{ env.APK_NAME }}
+      #     retention-days: 30
+
+      # # ── Post download links in job summary ─────────────────────
+      # - name: Display download links
+      #   if: always()
+      #   run: |
+      #     echo "## 📦 APK Download" >> $GITHUB_STEP_SUMMARY
+      #     echo "" >> $GITHUB_STEP_SUMMARY
+      #     echo "**GitHub Artifact:** available in this workflow run under Artifacts (name: \`release-apk\`)." >> $GITHUB_STEP_SUMMARY
+      #     echo "" >> $GITHUB_STEP_SUMMARY
+      #     echo "**File:** \`${{ env.APK_NAME }}\`" >> $GITHUB_STEP_SUMMARY
+      #     echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
