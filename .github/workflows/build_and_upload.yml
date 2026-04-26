@@ -33,8 +33,7 @@ jobs:
 
       - name: Verify required secrets
         run: |
-          # We use a simple list and check if the env var is set
-          for var in API_BASE_URL GRAPHQL_ENDPOINT MAPTILER_API_KEY GDRIVE_CREDENTIALS FOLDER_ID; do
+          for var in API_BASE_URL GRAPHQL_ENDPOINT MAPTILER_API_KEY SLACK_BOT_TOKEN SLACK_CHANNEL_ID; do
             if [ -z "$(eval echo \$$var)" ]; then
               echo "::error::Missing required secret: $var"
               exit 1
@@ -44,8 +43,8 @@ jobs:
           API_BASE_URL: ${{ secrets.API_BASE_URL }}
           GRAPHQL_ENDPOINT: ${{ secrets.GRAPHQL_ENDPOINT }}
           MAPTILER_API_KEY: ${{ secrets.MAPTILER_API_KEY }}
-          GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
-          FOLDER_ID: ${{ secrets.FOLDER_ID }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
 
       - name: Create .env file
         run: |
@@ -73,18 +72,38 @@ jobs:
       - name: Build APK
         run: flutter build apk --release
               
-      - name: Upload APK to Slack
+      - name: Upload APK to Slack (V2 API)
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
         run: |
-          # Define the filename for clarity in the Slack channel
-          FILENAME="ZeroWaste-v${{ github.run_number }}.apk"
+          FILE_PATH="build/app/outputs/flutter-apk/app-release.apk"
+          FILE_NAME="ZeroWaste-v${{ github.run_number }}.apk"
+          FILE_SIZE=$(stat -c%s "$FILE_PATH")
+
+          # 1. Get the Upload URL and File ID
+          UPLOAD_JSON=$(curl -s -X POST "https://slack.com/api/files.getUploadURLExternal" \
+            -H "Authorization: Bearer $SLACK_TOKEN" \
+            -d "filename=$FILE_NAME" \
+            -d "length=$FILE_SIZE")
           
-          # Upload using the stable files.upload endpoint
-          curl -F "file=@build/app/outputs/flutter-apk/app-release.apk" \
-               -F "initial_comment=📦 *New Build Available* (Build #${{ github.run_number }})" \
-               -F "channels=${CHANNEL_ID}" \
-               -F "filename=${FILENAME}" \
-               -F "token=${SLACK_TOKEN}" \
-               https://slack.com/api/files.upload
+          UPLOAD_URL=$(echo $UPLOAD_JSON | jq -r '.upload_url')
+          FILE_ID=$(echo $UPLOAD_JSON | jq -r '.file_id')
+
+          if [ "$UPLOAD_URL" == "null" ] || [ "$UPLOAD_URL" == "" ]; then
+            echo "Error: Could not get upload URL. Response: $UPLOAD_JSON"
+            exit 1
+          fi
+
+          # 2. Upload the file bits
+          curl -s -X POST "$UPLOAD_URL" --data-binary "@$FILE_PATH"
+
+          # 3. Finalize upload to channel
+          curl -s -X POST "https://slack.com/api/files.completeUploadExternal" \
+            -H "Authorization: Bearer $SLACK_TOKEN" \
+            -H "Content-Type: application/json; charset=utf-8" \
+            -d "{
+              \"files\": [{\"id\": \"$FILE_ID\", \"title\": \"$FILE_NAME\"}],
+              \"channel_id\": \"$CHANNEL_ID\",
+              \"initial_comment\": \"🚀 *ZeroWaste Build Ready!* (Run #${{ github.run_number }})\"
+            }"
