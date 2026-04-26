@@ -5,7 +5,6 @@ on:
     branches: [master, islam_auth, islam_cicd, develop]
   workflow_dispatch:
 
-# Cancel any in-progress runs for the same branch
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -17,18 +16,15 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      # ── Checkout ──────────────────────────────────────────────
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ── Java (required by Gradle) ─────────────────────────────
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "21"
 
-      # ── Flutter ───────────────────────────────────────────────
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -36,31 +32,24 @@ jobs:
           cache: true
 
       - name: Verify required secrets
+        run: |
+          # We use a simple list and check if the env var is set
+          for var in API_BASE_URL GRAPHQL_ENDPOINT MAPTILER_API_KEY GDRIVE_CREDENTIALS FOLDER_ID; do
+            if [ -z "$(eval echo \$$var)" ]; then
+              echo "::error::Missing required secret: $var"
+              exit 1
+            fi
+          done
         env:
           API_BASE_URL: ${{ secrets.API_BASE_URL }}
           GRAPHQL_ENDPOINT: ${{ secrets.GRAPHQL_ENDPOINT }}
           MAPTILER_API_KEY: ${{ secrets.MAPTILER_API_KEY }}
-        run: |
-          missing=0
-          for v in API_BASE_URL GRAPHQL_ENDPOINT MAPTILER_API_KEY; do
-            if [ -z "${!v}" ]; then
-              echo "::error::Missing required secret: $v"
-              missing=1
-            fi
-          done
-          if [ "$missing" -ne 0 ]; then
-            exit 1
-          fi
+          GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
+          FOLDER_ID: ${{ secrets.FOLDER_ID }}
 
-      - name: Install Flutter dependencies
-        run: flutter pub get
-
-      
-        
-      # ── Create .env (app/test runtime config) ─────────────────
       - name: Create .env file
         run: |
-          cat > .env << 'EOF'
+          cat > .env << EOF
           APP_NAME=ZeroWaste
           API_BASE_URL=${{ secrets.API_BASE_URL }}
           GRAPHQL_ENDPOINT=${{ secrets.GRAPHQL_ENDPOINT }}
@@ -71,57 +60,31 @@ jobs:
           MAP_DEFAULT_ZOOM=12
           EOF
 
-      - name: Run Build Runner
-        run: dart run build_runner build --delete-conflicting-outputs
+      - name: Install dependencies & Build Runner
+        run: |
+          flutter pub get
+          dart run build_runner build --delete-conflicting-outputs
 
-      - name: Flutter analyze
-        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+      - name: Flutter Analysis and Test
+        run: |
+          flutter analyze --no-fatal-infos --no-fatal-warnings
+          flutter test --exclude-tags=requires_env
 
-      - name: Flutter tests
-        run: flutter test --exclude-tags=requires_env
-      
       - name: Build APK
         run: flutter build apk --release
               
-      - name: Prepare APK for upload
+      - name: Upload APK to Slack
+        env:
+          SLACK_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
         run: |
-          # Create the local directory named 'apk'
-          mkdir -p apk
-          # Copy (or move) the file into the new folder with your desired naming
-          cp build/app/outputs/flutter-apk/app-release.apk apk/app-release-v${{ github.run_number }}.apk
-
-      - name: Upload APK to Google Drive
-        uses: adityak74/google-drive-upload-git-action@main
-        with:
-          credentials: ${{ secrets.GDRIVE_CREDENTIALS }}
-          filename: apk/app-release-v${{ github.run_number }}.apk
-          folderId: ${{ secrets.FOLDER_ID }}
-          overwrite: "true"
-
-      # # ── Rename APK with version & commit info ─────────────────
-      # - name: Rename APK
-      #   run: |
-      #     SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
-      #     DATE=$(date +'%Y%m%d')
-      #     APK_NAME="gaspzero-${DATE}-${SHORT_SHA}.apk"
-      #     cp build/app/outputs/flutter-apk/app-release.apk "${APK_NAME}"
-      #     echo "APK_NAME=${APK_NAME}" >> $GITHUB_ENV
-
-      # # ── Upload APK as GitHub artifact (backup) ────────────────
-      # - name: Upload APK as GitHub Artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: release-apk
-      #     path: ${{ env.APK_NAME }}
-      #     retention-days: 30
-
-      # # ── Post download links in job summary ─────────────────────
-      # - name: Display download links
-      #   if: always()
-      #   run: |
-      #     echo "## 📦 APK Download" >> $GITHUB_STEP_SUMMARY
-      #     echo "" >> $GITHUB_STEP_SUMMARY
-      #     echo "**GitHub Artifact:** available in this workflow run under Artifacts (name: \`release-apk\`)." >> $GITHUB_STEP_SUMMARY
-      #     echo "" >> $GITHUB_STEP_SUMMARY
-      #     echo "**File:** \`${{ env.APK_NAME }}\`" >> $GITHUB_STEP_SUMMARY
-      #     echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          # Define the filename with the build number
+          FILENAME="ZeroWaste-v${{ github.run_number }}.apk"
+          
+          # Upload the file using the Slack API
+          curl -F file=@build/app/outputs/flutter-apk/app-release.apk \
+               -F "initial_comment=🚀 *New Build Ready!* (Run #${{ github.run_number }})" \
+               -F "channels=${CHANNEL_ID}" \
+               -F "filename=${FILENAME}" \
+               -H "Authorization: Bearer ${SLACK_TOKEN}" \
+               https://slack.com/api/files.uploadV2
