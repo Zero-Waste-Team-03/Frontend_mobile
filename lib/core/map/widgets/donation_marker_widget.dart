@@ -23,9 +23,6 @@ class DonationMarkerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = AppMarkerColors.forUrgency(urgency);
-    final labelBackground = AppMarkerColors.markerLabelBackgroundForUrgency(
-      urgency,
-    );
 
     return Column(
       mainAxisSize: MainAxisSize.min,

@@ -345,8 +345,7 @@ class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
           linkExceptionMsg = originalMsg ?? response.linkException.toString();
         }
 
-        final errorMessage =
-            graphQLErrorMessage ?? linkExceptionMsg ?? 'Unknown error';
+        final errorMessage = graphQLErrorMessage ?? linkExceptionMsg;
 
         _logger.e(
           'GraphQL error in $operationName: $errorMessage\n'

@@ -152,4 +152,55 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mapLocationLoading => 'Loading map...';
+
+  @override
+  String get registerStep2DatePickerTitle => 'Select date of birth';
+
+  @override
+  String get registerStep2PickerMonthLabel => 'Month';
+
+  @override
+  String get registerStep2PickerDayLabel => 'Day';
+
+  @override
+  String get registerStep2PickerYearLabel => 'Year';
+
+  @override
+  String get registerStep2PickerConfirm => 'Confirm';
+
+  @override
+  String get registerStep2MonthJan => 'Jan';
+
+  @override
+  String get registerStep2MonthFeb => 'Feb';
+
+  @override
+  String get registerStep2MonthMar => 'Mar';
+
+  @override
+  String get registerStep2MonthApr => 'Apr';
+
+  @override
+  String get registerStep2MonthMay => 'May';
+
+  @override
+  String get registerStep2MonthJun => 'Jun';
+
+  @override
+  String get registerStep2MonthJul => 'Jul';
+
+  @override
+  String get registerStep2MonthAug => 'Aug';
+
+  @override
+  String get registerStep2MonthSep => 'Sep';
+
+  @override
+  String get registerStep2MonthOct => 'Oct';
+
+  @override
+  String get registerStep2MonthNov => 'Nov';
+
+  @override
+  String get registerStep2MonthDec => 'Dec';
 }

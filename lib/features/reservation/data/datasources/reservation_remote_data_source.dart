@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:ferry/ferry.dart' hide ServerException;
-import 'package:ferry_exec/ferry_exec.dart' show FetchPolicy;
 import '../../../../core/exceptions/exceptions.dart';
 import '../../domain/entities/reservation.dart';
 import '../models/reservation_model.dart';

@@ -149,4 +149,55 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get mapLocationLoading => 'جاري تحميل الخريطة...';
+
+  @override
+  String get registerStep2DatePickerTitle => 'اختر تاريخ الميلاد';
+
+  @override
+  String get registerStep2PickerMonthLabel => 'الشهر';
+
+  @override
+  String get registerStep2PickerDayLabel => 'اليوم';
+
+  @override
+  String get registerStep2PickerYearLabel => 'السنة';
+
+  @override
+  String get registerStep2PickerConfirm => 'تأكيد';
+
+  @override
+  String get registerStep2MonthJan => 'ينا';
+
+  @override
+  String get registerStep2MonthFeb => 'فبر';
+
+  @override
+  String get registerStep2MonthMar => 'مار';
+
+  @override
+  String get registerStep2MonthApr => 'أبر';
+
+  @override
+  String get registerStep2MonthMay => 'ماي';
+
+  @override
+  String get registerStep2MonthJun => 'يون';
+
+  @override
+  String get registerStep2MonthJul => 'يول';
+
+  @override
+  String get registerStep2MonthAug => 'أغس';
+
+  @override
+  String get registerStep2MonthSep => 'سبت';
+
+  @override
+  String get registerStep2MonthOct => 'أكت';
+
+  @override
+  String get registerStep2MonthNov => 'نوف';
+
+  @override
+  String get registerStep2MonthDec => 'ديس';
 }

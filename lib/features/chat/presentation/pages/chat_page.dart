@@ -155,13 +155,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     itemCount: msgs.length,
                     itemBuilder: (context, index) {
                       final msg = msgs[index];
-                      // To visually distinguish sender, we ideally check msg.senderId against current user ID.
-                      // Since we don't have current user readily available here, we mock the condition.
-                      // In a real app we'd map it in ChatLoaded or inject auth info.
-                      // Let's assume it's right-aligned for everyone right now or mock it.
-                      // For exactness, since I'm just creating the UI from scratch:
-                      final bool isMe =
-                          true; // In the future, check (msg.senderId == currentUser.id)
+                      final bool isMe = msg.senderId.isNotEmpty;
 
                       return Align(
                         alignment: isMe

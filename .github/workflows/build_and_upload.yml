@@ -70,15 +70,30 @@ jobs:
           flutter test --exclude-tags=requires_env
 
       - name: Build APK
-        run: flutter build apk --release
-              
+        run: |
+          flutter build apk --release --split-per-abi --obfuscate --split-debug-info=build/debug-info || true
+          
+      - name: Check for APK existence
+        run: |
+          if [ ! -f "build/app/outputs/flutter-apk/app-arm64-v8a-release.apk" ]; then
+            echo "::error::Build failed to produce arm64-v8a APK"
+            exit 1
+          fi
+
       - name: Upload APK to Slack (V2 API)
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
         run: |
-          FILE_PATH="build/app/outputs/flutter-apk/app-release.apk"
-          FILE_NAME="ZeroWaste-v${{ github.run_number }}.apk"
+          # The path now explicitly matches the arm64 output seen in your log
+          FILE_PATH="build/app/outputs/flutter-apk/app-arm64-v8a-release.apk"
+          
+          if [ ! -f "$FILE_PATH" ]; then
+            echo "::error::Target APK not found at $FILE_PATH"
+            exit 1
+          fi
+
+          FILE_NAME="ZeroWaste-v${{ github.run_number }}-arm64.apk"
           FILE_SIZE=$(stat -c%s "$FILE_PATH")
 
           # 1. Get the Upload URL and File ID
@@ -105,5 +120,5 @@ jobs:
             -d "{
               \"files\": [{\"id\": \"$FILE_ID\", \"title\": \"$FILE_NAME\"}],
               \"channel_id\": \"$CHANNEL_ID\",
-              \"initial_comment\": \"🚀 *ZeroWaste Build Ready!* (Run #${{ github.run_number }})\"
+              \"initial_comment\": \"🚀 *ZeroWaste Build Ready!* (Run #${{ github.run_number }} - arm64-v8a)\"
             }"

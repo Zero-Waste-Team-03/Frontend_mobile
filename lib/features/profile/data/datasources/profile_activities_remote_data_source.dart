@@ -1,6 +1,5 @@
 import 'package:injectable/injectable.dart';
 import 'package:ferry/ferry.dart' hide ServerException;
-import 'package:ferry_exec/ferry_exec.dart' show FetchPolicy;
 import 'package:logger/logger.dart';
 
 import '../../../../core/exceptions/exceptions.dart';
