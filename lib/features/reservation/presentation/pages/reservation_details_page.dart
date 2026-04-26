@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gaspzero/features/auth/data/models/user_model.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../shared/theme/app_colors.dart';
-import '../../../auth/domain/entities/user.dart';
 import '../../domain/entities/reservation.dart';
 import '../bloc/reservation_bloc.dart';
 import '../bloc/reservation_event.dart';
@@ -247,11 +246,16 @@ class _ReservationDetailsPageState extends State<ReservationDetailsPage> {
                       SizedBox(height: AppDimensions.paddingLarge.h),
 
                       // Donor Contact Card
-                      if (reservation.donation != null && reservation.donation!.authorDetails != null)
+                      if (reservation.donation != null &&
+                          reservation.donation!.authorDetails != null)
                         UserContactCard(
                           user:
                               reservation.donation?.authorDetails ??
-                              const UserModel(id: '0', displayName: 'Unknown User', phoneNumber: 'No phone number'),
+                              const UserModel(
+                                id: '0',
+                                displayName: 'Unknown User',
+                                phoneNumber: 'No phone number',
+                              ),
                           title: 'Donor',
                           onChatPressed: () {
                             context.push('/chat', extra: reservation.id);

@@ -361,6 +361,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Loading map...'**
   String get mapLocationLoading;
+
+  /// No description provided for @registerStep2DatePickerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select date of birth'**
+  String get registerStep2DatePickerTitle;
+
+  /// No description provided for @registerStep2PickerMonthLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get registerStep2PickerMonthLabel;
+
+  /// No description provided for @registerStep2PickerDayLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get registerStep2PickerDayLabel;
+
+  /// No description provided for @registerStep2PickerYearLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get registerStep2PickerYearLabel;
+
+  /// No description provided for @registerStep2PickerConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get registerStep2PickerConfirm;
+
+  /// No description provided for @registerStep2MonthJan.
+  ///
+  /// In en, this message translates to:
+  /// **'Jan'**
+  String get registerStep2MonthJan;
+
+  /// No description provided for @registerStep2MonthFeb.
+  ///
+  /// In en, this message translates to:
+  /// **'Feb'**
+  String get registerStep2MonthFeb;
+
+  /// No description provided for @registerStep2MonthMar.
+  ///
+  /// In en, this message translates to:
+  /// **'Mar'**
+  String get registerStep2MonthMar;
+
+  /// No description provided for @registerStep2MonthApr.
+  ///
+  /// In en, this message translates to:
+  /// **'Apr'**
+  String get registerStep2MonthApr;
+
+  /// No description provided for @registerStep2MonthMay.
+  ///
+  /// In en, this message translates to:
+  /// **'May'**
+  String get registerStep2MonthMay;
+
+  /// No description provided for @registerStep2MonthJun.
+  ///
+  /// In en, this message translates to:
+  /// **'Jun'**
+  String get registerStep2MonthJun;
+
+  /// No description provided for @registerStep2MonthJul.
+  ///
+  /// In en, this message translates to:
+  /// **'Jul'**
+  String get registerStep2MonthJul;
+
+  /// No description provided for @registerStep2MonthAug.
+  ///
+  /// In en, this message translates to:
+  /// **'Aug'**
+  String get registerStep2MonthAug;
+
+  /// No description provided for @registerStep2MonthSep.
+  ///
+  /// In en, this message translates to:
+  /// **'Sep'**
+  String get registerStep2MonthSep;
+
+  /// No description provided for @registerStep2MonthOct.
+  ///
+  /// In en, this message translates to:
+  /// **'Oct'**
+  String get registerStep2MonthOct;
+
+  /// No description provided for @registerStep2MonthNov.
+  ///
+  /// In en, this message translates to:
+  /// **'Nov'**
+  String get registerStep2MonthNov;
+
+  /// No description provided for @registerStep2MonthDec.
+  ///
+  /// In en, this message translates to:
+  /// **'Dec'**
+  String get registerStep2MonthDec;
 }
 
 class _AppLocalizationsDelegate

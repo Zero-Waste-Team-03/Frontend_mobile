@@ -50,12 +50,11 @@ class ReservationConfirmedDialog extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: Center(
-                child:  Icon(
-                    Icons.check_circle_outline,
-                    color: AppColors.primary,
-                    size: 60.sp,
-                  ),
-
+                child: Icon(
+                  Icons.check_circle_outline,
+                  color: AppColors.primary,
+                  size: 60.sp,
+                ),
               ),
             ),
             SizedBox(height: 24.h),
@@ -124,11 +123,8 @@ class ReservationConfirmedDialog extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () {
                   onDismiss();
-                  if (reservation_id != null && reservation_id.isNotEmpty) {
-                   context.push(
-                                  '/reservation-details',
-                                  extra: reservation_id,
-                                );
+                  if (reservation_id.isNotEmpty) {
+                    context.push('/reservation-details', extra: reservation_id);
                   }
                 },
                 style: ElevatedButton.styleFrom(
@@ -137,7 +133,6 @@ class ReservationConfirmedDialog extends StatelessWidget {
                     borderRadius: BorderRadius.circular(26.r),
                   ),
                   elevation: 0,
-                  
                 ),
                 child: Text(
                   'View Pickup Details',

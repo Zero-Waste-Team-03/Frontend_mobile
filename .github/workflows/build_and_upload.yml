@@ -70,14 +70,14 @@ jobs:
           flutter test --exclude-tags=requires_env
 
       - name: Build APK
-        run: flutter build apk --release
+        run: flutter build apk --release --split-per-abi --obfuscate --split-debug-info=build/debug-info
               
       - name: Upload APK to Slack (V2 API)
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
         run: |
-          FILE_PATH="build/app/outputs/flutter-apk/app-release.apk"
+          FILE_PATH="build/app/outputs/flutter-apk/app-arm64-v8a-release.apk"
           FILE_NAME="ZeroWaste-v${{ github.run_number }}.apk"
           FILE_SIZE=$(stat -c%s "$FILE_PATH")
 

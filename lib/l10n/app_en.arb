@@ -79,5 +79,22 @@
   "mapLocationPermissionDenied": "Location permission is denied.",
   "mapLocationPermissionDeniedForever": "Location permission is permanently denied.",
   "mapLocationMyLocation": "My location",
-  "mapLocationLoading": "Loading map..."
+  "mapLocationLoading": "Loading map...",
+  "registerStep2DatePickerTitle": "Select date of birth",
+  "registerStep2PickerMonthLabel": "Month",
+  "registerStep2PickerDayLabel": "Day",
+  "registerStep2PickerYearLabel": "Year",
+  "registerStep2PickerConfirm": "Confirm",
+  "registerStep2MonthJan": "Jan",
+  "registerStep2MonthFeb": "Feb",
+  "registerStep2MonthMar": "Mar",
+  "registerStep2MonthApr": "Apr",
+  "registerStep2MonthMay": "May",
+  "registerStep2MonthJun": "Jun",
+  "registerStep2MonthJul": "Jul",
+  "registerStep2MonthAug": "Aug",
+  "registerStep2MonthSep": "Sep",
+  "registerStep2MonthOct": "Oct",
+  "registerStep2MonthNov": "Nov",
+  "registerStep2MonthDec": "Dec"
 }
