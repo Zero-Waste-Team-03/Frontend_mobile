@@ -78,13 +78,13 @@ jobs:
           SLACK_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
         run: |
-          # Define the filename with the build number
+          # Define the filename for clarity in the Slack channel
           FILENAME="ZeroWaste-v${{ github.run_number }}.apk"
           
-          # Upload the file using the Slack API
-          curl -F file=@build/app/outputs/flutter-apk/app-release.apk \
-               -F "initial_comment=🚀 *New Build Ready!* (Run #${{ github.run_number }})" \
+          # Upload using the stable files.upload endpoint
+          curl -F "file=@build/app/outputs/flutter-apk/app-release.apk" \
+               -F "initial_comment=📦 *New Build Available* (Build #${{ github.run_number }})" \
                -F "channels=${CHANNEL_ID}" \
                -F "filename=${FILENAME}" \
-               -H "Authorization: Bearer ${SLACK_TOKEN}" \
-               https://slack.com/api/files.uploadV2
+               -F "token=${SLACK_TOKEN}" \
+               https://slack.com/api/files.upload
