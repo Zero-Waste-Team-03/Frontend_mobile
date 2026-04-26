@@ -74,20 +74,24 @@ jobs:
 
       - name: Flutter tests
         run: flutter test --exclude-tags=requires_env
-
-      # ── Build APK ─────────────────────────────────────────────
-      - name: Build release APK
+      
+      - name: Build APK
         run: flutter build apk --release
+              
+      - name: Prepare APK for upload
+        run: |
+          # Create the local directory named 'apk'
+          mkdir -p apk
+          # Copy (or move) the file into the new folder with your desired naming
+          cp build/app/outputs/flutter-apk/app-release.apk apk/app-release-v${{ github.run_number }}.apk
 
-
-      # The Upload Step
       - name: Upload APK to Google Drive
         uses: adityak74/google-drive-upload-git-action@main
         with:
           credentials: ${{ secrets.GDRIVE_CREDENTIALS }}
-          filename: apks/app-release-v${{ github.run_number }}.apk
+          filename: apk/app-release-v${{ github.run_number }}.apk
           folderId: ${{ secrets.FOLDER_ID }}
-          overwrite: "true" # Optional: replaces the file if it exists
+          overwrite: "true"
 
       # # ── Rename APK with version & commit info ─────────────────
       # - name: Rename APK
