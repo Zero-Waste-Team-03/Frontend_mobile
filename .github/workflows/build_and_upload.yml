@@ -81,6 +81,7 @@ jobs:
           fi
 
       - name: Upload APK to Slack (V2 API)
+        if: github.ref_name != 'develop'
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
