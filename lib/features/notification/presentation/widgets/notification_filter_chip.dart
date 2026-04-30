@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gaspzero/features/notification/domain/entities/notification_type.dart';
-import '../../domain/entities/notification.dart';
 import '../../../../shared/theme/app_colors.dart';
 
 class NotificationFilterChip extends StatelessWidget {

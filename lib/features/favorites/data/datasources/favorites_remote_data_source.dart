@@ -81,7 +81,7 @@ class FavoritesRemoteDataSourceImpl implements FavoritesRemoteDataSource {
         page: data.likedDonations.page,
         totalCount: data.likedDonations.totalCount,
       );
-    } catch (e, stackTrace) {
+    } catch (e) {
 
       rethrow;
     }

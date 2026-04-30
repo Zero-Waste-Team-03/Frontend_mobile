@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/widgets.dart';
+import 'dart:io';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
@@ -45,6 +46,48 @@ class FcmInitializationService {
       FcmManager.setupBackgroundNotificationHandler(
         _handleBackgroundNotification,
       );
+      // Ensure iOS presents notifications while app is foregrounded
+      try {
+        if (Platform.isIOS) {
+          _logger.i(
+            '🔔 FcmInitializationService: Configuring iOS foreground presentation options',
+          );
+          await FirebaseMessaging.instance
+              .setForegroundNotificationPresentationOptions(
+                alert: true,
+                badge: true,
+                sound: true,
+              );
+          _logger.i(
+            '✅ FcmInitializationService: iOS foreground presentation options set',
+          );
+        }
+      } catch (e, st) {
+        _logger.w(
+          '⚠️ FcmInitializationService: Failed to set iOS foreground presentation options',
+          error: e,
+          stackTrace: st,
+        );
+      }
+
+      // Add a global debug listener to verify messages arrive in foreground
+      try {
+        FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+          _logger.i(
+            '🔍 FcmInitializationService: Global onMessage received (debug)',
+          );
+          _logger.d('📋 Raw message: ${message.toMap()}');
+        });
+        _logger.i(
+          '✅ FcmInitializationService: Global onMessage debug listener registered',
+        );
+      } catch (e, st) {
+        _logger.w(
+          '⚠️ FcmInitializationService: Could not register global onMessage debug listener',
+          error: e,
+          stackTrace: st,
+        );
+      }
       _logger.i(
         '✅ FcmInitializationService: Background message handler setup complete',
       );

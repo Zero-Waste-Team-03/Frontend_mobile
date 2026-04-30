@@ -22,10 +22,11 @@ class NotificationsPage extends StatefulWidget {
 }
 
 class _NotificationsPageState extends State<NotificationsPage> {
-  late NotificationBloc _notificationBloc;
   late ScrollController _scrollController;
+  NotificationBloc? _notificationBloc;
   static const int _pageSize = 10;
   Completer<void>? _refreshCompleter;
+  bool _didRequestInitialNotifications = false;
 
   // Filter state
   String _selectedFilter = 'All';
@@ -38,18 +39,32 @@ class _NotificationsPageState extends State<NotificationsPage> {
   @override
   void initState() {
     super.initState();
-    _notificationBloc = getIt<NotificationBloc>();
     _scrollController = ScrollController();
-
-    // Fetch initial notifications
-    _notificationBloc.add(FetchNotificationsEvent(page: 1, limit: _pageSize));
-
     // Listen to scroll events for infinite scroll
     _scrollController.addListener(_onScroll);
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Acquire the bloc from the nearest provider (safe here). If none, fall back to DI.
+    try {
+      _notificationBloc ??= BlocProvider.of<NotificationBloc>(context);
+    } catch (_) {
+      _notificationBloc ??= getIt<NotificationBloc>();
+    }
+
+    // Fetch initial notifications once bloc is available.
+    if (!_didRequestInitialNotifications) {
+      _didRequestInitialNotifications = true;
+      _notificationBloc!.add(
+        FetchNotificationsEvent(page: 1, limit: _pageSize),
+      );
+    }
+  }
+
   void _onScroll() {
-    final currentState = _notificationBloc.state;
+    final currentState = _notificationBloc?.state;
     if (currentState is! NotificationsLoaded) {
       return;
     }
@@ -63,13 +78,13 @@ class _NotificationsPageState extends State<NotificationsPage> {
   }
 
   void _loadMoreNotifications() {
-    final currentState = _notificationBloc.state;
+    final currentState = _notificationBloc?.state;
     if (currentState is! NotificationsLoaded) {
       return;
     }
 
     final nextPage = currentState.currentPage + 1;
-    _notificationBloc.add(
+    _notificationBloc!.add(
       FetchNotificationsEvent(page: nextPage, limit: _pageSize),
     );
   }
@@ -93,7 +108,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
     // Create a completer that will be resolved when BLoC finishes loading
     _refreshCompleter = Completer<void>();
 
-    _notificationBloc.add(const RefreshNotificationsEvent());
+    _notificationBloc!.add(const RefreshNotificationsEvent());
 
     // Return the future from the completer - it will be completed by BlocBuilder
     return _refreshCompleter!.future;
@@ -140,7 +155,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         .map((n) => n.id)
                         .cast<String>()
                         .toList();
-                    _notificationBloc.add(MarkNotificationsAsReadEvent(ids));
+                    _notificationBloc!.add(MarkNotificationsAsReadEvent(ids));
                   },
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
@@ -567,10 +582,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
         context.push('/notification-details', extra: notification);
       },
       onMarkAsRead: () {
-        _notificationBloc.add(MarkNotificationsAsReadEvent([notification.id]));
+        _notificationBloc!.add(MarkNotificationsAsReadEvent([notification.id]));
       },
       onDelete: () {
-        _notificationBloc.add(DeleteNotificationEvent(notification.id));
+        _notificationBloc!.add(DeleteNotificationEvent(notification.id));
       },
     );
   }
