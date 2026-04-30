@@ -1,7 +1,10 @@
 import 'dart:async';
-
-import 'package:ferry/ferry.dart';
+import 'package:dio/dio.dart' as dio_lib;
+import 'package:ferry/ferry.dart' as ferry;
 import 'package:gql_http_link/gql_http_link.dart';
+import 'package:get_it/get_it.dart';
+import 'package:gql_exec/gql_exec.dart';
+import 'package:gql/language.dart' as gql_lang;
 
 import '../../features/auth/data/sources/auth_local_data_source.dart';
 import '../env.dart';
@@ -17,7 +20,7 @@ class GraphQLClientFactory {
         value.contains('localhost/graphql');
   }
 
-  Client create() {
+  ferry.Client create() {
     final rawGraphQLEndpoint = Env.get('GRAPHQL_ENDPOINT')?.trim();
     final configuredBaseUrl =
         Env.get('API_BASE_URL')?.trim() ??
@@ -41,7 +44,7 @@ class GraphQLClientFactory {
 
     final httpLink = HttpLink(endpoint);
 
-    final authLink = Link.function((request, [forward]) async* {
+    final authLink = ferry.Link.function((request, [forward]) async* {
       final operationName = request.operation.operationName;
       final isRefreshOperation =
           operationName == 'RefreshTokens' ||
@@ -73,22 +76,82 @@ class GraphQLClientFactory {
       }
     });
 
-    final errorLink = Link.function((request, [forward]) async* {
-      try {
-        if (forward != null) {
-          yield* forward(request);
+    final errorLink = ferry.Link.function((request, [forward]) async* {
+      if (forward == null) return;
+
+      await for (final response in forward(request)) {
+        bool isUnauthorized = false;
+
+        if (response.errors != null &&
+            response.errors!.isNotEmpty) {
+          for (final error in response.errors!) {
+            final code = error.extensions?['code'];
+            final statusCode = error.extensions?['status'] ??
+                error.extensions?['statusCode'];
+            final message = error.message;
+
+            if (code == 'UNAUTHENTICATED' ||
+                code == 'AUTH_NOT_LOGGED_IN' ||
+                statusCode == 401 ||
+                message.contains('Unauthorized') ||
+                message.contains('Unauthenticated')) {
+              isUnauthorized = true;
+              break;
+            }
+          }
         }
-      } catch (_) {
-        rethrow;
+
+        if (isUnauthorized) {
+          final operationName = request.operation.operationName;
+          if (operationName != 'RefreshTokens' &&
+              operationName != 'RefreshTokensForInterceptor') {
+            try {
+              final dio = GetIt.instance<dio_lib.Dio>();
+              
+              final String queryString = gql_lang.printNode(request.operation.document);
+
+              final dioResponse = await dio.post(
+                endpoint,
+                data: {
+                  'query': queryString,
+                  'variables': request.variables,
+                  'operationName': operationName,
+                },
+                options: dio_lib.Options(
+                  headers: request.context.entry<HttpLinkHeaders>()?.headers,
+                ),
+              );
+
+              if (dioResponse.data != null) {
+                final Map<String, dynamic> data = dioResponse.data;
+                yield Response(
+                  data: data['data'],
+                  errors: (data['errors'] as List?)
+                      ?.map((e) => GraphQLError(
+                            message: e['message'],
+                            extensions: e['extensions'],
+                          ))
+                      .toList(),
+                  context: response.context,
+                  response: data,
+                );
+                continue;
+              }
+            } catch (e) {
+              // If retry fails, let the original unauthorized response through
+            }
+          }
+        }
+        yield response;
       }
     });
 
-    final link = Link.from([authLink, errorLink, httpLink]);
+    final link = ferry.Link.from([authLink, errorLink, httpLink]);
 
-    return Client(
+    return ferry.Client(
       link: link,
-      cache: Cache(),
-      requestController: StreamController<OperationRequest>.broadcast(),
+      cache: ferry.Cache(),
+      requestController: StreamController<ferry.OperationRequest>.broadcast(),
     );
   }
 }

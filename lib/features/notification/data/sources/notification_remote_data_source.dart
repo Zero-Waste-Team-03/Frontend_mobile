@@ -172,17 +172,14 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
     OperationRequest<TData, TVars> request,
     String operationName,
   ) async {
-    _logger.i('Executing GraphQL operation: $operationName');
-
     try {
-      final response = await _ferryClient
-          .request(request)
-          .firstWhere(
+      final response = await _ferryClient.request(request).firstWhere(
             (event) =>
-                event.data != null ||
+                (event.data != null && !event.hasErrors) ||
                 event.hasErrors ||
                 event.linkException != null,
           );
+
 
       if (response.hasErrors || response.linkException != null) {
         final graphQLErrors = response.graphqlErrors;

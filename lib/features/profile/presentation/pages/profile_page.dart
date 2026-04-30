@@ -9,11 +9,11 @@ import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../widgets/profile_loading_skeleton.dart';
-import '../../../../core/di/injection.dart';
-import '../../../auth/domain/repositories/auth_repository.dart';
 import '../bloc/profile_bloc.dart';
 import '../bloc/profile_event.dart';
 import '../bloc/profile_state.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_event.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -710,13 +710,12 @@ class _ProfilePageState extends State<ProfilePage> {
                                   size: AppDimensions.iconSize.sp,
                                   color: Colors.red,
                                 ),
-                                onPressed: () async {
-                                  final repo = getIt<AuthRepository>();
-                                  await repo.logout();
-                                  if (context.mounted) {
-                                    context.go('/login');
-                                  }
-                                },
+                                  onPressed: () {
+                                    context.read<AuthBloc>().add(
+                                          AuthLogoutRequested(),
+                                        );
+                                  },
+
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AuthColors.background,
                                   padding: EdgeInsets.symmetric(vertical: 12.h),

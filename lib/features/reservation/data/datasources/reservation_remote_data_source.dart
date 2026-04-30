@@ -238,14 +238,13 @@ class ReservationRemoteDataSourceImpl implements ReservationRemoteDataSource {
     String operationName,
   ) async {
     try {
-      final response = await _ferryClient
-          .request(request)
-          .firstWhere(
+      final response = await _ferryClient.request(request).firstWhere(
             (event) =>
-                event.data != null ||
+                (event.data != null && !event.hasErrors) ||
                 event.hasErrors ||
                 event.linkException != null,
           );
+
 
       if (response.hasErrors || response.linkException != null) {
         final graphQLErrorMessage =

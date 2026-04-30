@@ -22,15 +22,20 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<ChatMessageReceived>(_onMessageReceived);
     on<ChatTransactionCompletedReceived>(_onTransactionCompletedReceived);
     on<ChatLeaveConversationRequested>(_onLeaveConversation);
+    on<ChatApproveSensitiveMessageRequested>(_onApproveSensitiveMessage);
+    on<ChatSensitiveMessageApprovedReceived>(_onSensitiveMessageApprovedReceived);
   }
 
   @override
   Future<void> close() {
     _messageSubscription?.cancel();
     _transactionSubscription?.cancel();
+    _sensitiveMessageSubscription?.cancel();
     chatRepository.disposeSocket();
     return super.close();
   }
+
+  StreamSubscription? _sensitiveMessageSubscription;
 
   Future<void> _onInitialize(
     ChatInitializeRequested event,
@@ -66,6 +71,12 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           },
         );
 
+        _sensitiveMessageSubscription?.cancel();
+        _sensitiveMessageSubscription =
+            chatRepository.onSensitiveMessageApproved.listen((message) {
+              add(ChatSensitiveMessageApprovedReceived(message));
+            });
+
         await chatRepository.joinConversation(conversation.id);
 
         // Fetch initial messages
@@ -81,6 +92,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       },
     );
   }
+
 
   Future<void> _onLoadMessages(
     ChatMessagesLoadRequested event,
@@ -174,5 +186,35 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     Emitter<ChatState> emit,
   ) async {
     await chatRepository.leaveConversation(event.conversationId);
+  }
+
+  Future<void> _onApproveSensitiveMessage(
+    ChatApproveSensitiveMessageRequested event,
+    Emitter<ChatState> emit,
+  ) async {
+    final result = await chatRepository.approveSensitiveMessage(
+      event.conversationId,
+      event.messageId,
+    );
+    result.fold(
+      (f) => _logger.e('Failed to approve message: ${f.message}'),
+      (_) => null,
+    );
+  }
+
+  void _onSensitiveMessageApprovedReceived(
+    ChatSensitiveMessageApprovedReceived event,
+    Emitter<ChatState> emit,
+  ) {
+    final currentState = state;
+    if (currentState is ChatLoaded) {
+      final updatedMessages = currentState.messages.map((m) {
+        if (m.id == event.message.id) {
+          return event.message;
+        }
+        return m;
+      }).toList();
+      emit(currentState.copyWith(messages: updatedMessages));
+    }
   }
 }
