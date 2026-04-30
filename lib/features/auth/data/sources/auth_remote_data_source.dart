@@ -411,11 +411,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     _logger.i('Executing GraphQL operation: $operationName');
 
     try {
-      final response = await _ferryClient
-          .request(request)
-          .firstWhere(
+      final response = await _ferryClient.request(request).firstWhere(
             (event) =>
-                event.data != null ||
+                (event.data != null && !event.hasErrors) ||
                 event.hasErrors ||
                 event.linkException != null,
           );

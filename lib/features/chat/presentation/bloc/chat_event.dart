@@ -78,3 +78,26 @@ class ChatLeaveConversationRequested extends ChatEvent {
   @override
   List<Object?> get props => [conversationId];
 }
+
+class ChatApproveSensitiveMessageRequested extends ChatEvent {
+  final String conversationId;
+  final String messageId;
+
+  const ChatApproveSensitiveMessageRequested({
+    required this.conversationId,
+    required this.messageId,
+  });
+
+  @override
+  List<Object?> get props => [conversationId, messageId];
+}
+
+class ChatSensitiveMessageApprovedReceived extends ChatEvent {
+  final ChatMessageEntity message;
+
+  const ChatSensitiveMessageApprovedReceived(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+

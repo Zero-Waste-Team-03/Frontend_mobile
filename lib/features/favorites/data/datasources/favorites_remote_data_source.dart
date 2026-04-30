@@ -133,14 +133,13 @@ class FavoritesRemoteDataSourceImpl implements FavoritesRemoteDataSource {
     _logger.i('================================================');
 
     try {
-      final response = await _ferryClient
-          .request(request)
-          .firstWhere(
+      final response = await _ferryClient.request(request).firstWhere(
             (event) =>
-                event.data != null ||
+                (event.data != null && !event.hasErrors) ||
                 event.hasErrors ||
                 event.linkException != null,
           );
+
 
       _logger.i('Response received for $operationName');
       _logger.i('Has errors: ${response.hasErrors}');

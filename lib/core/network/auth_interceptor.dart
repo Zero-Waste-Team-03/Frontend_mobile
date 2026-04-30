@@ -4,6 +4,8 @@ import 'package:gql_exec/gql_exec.dart' show Context;
 import 'package:gql_http_link/gql_http_link.dart';
 import 'package:logger/logger.dart';
 import '../../features/auth/data/sources/auth_local_data_source.dart';
+import '../../features/auth/domain/repositories/auth_repository.dart';
+import '../../core/di/injection.dart';
 import 'graphql/__generated__/refresh_tokens_interceptor.req.gql.dart';
 
 /// Interceptor that automatically attaches the stored access token
@@ -129,14 +131,37 @@ class AuthInterceptor extends Interceptor {
   /// ---------- RESPONSE ----------
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) async {
-      // Check for GraphQL errors with 401 UNAUTHENTICATED inside a 200 OK response
-    if (response.statusCode == 200 &&
-        response.data != null &&
-        response.data is Map) {
+    _logger.d('[AuthInterceptor] onResponse: ${response.requestOptions.path}');
+    final bool handled = await _handleUnauthorizedResponse(response, handler);
+    if (!handled) {
+      handler.next(response);
+    }
+  }
+
+  Future<bool> _handleUnauthorizedResponse(
+    Response response,
+    dynamic handler, // ResponseInterceptorHandler or ErrorInterceptorHandler
+  ) async {
+    _logger.d(
+      '[AuthInterceptor] _handleUnauthorizedResponse checking: ${response.requestOptions.path}',
+    );
+
+    // Check if it's a GraphQL response with potential errors in the body
+    final bool isGraphQLResponse = response.data != null && response.data is Map;
+    final bool hasExplicitUnauthorizedHeader = response.statusCode == 401;
+
+    if (!isGraphQLResponse && !hasExplicitUnauthorizedHeader) {
+      return false;
+    }
+
+    bool isUnauthorized = hasExplicitUnauthorizedHeader;
+
+    if (isGraphQLResponse) {
       final dataMap = response.data as Map;
       if (dataMap['errors'] != null) {
         final errors = dataMap['errors'] as List;
-        bool isUnauthorized = false;
+        _logger.d('[AuthInterceptor] Found ${errors.length} errors in body');
+
         for (var error in errors) {
           if (error is Map) {
             final extensions = error['extensions'] as Map?;
@@ -146,57 +171,101 @@ class AuthInterceptor extends Interceptor {
                 error['statusCode'];
             final message = error['message']?.toString() ?? '';
 
+            _logger.d(
+              '[AuthInterceptor] Checking error: code=$code, statusCode=$statusCode, message=$message',
+            );
+
             if (code == 'UNAUTHENTICATED' ||
                 code == 'AUTH_NOT_LOGGED_IN' ||
                 statusCode == 401 ||
                 message.contains('Unauthorized') ||
                 message.contains('Unauthenticated')) {
               isUnauthorized = true;
+              _logger.i(
+                '[AuthInterceptor] Match found for Unauthorized error in GraphQL body',
+              );
               break;
-            }
-          }
-        }
-
-        if (isUnauthorized) {
-          _logger.w(
-            '🔄 [AuthInterceptor] GraphQL Unauthorized error received, attempting token refresh',
-          );
-
-          // Prevent infinite loops if the refresh request itself returns 401
-          final requestQuery = response.requestOptions.data is Map
-              ? response.requestOptions.data['query']?.toString() ?? ''
-              : '';
-          if (requestQuery.contains('mutation RefreshTokens')) {
-            _logger.e('[AuthInterceptor] Refresh loop detected, aborting');
-            return handler.next(response);
-          }
-
-          final newAccessToken = await _attemptRefresh();
-
-          if (newAccessToken != null) {
-            // Retry original request
-            final retryOptions = response.requestOptions;
-            retryOptions.headers['Authorization'] = 'Bearer $newAccessToken';
-            try {
-              final retryResponse = await dio.fetch(retryOptions);
-              return handler.resolve(retryResponse);
-            } catch (e) {
-              return handler.next(response);
             }
           }
         }
       }
     }
-    handler.next(response);
+
+    if (isUnauthorized) {
+      _logger.w(
+        '🔄 [AuthInterceptor] Unauthorized detected, attempting token refresh',
+      );
+
+      // Prevent infinite loops if the refresh request itself returns 401
+      final requestQuery = response.requestOptions.data is Map
+          ? response.requestOptions.data['query']?.toString() ?? ''
+          : '';
+      if (requestQuery.contains('mutation RefreshTokens') ||
+          requestQuery.contains('RefreshTokensForInterceptor')) {
+        _logger.e('[AuthInterceptor] Refresh loop detected, aborting');
+        // Trigger global logout if the refresh request itself is unauthorized
+        _logger.e(
+          '[AuthInterceptor] Refresh request was unauthorized, triggering global logout',
+        );
+        try {
+          getIt<AuthRepository>().logout();
+        } catch (e) {
+          _logger.e('[AuthInterceptor] Failed to trigger logout: $e');
+        }
+        return false;
+      }
+
+      final newAccessToken = await _attemptRefresh();
+
+      if (newAccessToken != null) {
+        // Retry original request
+        final retryOptions = response.requestOptions;
+        retryOptions.headers['Authorization'] = 'Bearer $newAccessToken';
+        try {
+          // Retry using the same Dio instance
+          final retryResponse = await dio.fetch(retryOptions);
+          if (handler is ResponseInterceptorHandler) {
+            handler.resolve(retryResponse);
+          } else if (handler is ErrorInterceptorHandler) {
+            handler.resolve(retryResponse);
+          }
+          return true;
+        } catch (e) {
+          _logger.e('[AuthInterceptor] Retry request failed: $e');
+          return false;
+        }
+      } else {
+        // Refresh failed, trigger logout
+        _logger.e(
+          '[AuthInterceptor] Refresh failed, triggering global logout',
+        );
+        try {
+          getIt<AuthRepository>().logout();
+        } catch (e) {
+          _logger.e('[AuthInterceptor] Failed to trigger logout: $e');
+        }
+      }
+    }
+
+    return false;
   }
+
+
 
   /// ---------- ERROR ----------
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
+    _logger.d('[AuthInterceptor] onError: ${err.requestOptions.path} - ${err.message}');
+    if (err.response != null) {
+      final bool handled =
+          await _handleUnauthorizedResponse(err.response!, handler);
+      if (handled) return;
+    }
+
     // If the server returns 401 Unauthorized, attempt to refresh the token
     if (err.response?.statusCode == 401) {
       _logger.w(
-        'ðŸ”„ [AuthInterceptor] HTTP 401 received, attempting token refresh',
+        '🔄 [AuthInterceptor] HTTP 401 received, attempting token refresh',
       );
 
       final newAccessToken = await _attemptRefresh();

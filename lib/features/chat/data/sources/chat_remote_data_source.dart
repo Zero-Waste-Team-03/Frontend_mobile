@@ -112,11 +112,12 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     );
     final response = await _executeRequest(req, 'getOrCreateConversation');
     final data = response.getOrCreateConversation;
+
     return ConversationEntity(
       id: data.id,
       reservationId: data.reservationId,
       status: data.status.name,
-      createdAt: DateTime.parse(data.createdAt.value),
+      createdAt: _safeParseDate(data.createdAt.value),
       lastMessage: data.lastMessage,
     );
   }
@@ -140,7 +141,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
           (e) => ChatMessageEntity(
             id: e.id,
             content: e.content,
-            createdAt: DateTime.parse(e.createdAt.value),
+            createdAt: _safeParseDate(e.createdAt.value),
             isModerated: e.isModerated,
             senderId: e.senderId,
             conversationId: e.conversationId,
@@ -165,7 +166,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     return ChatMessageEntity(
       id: data.id,
       content: data.content,
-      createdAt: DateTime.parse(data.createdAt.value),
+      createdAt: _safeParseDate(data.createdAt.value),
       isModerated: data.isModerated,
       senderId: data.senderId,
       conversationId: data.conversationId,
@@ -183,12 +184,21 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
             id: e.id,
             reservationId: e.reservationId,
             status: e.status.name,
-            createdAt: DateTime.parse(e.createdAt.value),
+            createdAt: _safeParseDate(e.createdAt.value),
             lastMessage: e.lastMessage,
             // We'll skip counterpart temporarily since ConversationEntity might need an update
           ),
         )
         .toList();
+  }
+
+  DateTime _safeParseDate(String? value) {
+    if (value == null) return DateTime.now();
+    try {
+      return DateTime.parse(value);
+    } catch (_) {
+      return DateTime.now();
+    }
   }
 
   @override
@@ -216,11 +226,9 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     String operationName,
   ) async {
     try {
-      final response = await _ferryClient
-          .request(request)
-          .firstWhere(
+      final response = await _ferryClient.request(request).firstWhere(
             (event) =>
-                event.data != null ||
+                (event.data != null && !event.hasErrors) ||
                 event.hasErrors ||
                 event.linkException != null,
           );
