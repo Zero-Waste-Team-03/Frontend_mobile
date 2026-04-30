@@ -105,9 +105,12 @@ class _GaspZeroAppState extends State<GaspZeroApp> {
             supportedLocales: AppLocalizations.supportedLocales,
             builder: (context, child) {
               return BlocListener<AuthBloc, AuthState>(
-                listenWhen: (previous, current) => current is AuthSuccess,
                 listener: (context, state) {
-                  appRouter.go('/home');
+                  if (state is AuthSuccess) {
+                    appRouter.go('/home');
+                  } else if (state is AuthUnauthenticated) {
+                    appRouter.go('/login');
+                  }
                 },
                 child: child ?? const SizedBox.shrink(),
               );

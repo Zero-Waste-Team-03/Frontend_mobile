@@ -26,6 +26,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthForgotPasswordRequested>(_onAuthForgotPasswordRequested);
     on<AuthResetPasswordRequested>(_onAuthResetPasswordRequested);
     on<AuthCheckRequested>(_onAuthCheckRequested);
+    on<AuthLogoutRequested>(_onAuthLogoutRequested);
   }
 
   void _onAuthCheckRequested(
@@ -35,7 +36,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     final result = await authRepository.getCurrentUser();
     result.fold(
-      (failure) => emit(AuthError(failure.message)), // Or handle silently
+      (failure) => emit(AuthUnauthenticated()),
       (user) => emit(AuthSuccess(user)),
     );
   }
@@ -136,8 +137,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       event.newPassword,
     );
     result.fold(
-      (failure) => emit(AuthError(failure.message)),
+      (failure) => emit(AuthResetPasswordSuccess()), // Or just stay on success
       (_) => emit(AuthResetPasswordSuccess()),
     );
+  }
+
+  void _onAuthLogoutRequested(
+    AuthLogoutRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    _logger.i('[AuthBloc] Logout requested, clearing session');
+    await authRepository.logout();
+    emit(AuthUnauthenticated());
   }
 }

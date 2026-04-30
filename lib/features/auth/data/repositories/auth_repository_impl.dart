@@ -576,8 +576,15 @@ class AuthRepositoryImpl implements AuthRepository {
         '⚠️ [AuthRepository] getCurrentUser unauthorized; trying refreshTokens then retry',
       );
 
-      await _refreshAndCacheTokens();
-      return await remoteDataSource.getCurrentUser();
+      try {
+        await _refreshAndCacheTokens();
+        return await remoteDataSource.getCurrentUser();
+      } catch (refreshErr) {
+        _logger.e('❌ [AuthRepository] Refresh failed, clearing local session');
+        await localDataSource.clearTokens();
+        await localDataSource.clearUserProfile();
+        rethrow;
+      }
     }
   }
 }

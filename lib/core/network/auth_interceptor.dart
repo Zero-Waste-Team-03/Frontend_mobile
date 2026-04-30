@@ -78,7 +78,8 @@ class AuthInterceptor extends Interceptor {
       _logger.e(
         'â Œ [AuthInterceptor] No refresh token available, clearing session',
       );
-      await localDataSource.clearTokens();
+      // We don't call clearTokens here to avoid double-wipe if logout is pending,
+      // but we return null to signal failure.
       return null;
     }
 
@@ -121,8 +122,7 @@ class AuthInterceptor extends Interceptor {
       _logger.e('â Œ [AuthInterceptor] Refresh exception: $e');
     }
 
-    _logger.e('â Œ [AuthInterceptor] Refresh failed, clearing session');
-    await localDataSource.clearTokens();
+    _logger.e('â Œ [AuthInterceptor] Refresh failed, session remains invalid');
     return null;
   }
 
