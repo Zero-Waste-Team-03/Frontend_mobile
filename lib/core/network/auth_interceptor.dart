@@ -129,38 +129,60 @@ class AuthInterceptor extends Interceptor {
   /// ---------- RESPONSE ----------
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) async {
-    // Check for GraphQL errors with 401 UNAUTHENTICATED inside a 200 OK response
+      // Check for GraphQL errors with 401 UNAUTHENTICATED inside a 200 OK response
     if (response.statusCode == 200 &&
         response.data != null &&
-        response.data is Map &&
-        response.data['errors'] != null) {
-      final errors = response.data['errors'] as List;
-      bool isUnauthorized = false;
-      for (var error in errors) {
-        if (error is Map &&
-            (error['code'] == 'UNAUTHENTICATED' ||
-                error['statusCode'] == 401 ||
-                error['message'] == 'Unauthorized')) {
-          isUnauthorized = true;
-          break;
+        response.data is Map) {
+      final dataMap = response.data as Map;
+      if (dataMap['errors'] != null) {
+        final errors = dataMap['errors'] as List;
+        bool isUnauthorized = false;
+        for (var error in errors) {
+          if (error is Map) {
+            final extensions = error['extensions'] as Map?;
+            final code = extensions?['code'] ?? error['code'];
+            final statusCode = extensions?['status'] ??
+                extensions?['statusCode'] ??
+                error['statusCode'];
+            final message = error['message']?.toString() ?? '';
+
+            if (code == 'UNAUTHENTICATED' ||
+                code == 'AUTH_NOT_LOGGED_IN' ||
+                statusCode == 401 ||
+                message.contains('Unauthorized') ||
+                message.contains('Unauthenticated')) {
+              isUnauthorized = true;
+              break;
+            }
+          }
         }
-      }
 
-      if (isUnauthorized) {
-        _logger.w(
-          'ðŸ”„ [AuthInterceptor] GraphQL Unauthorized error received, attempting token refresh',
-        );
-        final newAccessToken = await _attemptRefresh();
+        if (isUnauthorized) {
+          _logger.w(
+            '🔄 [AuthInterceptor] GraphQL Unauthorized error received, attempting token refresh',
+          );
 
-        if (newAccessToken != null) {
-          // Retry original request
-          final retryOptions = response.requestOptions;
-          retryOptions.headers['Authorization'] = 'Bearer $newAccessToken';
-          try {
-            final retryResponse = await dio.fetch(retryOptions);
-            return handler.resolve(retryResponse);
-          } catch (e) {
+          // Prevent infinite loops if the refresh request itself returns 401
+          final requestQuery = response.requestOptions.data is Map
+              ? response.requestOptions.data['query']?.toString() ?? ''
+              : '';
+          if (requestQuery.contains('mutation RefreshTokens')) {
+            _logger.e('[AuthInterceptor] Refresh loop detected, aborting');
             return handler.next(response);
+          }
+
+          final newAccessToken = await _attemptRefresh();
+
+          if (newAccessToken != null) {
+            // Retry original request
+            final retryOptions = response.requestOptions;
+            retryOptions.headers['Authorization'] = 'Bearer $newAccessToken';
+            try {
+              final retryResponse = await dio.fetch(retryOptions);
+              return handler.resolve(retryResponse);
+            } catch (e) {
+              return handler.next(response);
+            }
           }
         }
       }
