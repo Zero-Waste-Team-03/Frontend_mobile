@@ -66,6 +66,14 @@ class GaspZeroApp extends StatefulWidget {
 
 class _GaspZeroAppState extends State<GaspZeroApp> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FcmInitializationService.initializeFcmAfterBuild(context);
+    });
+  }
+
+  @override
   void dispose() {
     _logger.i('🔌 _GaspZeroAppState.dispose(): Cleaning up FCM...');
     FcmInitializationService.cleanup();

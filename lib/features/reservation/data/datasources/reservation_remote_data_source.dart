@@ -167,10 +167,10 @@ class ReservationRemoteDataSourceImpl implements ReservationRemoteDataSource {
      
       return model;
     } on ServerException catch (e) {
-      
+      print('ServerException in getReservationDetails: ${e.message}');
       rethrow;
     } catch (e) {
-      
+      print('Error fetching reservation: $e');
       throw ServerException('Error fetching reservation: $e');
     }
   }
