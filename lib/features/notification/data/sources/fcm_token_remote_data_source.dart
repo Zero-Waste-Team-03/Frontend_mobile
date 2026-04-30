@@ -3,6 +3,8 @@ import 'package:injectable/injectable.dart';
 import 'package:logger/logger.dart';
 
 import '../../../../core/exceptions/exceptions.dart';
+import 'graphql/__generated__/register_fcm_token.req.gql.dart';
+import 'graphql/__generated__/register_fcm_token.var.gql.dart';
 
 /// Abstract data source for FCM token operations
 abstract class FcmTokenRemoteDataSource {
@@ -33,8 +35,11 @@ class FcmTokenRemoteDataSourceImpl implements FcmTokenRemoteDataSource {
     _logger.i(
       '📤 FcmTokenRemoteDataSourceImpl: Attempting to register FCM token...',
     );
+    final tokenPreview = fcmToken.length > 20
+        ? fcmToken.substring(fcmToken.length - 20)
+        : fcmToken;
     _logger.d(
-      '📱 FcmTokenRemoteDataSourceImpl: Token (last 20 chars): ...${fcmToken.substring(fcmToken.length - 20)}',
+      '📱 FcmTokenRemoteDataSourceImpl: Token (last 20 chars): ...$tokenPreview',
     );
 
     if (fcmToken.isEmpty) {
@@ -43,32 +48,38 @@ class FcmTokenRemoteDataSourceImpl implements FcmTokenRemoteDataSource {
     }
 
     try {
-      // TODO: Generate these types by running: flutter pub run build_runner build --delete-conflicting-outputs
-      // After generating the types, import them and use them here:
-      // import 'graphql/__generated__/register_fcm_token.req.gql.dart';
-      // import 'graphql/__generated__/register_fcm_token.var.gql.dart';
-
       _logger.i(
         '📋 FcmTokenRemoteDataSourceImpl: Building registerFcmToken request...',
       );
 
-      // Build the request with the FCM token
-      // This will be populated after code generation
       final varsMap = <String, dynamic>{'fcmToken': fcmToken};
       _logger.d('🔧 FcmTokenRemoteDataSourceImpl: Variables: $varsMap');
 
-      // Execute the GraphQL mutation
-      // Once types are generated, this will use the generated classes
-      _logger.i('📡 FcmTokenRemoteDataSourceImpl: Sending GraphQL mutation...');
+      final vars = GRegisterFcmTokenVars.fromJson(varsMap);
+      if (vars == null) {
+        _logger.e(
+          '❌ FcmTokenRemoteDataSourceImpl: Failed to build registerFcmToken variables from: $varsMap',
+        );
+        throw ServerException('Failed to build register FCM token request');
+      }
 
-      // For now, we'll create a placeholder implementation
-      // This will be enhanced after code generation
-      // The actual implementation should follow the pattern from notification_remote_data_source.dart
-
-      _logger.i(
-        '✅ FcmTokenRemoteDataSourceImpl: FCM token registered successfully',
+      final data = await _executeRequest(
+        GRegisterFcmTokenReq(
+          (b) => b
+            ..vars = vars.toBuilder()
+            ..fetchPolicy = FetchPolicy.NetworkOnly
+            ..requestId =
+                'registerFcmToken-${DateTime.now().microsecondsSinceEpoch}',
+        ),
+        'registerFcmToken',
       );
-      return fcmToken;
+
+      final registeredMessage = data.registerFcmToken.message;
+      _logger.i(
+        '✅ FcmTokenRemoteDataSourceImpl: FCM token registered successfully: $registeredMessage',
+      );
+
+      return registeredMessage;
     } catch (e, stackTrace) {
       _logger.e(
         '❌ FcmTokenRemoteDataSourceImpl: Error registering FCM token',
