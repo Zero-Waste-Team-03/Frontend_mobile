@@ -34,4 +34,13 @@ abstract class ProfileRepository {
     int page = 1,
     int limit = 10,
   });
+
+  /// Update user settings (notifications, appearance, etc.)
+  Future<Either<Failure, User>> updateUserSettings({
+    required bool isPushNotificationsEnabled,
+    required bool isNewDonationsAlertsEnabled,
+    required bool isUrgentAlertsEnabled,
+    required bool isSystemReports,
+    required String appearance,
+  });
 }

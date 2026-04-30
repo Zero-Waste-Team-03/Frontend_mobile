@@ -42,6 +42,15 @@ abstract class AuthRepository {
     String? email,
     String? phoneNumber,
     Map<String, dynamic>? location,
+    Map<String, dynamic>? settings,
+  });
+
+  Future<Either<Failure, User>> updateUserSettings({
+    required bool isPushNotificationsEnabled,
+    required bool isNewDonationsAlertsEnabled,
+    required bool isUrgentAlertsEnabled,
+    required bool isSystemReports,
+    required String appearance,
   });
 
   // Avatar upload methods

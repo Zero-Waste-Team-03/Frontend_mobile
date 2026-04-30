@@ -35,6 +35,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     on<ProfileActivitiesLoadMoreRequested>(
       _onProfileActivitiesLoadMoreRequested,
     );
+    on<ProfileSettingsUpdateRequested>(_onProfileSettingsUpdateRequested);
   }
 
   Future<void> _onProfileLoadRequested(
@@ -318,5 +319,36 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         statusFilter: _currentActivitiesFilter,
       ),
     );
+  }
+
+  Future<void> _onProfileSettingsUpdateRequested(
+    ProfileSettingsUpdateRequested event,
+    Emitter<ProfileState> emit,
+  ) async {
+    final currentState = state;
+    if (currentState is ProfileLoaded) {
+      emit(ProfileUpdating(currentState.user));
+      print('Updating settings with: '
+          'Push=${event.isPushNotificationsEnabled}, '
+          'NewDonations=${event.isNewDonationsAlertsEnabled}, '
+          'UrgentAlerts=${event.isUrgentAlertsEnabled}, '
+          'SystemReports=${event.isSystemReports}, '
+          'Appearance=${event.appearance}');
+          
+      final result = await profileRepository.updateUserSettings(
+        isPushNotificationsEnabled: event.isPushNotificationsEnabled,
+        isNewDonationsAlertsEnabled: event.isNewDonationsAlertsEnabled,
+        isUrgentAlertsEnabled: event.isUrgentAlertsEnabled,
+        isSystemReports: event.isSystemReports,
+        appearance: event.appearance,
+      );
+
+      result.fold((failure) => emit(ProfileError(failure.message)), (user) {
+        // Emit success state first (for UI feedback like snackbar)
+        emit(ProfileUpdateSuccess(user));
+        // Then emit loaded state with updated user (for displaying the data)
+        emit(ProfileLoaded(user));
+      });
+    }
   }
 }

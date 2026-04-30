@@ -62,6 +62,14 @@ abstract class AuthRemoteDataSource {
     String? email,
     String? phoneNumber,
     Map<String, dynamic>? location,
+    Map<String, dynamic>? settings,
+  });
+  Future<UserModel> updateUserSettings({
+    required bool isPushNotificationsEnabled,
+    required bool isNewDonationsAlertsEnabled,
+    required bool isUrgentAlertsEnabled,
+    required bool isSystemReports,
+    required String appearance,
   });
   Future<FileUploadResponseModel> uploadProfileAvatar(File file);
   Future<UserModel> updateProfileWithAvatarId(String avatarAttachmentId);
@@ -279,6 +287,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     String? email,
     String? phoneNumber,
     Map<String, dynamic>? location,
+    Map<String, dynamic>? settings,
   }) async {
     final updateProfileInput = <String, dynamic>{
       if (displayName != null && displayName.trim().isNotEmpty)
@@ -287,6 +296,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (phoneNumber != null && phoneNumber.trim().isNotEmpty)
         'phoneNumber': phoneNumber.trim(),
       if (location != null) 'location': Map<String, dynamic>.from(location),
+      if (settings != null) 'settings': Map<String, dynamic>.from(settings),
     };
 
     final vars = GUpdateProfileVars.fromJson({
@@ -300,9 +310,29 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       GUpdateProfileReq((b) => b.vars = vars.toBuilder()),
       'updateProfile',
     );
-
-    return UserModel.fromJson(
+    var userModel = UserModel.fromJson(
       Map<String, dynamic>.from(data.updateProfile.toJson()),
+    );
+    print('UserModel after updateProfile: ${userModel.toJson()}');
+    return userModel;
+  }
+
+  @override
+  Future<UserModel> updateUserSettings({
+    required bool isPushNotificationsEnabled,
+    required bool isNewDonationsAlertsEnabled,
+    required bool isUrgentAlertsEnabled,
+    required bool isSystemReports,
+    required String appearance,
+  }) async {
+    return updateProfile(
+      settings: {
+        'isPushNotificationsEnabled': isPushNotificationsEnabled,
+        'isNewDonationsAlertsEnabled': isNewDonationsAlertsEnabled,
+        'isUrgentAlertsEnabled': isUrgentAlertsEnabled,
+        'isSystemReports': isSystemReports,
+        'appearance': appearance,
+      },
     );
   }
 
@@ -432,8 +462,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
         throw ServerException(message);
       }
-
       final data = response.data;
+      
       if (data == null) {
         throw ServerException('No data returned for $operationName');
       }

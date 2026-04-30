@@ -148,4 +148,27 @@ class ProfileRepositoryImpl implements ProfileRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, User>> updateUserSettings({
+    required bool isPushNotificationsEnabled,
+    required bool isNewDonationsAlertsEnabled,
+    required bool isUrgentAlertsEnabled,
+    required bool isSystemReports,
+    required String appearance,
+  }) async {
+    try {
+      return authRepository.updateUserSettings(
+        isPushNotificationsEnabled: isPushNotificationsEnabled,
+        isNewDonationsAlertsEnabled: isNewDonationsAlertsEnabled,
+        isUrgentAlertsEnabled: isUrgentAlertsEnabled,
+        isSystemReports: isSystemReports,
+        appearance: appearance,
+      );
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
 }

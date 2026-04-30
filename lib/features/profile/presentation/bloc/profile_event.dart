@@ -82,3 +82,28 @@ class ProfileActivitiesLoadMoreRequested extends ProfileEvent {
   @override
   List<Object?> get props => [limit];
 }
+
+class ProfileSettingsUpdateRequested extends ProfileEvent {
+  final bool isPushNotificationsEnabled;
+  final bool isNewDonationsAlertsEnabled;
+  final bool isUrgentAlertsEnabled;
+  final bool isSystemReports;
+  final String appearance;
+
+  const ProfileSettingsUpdateRequested({
+    required this.isPushNotificationsEnabled,
+    required this.isNewDonationsAlertsEnabled,
+    required this.isUrgentAlertsEnabled,
+    required this.isSystemReports,
+    required this.appearance,
+  });
+
+  @override
+  List<Object?> get props => [
+    isPushNotificationsEnabled,
+    isNewDonationsAlertsEnabled,
+    isUrgentAlertsEnabled,
+    isSystemReports,
+    appearance,
+  ];
+}
