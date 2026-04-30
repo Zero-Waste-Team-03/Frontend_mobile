@@ -20,24 +20,17 @@ class ReservationModel extends Reservation {
   });
 
   factory ReservationModel.fromJson(Map<String, dynamic> json) {
-    print('[ReservationModel] fromJson() called');
-    print('[ReservationModel] JSON keys: ${json.keys.toList()}');
 
     try {
       // Parse donation with attachments
       Donation? donation;
       if (json['donation'] != null) {
-        print('[ReservationModel] Parsing donation...');
         final donationJson = json['donation'] as Map<String, dynamic>;
-        print(
-          '[ReservationModel] Donation JSON keys: ${donationJson.keys.toList()}',
-        );
         final rawUserJson = donationJson['user'];
         Map<String, dynamic> userJson = rawUserJson is Map<String, dynamic>
             ? rawUserJson
             : <String, dynamic>{};
         if (userJson.isEmpty) {
-          print('[ReservationModel] WARNING: No user info found in donation');
           userJson = {
             'id': _asString(donationJson['userId']) ?? '0',
             'displayName': 'Unknown User',
@@ -52,7 +45,7 @@ class ReservationModel extends Reservation {
                 _asString(donationJson['userId']) ??
                 '0',
           };
-          print('[ReservationModel] User JSON keys: ${userJson.keys.toList()}');
+  
         }
         final author = UserModel.fromJson(userJson);
 
@@ -60,9 +53,7 @@ class ReservationModel extends Reservation {
         List<Attachment> attachments = [];
         if (donationJson['attachmentIds'] != null) {
           final attachmentIds = donationJson['attachmentIds'] as List<dynamic>;
-          print('[ReservationModel] Found ${attachmentIds.length} attachments');
-          // Note: In real scenario, you'd fetch attachment URLs from backend
-          // For now, we store the IDs and use mainAttachmentId for image
+      
           attachments = attachmentIds
               .map(
                 (id) => Attachment(
@@ -76,18 +67,15 @@ class ReservationModel extends Reservation {
               .toList();
         }
 
-        print('[ReservationModel] Creating Donation entity...');
-
+      
         // Extract image URL from mainAttachment
         String imageUrl = '';
         if (donationJson['mainAttachment'] != null) {
           final mainAttachment =
               donationJson['mainAttachment'] as Map<String, dynamic>;
           imageUrl = mainAttachment['url'] as String? ?? '';
-          print('[ReservationModel] MainAttachment URL: $imageUrl');
-        } else {
-          print('[ReservationModel] No mainAttachment found in donation');
-        }
+          } else {
+          }
 
         donation = Donation(
           id: _asString(donationJson['id']) ?? '',
@@ -112,17 +100,12 @@ class ReservationModel extends Reservation {
           isLikedByMe: donationJson['isLikedByMe'] as bool?,
           authorDetails: author,
         );
-        print(
-          '[ReservationModel] Donation entity created with ID: ${donation.id}',
-        );
+        
       } else {
-        print('[ReservationModel] No donation found in response');
-      }
+        }
 
-      print('[ReservationModel] Creating ReservationModel...');
       final reservationId = _asString(json['id']) ?? 'unknown_reservation';
-      print('[ReservationModel] Reservation ID: $reservationId');
-
+      
       final model = ReservationModel(
         id: reservationId,
         donationId: _asString(json['donation']?['id']) ?? '',
@@ -146,10 +129,8 @@ class ReservationModel extends Reservation {
             : null,
       );
 
-      print('[ReservationModel] SUCCESS: ReservationModel created');
       return model;
     } catch (e) {
-      print('[ReservationModel] ERROR during parsing: ${e.runtimeType} - $e');
       rethrow;
     }
   }

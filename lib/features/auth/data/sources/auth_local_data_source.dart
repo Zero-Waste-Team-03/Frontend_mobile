@@ -36,9 +36,6 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
       if (refreshToken != null) {
         await secureStorage.write(key: refreshTokenKey, value: refreshToken);
       }
-      var new_access_token = await secureStorage.read(key: accessTokenKey);
-      var new_refresh_token = await secureStorage.read(key: refreshTokenKey);
-      print('Tokens after caching: $new_access_token, $new_refresh_token');
     } catch (e) {
       throw CacheException('Failed to cache tokens');
     }
@@ -48,9 +45,6 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   Future<String?> getAccessToken() async {
     try {
       var access_token = await secureStorage.read(key: accessTokenKey);
-      var new_access_token = await secureStorage.read(key: accessTokenKey);
-      var new_refresh_token = await secureStorage.read(key: refreshTokenKey);
-      print('Tokens after getting access token: $new_access_token, $new_refresh_token');
       return access_token;
     } catch (e) {
       throw CacheException('Failed to get access token');
@@ -61,9 +55,6 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   Future<String?> getRefreshToken() async {
     try {
       var refresh_token = await secureStorage.read(key: refreshTokenKey);
-      var new_access_token = await secureStorage.read(key: accessTokenKey);
-      var new_refresh_token = await secureStorage.read(key: refreshTokenKey);
-      print('Tokens after getting refresh token: $new_access_token, $new_refresh_token');
       return refresh_token;
     } catch (e) {
       throw CacheException('Failed to get refresh token');
@@ -75,9 +66,6 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
     try {
       await secureStorage.delete(key: accessTokenKey);
       await secureStorage.delete(key: refreshTokenKey);
-      var new_access_token = await secureStorage.read(key: accessTokenKey);
-      var new_refresh_token = await secureStorage.read(key: refreshTokenKey);
-      print('Tokens after clearing: $new_access_token, $new_refresh_token'); // Debugging line
     } catch (e) {
       throw CacheException('Failed to clear tokens');
     }
@@ -113,8 +101,6 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   Future<void> clearUserProfile() async {
     try {
       await sharedPreferences.remove(userProfileKey);
-      var new_user_profile = sharedPreferences.getString(userProfileKey);
-      print('User profile after clearing: $new_user_profile'); // Debugging line
     } catch (e) {
       throw CacheException('Failed to clear user profile');
     }

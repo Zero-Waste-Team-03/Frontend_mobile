@@ -1,41 +1,5 @@
 import 'package:equatable/equatable.dart';
-
-enum NotificationType { alert, confirmation, donation, impact }
-
-extension NotificationTypeExt on NotificationType {
-  String get value {
-    switch (this) {
-      case NotificationType.alert:
-        return 'ALERT';
-      case NotificationType.confirmation:
-        return 'CONFIRMATION';
-      case NotificationType.donation:
-        return 'DONATION';
-      case NotificationType.impact:
-        return 'IMPACT';
-    }
-  }
-
-  String get displayName {
-    switch (this) {
-      case NotificationType.alert:
-        return 'Alert';
-      case NotificationType.confirmation:
-        return 'Confirmation';
-      case NotificationType.donation:
-        return 'Donation';
-      case NotificationType.impact:
-        return 'Impact';
-    }
-  }
-
-  static NotificationType fromString(String value) {
-    return NotificationType.values.firstWhere(
-      (e) => e.value == value.toUpperCase(),
-      orElse: () => NotificationType.alert,
-    );
-  }
-}
+import 'notification_type.dart';
 
 class Notification extends Equatable {
   final String id;

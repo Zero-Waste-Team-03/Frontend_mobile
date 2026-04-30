@@ -7,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/widgets/loading_skeleton.dart';
 import '../../../donations/domain/entities/donation.dart';
 import '../bloc/favorites_bloc.dart';
 import '../bloc/favorites_event.dart';
@@ -102,9 +103,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
           }
 
           if (state is FavoritesLoading) {
-            return Center(
-              child: CircularProgressIndicator(color: AuthColors.primary),
-            );
+            return const LoadingSkeleton(itemCount: 6);
           }
 
           if (state is FavoritesError) {

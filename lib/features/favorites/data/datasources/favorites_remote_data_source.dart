@@ -43,21 +43,15 @@ class FavoritesRemoteDataSourceImpl implements FavoritesRemoteDataSource {
     int limit = 10,
   }) async {
     try {
-      print('getLikedDonations started');
-      print('Input params => page: $page, limit: $limit');
 
       final vars = GLikedDonationsVars.fromJson({
         'pagination': {'page': page, 'limit': limit},
       });
 
-      print('Vars created => $vars');
 
       if (vars == null) {
-        print('Vars creation failed');
         throw ServerException('Failed to build likedDonations request');
       }
-
-      print('Sending request...');
 
       final data = await _executeRequest(
         GLikedDonationsReq(
@@ -68,29 +62,16 @@ class FavoritesRemoteDataSourceImpl implements FavoritesRemoteDataSource {
         'likedDonations',
       );
 
-      print('Request success');
-      print(
-        'Response meta => page: ${data.likedDonations.page}, '
-        'limit: ${data.likedDonations.limit}, '
-        'totalCount: ${data.likedDonations.totalCount}, '
-        'hasNextPage: ${data.likedDonations.hasNextPage}, '
-        'hasPreviousPage: ${data.likedDonations.hasPreviousPage}',
-      );
+    
 
       final items = data.likedDonations.items;
-
-      print('Raw items count => ${items?.length ?? 0}');
 
       final mapped = items == null
           ? <DonationModel>[]
           : items.map((item) {
               final json = Map<String, dynamic>.from(item.toJson());
-              print('Mapping donation => $json');
               return DonationModel.fromJson(json);
             }).toList();
-
-      print('Mapped donations count => ${mapped.length}');
-      print('getLikedDonations completed successfully');
 
       return FavoriteDonationsPage(
         donations: mapped,
@@ -101,9 +82,7 @@ class FavoritesRemoteDataSourceImpl implements FavoritesRemoteDataSource {
         totalCount: data.likedDonations.totalCount,
       );
     } catch (e, stackTrace) {
-      print('getLikedDonations failed');
-      print('Error => $e');
-      print('StackTrace => $stackTrace');
+
       rethrow;
     }
   }

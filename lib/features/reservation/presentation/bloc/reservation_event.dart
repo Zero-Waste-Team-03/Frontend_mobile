@@ -54,11 +54,15 @@ class FetchReservationDetailsEvent extends ReservationEvent {
 
 class CreateReservationEvent extends ReservationEvent {
   final String donationId;
+  final int quantity;
 
-  const CreateReservationEvent({required this.donationId});
+  const CreateReservationEvent({
+    required this.donationId,
+    required this.quantity,
+  });
 
   @override
-  List<Object?> get props => [donationId];
+  List<Object?> get props => [donationId, quantity];
 }
 
 class UpdateReservationStatusEvent extends ReservationEvent {

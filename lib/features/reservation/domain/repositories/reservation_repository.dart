@@ -29,6 +29,7 @@ abstract class ReservationRepository {
   /// Create a new reservation for a donation
   Future<Either<Failure, Reservation>> createReservation({
     required String donationId,
+    required int quantity,
   });
 
   /// Update reservation status

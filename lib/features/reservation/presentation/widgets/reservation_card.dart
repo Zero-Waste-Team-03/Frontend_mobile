@@ -76,12 +76,7 @@ class ReservationCard extends StatelessWidget {
     final donationTitle = donation?.title ?? 'Donation';
     final imageUrl = donation?.imageUrl ?? '';
 
-    // Debug logging
-    print('[ReservationCard] Building card for reservation: ${reservation.id}');
-    print('[ReservationCard] Donation ID: ${donation?.id}');
-    print('[ReservationCard] Donation Title: $donationTitle');
-    print('[ReservationCard] Image URL: $imageUrl');
-    print('[ReservationCard] Image URL is valid: ${_isValidUrl(imageUrl)}');
+   
 
     return GestureDetector(
       onTap: onTap,
@@ -118,9 +113,7 @@ class ReservationCard extends StatelessWidget {
                         ),
                       ),
                       errorWidget: (context, url, error) {
-                        print(
-                          '[ReservationCard] Image load error for URL "$imageUrl": $error',
-                        );
+                        
                         return Container(
                           color: AuthColors.lightGrayBackground,
                           child: Icon(

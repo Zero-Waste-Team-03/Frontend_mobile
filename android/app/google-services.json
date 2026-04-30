@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "65575197756",
+    "project_id": "zerowaste-db7bb",
+    "storage_bucket": "zerowaste-db7bb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:65575197756:android:2a6e3b7abe09d8f4f37739",
+        "android_client_info": {
+          "package_name": "com.zerowaste.zerowaste"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBiXG5W85B-qFdZwln6ypbKjNah-Q8x8NQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

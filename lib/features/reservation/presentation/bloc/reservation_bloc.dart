@@ -186,6 +186,7 @@ class ReservationBloc extends Bloc<ReservationEvent, ReservationState> {
 
       final result = await createReservationUseCase(
         donationId: event.donationId,
+        quantity: event.quantity,
       );
 
       result.fold(

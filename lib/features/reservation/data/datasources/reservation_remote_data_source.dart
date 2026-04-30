@@ -14,7 +14,10 @@ import 'graphql/__generated__/reserve_donation.var.gql.dart';
 
 abstract class ReservationRemoteDataSource {
   /// Create a reservation for a donation (GraphQL mutation)
-  Future<ReservationModel> createReservation({required String donationId});
+  Future<ReservationModel> createReservation({
+    required String donationId,
+    required int quantity,
+  });
 
   /// Get user reservations
   Future<List<ReservationModel>> getUserReservations({
@@ -43,8 +46,12 @@ class ReservationRemoteDataSourceImpl implements ReservationRemoteDataSource {
   @override
   Future<ReservationModel> createReservation({
     required String donationId,
+    required int quantity,
   }) async {
-    final vars = GReserveDonationVars.fromJson({'donationId': donationId});
+    final vars = GReserveDonationVars.fromJson({
+      'donationId': donationId,
+      'quantity': quantity,
+    });
     if (vars == null) {
       throw ServerException('Failed to build reserveDonation request');
     }
@@ -133,22 +140,16 @@ class ReservationRemoteDataSourceImpl implements ReservationRemoteDataSource {
 
   @override
   Future<ReservationModel> getReservationDetails(String reservationId) async {
-    print(
-      '[ReservationRemoteDataSource] getReservationDetails() called with ID: $reservationId',
-    );
+
 
     final vars = GMyReservationVars.fromJson({'id': reservationId});
     if (vars == null) {
-      print(
-        '[ReservationRemoteDataSource] ERROR: Failed to build myReservation request',
-      );
+      
       throw ServerException('Failed to build myReservation request');
     }
 
     try {
-      print(
-        '[ReservationRemoteDataSource] Executing GraphQL query: myReservation',
-      );
+      
       final data = await _executeRequest(
         GMyReservationReq(
           (b) => b
@@ -158,27 +159,18 @@ class ReservationRemoteDataSourceImpl implements ReservationRemoteDataSource {
         'myReservation',
       );
 
-      print('[ReservationRemoteDataSource] GraphQL response received');
       final responseJson = data.myReservation.toJson();
-      print(
-        '[ReservationRemoteDataSource] Parsing response to ReservationModel...',
-      );
+    
       final model = ReservationModel.fromJson(
         Map<String, dynamic>.from(responseJson),
       );
-      print(
-        '[ReservationRemoteDataSource] SUCCESS: Reservation model created with ID: ${model.id}',
-      );
+     
       return model;
     } on ServerException catch (e) {
-      print(
-        '[ReservationRemoteDataSource] ServerException caught: ${e.message}',
-      );
+      
       rethrow;
     } catch (e) {
-      print(
-        '[ReservationRemoteDataSource] Unexpected error: ${e.runtimeType} - $e',
-      );
+      
       throw ServerException('Error fetching reservation: $e');
     }
   }

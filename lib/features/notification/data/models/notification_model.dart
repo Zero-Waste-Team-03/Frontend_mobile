@@ -1,4 +1,5 @@
 import '../../domain/entities/notification.dart';
+import '../../domain/entities/notification_type.dart';
 
 class NotificationModel extends Notification {
   const NotificationModel({
@@ -19,7 +20,7 @@ class NotificationModel extends Notification {
       receiverId: json['receiverId'] as String,
       title: json['title'] as String,
       body: json['body'] as String,
-      type: NotificationTypeExt.fromString(json['type'] as String? ?? 'ALERT'),
+      type: NotificationTypeExt.fromString(json['type'] as String? ?? 'TEST'),
       isRead: json['isRead'] as bool? ?? false,
       meta: json['meta'] as Map<String, dynamic>?,
       createdAt: json['createdAt'] != null

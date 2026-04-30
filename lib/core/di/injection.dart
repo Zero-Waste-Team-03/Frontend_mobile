@@ -44,6 +44,12 @@ import '../../features/notification/data/repositories/notification_repository_im
 import '../../features/notification/domain/repositories/notification_repository.dart';
 import '../../features/notification/domain/usecases/notification_usecases.dart';
 import '../../features/notification/presentation/bloc/notification_bloc.dart';
+import '../../features/notification/data/sources/fcm_token_remote_data_source.dart';
+import '../../features/notification/data/sources/fcm_token_local_data_source.dart';
+import '../../features/notification/data/repositories/fcm_token_repository_impl.dart';
+import '../../features/notification/domain/repositories/fcm_token_repository.dart';
+import '../../features/notification/domain/usecases/fcm_token_usecases.dart';
+import '../../features/notification/data/services/fcm_manager.dart';
 import '../../features/leaderboard/data/datasources/leaderboard_remote_data_source.dart';
 import '../../features/leaderboard/data/repositories/leaderboard_repository_impl.dart';
 import '../../features/leaderboard/domain/repositories/leaderboard_repository.dart';
@@ -221,13 +227,60 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton<DeleteNotificationUseCase>(
     () => DeleteNotificationUseCase(repository: getIt()),
   );
-  getIt.registerFactory(
-    () => NotificationBloc(
+
+  getIt.registerLazySingleton<FcmTokenRemoteDataSource>(
+    () => FcmTokenRemoteDataSourceImpl(getIt()),
+  );
+
+  getIt.registerLazySingleton<FcmTokenLocalDataSource>(
+    () => FcmTokenLocalDataSourceImpl(getIt()),
+  );
+
+  getIt.registerLazySingleton<FcmTokenRepository>(
+    () => FcmTokenRepositoryImpl(getIt(), getIt()),
+  );
+
+  getIt.registerSingleton<RegisterFcmTokenUseCase>(
+    RegisterFcmTokenUseCase(getIt()),
+  );
+
+  getIt.registerSingleton<GetFcmTokenUseCase>(GetFcmTokenUseCase(getIt()));
+
+  getIt.registerSingleton<CheckFcmTokenRegistrationUseCase>(
+    CheckFcmTokenRegistrationUseCase(getIt()),
+  );
+
+  getIt.registerSingleton<DeleteFcmTokenUseCase>(
+    DeleteFcmTokenUseCase(getIt()),
+  );
+
+  getIt.registerSingleton<GetLastTokenRegistrationTimeUseCase>(
+    GetLastTokenRegistrationTimeUseCase(getIt()),
+  );
+
+  getIt.registerLazySingleton<FcmManager>(() => FcmManager());
+
+  getIt.registerFactory(() {
+    // Try to get FcmManager, but provide null if Firebase isn't configured
+    FcmManager? fcmManager;
+    try {
+      fcmManager = getIt<FcmManager>();
+    } catch (e) {
+      print('⚠️ FcmManager not available (Firebase not configured)');
+    }
+
+    return NotificationBloc(
       getNotificationsUseCase: getIt(),
       markNotificationsAsReadUseCase: getIt(),
       deleteNotificationUseCase: getIt(),
-    ),
-  );
+      registerFcmTokenUseCase: getIt(),
+      getFcmTokenUseCase: getIt(),
+      checkFcmTokenRegistrationUseCase: getIt(),
+      deleteFcmTokenUseCase: getIt(),
+      getLastTokenRegistrationTimeUseCase: getIt(),
+      fcmManager: fcmManager,
+    );
+  });
 
   // ── Leaderboard ──
   getIt.registerLazySingleton<LeaderboardRemoteDataSource>(

@@ -33,6 +33,9 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
   late Color tagTextColor;
   late bool _isLiked;
   bool _isLikeUpdating = false;
+  final TextEditingController _reserveQuantityController =
+      TextEditingController(text: '1');
+  String? _reserveQuantityError;
 
   Offset _chatPos = const Offset(300, 500);
   final GlobalKey _stackKey = GlobalKey();
@@ -55,6 +58,44 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
       tagBgColor = const Color(0xFFE6F0FF);
       tagTextColor = const Color(0xFF3B82F6);
     }
+  }
+
+  @override
+  void dispose() {
+    _reserveQuantityController.dispose();
+    super.dispose();
+  }
+
+  int? _validateReserveQuantity() {
+    final raw = _reserveQuantityController.text.trim();
+    final parsed = int.tryParse(raw);
+
+    if (parsed == null) {
+      setState(() {
+        _reserveQuantityError = 'Enter a valid quantity';
+      });
+      return null;
+    }
+
+    if (parsed <= 0) {
+      setState(() {
+        _reserveQuantityError = 'Please enter a valid quantity';
+      });
+      return null;
+    }
+
+    if (parsed > widget.donation.quantity) {
+      setState(() {
+        _reserveQuantityError =
+            'Only ${widget.donation.quantity} units available';
+      });
+      return null;
+    }
+
+    setState(() {
+      _reserveQuantityError = null;
+    });
+    return parsed;
   }
 
   Future<void> _toggleFavorite() async {
@@ -150,6 +191,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                         children: [
                           _buildMainInfoCard(),
                           _buildKeyMetricsRow(),
+                          _buildReserveQuantitySection(),
                           _buildDescriptionSection(),
                           _buildPostedBySection(),
                           _buildPickupLocationSection(),
@@ -204,12 +246,19 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                             builder: (context, state) {
                               final isReserving = state is ReservationCreating;
                               return ElevatedButton(
-                                onPressed: isReserving
+                                onPressed:
+                                    isReserving || widget.donation.quantity <= 0
                                     ? null
                                     : () {
+                                        final quantity =
+                                            _validateReserveQuantity();
+                                        if (quantity == null) {
+                                          return;
+                                        }
                                         context.read<ReservationBloc>().add(
                                           CreateReservationEvent(
                                             donationId: widget.donation.id,
+                                            quantity: quantity,
                                           ),
                                         );
                                       },
@@ -308,10 +357,77 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
       statusCode: statusCode,
       timestamp: timestamp,
       onRetry: () {
+        final quantity = _validateReserveQuantity();
+        if (quantity == null) {
+          return;
+        }
         context.read<ReservationBloc>().add(
-          CreateReservationEvent(donationId: widget.donation.id),
+          CreateReservationEvent(
+            donationId: widget.donation.id,
+            quantity: quantity,
+          ),
         );
       },
+    );
+  }
+
+  Widget _buildReserveQuantitySection() {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Reserve Quantity',
+            style: TextStyle(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w600,
+              color: AuthColors.labelText,
+            ),
+          ),
+          SizedBox(height: 8.h),
+          TextField(
+            controller: _reserveQuantityController,
+            keyboardType: const TextInputType.numberWithOptions(
+              decimal: false,
+              signed: false,
+            ),
+            onChanged: (_) {
+              if (_reserveQuantityError != null) {
+                _validateReserveQuantity();
+              }
+            },
+            style: TextStyle(fontSize: 14.sp, color: AuthColors.headingText),
+            decoration: InputDecoration(
+              hintText: 'Quantity',
+              errorText: _reserveQuantityError,
+              filled: true,
+              fillColor: const Color(0xFFF8FAFC),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 16.w,
+                vertical: 14.h,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.r),
+                borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.r),
+                borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.r),
+                borderSide: BorderSide(color: AuthColors.primary, width: 1.5),
+              ),
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            'Available quantity: ${widget.donation.quantity} items',
+            style: TextStyle(fontSize: 12.sp, color: const Color(0xFF64748B)),
+          ),
+        ],
+      ),
     );
   }
 

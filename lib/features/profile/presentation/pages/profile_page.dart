@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../widgets/profile_loading_skeleton.dart';
 import '../../../../core/di/injection.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../bloc/profile_bloc.dart';
@@ -26,6 +27,14 @@ class _ProfilePageState extends State<ProfilePage> {
     context.read<ProfileBloc>().add(const ProfileRefreshRequested());
     // Wait for the refresh to complete
     await Future.delayed(const Duration(milliseconds: 500));
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ProfileBloc>().add(const ProfileLoadRequested());
+    });
   }
 
   @override
@@ -55,125 +64,131 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Scaffold(
         backgroundColor: AuthColors.background,
         body: SafeArea(
-          child: BlocBuilder<ProfileBloc, ProfileState>(
-            builder: (context, state) {
-              if (state is ProfileLoading && state is! ProfileUpdating) {
-                return Center(
-                  child: CircularProgressIndicator(color: AuthColors.primary),
-                );
-              }
-
-              if (state is ProfileError && state is! ProfileUpdating) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.error_outline_rounded,
-                        size: 64.sp,
-                        color: Colors.red,
+          child: Column(
+            children: [
+              // Header with profile title and bell icon (always shown)
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppDimensions.paddingLarge.w,
+                  vertical: AppDimensions.paddingMedium.h,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Profile',
+                      style: TextStyle(
+                        fontSize: AppDimensions.appBarTitleSize.sp,
+                        fontWeight: FontWeight.bold,
+                        color: AuthColors.primary,
+                        fontFamily: AppFonts.primaryFont,
                       ),
-                      SizedBox(height: 16.h),
-                      Text(
-                        'Error loading profile',
-                        style: TextStyle(
-                          fontSize: AppDimensions.titleSize.sp,
-                          fontWeight: FontWeight.bold,
-                          color: AuthColors.headingText,
-                          fontFamily: AppFonts.primaryFont,
-                        ),
-                      ),
-                      SizedBox(height: 8.h),
-                      Text(
-                        state.message,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: AppDimensions.bodySize.sp,
-                          color: AuthColors.subText,
-                          fontFamily: AppFonts.primaryFont,
-                        ),
-                      ),
-                      SizedBox(height: 24.h),
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          context.read<ProfileBloc>().add(
-                            const ProfileRefreshRequested(),
-                          );
-                        },
-                        icon: const Icon(Icons.refresh_rounded),
-                        label: const Text('Retry'),
-                      ),
-                    ],
-                  ),
-                );
-              }
-
-              // Get user data from state
-              final user = state is ProfileLoaded
-                  ? state.user
-                  : (state is ProfileUpdating
-                        ? state.currentUser
-                        : (state is ProfileUpdateSuccess ? state.user : null));
-              final isUpdating = state is ProfileUpdating;
-
-              if (user == null) {
-                return Center(
-                  child: Text(
-                    'No user data available',
-                    style: TextStyle(
-                      fontSize: AppDimensions.bodySize.sp,
-                      color: AuthColors.subText,
-                      fontFamily: AppFonts.primaryFont,
                     ),
-                  ),
-                );
-              }
-              return RefreshIndicator(
-                onRefresh: _onRefresh,
-                color: AuthColors.primary,
-                backgroundColor: AuthColors.background,
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      // Header with profile title and bell icon
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: AppDimensions.paddingLarge.w,
-                          vertical: AppDimensions.paddingMedium.h,
+                    IconButton(
+                      icon: Icon(
+                        Icons.notifications_none_rounded,
+                        color: AuthColors.primary,
+                        size: AppDimensions.iconSize.sp,
+                      ),
+                      style: IconButton.styleFrom(
+                        backgroundColor: AuthColors.lightGrayBackground,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.r),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      ),
+                      onPressed: () {
+                        context.push('/notifications');
+                      },
+                    ),
+                  ],
+                ),
+              ),
+
+              // Content area controlled by state
+              Expanded(
+                child: BlocBuilder<ProfileBloc, ProfileState>(
+                  builder: (context, state) {
+                    // Loading
+                    if (state is ProfileLoading || state is ProfileInitial) {
+                      return const ProfileLoadingSkeleton();
+                    }
+
+                    // Error (when not an updating state)
+                    if (state is ProfileError && state is! ProfileUpdating) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
+                            Icon(
+                              Icons.error_outline_rounded,
+                              size: 64.sp,
+                              color: Colors.red,
+                            ),
+                            SizedBox(height: 16.h),
                             Text(
-                              'Profile',
+                              'Error loading profile',
                               style: TextStyle(
-                                fontSize: AppDimensions.appBarTitleSize.sp,
+                                fontSize: AppDimensions.titleSize.sp,
                                 fontWeight: FontWeight.bold,
-                                color: AuthColors.primary,
+                                color: AuthColors.headingText,
                                 fontFamily: AppFonts.primaryFont,
                               ),
                             ),
-                            IconButton(
-                              icon: Icon(
-                                Icons.notifications_none_rounded,
-                                color: AuthColors.primary,
-                                size: AppDimensions.iconSize.sp,
+                            SizedBox(height: 8.h),
+                            Text(
+                              state.message,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: AppDimensions.bodySize.sp,
+                                color: AuthColors.subText,
+                                fontFamily: AppFonts.primaryFont,
                               ),
-                              style: IconButton.styleFrom(
-                                backgroundColor: AuthColors.lightGrayBackground,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8.r),
-                                ),
-                              ),
+                            ),
+                            SizedBox(height: 24.h),
+                            ElevatedButton.icon(
                               onPressed: () {
-                                context.push('/notifications');
+                                context.read<ProfileBloc>().add(
+                                  const ProfileRefreshRequested(),
+                                );
                               },
+                              icon: const Icon(Icons.refresh_rounded),
+                              label: const Text('Retry'),
                             ),
                           ],
                         ),
-                      ),
+                      );
+                    }
 
-                      // User Avatar and Name Section
+                    // Get user data from state (handle updating state too)
+                    final user = state is ProfileLoaded
+                        ? state.user
+                        : (state is ProfileUpdating
+                              ? state.currentUser
+                              : (state is ProfileUpdateSuccess ? state.user : null));
+                    final isUpdating = state is ProfileUpdating;
+
+                    if (user == null) {
+                      return Center(
+                        child: Text(
+                          'No user data available',
+                          style: TextStyle(
+                            fontSize: AppDimensions.bodySize.sp,
+                            color: AuthColors.subText,
+                            fontFamily: AppFonts.primaryFont,
+                          ),
+                        ),
+                      );
+                    }
+
+                    // Main content (same UI as before, header removed)
+                    return RefreshIndicator(
+                      onRefresh: _onRefresh,
+                      color: AuthColors.primary,
+                      backgroundColor: AuthColors.background,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            // User Avatar and Name Section
                       Padding(
                         padding: EdgeInsets.symmetric(
                           vertical: AppDimensions.paddingLarge.h,
@@ -751,8 +766,8 @@ class _ProfilePageState extends State<ProfilePage> {
               );
             },
           ),
-        ),
-      ),
+        ),]
+      ),))
     );
   }
 

@@ -24,6 +24,48 @@ class DonationDetailsFullPage extends StatefulWidget {
 }
 
 class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
+  final TextEditingController _reserveQuantityController =
+      TextEditingController(text: '1');
+  String? _reserveQuantityError;
+
+  @override
+  void dispose() {
+    _reserveQuantityController.dispose();
+    super.dispose();
+  }
+
+  int? _validateReserveQuantity() {
+    final raw = _reserveQuantityController.text.trim();
+    final parsed = int.tryParse(raw);
+
+    if (parsed == null) {
+      setState(() {
+        _reserveQuantityError = 'Enter a valid quantity';
+      });
+      return null;
+    }
+
+    if (parsed <= 0) {
+      setState(() {
+        _reserveQuantityError = 'Please enter a valid quantity';
+      });
+      return null;
+    }
+
+    if (parsed > widget.donation.quantity) {
+      setState(() {
+        _reserveQuantityError =
+            'Only ${widget.donation.quantity} units available';
+      });
+      return null;
+    }
+
+    setState(() {
+      _reserveQuantityError = null;
+    });
+    return parsed;
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -38,7 +80,9 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
               },
               donationTitle: widget.donation.title,
               expiryAt: state.reservation.expiresAt != null
-                  ? state.reservation.expiresAt!.toLocal().toString().split('.')[0]
+                  ? state.reservation.expiresAt!.toLocal().toString().split(
+                      '.',
+                    )[0]
                   : null,
             );
           } else if (state is ReservationCreationError) {
@@ -248,6 +292,73 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
                         ),
                         SizedBox(height: AppDimensions.paddingLarge.h),
 
+                        Text(
+                          'Reserve Quantity',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w600,
+                            color: AuthColors.labelText,
+                            fontFamily: AppFonts.primaryFont,
+                          ),
+                        ),
+                        SizedBox(height: 8.h),
+                        TextField(
+                          controller: _reserveQuantityController,
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: false,
+                            signed: false,
+                          ),
+                          onChanged: (_) {
+                            if (_reserveQuantityError != null) {
+                              _validateReserveQuantity();
+                            }
+                          },
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: AuthColors.headingText,
+                            fontFamily: AppFonts.primaryFont,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: 'Quantity',
+                            errorText: _reserveQuantityError,
+                            filled: true,
+                            fillColor: const Color(0xFFF8FAFC),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16.w,
+                              vertical: 14.h,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.r),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFE2E8F0),
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.r),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFE2E8F0),
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.r),
+                              borderSide: BorderSide(
+                                color: AuthColors.primary,
+                                width: 1.5,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 8.h),
+                        Text(
+                          'Available quantity: ${widget.donation.quantity} items',
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: const Color(0xFF64748B),
+                            fontFamily: AppFonts.primaryFont,
+                          ),
+                        ),
+                        SizedBox(height: AppDimensions.paddingLarge.h),
+
                         // Action Button
                         if (widget.donation.status == 'PUBLISHED')
                           SizedBox(
@@ -257,12 +368,20 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
                                 final isReserving =
                                     state is ReservationCreating;
                                 return ElevatedButton(
-                                  onPressed: isReserving
+                                  onPressed:
+                                      isReserving ||
+                                          widget.donation.quantity <= 0
                                       ? null
                                       : () {
+                                          final quantity =
+                                              _validateReserveQuantity();
+                                          if (quantity == null) {
+                                            return;
+                                          }
                                           context.read<ReservationBloc>().add(
                                             CreateReservationEvent(
                                               donationId: widget.donation.id,
+                                              quantity: quantity,
                                             ),
                                           );
                                         },
@@ -346,8 +465,15 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
       statusCode: statusCode,
       timestamp: timestamp,
       onRetry: () {
+        final quantity = _validateReserveQuantity();
+        if (quantity == null) {
+          return;
+        }
         context.read<ReservationBloc>().add(
-          CreateReservationEvent(donationId: widget.donation.id),
+          CreateReservationEvent(
+            donationId: widget.donation.id,
+            quantity: quantity,
+          ),
         );
       },
     );
