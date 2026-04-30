@@ -2,11 +2,14 @@ import 'dart:async';
 
 import 'package:app_links/app_links.dart';
 import 'package:dartz/dartz.dart';
+import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:io';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/exceptions/exceptions.dart';
+import '../../../notification/data/services/fcm_manager.dart';
+import '../../../notification/domain/usecases/fcm_token_usecases.dart';
 import '../../domain/entities/auth_response.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -318,6 +321,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, void>> logout() async {
     try {
+      await _clearFcmTokenOnLogout();
       await localDataSource.clearTokens();
       await localDataSource.clearUserProfile();
       return const Right(null);
@@ -410,6 +414,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, void>> logoutFromAllDevices() async {
     try {
       await remoteDataSource.logoutFromAllDevices();
+      await _clearFcmTokenOnLogout();
       await localDataSource.clearTokens();
       return const Right(null);
     } on ServerException catch (e) {
@@ -473,6 +478,42 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(CacheFailure(e.message));
     } catch (e) {
       return Left(CacheFailure(e.toString()));
+    }
+  }
+
+  Future<void> _clearFcmTokenOnLogout() async {
+    try {
+      final fcmManager = GetIt.I<FcmManager>();
+      await fcmManager.deleteToken();
+    } catch (e, stackTrace) {
+      _logger.w(
+        '⚠️ [AuthRepository] Unable to delete Firebase Messaging token during logout',
+        error: e,
+        stackTrace: stackTrace,
+      );
+    }
+
+    try {
+      final deleteFcmTokenUseCase = GetIt.I<DeleteFcmTokenUseCase>();
+      final result = await deleteFcmTokenUseCase();
+      result.fold(
+        (failure) {
+          _logger.w(
+            '⚠️ [AuthRepository] Unable to clear cached FCM token during logout: ${failure.message}',
+          );
+        },
+        (_) {
+          _logger.i(
+            '✅ [AuthRepository] Cached FCM token cleared during logout',
+          );
+        },
+      );
+    } catch (e, stackTrace) {
+      _logger.w(
+        '⚠️ [AuthRepository] Unable to clear cached FCM token during logout',
+        error: e,
+        stackTrace: stackTrace,
+      );
     }
   }
 

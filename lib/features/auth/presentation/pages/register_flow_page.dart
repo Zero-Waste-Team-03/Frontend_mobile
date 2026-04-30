@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gaspzero/features/notification/data/services/fcm_initialization_service.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_state.dart';
 import 'auth_colors.dart';
@@ -139,6 +140,7 @@ class _RegisterFlowPageState extends State<RegisterFlowPage>
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthSuccess) {
+            FcmInitializationService.initializeAfterLogin();
             context.go('/home');
           }
         },

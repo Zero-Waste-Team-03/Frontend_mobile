@@ -1,16 +1,23 @@
+import 'dart:async';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/widgets.dart';
+import 'dart:io';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
 import '../../data/services/fcm_manager.dart';
+import '../../domain/usecases/fcm_token_usecases.dart';
 import '../../presentation/bloc/notification_bloc.dart';
 import '../../presentation/bloc/notification_event.dart';
 
 /// Global FCM initialization service
 /// Handles all FCM setup and configuration at app startup
 class FcmInitializationService {
+  static bool _postLoginListenersConfigured = false;
+  static bool _postLoginInitializationInProgress = false;
+
   static final Logger _logger = Logger(
     printer: PrettyPrinter(
       methodCount: 2,
@@ -39,6 +46,48 @@ class FcmInitializationService {
       FcmManager.setupBackgroundNotificationHandler(
         _handleBackgroundNotification,
       );
+      // Ensure iOS presents notifications while app is foregrounded
+      try {
+        if (Platform.isIOS) {
+          _logger.i(
+            '🔔 FcmInitializationService: Configuring iOS foreground presentation options',
+          );
+          await FirebaseMessaging.instance
+              .setForegroundNotificationPresentationOptions(
+                alert: true,
+                badge: true,
+                sound: true,
+              );
+          _logger.i(
+            '✅ FcmInitializationService: iOS foreground presentation options set',
+          );
+        }
+      } catch (e, st) {
+        _logger.w(
+          '⚠️ FcmInitializationService: Failed to set iOS foreground presentation options',
+          error: e,
+          stackTrace: st,
+        );
+      }
+
+      // Add a global debug listener to verify messages arrive in foreground
+      try {
+        FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+          _logger.i(
+            '🔍 FcmInitializationService: Global onMessage received (debug)',
+          );
+          _logger.d('📋 Raw message: ${message.toMap()}');
+        });
+        _logger.i(
+          '✅ FcmInitializationService: Global onMessage debug listener registered',
+        );
+      } catch (e, st) {
+        _logger.w(
+          '⚠️ FcmInitializationService: Could not register global onMessage debug listener',
+          error: e,
+          stackTrace: st,
+        );
+      }
       _logger.i(
         '✅ FcmInitializationService: Background message handler setup complete',
       );
@@ -60,6 +109,108 @@ class FcmInitializationService {
     }
   }
 
+  /// Initialize notification permissions and FCM registration after login.
+  /// This avoids prompting users before they have authenticated.
+  static Future<void> initializeAfterLogin() async {
+    if (_postLoginInitializationInProgress) {
+      _logger.i(
+        '🔔 FcmInitializationService: Post-login FCM initialization already running',
+      );
+      return;
+    }
+
+    _postLoginInitializationInProgress = true;
+
+    try {
+      _logger.i(
+        '🔔 FcmInitializationService: Starting post-login FCM initialization...',
+      );
+
+      final fcmManager = GetIt.I<FcmManager>();
+      final registerFcmTokenUseCase = GetIt.I<RegisterFcmTokenUseCase>();
+
+      if (!_postLoginListenersConfigured) {
+        _logger.i(
+          '📡 FcmInitializationService: Configuring FCM listeners after login...',
+        );
+        fcmManager.setupTokenRefreshListener((newToken) {
+          _logger.i(
+            '🔄 FcmInitializationService: Token refresh detected after login',
+          );
+          unawaited(_registerFcmToken(registerFcmTokenUseCase, newToken));
+        });
+
+        fcmManager.setupForegroundNotificationHandler((
+          RemoteMessage message,
+        ) async {
+          _logger.i(
+            '📬 FcmInitializationService: Foreground notification received',
+          );
+          try {
+            final notificationBloc = GetIt.I<NotificationBloc>();
+            notificationBloc.add(FcmNotificationReceivedEvent(message.data));
+          } catch (e) {
+            _logger.w(
+              '⚠️  FcmInitializationService: Unable to forward foreground notification to NotificationBloc',
+              error: e,
+            );
+          }
+        });
+
+        fcmManager.setupNotificationTapHandler((RemoteMessage message) async {
+          _logger.i(
+            '👆 FcmInitializationService: Notification tapped after login',
+          );
+        });
+
+        _postLoginListenersConfigured = true;
+      }
+
+      // Always request permission after a successful login so the user
+      // is prompted explicitly when they authenticate.
+
+      _logger.i(
+        '🔔 FcmInitializationService: Requesting notification permission after login...',
+      );
+      final settings = await fcmManager.requestNotificationPermission();
+      if (settings == null) {
+        _logger.w(
+          '⚠️  FcmInitializationService: Notification settings unavailable after login',
+        );
+        return;
+      }
+
+      if (settings.authorizationStatus != AuthorizationStatus.authorized &&
+          settings.authorizationStatus != AuthorizationStatus.provisional) {
+        _logger.w(
+          '⚠️  FcmInitializationService: Notification permission not granted after login: ${settings.authorizationStatus}',
+        );
+        return;
+      }
+
+      final token = await fcmManager.getFcmToken();
+      if (token == null || token.isEmpty) {
+        _logger.w(
+          '⚠️  FcmInitializationService: No FCM token available after login',
+        );
+        return;
+      }
+
+      await _registerFcmToken(registerFcmTokenUseCase, token);
+      _logger.i(
+        '🎉 FcmInitializationService: Post-login FCM initialization completed',
+      );
+    } catch (e, stackTrace) {
+      _logger.e(
+        '❌ FcmInitializationService: Error during post-login FCM initialization',
+        error: e,
+        stackTrace: stackTrace,
+      );
+    } finally {
+      _postLoginInitializationInProgress = false;
+    }
+  }
+
   /// Initialize FCM after widget binding is ready
   /// Call this in the first frame after MaterialApp is built
   static void initializeFcmAfterBuild(BuildContext context) {
@@ -68,7 +219,7 @@ class FcmInitializationService {
     try {
       // Get FCM Manager and try to initialize Firebase Messaging
       try {
-        final fcmManager = GetIt.I<FcmManager>();
+        GetIt.I<FcmManager>();
         _logger.i(
           '✅ FcmInitializationService: FcmManager retrieved successfully',
         );
@@ -214,11 +365,34 @@ class FcmInitializationService {
           '⚠️  FcmInitializationService: Notification settings unavailable (Firebase may not be initialized)',
         );
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       _logger.w(
         '⚠️  FcmInitializationService: Could not log FCM status (Firebase may not be initialized)',
         error: e,
       );
     }
+  }
+
+  static Future<void> _registerFcmToken(
+    RegisterFcmTokenUseCase registerFcmTokenUseCase,
+    String token,
+  ) async {
+    _logger.i(
+      '📤 FcmInitializationService: Registering FCM token with backend...',
+    );
+
+    final result = await registerFcmTokenUseCase(token);
+    result.fold(
+      (failure) {
+        _logger.e(
+          '❌ FcmInitializationService: Failed to register FCM token: ${failure.message}',
+        );
+      },
+      (registeredToken) {
+        _logger.i(
+          '✅ FcmInitializationService: FCM token registered successfully: ${registeredToken.length > 20 ? '...${registeredToken.substring(registeredToken.length - 20)}' : registeredToken}',
+        );
+      },
+    );
   }
 }

@@ -68,16 +68,8 @@ class _GaspZeroAppState extends State<GaspZeroApp> {
   @override
   void initState() {
     super.initState();
-    // Initialize FCM after the first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _logger.i(
-        '🔔 _GaspZeroAppState.initState(): Initializing FCM after first frame...',
-      );
       FcmInitializationService.initializeFcmAfterBuild(context);
-
-      // Log FCM status for debugging
-      _logger.i('📊 _GaspZeroAppState.initState(): Logging FCM status...');
-      FcmInitializationService.logFcmStatus();
     });
   }
 

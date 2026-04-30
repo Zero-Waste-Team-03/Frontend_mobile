@@ -162,6 +162,7 @@ class FcmManager {
   void setupForegroundNotificationHandler(
     Future<void> Function(RemoteMessage message) onForegroundMessage,
   ) {
+    _logger.i('🔔 FcmManager: setupForegroundNotificationHandler excuting... ');
     _ensureInitialized();
     if (!_isInitialized) {
       _logger.w(
