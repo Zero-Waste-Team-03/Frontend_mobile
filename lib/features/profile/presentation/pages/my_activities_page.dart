@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/widgets/loading_skeleton.dart';
 import '../bloc/profile_bloc.dart';
 import '../bloc/profile_event.dart';
 import '../bloc/profile_state.dart';
@@ -188,11 +189,7 @@ class _MyActivitiesPageState extends State<MyActivitiesPage> {
                     }
 
                     if (state is ProfileActivitiesLoading) {
-                      return Center(
-                        child: CircularProgressIndicator(
-                          color: AuthColors.primary,
-                        ),
-                      );
+                      return const LoadingSkeleton(itemCount: 6);
                     }
 
                     if (state is ProfileActivitiesError) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' hide Notification;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gaspzero/features/notification/domain/entities/notification.dart'
     show Notification;
+import 'package:gaspzero/features/notification/domain/entities/notification_type.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
 import 'package:gaspzero/core/theme/app_colors.dart';
@@ -28,7 +29,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   // Filter state
   String _selectedFilter = 'All';
-  static const List<String> _filterOptions = ['All', 'Test'];
+  static const String _filterAll = 'All';
+  static final List<String> _filterOptions = [
+    _filterAll,
+    ...NotificationType.values.map((e) => e.displayName),
+  ];
 
   @override
   void initState() {
@@ -67,6 +72,19 @@ class _NotificationsPageState extends State<NotificationsPage> {
     _notificationBloc.add(
       FetchNotificationsEvent(page: nextPage, limit: _pageSize),
     );
+  }
+
+  List<Notification> _filterNotifications(List<Notification> notifications) {
+    if (_selectedFilter == _filterAll) {
+      return notifications;
+    }
+
+    final selectedType = NotificationType.values.firstWhere(
+      (type) => type.displayName == _selectedFilter,
+      orElse: () => NotificationType.test,
+    );
+
+    return notifications.where((notif) => notif.type == selectedType).toList();
   }
 
   Future<void> _refreshNotifications() async {
@@ -285,6 +303,46 @@ class _NotificationsPageState extends State<NotificationsPage> {
         );
       }
 
+      final filteredNotifications = _filterNotifications(state.notifications);
+
+      if (filteredNotifications.isEmpty) {
+        return RefreshIndicator(
+          onRefresh: _refreshNotifications,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height - 200,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.notifications_off_outlined,
+                      size: 48.0,
+                      color: AppColors.textMuted,
+                    ),
+                    const SizedBox(height: 16.0),
+                    Text(
+                      'No notifications',
+                      style: AppTextStyles.bodyLarge.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 8.0),
+                    Text(
+                      'You\'re all caught up!',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.textTertiary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+
       // Build list with sections, infinite scroll and pulldown refresh
       return RefreshIndicator(
         onRefresh: _refreshNotifications,
@@ -296,13 +354,13 @@ class _NotificationsPageState extends State<NotificationsPage> {
             vertical: 12.0,
           ),
           itemCount:
-              state.notifications.length +
+              filteredNotifications.length +
               (state.isLoadingMore ? 1 : 0) +
-              _countSectionHeaders(state.notifications),
+              _countSectionHeaders(filteredNotifications),
           itemBuilder: (context, index) => _buildListItem(
             context,
             index,
-            state.notifications,
+            filteredNotifications,
             state.isLoadingMore,
           ),
         ),

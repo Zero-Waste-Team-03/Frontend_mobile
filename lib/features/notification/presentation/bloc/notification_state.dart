@@ -74,3 +74,68 @@ class AllNotificationsMarkedAsRead extends NotificationState {
   @override
   List<Object?> get props => [updatedNotifications];
 }
+
+/// FCM Token States
+
+/// FCM token initialization in progress
+class FcmTokenInitializing extends NotificationState {
+  const FcmTokenInitializing();
+}
+
+/// FCM token successfully registered
+class FcmTokenRegistered extends NotificationState {
+  final String fcmToken;
+
+  const FcmTokenRegistered(this.fcmToken);
+
+  @override
+  List<Object?> get props => [fcmToken];
+}
+
+/// FCM token registration failed
+class FcmTokenRegistrationFailed extends NotificationState {
+  final String errorMessage;
+
+  const FcmTokenRegistrationFailed(this.errorMessage);
+
+  @override
+  List<Object?> get props => [errorMessage];
+}
+
+/// FCM token refreshed (token has been renewed by Firebase)
+class FcmTokenRefreshed extends NotificationState {
+  final String newFcmToken;
+
+  const FcmTokenRefreshed(this.newFcmToken);
+
+  @override
+  List<Object?> get props => [newFcmToken];
+}
+
+/// FCM token deleted successfully
+class FcmTokenDeleted extends NotificationState {
+  const FcmTokenDeleted();
+}
+
+/// FCM notification received while app is in foreground
+class FcmNotificationReceived extends NotificationState {
+  final String? title;
+  final String? body;
+  final Map<String, dynamic> data;
+
+  const FcmNotificationReceived({this.title, this.body, required this.data});
+
+  @override
+  List<Object?> get props => [title, body, data];
+}
+
+/// FCM is ready and configured
+class FcmReady extends NotificationState {
+  final String fcmToken;
+  final bool isPermissionGranted;
+
+  const FcmReady({required this.fcmToken, required this.isPermissionGranted});
+
+  @override
+  List<Object?> get props => [fcmToken, isPermissionGranted];
+}

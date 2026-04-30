@@ -1,0 +1,5 @@
+mutation RegisterFcmToken($fcmToken: String!) {
+  registerFcmToken(fcmToken: $fcmToken) {
+    message
+  }
+}

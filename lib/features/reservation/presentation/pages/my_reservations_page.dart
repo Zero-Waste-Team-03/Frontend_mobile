@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/widgets/loading_skeleton.dart';
 import '../bloc/reservation_bloc.dart';
 import '../bloc/reservation_event.dart';
 import '../bloc/reservation_state.dart';
@@ -220,11 +221,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                     }
 
                     if (state is UserReservationsLoading) {
-                      return Center(
-                        child: CircularProgressIndicator(
-                          color: AuthColors.primary,
-                        ),
-                      );
+                      return const LoadingSkeleton(itemCount: 6);
                     }
 
                     if (state is UserReservationsError) {

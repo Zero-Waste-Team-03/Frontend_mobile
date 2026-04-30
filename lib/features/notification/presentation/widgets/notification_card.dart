@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:gaspzero/core/theme/app_colors.dart';
 import 'package:gaspzero/core/theme/app_text_styles.dart';
 import '../../domain/entities/notification.dart';
+import '../../domain/entities/notification_type.dart';
 
 class NotificationCard extends StatelessWidget {
   final Notification notification;
@@ -20,40 +21,55 @@ class NotificationCard extends StatelessWidget {
 
   Color _getTypeColor() {
     switch (notification.type) {
-      case NotificationType.alert:
+      case NotificationType.accountStatusAlert:
         return AppColors.notificationAlertBackground;
-      case NotificationType.confirmation:
-        return AppColors.statusCompletedText;
-      case NotificationType.donation:
-        return AppColors.statusCompletedText;
-      case NotificationType.impact:
+      case NotificationType.chatMessage:
+      case NotificationType.message:
+      case NotificationType.newAchievement:
+      case NotificationType.newPost:
+      case NotificationType.reportAlert:
+      case NotificationType.reservationAlert:
+      case NotificationType.test:
         return AppColors.statusCompletedText;
     }
   }
 
   Color _getTypeBackgroundColor() {
     switch (notification.type) {
-      case NotificationType.alert:
+      case NotificationType.accountStatusAlert:
         return AppColors.notificationAlertLight;
-      case NotificationType.confirmation:
+      case NotificationType.chatMessage:
+      case NotificationType.message:
         return AppColors.notificationConfirmationBackground;
-      case NotificationType.donation:
-        return AppColors.notificationDonationBackground;
-      case NotificationType.impact:
+      case NotificationType.newAchievement:
+      case NotificationType.newPost:
         return AppColors.notificationImpactBackground;
+      case NotificationType.reportAlert:
+      case NotificationType.reservationAlert:
+        return AppColors.notificationDonationBackground;
+      case NotificationType.test:
+        return AppColors.notificationDonationBackground;
     }
   }
 
   IconData _getTypeIcon() {
     switch (notification.type) {
-      case NotificationType.alert:
+      case NotificationType.accountStatusAlert:
         return Icons.warning_rounded;
-      case NotificationType.confirmation:
-        return Icons.check_circle_rounded;
-      case NotificationType.donation:
-        return Icons.favorite_rounded;
-      case NotificationType.impact:
-        return Icons.eco_rounded;
+      case NotificationType.chatMessage:
+        return Icons.chat_bubble_rounded;
+      case NotificationType.message:
+        return Icons.message_rounded;
+      case NotificationType.newAchievement:
+        return Icons.emoji_events_rounded;
+      case NotificationType.newPost:
+        return Icons.post_add_rounded;
+      case NotificationType.reportAlert:
+        return Icons.report_rounded;
+      case NotificationType.reservationAlert:
+        return Icons.event_available_rounded;
+      case NotificationType.test:
+        return Icons.notifications_rounded;
     }
   }
 

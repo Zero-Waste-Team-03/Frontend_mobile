@@ -55,43 +55,32 @@ class ReservationRepositoryImpl implements ReservationRepository {
     int page = 1,
     int limit = 20,
   }) async {
-    print(
-      '[ReservationRepository] Fetching user reservations - userId: $userId, status: $status',
-    );
+    
 
     if (remoteDataSource == null) {
-      print('[ReservationRepository] ERROR: remoteDataSource is null');
       return Left(ServerFailure('Reservation data source is not available'));
     }
 
     try {
-      print(
-        '[ReservationRepository] Calling remoteDataSource.getUserReservations()...',
-      );
+      
       final reservationModels = await remoteDataSource!.getUserReservations(
         userId: userId,
         statusFilter: status,
         page: page,
         limit: limit,
       );
-      print(
-        '[ReservationRepository] Received ${reservationModels.length} reservations from API',
-      );
+      
 
       // Convert models to entities
       final reservations =
           reservationModels.map((model) => model.toEntity()).toList()
             ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
-      print(
-        '[ReservationRepository] Converted ${reservations.length} reservations to entities',
-      );
+      
       return Right(reservations);
     } on ServerException catch (e) {
-      print('[ReservationRepository] ServerException: ${e.message}');
       return Left(ServerFailure(e.message));
     } catch (e) {
-      print('[ReservationRepository] Unexpected error: ${e.runtimeType} - $e');
       return Left(ServerFailure(e.toString()));
     }
   }
@@ -120,36 +109,22 @@ class ReservationRepositoryImpl implements ReservationRepository {
   Future<Either<Failure, Reservation>> getReservationDetails(
     String reservationId,
   ) async {
-    print(
-      '[ReservationRepository] Fetching reservation details for ID: $reservationId',
-    );
+    
 
     if (remoteDataSource == null) {
-      print('[ReservationRepository] ERROR: remoteDataSource is null');
       return Left(ServerFailure('Reservation data source is not available'));
     }
 
     try {
-      print(
-        '[ReservationRepository] Calling remoteDataSource.getReservationDetails()...',
-      );
+      
       final reservation = await remoteDataSource!.getReservationDetails(
         reservationId,
       );
-      print('[ReservationRepository] SUCCESS: Received reservation model');
-      print('[ReservationRepository] Reservation ID: ${reservation.id}');
-      print(
-        '[ReservationRepository] Reservation Status: ${reservation.status}',
-      );
-      print(
-        '[ReservationRepository] Reservation Donation: ${reservation.donation != null ? "Present" : "Null"}',
-      );
+      
       return Right(reservation.toEntity());
     } on ServerException catch (e) {
-      print('[ReservationRepository] ServerException: ${e.message}');
       return Left(ServerFailure(e.message));
     } catch (e) {
-      print('[ReservationRepository] Unexpected error: ${e.runtimeType} - $e');
       return Left(ServerFailure(e.toString()));
     }
   }
@@ -157,6 +132,7 @@ class ReservationRepositoryImpl implements ReservationRepository {
   @override
   Future<Either<Failure, Reservation>> createReservation({
     required String donationId,
+    required int quantity,
   }) async {
     if (remoteDataSource == null) {
       return Left(ServerFailure('Reservation data source is not available'));
@@ -165,6 +141,7 @@ class ReservationRepositoryImpl implements ReservationRepository {
     try {
       final result = await remoteDataSource!.createReservation(
         donationId: donationId,
+        quantity: quantity,
       );
       return Right(result.toEntity());
     } on ServerException catch (e) {
