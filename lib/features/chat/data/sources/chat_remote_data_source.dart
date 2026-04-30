@@ -122,6 +122,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     );
   }
 
+
   @override
   Future<List<ChatMessageEntity>> getConversationMessages(
     String conversationId,
@@ -186,11 +187,13 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
             status: e.status.name,
             createdAt: _safeParseDate(e.createdAt.value),
             lastMessage: e.lastMessage,
-            // We'll skip counterpart temporarily since ConversationEntity might need an update
+            counterpartName: e.counterpart.displayName,
+            counterpartAvatarUrl: e.counterpart.avatarUrl,
           ),
         )
         .toList();
   }
+
 
   DateTime _safeParseDate(String? value) {
     if (value == null) return DateTime.now();
@@ -228,9 +231,10 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     try {
       final response = await _ferryClient.request(request).firstWhere(
             (event) =>
-                (event.data != null && !event.hasErrors) ||
-                event.hasErrors ||
-                event.linkException != null,
+                event.dataSource != DataSource.Optimistic &&
+                ((event.data != null && !event.hasErrors) ||
+                    event.hasErrors ||
+                    event.linkException != null),
           );
 
       if (response.hasErrors || response.linkException != null) {

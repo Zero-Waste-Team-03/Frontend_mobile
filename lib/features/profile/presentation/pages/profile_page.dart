@@ -9,8 +9,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../widgets/profile_loading_skeleton.dart';
-import '../../../../core/di/injection.dart';
-import '../../../auth/domain/repositories/auth_repository.dart';
 import '../bloc/profile_bloc.dart';
 import '../bloc/profile_event.dart';
 import '../bloc/profile_state.dart';

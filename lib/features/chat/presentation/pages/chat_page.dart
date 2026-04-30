@@ -103,29 +103,48 @@ class _ChatScreenState extends State<ChatScreen> {
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       centerTitle: false,
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      title: Row(
         children: [
-          Text(
-            'Chat',
-            style: TextStyle(
-              fontSize: 18.sp,
-              color: AuthColors.headingText,
-              fontWeight: FontWeight.bold,
-              fontFamily: AppFonts.primaryFont,
+          if (state is ChatLoaded && state.conversation.counterpartAvatarUrl != null)
+            CircleAvatar(
+              radius: 16.r,
+              backgroundImage: NetworkImage(state.conversation.counterpartAvatarUrl!),
+            )
+          else if (state is ChatLoaded)
+            CircleAvatar(
+              radius: 16.r,
+              backgroundColor: AuthColors.primary.withValues(alpha: 0.1),
+              child: Icon(Icons.person, size: 18.sp, color: AuthColors.primary),
+            ),
+          if (state is ChatLoaded) SizedBox(width: 12.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  state is ChatLoaded ? (state.conversation.counterpartName ?? 'Chat') : 'Chat',
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    color: AuthColors.headingText,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: AppFonts.primaryFont,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (state is ChatLoaded)
+                  Text(
+                    state.conversation.status,
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: state.conversation.status == 'Active'
+                          ? AuthColors.primary
+                          : AuthColors.subText,
+                      fontFamily: AppFonts.primaryFont,
+                    ),
+                  ),
+              ],
             ),
           ),
-          if (state is ChatLoaded)
-            Text(
-              state.conversation.status,
-              style: TextStyle(
-                fontSize: 12.sp,
-                color: state.conversation.status == 'Active'
-                    ? AuthColors.primary
-                    : AuthColors.subText,
-                fontFamily: AppFonts.primaryFont,
-              ),
-            ),
         ],
       ),
       bottom: PreferredSize(

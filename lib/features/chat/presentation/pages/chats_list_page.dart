@@ -130,13 +130,22 @@ class _ChatsListPageState extends State<ChatsListPage> {
             decoration: BoxDecoration(
               color: AuthColors.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
+              image: conversation.counterpartAvatarUrl != null
+                  ? DecorationImage(
+                      image: NetworkImage(conversation.counterpartAvatarUrl!),
+                      fit: BoxFit.cover,
+                    )
+                  : null,
             ),
-            child: Icon(Icons.person, color: AuthColors.primary, size: 24.sp),
+            child: conversation.counterpartAvatarUrl == null
+                ? Icon(Icons.person, color: AuthColors.primary, size: 24.sp)
+                : null,
           ),
           title: Text(
-            'Reservation Chat',
+            conversation.counterpartName ?? 'Reservation Chat',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.sp),
           ),
+
           subtitle: Text(
             conversation.lastMessage ?? 'No messages yet',
             maxLines: 1,
