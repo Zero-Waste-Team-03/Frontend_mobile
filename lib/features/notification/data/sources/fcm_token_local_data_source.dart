@@ -59,9 +59,10 @@ class FcmTokenLocalDataSourceImpl implements FcmTokenLocalDataSource {
     try {
       final token = _prefs.getString(_fcmTokenKey);
       if (token != null && token.isNotEmpty) {
-        _logger.d(
-          '✅ FcmTokenLocalDataSourceImpl: FCM token retrieved (last 20 chars): ...${token.substring(token.length - 20)}',
-        );
+        final _preview = token.length > 20
+            ? '...${token.substring(token.length - 20)}'
+            : token;
+        _logger.d('✅ FcmTokenLocalDataSourceImpl: FCM token retrieved (last 20 chars): $_preview');
       } else {
         _logger.d('⚠️  FcmTokenLocalDataSourceImpl: No stored FCM token found');
       }
@@ -79,9 +80,8 @@ class FcmTokenLocalDataSourceImpl implements FcmTokenLocalDataSource {
   @override
   Future<void> saveFcmToken(String token) async {
     _logger.i('💾 FcmTokenLocalDataSourceImpl: Saving FCM token locally...');
-    _logger.d(
-      '📱 FcmTokenLocalDataSourceImpl: Token (last 20 chars): ...${token.substring(token.length - 20)}',
-    );
+    final _preview = token.length > 20 ? '...${token.substring(token.length - 20)}' : token;
+    _logger.d('📱 FcmTokenLocalDataSourceImpl: Token (last 20 chars): $_preview');
 
     if (token.isEmpty) {
       _logger.e('❌ FcmTokenLocalDataSourceImpl: Cannot save empty FCM token');

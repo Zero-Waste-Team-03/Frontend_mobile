@@ -322,6 +322,23 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, void>> logout() async {
     try {
       await _clearFcmTokenOnLogout();
+
+      try {
+        await remoteDataSource.logout();
+      } on ServerException catch (e, stackTrace) {
+        _logger.w(
+          '⚠️ [AuthRepository] Remote logout failed; continuing with local sign-out: ${e.message}',
+          error: e,
+          stackTrace: stackTrace,
+        );
+      } catch (e, stackTrace) {
+        _logger.w(
+          '⚠️ [AuthRepository] Unexpected remote logout error; continuing with local sign-out',
+          error: e,
+          stackTrace: stackTrace,
+        );
+      }
+
       await localDataSource.clearTokens();
       await localDataSource.clearUserProfile();
       return const Right(null);

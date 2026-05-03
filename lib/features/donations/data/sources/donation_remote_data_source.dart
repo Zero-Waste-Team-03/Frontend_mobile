@@ -5,6 +5,7 @@ import 'package:ferry/ferry.dart' hide ServerException;
 import 'package:logger/logger.dart';
 
 import '../../../../core/exceptions/exceptions.dart';
+import '../../../../core/graphql/graphql_request_executor.dart';
 import '../models/category_model.dart';
 import '../models/donation_model.dart';
 import 'graphql/__generated__/create_donation.req.gql.dart';
@@ -46,10 +47,15 @@ abstract class DonationRemoteDataSource {
 }
 
 class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
-  DonationRemoteDataSourceImpl(this.dio, this._ferryClient);
+  DonationRemoteDataSourceImpl(
+    this.dio,
+    this._ferryClient,
+    this._graphqlRequestExecutor,
+  );
 
   final Dio dio;
   final Client _ferryClient;
+  final GraphqlRequestExecutor _graphqlRequestExecutor;
 
   final Logger _logger = Logger(
     printer: PrettyPrinter(
@@ -96,9 +102,10 @@ class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
         throw ServerException('Failed to build getDonations request');
       }
 
-      final data = await _executeRequest(
-        GGetDonationsReq((b) => b.vars = vars.toBuilder()),
-        'getDonations',
+      final data = await _graphqlRequestExecutor.execute(
+        client: _ferryClient,
+        request: GGetDonationsReq((b) => b.vars = vars.toBuilder()),
+        operationName: 'getDonations',
       );
 
       final items = data.donations.items;
@@ -141,9 +148,10 @@ class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
         throw ServerException('Failed to build getCategories request');
       }
 
-      final data = await _executeRequest(
-        GGetCategoriesReq((b) => b.vars = vars.toBuilder()),
-        'getCategories',
+      final data = await _graphqlRequestExecutor.execute(
+        client: _ferryClient,
+        request: GGetCategoriesReq((b) => b.vars = vars.toBuilder()),
+        operationName: 'getCategories',
       );
 
       final items = data.categories.items;
@@ -180,9 +188,10 @@ class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
         throw ServerException('Failed to build getDonationById request');
       }
 
-      final data = await _executeRequest(
-        GGetDonationByIdReq((b) => b.vars = vars.toBuilder()),
-        'getDonationById',
+      final data = await _graphqlRequestExecutor.execute(
+        client: _ferryClient,
+        request: GGetDonationByIdReq((b) => b.vars = vars.toBuilder()),
+        operationName: 'getDonationById',
       );
 
       _logger.i('Successfully retrieved donation details for id=$id');
@@ -255,9 +264,10 @@ class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
         throw ServerException('Failed to build createDonation request');
       }
 
-      final data = await _executeRequest(
-        GCreateDonationReq((b) => b.vars = vars.toBuilder()),
-        'createDonation',
+      final data = await _graphqlRequestExecutor.execute(
+        client: _ferryClient,
+        request: GCreateDonationReq((b) => b.vars = vars.toBuilder()),
+        operationName: 'createDonation',
       );
 
       _logger.i('Successfully created donation with title=$title');
@@ -312,67 +322,6 @@ class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
     } catch (e) {
       _logger.e('Unexpected error during file upload: $e', error: e);
       throw ServerException('Failed to upload image: $e');
-    }
-  }
-
-  Future<TData> _executeRequest<TData, TVars>(
-    OperationRequest<TData, TVars> request,
-    String operationName,
-  ) async {
-    _logger.i('Executing GraphQL operation: $operationName');
-
-    try {
-      final response = await _ferryClient.request(request).firstWhere(
-            (event) =>
-                (event.data != null && !event.hasErrors) ||
-                event.hasErrors ||
-                event.linkException != null,
-          );
-
-
-      if (response.hasErrors || response.linkException != null) {
-        final graphQLErrors = response.graphqlErrors;
-        final graphQLErrorMessage =
-            graphQLErrors != null && graphQLErrors.isNotEmpty
-            ? graphQLErrors.first.message
-            : null;
-
-        String linkExceptionMsg = 'Unknown link exception';
-        if (response.linkException != null) {
-          final originalMsg = response.linkException!.originalException
-              ?.toString();
-          linkExceptionMsg = originalMsg ?? response.linkException.toString();
-        }
-
-        final errorMessage = graphQLErrorMessage ?? linkExceptionMsg;
-
-        _logger.e(
-          'GraphQL error in $operationName: $errorMessage\n'
-          'Has GraphQL errors: ${response.hasErrors}\n'
-          'Has link exception: ${response.linkException != null}\n'
-          'GraphQL error details: ${graphQLErrors?.map((e) => 'Message: ${e.message}, Extensions: ${e.extensions}').toList()}',
-        );
-
-        throw ServerException('GraphQL error in $operationName: $errorMessage');
-      }
-
-      final data = response.data;
-      if (data == null) {
-        _logger.e('No data returned for $operationName');
-        throw ServerException('No data returned for $operationName');
-      }
-
-      _logger.i('$operationName completed successfully');
-      return data;
-    } catch (e) {
-      if (e is ServerException) {
-        rethrow;
-      }
-      _logger.e(
-        'Unexpected error in GraphQL request for $operationName: $e',
-        error: e,
-      );
-      throw ServerException('GraphQL request failed for $operationName: $e');
     }
   }
 }

@@ -28,8 +28,11 @@ class RegisterFcmTokenUseCase {
   /// Returns [Left] with a [Failure] on error
   Future<Either<Failure, String>> call(String fcmToken) async {
     _logger.i('🚀 RegisterFcmTokenUseCase: Starting FCM token registration...');
+    final _tokenPreview = fcmToken.length > 20
+        ? '...${fcmToken.substring(fcmToken.length - 20)}'
+        : fcmToken;
     _logger.d(
-      '📱 RegisterFcmTokenUseCase: Token (last 20 chars): ...${fcmToken.substring(fcmToken.length - 20)}',
+      '📱 RegisterFcmTokenUseCase: Token (last 20 chars): $_tokenPreview',
     );
 
     return await _repository.registerFcmToken(fcmToken);
