@@ -518,9 +518,45 @@ class _NotificationsPageState extends State<NotificationsPage> {
     List<Notification> notifications,
     bool isLoadingMore,
   ) {
-    // Show loading indicator at the end
-    if (index == notifications.length + _countSectionHeaders(notifications)) {
-      if (isLoadingMore) {
+    // Map the display index to a concrete slot: alert, header, notification, or loading.
+    final slot = _slotForDisplayIndex(index, notifications, isLoadingMore);
+
+    switch (slot['type'] as String) {
+      case 'alert':
+        return _buildAlertBanner(context);
+      case 'header':
+        return Padding(
+          padding: const EdgeInsets.only(
+            top: AppSpacing.lg,
+            bottom: AppSpacing.md,
+          ),
+          child: Text(
+            slot['text'] as String,
+            style: AppTextStyles.labelMedium.copyWith(
+              color: AppColors.textTertiary,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.5,
+            ),
+          ),
+        );
+      case 'notification':
+        final notifIndex = slot['index'] as int;
+        final notification = notifications[notifIndex];
+        return NotificationCard(
+          notification: notification,
+          onTap: () {
+            context.push('/notification-details', extra: notification);
+          },
+          onMarkAsRead: () {
+            _notificationBloc!.add(
+              MarkNotificationsAsReadEvent([notification.id]),
+            );
+          },
+          onDelete: () {
+            _notificationBloc!.add(DeleteNotificationEvent(notification.id));
+          },
+        );
+      case 'loading':
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 16.0),
           child: Center(
@@ -532,62 +568,49 @@ class _NotificationsPageState extends State<NotificationsPage> {
             ),
           ),
         );
-      }
-      return const SizedBox();
+      default:
+        return const SizedBox();
     }
+  }
 
-    // Build alerts and section headers
+  /// Simulate the displayed list slots and map a builder index to a logical slot.
+  /// Returns a map with `type` in {'alert','header','notification','loading','empty'}.
+  Map<String, Object?> _slotForDisplayIndex(
+    int displayIndex,
+    List<Notification> notifications,
+    bool isLoadingMore,
+  ) {
+    // Index 0 reserved for the alert banner
+    if (displayIndex == 0) return {'type': 'alert'};
+
+    var pos = 1; // next display position after alert
+
     final now = DateTime.now();
 
-    // Check if this is a section header
-    if (index > 0 && _isNewSection(notifications, index - 1)) {
-      final difference = now
-          .difference(notifications[index - 1].createdAt)
-          .inDays;
-      final isRecent = difference == 0;
-      final nextDifference = index < notifications.length
-          ? now.difference(notifications[index].createdAt).inDays
-          : 1;
-      final isNextEarlier = nextDifference > 0;
-
-      if ((isRecent && isNextEarlier) || (!isRecent)) {
-        final headerText = isRecent ? 'RECENT UPDATES' : 'EARLIER';
-        return Padding(
-          padding: const EdgeInsets.only(
-            top: AppSpacing.lg,
-            bottom: AppSpacing.md,
-          ),
-          child: Text(
-            headerText,
-            style: AppTextStyles.labelMedium.copyWith(
-              color: AppColors.textTertiary,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.5,
-            ),
-          ),
-        );
+    for (var i = 0; i < notifications.length; i++) {
+      // Insert a section header before item i when transition occurs (i > 0)
+      if (i > 0 && _isNewSection(notifications, i - 1)) {
+        if (pos == displayIndex) {
+          final diff = now.difference(notifications[i - 1].createdAt).inDays;
+          final isRecent = diff == 0;
+          final headerText = isRecent ? 'RECENT UPDATES' : 'EARLIER';
+          return {'type': 'header', 'text': headerText};
+        }
+        pos++;
       }
+
+      // Notification item
+      if (pos == displayIndex) return {'type': 'notification', 'index': i};
+      pos++;
     }
 
-    // First item is alert banner
-    if (index == 0) {
-      return _buildAlertBanner(context);
+    // Loading indicator after all items and headers
+    if (isLoadingMore) {
+      if (pos == displayIndex) return {'type': 'loading'};
+      pos++;
     }
 
-    // Regular notification card
-    final notification = notifications[index - 1];
-    return NotificationCard(
-      notification: notification,
-      onTap: () {
-        context.push('/notification-details', extra: notification);
-      },
-      onMarkAsRead: () {
-        _notificationBloc!.add(MarkNotificationsAsReadEvent([notification.id]));
-      },
-      onDelete: () {
-        _notificationBloc!.add(DeleteNotificationEvent(notification.id));
-      },
-    );
+    return {'type': 'empty'};
   }
 
   bool _isNewSection(List<Notification> notifications, int index) {

@@ -484,6 +484,11 @@ type Mutation {
   login(loginInput: LoginInput!): AuthResponse!
 
   """
+  Logout from current device by invalidating the active session
+  """
+  logout: MessageResponse!
+
+  """
   Logout from all devices by invalidating all active sessions
   """
   logoutFromAllDevices: MessageResponse!

@@ -29,9 +29,10 @@ class FcmTokenRepositoryImpl implements FcmTokenRepository {
   @override
   Future<Either<Failure, String>> registerFcmToken(String fcmToken) async {
     _logger.i('🔐 FcmTokenRepositoryImpl: Starting FCM token registration...');
-    _logger.d(
-      '📱 FcmTokenRepositoryImpl: Token (last 20 chars): ...${fcmToken.substring(fcmToken.length - 20)}',
-    );
+    final _preview = fcmToken.length > 20
+        ? '...${fcmToken.substring(fcmToken.length - 20)}'
+        : fcmToken;
+    _logger.d('📱 FcmTokenRepositoryImpl: Token (last 20 chars): $_preview');
 
     try {
       // Validate token
@@ -107,9 +108,10 @@ class FcmTokenRepositoryImpl implements FcmTokenRepository {
       final token = await _localDataSource.getFcmToken();
       if (token != null && token.isNotEmpty) {
         _logger.i('✅ FcmTokenRepositoryImpl: FCM token retrieved successfully');
-        _logger.d(
-          '📱 FcmTokenRepositoryImpl: Token (last 20 chars): ...${token.substring(token.length - 20)}',
-        );
+        final _preview = token.length > 20
+            ? '...${token.substring(token.length - 20)}'
+            : token;
+        _logger.d('📱 FcmTokenRepositoryImpl: Token (last 20 chars): $_preview');
       } else {
         _logger.w('⚠️  FcmTokenRepositoryImpl: No stored FCM token found');
       }

@@ -3,6 +3,7 @@ import 'package:injectable/injectable.dart';
 import 'package:logger/logger.dart';
 
 import '../../../../core/exceptions/exceptions.dart';
+import '../../../../core/graphql/graphql_request_executor.dart';
 import 'graphql/__generated__/register_fcm_token.req.gql.dart';
 import 'graphql/__generated__/register_fcm_token.var.gql.dart';
 
@@ -16,9 +17,10 @@ abstract class FcmTokenRemoteDataSource {
 /// Implementation of FCM token data source with comprehensive logging and error handling
 @LazySingleton(as: FcmTokenRemoteDataSource)
 class FcmTokenRemoteDataSourceImpl implements FcmTokenRemoteDataSource {
-  FcmTokenRemoteDataSourceImpl(this._ferryClient);
+  FcmTokenRemoteDataSourceImpl(this._ferryClient, this._graphqlRequestExecutor);
 
   final Client _ferryClient;
+  final GraphqlRequestExecutor _graphqlRequestExecutor;
 
   final Logger _logger = Logger(
     printer: PrettyPrinter(
@@ -63,15 +65,16 @@ class FcmTokenRemoteDataSourceImpl implements FcmTokenRemoteDataSource {
         throw ServerException('Failed to build register FCM token request');
       }
 
-      final data = await _executeRequest(
-        GRegisterFcmTokenReq(
+      final data = await _graphqlRequestExecutor.execute(
+        client: _ferryClient,
+        request: GRegisterFcmTokenReq(
           (b) => b
             ..vars = vars.toBuilder()
             ..fetchPolicy = FetchPolicy.NetworkOnly
             ..requestId =
                 'registerFcmToken-${DateTime.now().microsecondsSinceEpoch}',
         ),
-        'registerFcmToken',
+        operationName: 'registerFcmToken',
       );
 
       final registeredMessage = data.registerFcmToken.message;
@@ -92,82 +95,6 @@ class FcmTokenRemoteDataSourceImpl implements FcmTokenRemoteDataSource {
       }
 
       throw ServerException('Failed to register FCM token: ${e.toString()}');
-    }
-  }
-
-  /// Execute GraphQL request with error handling
-  /// Generic method for executing GraphQL operations with comprehensive logging
-  Future<TData> _executeRequest<TData, TVars>(
-    OperationRequest<TData, TVars> request,
-    String operationName,
-  ) async {
-    _logger.i(
-      '📡 FcmTokenRemoteDataSourceImpl: Executing GraphQL operation: $operationName',
-    );
-
-    try {
-      final response = await _ferryClient
-          .request(request)
-          .firstWhere(
-            (event) =>
-                event.data != null ||
-                event.hasErrors ||
-                event.linkException != null,
-          );
-
-      if (response.hasErrors || response.linkException != null) {
-        final graphQLErrors = response.graphqlErrors;
-        final graphQLErrorMessage =
-            graphQLErrors != null && graphQLErrors.isNotEmpty
-            ? graphQLErrors.first.message
-            : null;
-
-        String linkExceptionMsg = 'Unknown link exception';
-        if (response.linkException != null) {
-          final originalMsg = response.linkException!.originalException
-              ?.toString();
-          linkExceptionMsg = originalMsg ?? response.linkException!.toString();
-        }
-
-        final errorMessage = graphQLErrorMessage ?? linkExceptionMsg;
-
-        _logger.e(
-          '❌ FcmTokenRemoteDataSourceImpl: GraphQL error in $operationName\n'
-          '   Error Message: $errorMessage\n'
-          '   Has GraphQL Errors: ${response.hasErrors}\n'
-          '   Has Link Exception: ${response.linkException != null}\n'
-          '   GraphQL Error Details: ${graphQLErrors?.map((e) => 'Message: ${e.message}, Extensions: ${e.extensions}').toList()}',
-        );
-
-        throw ServerException('GraphQL error in $operationName: $errorMessage');
-      }
-
-      final data = response.data;
-      if (data == null) {
-        _logger.e(
-          '❌ FcmTokenRemoteDataSourceImpl: No data returned for $operationName',
-        );
-        throw ServerException('No data returned for $operationName');
-      }
-
-      _logger.i(
-        '✅ FcmTokenRemoteDataSourceImpl: $operationName completed successfully',
-      );
-      return data;
-    } catch (e, stackTrace) {
-      if (e is ServerException) {
-        rethrow;
-      }
-
-      _logger.e(
-        '❌ FcmTokenRemoteDataSourceImpl: Unexpected error in GraphQL request for $operationName',
-        error: e,
-        stackTrace: stackTrace,
-      );
-
-      throw ServerException(
-        'GraphQL request failed for $operationName: ${e.toString()}',
-      );
     }
   }
 }

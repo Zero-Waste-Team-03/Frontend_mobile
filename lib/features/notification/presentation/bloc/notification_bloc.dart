@@ -397,9 +397,10 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     _logger.i(
       '🔔 NotificationBloc: _onRegisterFcmToken - Registering token with backend',
     );
-    _logger.d(
-      '📱 NotificationBloc: Token (last 20 chars): ...${event.fcmToken.substring(event.fcmToken.length - 20)}',
-    );
+    final _preview = event.fcmToken.length > 20
+        ? '...${event.fcmToken.substring(event.fcmToken.length - 20)}'
+        : event.fcmToken;
+    _logger.d('📱 NotificationBloc: Token (last 20 chars): $_preview');
 
     try {
       _logger.i('🚀 NotificationBloc: Calling registerFcmTokenUseCase...');
@@ -418,8 +419,11 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
         },
         (registeredToken) {
           _logger.i('✅ NotificationBloc: FCM token registered successfully');
+          final _regPreview = registeredToken.length > 20
+              ? '...${registeredToken.substring(registeredToken.length - 20)}'
+              : registeredToken;
           _logger.d(
-            '📱 NotificationBloc: Registered token (last 20 chars): ...${registeredToken.substring(registeredToken.length - 20)}',
+            '📱 NotificationBloc: Registered token (last 20 chars): $_regPreview',
           );
           emit(FcmTokenRegistered(registeredToken));
 
@@ -443,9 +447,10 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     Emitter<NotificationState> emit,
   ) async {
     _logger.i('🔔 NotificationBloc: _onFcmTokenRefreshed - New token received');
-    _logger.d(
-      '📱 NotificationBloc: New token (last 20 chars): ...${event.newFcmToken.substring(event.newFcmToken.length - 20)}',
-    );
+    final _newPreview = event.newFcmToken.length > 20
+        ? '...${event.newFcmToken.substring(event.newFcmToken.length - 20)}'
+        : event.newFcmToken;
+    _logger.d('📱 NotificationBloc: New token (last 20 chars): $_newPreview');
 
     try {
       emit(FcmTokenRefreshed(event.newFcmToken));

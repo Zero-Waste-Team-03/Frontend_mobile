@@ -1,10 +1,13 @@
 import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
 import 'package:ferry/ferry.dart';
+import 'package:uuid/uuid.dart';
 import '../env.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../network/auth_interceptor.dart';
 import '../graphql/client.dart';
+import '../device/device_id_provider.dart';
+import '../graphql/graphql_request_executor.dart';
 import '../../features/auth/data/sources/auth_local_data_source.dart';
 import '../../features/auth/data/sources/auth_remote_data_source.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
@@ -61,6 +64,13 @@ final getIt = GetIt.instance;
 Future<void> configureDependencies() async {
   // ── Secure Storage ──
   getIt.registerLazySingleton(() => const FlutterSecureStorage());
+  getIt.registerLazySingleton(() => const Uuid());
+  getIt.registerLazySingleton<DeviceIdProvider>(
+    () => DeviceIdProvider(getIt<FlutterSecureStorage>(), getIt<Uuid>()),
+  );
+  getIt.registerLazySingleton<GraphqlRequestExecutor>(
+    () => GraphqlRequestExecutor(getIt<DeviceIdProvider>()),
+  );
 
   // ── SharedPreferences (async - initialize first) ──
   final sharedPreferences = await SharedPreferences.getInstance();
@@ -72,7 +82,10 @@ Future<void> configureDependencies() async {
   );
 
   getIt.registerLazySingleton<GraphQLClientFactory>(
-    () => GraphQLClientFactory(getIt<AuthLocalDataSource>()),
+    () => GraphQLClientFactory(
+      getIt<AuthLocalDataSource>(),
+      getIt<DeviceIdProvider>(),
+    ),
   );
   getIt.registerLazySingleton<Client>(
     () => getIt<GraphQLClientFactory>().create(),
@@ -126,7 +139,7 @@ Future<void> configureDependencies() async {
 
   // â”€â”€ Remote Data Source â”€â”€
   getIt.registerLazySingleton<AuthRemoteDataSource>(
-    () => AuthRemoteDataSourceImpl(getIt(), getIt()),
+    () => AuthRemoteDataSourceImpl(getIt(), getIt(), getIt(), getIt()),
   );
 
   // ── Repository ──
@@ -137,7 +150,7 @@ Future<void> configureDependencies() async {
 
   // ── Profile Repository ──
   getIt.registerLazySingleton<ProfileActivitiesRemoteDataSource>(
-    () => ProfileActivitiesRemoteDataSourceImpl(getIt<Client>()),
+    () => ProfileActivitiesRemoteDataSourceImpl(getIt<Client>(), getIt()),
   );
 
   getIt.registerLazySingleton<ProfileRepository>(
@@ -155,7 +168,7 @@ Future<void> configureDependencies() async {
 
   // ── Donations ──
   getIt.registerLazySingleton<DonationRemoteDataSource>(
-    () => DonationRemoteDataSourceImpl(getIt(), getIt()),
+    () => DonationRemoteDataSourceImpl(getIt(), getIt(), getIt()),
   );
   getIt.registerLazySingleton<DonationRepository>(
     () => DonationRepositoryImpl(remoteDataSource: getIt()),
@@ -164,7 +177,7 @@ Future<void> configureDependencies() async {
 
   // ── Favorites ──
   getIt.registerLazySingleton<FavoritesRemoteDataSource>(
-    () => FavoritesRemoteDataSourceImpl(getIt<Client>()),
+    () => FavoritesRemoteDataSourceImpl(getIt<Client>(), getIt()),
   );
   getIt.registerLazySingleton<FavoritesRepository>(
     () => FavoritesRepositoryImpl(remoteDataSource: getIt()),
@@ -173,7 +186,7 @@ Future<void> configureDependencies() async {
 
   // ── Reservation ──
   getIt.registerLazySingleton<ReservationRemoteDataSource>(
-    () => ReservationRemoteDataSourceImpl(getIt(), getIt()),
+    () => ReservationRemoteDataSourceImpl(getIt(), getIt(), getIt()),
   );
   getIt.registerLazySingleton<ReservationRepository>(
     () => ReservationRepositoryImpl(
@@ -204,7 +217,7 @@ Future<void> configureDependencies() async {
     () => ChatSocketService(getIt()),
   );
   getIt.registerLazySingleton<ChatRemoteDataSource>(
-    () => ChatRemoteDataSourceImpl(getIt(), getIt()),
+    () => ChatRemoteDataSourceImpl(getIt(), getIt(), getIt()),
   );
   getIt.registerLazySingleton<ChatRepository>(
     () => ChatRepositoryImpl(getIt()),
@@ -213,7 +226,7 @@ Future<void> configureDependencies() async {
 
   // ── Notification ──
   getIt.registerLazySingleton<NotificationRemoteDataSource>(
-    () => NotificationRemoteDataSourceImpl(getIt()),
+    () => NotificationRemoteDataSourceImpl(getIt(), getIt()),
   );
   getIt.registerLazySingleton<NotificationRepository>(
     () => NotificationRepositoryImpl(remoteDataSource: getIt()),
@@ -229,7 +242,7 @@ Future<void> configureDependencies() async {
   );
 
   getIt.registerLazySingleton<FcmTokenRemoteDataSource>(
-    () => FcmTokenRemoteDataSourceImpl(getIt()),
+    () => FcmTokenRemoteDataSourceImpl(getIt(), getIt()),
   );
 
   getIt.registerLazySingleton<FcmTokenLocalDataSource>(

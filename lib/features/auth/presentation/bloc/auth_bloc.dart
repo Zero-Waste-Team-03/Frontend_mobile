@@ -1,7 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:logger/logger.dart';
+import 'package:get_it/get_it.dart';
 import '../../domain/repositories/auth_repository.dart';
+import '../../../notification/presentation/bloc/notification_bloc.dart';
+import '../../../notification/presentation/bloc/notification_event.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
@@ -47,10 +50,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(AuthLoading());
     final result = await authRepository.login(event.email, event.password);
-    result.fold(
-      (failure) => emit(AuthError(failure.message)),
-      (response) => emit(AuthSuccess(response.user)),
-    );
+    result.fold((failure) => emit(AuthError(failure.message)), (
+      response,
+    ) async {
+      emit(AuthSuccess(response.user));
+      _triggerNotificationPermissionRequest();
+    });
   }
 
   void _onAuthSignUpRequested(
@@ -88,10 +93,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           event.email,
           event.password,
         );
-        loginResult.fold(
-          (failure) => emit(AuthError(failure.message)),
-          (response) => emit(AuthSuccess(response.user)),
-        );
+        loginResult.fold((failure) => emit(AuthError(failure.message)), (
+          response,
+        ) async {
+          emit(AuthSuccess(response.user));
+          _triggerNotificationPermissionRequest();
+        });
       },
     );
   }
@@ -101,16 +108,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(AuthLoading());
-    _logger.i('ðŸŸ¡ [AuthBloc] Google OAuth requested');
+    _logger.i('🟡 [AuthBloc] Google OAuth requested');
     final result = await authRepository.googleSignIn();
     result.fold(
       (failure) {
-        _logger.e('ðŸ”´ [AuthBloc] Google OAuth failed: ${failure.message}');
+        _logger.e('🔴 [AuthBloc] Google OAuth failed: ${failure.message}');
         emit(AuthError(failure.message));
       },
       (response) {
-        _logger.i('ðŸŸ¢ [AuthBloc] Emitting AuthSuccess from Google OAuth');
+        _logger.i('🟢 [AuthBloc] Emitting AuthSuccess from Google OAuth');
         emit(AuthSuccess(response.user));
+        _triggerNotificationPermissionRequest();
       },
     );
   }
@@ -149,5 +157,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     _logger.i('[AuthBloc] Logout requested, clearing session');
     await authRepository.logout();
     emit(AuthUnauthenticated());
+  }
+
+  /// Trigger notification permission request after successful auth
+  /// This ensures users are only prompted after they have logged in
+  void _triggerNotificationPermissionRequest() {
+    try {
+      final notificationBloc = GetIt.I<NotificationBloc>();
+      _logger.i(
+        '🔔 [AuthBloc] Triggering notification permission request after auth success',
+      );
+      notificationBloc.add(const InitializeFcmTokenEvent());
+    } catch (e) {
+      _logger.w(
+        '⚠️ [AuthBloc] Could not trigger notification permission (NotificationBloc not available)',
+        error: e,
+      );
+    }
   }
 }
