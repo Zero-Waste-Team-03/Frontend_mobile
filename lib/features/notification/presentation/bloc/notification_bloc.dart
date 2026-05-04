@@ -17,7 +17,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   final CheckFcmTokenRegistrationUseCase checkFcmTokenRegistrationUseCase;
   final DeleteFcmTokenUseCase deleteFcmTokenUseCase;
   final GetLastTokenRegistrationTimeUseCase getLastTokenRegistrationTimeUseCase;
-  final FcmManager? fcmManager;  // Optional - Firebase may not be configured
+  final FcmManager? fcmManager; // Optional - Firebase may not be configured
 
   final Set<String> _locallyDeletedNotificationIds = <String>{};
 
@@ -40,7 +40,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     required this.checkFcmTokenRegistrationUseCase,
     required this.deleteFcmTokenUseCase,
     required this.getLastTokenRegistrationTimeUseCase,
-    this.fcmManager,  // Optional parameter
+    this.fcmManager, // Optional parameter
   }) : super(const NotificationInitial()) {
     on<FetchNotificationsEvent>(_onFetchNotifications);
     on<MarkNotificationsAsReadEvent>(_onMarkNotificationsAsRead);
@@ -254,6 +254,10 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     Emitter<NotificationState> emit,
   ) async {
     _logger.i('NotificationBloc: _onRefreshNotifications');
+
+    // Force a distinct state transition so the refresh future always resolves
+    // even if the refreshed list is identical to the current one.
+    emit(const NotificationsLoading());
 
     final result = await getNotificationsUseCase(page: 1, limit: 10);
 

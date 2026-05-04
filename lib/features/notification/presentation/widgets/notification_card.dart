@@ -87,20 +87,28 @@ class NotificationCard extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 12.0),
         decoration: BoxDecoration(
-          color: notification.isRead
+          color: !notification.isRead
               ? AppColors.surface
               : AppColors.notificationCardUnreadBackground,
           borderRadius: BorderRadius.circular(AppRadius.md),
           border: Border.all(
-            color: AppColors.notificationCardBorder,
+            color: !notification.isRead
+                ? Colors.grey.shade300
+                : AppColors.notificationCardBorder,
             width: 1.0,
           ),
           boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
+            !notification.isRead
+                ? BoxShadow(
+                    color: Colors.black.withOpacity(0.06),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  )
+                : BoxShadow(
+                    color: Colors.black.withOpacity(0.02),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
           ],
         ),
         child: Row(
