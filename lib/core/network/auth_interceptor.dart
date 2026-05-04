@@ -4,7 +4,9 @@ import 'package:gql_exec/gql_exec.dart' show Context;
 import 'package:gql_http_link/gql_http_link.dart';
 import 'package:logger/logger.dart';
 import '../../features/auth/data/sources/auth_local_data_source.dart';
-import '../../features/auth/domain/repositories/auth_repository.dart';
+import '../../features/auth/presentation/bloc/auth_bloc.dart';
+import '../../features/auth/presentation/bloc/auth_event.dart';
+import '../../features/auth/presentation/bloc/auth_state.dart';
 import '../../core/di/injection.dart';
 import 'graphql/__generated__/refresh_tokens_interceptor.req.gql.dart';
 
@@ -208,7 +210,14 @@ class AuthInterceptor extends Interceptor {
           '[AuthInterceptor] Refresh request was unauthorized, triggering global logout',
         );
         try {
-          getIt<AuthRepository>().logout();
+          // Trigger logout if the refresh request itself is unauthorized
+          _logger.e(
+            '[AuthInterceptor] Refresh request was unauthorized, triggering global logout',
+          );
+          final authBloc = getIt<AuthBloc>();
+          if (authBloc.state is! AuthUnauthenticated) {
+            authBloc.add(AuthLogoutRequested());
+          }
         } catch (e) {
           _logger.e('[AuthInterceptor] Failed to trigger logout: $e');
         }
@@ -240,7 +249,10 @@ class AuthInterceptor extends Interceptor {
           '[AuthInterceptor] Refresh failed, triggering global logout',
         );
         try {
-          getIt<AuthRepository>().logout();
+          final authBloc = getIt<AuthBloc>();
+          if (authBloc.state is! AuthUnauthenticated) {
+            authBloc.add(AuthLogoutRequested());
+          }
         } catch (e) {
           _logger.e('[AuthInterceptor] Failed to trigger logout: $e');
         }

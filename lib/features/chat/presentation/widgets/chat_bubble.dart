@@ -7,17 +7,22 @@ import '../../../../shared/theme/app_colors.dart';
 class ChatBubble extends StatelessWidget {
   final ChatMessageEntity message;
   final bool isMe;
+  final String? debugInfo;
   final VoidCallback? onApproveReveal;
 
   const ChatBubble({
     super.key,
     required this.message,
     required this.isMe,
+    this.debugInfo,
     this.onApproveReveal,
   });
 
   @override
   Widget build(BuildContext context) {
+    if (debugInfo != null) {
+      debugPrint('[ChatBubble] $debugInfo');
+    }
     // Detect sensitive message placeholder
     // Marker [SENSITIVE:LOCATION] or similar
     final bool hasSensitiveMarker = message.content.contains('[SENSITIVE:');
@@ -118,18 +123,45 @@ class ChatBubble extends StatelessWidget {
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 4.w),
-            child: Text(
-              DateFormat('h:mm a').format(message.createdAt),
-              style: TextStyle(
-                color: const Color(0xFF9CA3AF),
-                fontSize: 10.sp,
-                fontFamily: AppFonts.primaryFont,
-              ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  DateFormat('h:mm a').format(message.createdAt),
+                  style: TextStyle(
+                    color: const Color(0xFF9CA3AF),
+                    fontSize: 10.sp,
+                    fontFamily: AppFonts.primaryFont,
+                  ),
+                ),
+                if (isMe) ...[
+                  SizedBox(width: 4.w),
+                  _buildStatusIcon(),
+                ],
+              ],
             ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildStatusIcon() {
+    switch (message.status) {
+      case MessageStatus.sending:
+        return SizedBox(
+          width: 10.w,
+          height: 10.w,
+          child: CircularProgressIndicator(
+            strokeWidth: 1,
+            valueColor: AlwaysStoppedAnimation<Color>(AuthColors.subText.withValues(alpha: 0.5)),
+          ),
+        );
+      case MessageStatus.sent:
+        return Icon(Icons.done_all, size: 12.sp, color: AuthColors.primary);
+      case MessageStatus.error:
+        return Icon(Icons.error_outline, size: 12.sp, color: Colors.red);
+    }
   }
 
   String _stripMarkers(String content) {

@@ -2,6 +2,10 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:logger/logger.dart';
+import '../../../../core/di/injection.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_state.dart';
+import '../../domain/entities/chat_message.dart';
 import '../../domain/repositories/chat_repository.dart';
 import 'chat_event.dart';
 import 'chat_state.dart';
@@ -41,56 +45,72 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     ChatInitializeRequested event,
     Emitter<ChatState> emit,
   ) async {
+    _logger.i('Initializing chat for reservation: ${event.reservationId}');
     emit(ChatLoading());
 
-    // 1. Get or create conversation
-    final result = await chatRepository.getOrCreateConversation(
-      event.reservationId,
-    );
+    try {
+      // 1. Get or create conversation
+      final result = await chatRepository.getOrCreateConversation(
+        event.reservationId,
+      );
 
-    await result.fold(
-      (failure) async {
-        _logger.e('Chat Init Failed: ${failure.message}');
-        emit(ChatError(failure.message));
-      },
-      (conversation) async {
-        // Initialize socket and join conversation room
-        await chatRepository.initSocket();
+      await result.fold(
+        (failure) async {
+          _logger.e('Chat Init Failed: ${failure.message}');
+          emit(ChatError(failure.message));
+        },
+        (conversation) async {
+          _logger.i('Conversation obtained: ${conversation.id}');
+          // Initialize socket
+          await chatRepository.initSocket();
 
-        _messageSubscription?.cancel();
-        _messageSubscription = chatRepository.onMessageCreated.listen((
-          message,
-        ) {
-          add(ChatMessageReceived(message));
-        });
+          _messageSubscription?.cancel();
+          _messageSubscription = chatRepository.onMessageCreated.listen((
+            message,
+          ) {
+            add(ChatMessageReceived(message));
+          });
 
-        _transactionSubscription?.cancel();
-        _transactionSubscription = chatRepository.onTransactionCompleted.listen(
-          (conv) {
-            add(ChatTransactionCompletedReceived(conv));
-          },
-        );
+          _transactionSubscription?.cancel();
+          _transactionSubscription =
+              chatRepository.onTransactionCompleted.listen((conv) {
+                add(ChatTransactionCompletedReceived(conv));
+              });
 
-        _sensitiveMessageSubscription?.cancel();
-        _sensitiveMessageSubscription =
-            chatRepository.onSensitiveMessageApproved.listen((message) {
-              add(ChatSensitiveMessageApprovedReceived(message));
-            });
+          _sensitiveMessageSubscription?.cancel();
+          _sensitiveMessageSubscription =
+              chatRepository.onSensitiveMessageApproved.listen((message) {
+                add(ChatSensitiveMessageApprovedReceived(message));
+              });
 
-        await chatRepository.joinConversation(conversation.id);
+          // Join conversation room in background
+          chatRepository.joinConversation(conversation.id).then((_) {
+            _logger.i('Joined conversation room: ${conversation.id}');
+          }).catchError((e) {
+            _logger.e('Failed to join conversation room: $e');
+          });
 
-        // Fetch initial messages
-        final messagesResult = await chatRepository.getConversationMessages(
-          conversation.id,
-        );
+          // Fetch initial messages
+          final messagesResult = await chatRepository.getConversationMessages(
+            conversation.id,
+          );
 
-        messagesResult.fold(
-          (f) => emit(ChatError(f.message)),
-          (msgs) =>
-              emit(ChatLoaded(conversation: conversation, messages: msgs)),
-        );
-      },
-    );
+          messagesResult.fold(
+            (f) {
+              _logger.e('Failed to fetch messages: ${f.message}');
+              emit(ChatError(f.message));
+            },
+            (msgs) {
+              _logger.i('Chat loaded with ${msgs.length} messages');
+              emit(ChatLoaded(conversation: conversation, messages: msgs));
+            },
+          );
+        },
+      );
+    } catch (e) {
+      _logger.e('Unexpected error during chat initialization: $e');
+      emit(ChatError('An unexpected error occurred: $e'));
+    }
   }
 
 
@@ -127,18 +147,70 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   ) async {
     final currentState = state;
     if (currentState is ChatLoaded) {
+      final authState = getIt<AuthBloc>().state;
+      final String currentUserId =
+          authState is AuthSuccess ? authState.user!.id : '';
+
+      // 1. Create a temporary "sending" message
+      final tempId = 'temp_${DateTime.now().millisecondsSinceEpoch}';
+      final tempMessage = ChatMessageEntity(
+        id: tempId,
+        content: event.content,
+        createdAt: DateTime.now(),
+        isModerated: false,
+        senderId: currentUserId,
+        conversationId: event.conversationId,
+        status: MessageStatus.sending,
+      );
+
+      // 2. Prepend the temporary message to the list immediately
+      final msgsBefore = List.of(currentState.messages);
+      msgsBefore.insert(0, tempMessage);
+      emit(currentState.copyWith(messages: msgsBefore));
+
+      // 3. Send to server
       final result = await chatRepository.sendMessage(
         event.conversationId,
         event.content,
       );
 
-      result.fold((f) => emit(ChatError(f.message)), (newMessage) {
-        // Prepend the new message since standard list views are often reversed or added
-        final msgs = List.of(currentState.messages);
-        msgs.insert(0, newMessage);
+      final postSendState = state;
+      if (postSendState is ChatLoaded) {
+        final currentMsgs = List.of(postSendState.messages);
 
-        emit(currentState.copyWith(messages: msgs));
-      });
+        result.fold(
+          (failure) {
+            // Update temp message to "error"
+            final index = currentMsgs.indexWhere((m) => m.id == tempId);
+            if (index != -1) {
+              currentMsgs[index] = currentMsgs[index].copyWith(
+                status: MessageStatus.error,
+              );
+              emit(postSendState.copyWith(messages: currentMsgs));
+            }
+          },
+          (newMessage) {
+            // Replace temp message with real "sent" message
+            final index = currentMsgs.indexWhere((m) => m.id == tempId);
+            final messageToInsert = currentUserId.isNotEmpty &&
+                    (newMessage.senderId.isEmpty || newMessage.senderId == '')
+                ? newMessage.copyWith(senderId: currentUserId, status: MessageStatus.sent)
+                : newMessage.copyWith(status: MessageStatus.sent);
+
+            if (index != -1) {
+              currentMsgs[index] = messageToInsert;
+              emit(postSendState.copyWith(messages: currentMsgs));
+            } else {
+              // If temp was already removed or list changed drastically
+              final exists = currentMsgs.any((m) => m.id == messageToInsert.id);
+              if (!exists) {
+                currentMsgs.insert(0, messageToInsert);
+                emit(postSendState.copyWith(messages: currentMsgs));
+              }
+            }
+          },
+        );
+      }
     }
   }
 

@@ -80,7 +80,7 @@ class _ChatScreenState extends State<ChatScreen> {
       },
       builder: (context, state) {
         final bool isActive =
-            state is ChatLoaded && state.conversation.status == 'Active';
+            state is ChatLoaded && (state.conversation.status == 'Active' || state.conversation.status == 'ACTIVE');
 
         return Scaffold(
           backgroundColor: AuthColors.background,
@@ -136,7 +136,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     state.conversation.status,
                     style: TextStyle(
                       fontSize: 12.sp,
-                      color: state.conversation.status == 'Active'
+                      color: (state.conversation.status == 'Active' || state.conversation.status == 'ACTIVE')
                           ? AuthColors.primary
                           : AuthColors.subText,
                       fontFamily: AppFonts.primaryFont,
@@ -152,7 +152,7 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Divider(height: 1.h, color: AuthColors.dividerColor),
       ),
       actions: [
-        if (state is ChatLoaded && state.conversation.status == 'Active')
+        if (state is ChatLoaded && (state.conversation.status == 'Active' || state.conversation.status == 'ACTIVE'))
           Padding(
             padding: EdgeInsets.only(right: 8.w),
             child: TextButton.icon(
@@ -176,7 +176,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildStatusBanner(ChatState state) {
-    if (state is ChatLoaded && state.conversation.status != 'Active') {
+    if (state is ChatLoaded && state.conversation.status != 'Active' && state.conversation.status != 'ACTIVE') {
       return Container(
         width: double.infinity,
         padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
@@ -262,15 +262,19 @@ class _ChatScreenState extends State<ChatScreen> {
         itemCount: msgs.length,
         itemBuilder: (context, index) {
           final msg = msgs[index];
-          final authState = context.watch<AuthBloc>().state;
+          final authState = context.read<AuthBloc>().state;
           final String? currentUserId =
               authState is AuthSuccess ? authState.user?.id : null;
 
-          final bool isMe = currentUserId != null && msg.senderId == currentUserId;
+          final bool isMe = currentUserId != null &&
+              (msg.senderId.trim() == currentUserId.trim() ||
+                  msg.senderId == '' ||
+                  msg.senderId.isEmpty);
 
           return ChatBubble(
             message: msg,
             isMe: isMe,
+            debugInfo: 'ID: ${msg.id.length > 5 ? msg.id.substring(0, 5) : msg.id}... | Sender: "${msg.senderId}" | Current: "$currentUserId" | isMe: $isMe',
             onApproveReveal: () {
               context.read<ChatBloc>().add(
                     ChatApproveSensitiveMessageRequested(
