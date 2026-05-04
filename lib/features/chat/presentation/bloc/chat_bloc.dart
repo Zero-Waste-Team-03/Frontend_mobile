@@ -61,34 +61,40 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         },
         (conversation) async {
           _logger.i('Conversation obtained: ${conversation.id}');
-          // Initialize socket
+          
+          // CRITICAL: Initialize socket and setup listeners FIRST
+          // This ensures that when we join the room, we are ready to receive events
           await chatRepository.initSocket();
 
           _messageSubscription?.cancel();
           _messageSubscription = chatRepository.onMessageCreated.listen((
             message,
           ) {
+            _logger.d('Socket Event: New Message Received [${message.id}]');
             add(ChatMessageReceived(message));
           });
 
           _transactionSubscription?.cancel();
           _transactionSubscription =
               chatRepository.onTransactionCompleted.listen((conv) {
+                _logger.d('Socket Event: Transaction Completed [${conv.id}]');
                 add(ChatTransactionCompletedReceived(conv));
               });
 
           _sensitiveMessageSubscription?.cancel();
           _sensitiveMessageSubscription =
               chatRepository.onSensitiveMessageApproved.listen((message) {
+                _logger.d('Socket Event: Sensitive Message Approved [${message.id}]');
                 add(ChatSensitiveMessageApprovedReceived(message));
               });
 
-          // Join conversation room in background
-          chatRepository.joinConversation(conversation.id).then((_) {
+          // Join conversation room
+          try {
+            await chatRepository.joinConversation(conversation.id);
             _logger.i('Joined conversation room: ${conversation.id}');
-          }).catchError((e) {
+          } catch (e) {
             _logger.e('Failed to join conversation room: $e');
-          });
+          }
 
           // Fetch initial messages
           final messagesResult = await chatRepository.getConversationMessages(

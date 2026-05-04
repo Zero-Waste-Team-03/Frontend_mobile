@@ -60,6 +60,13 @@ class ChatSocketService {
 
     _socket?.onConnect((_) {
       debugPrint('Chat Socket connected: ${_socket?.id}');
+      // If we already have a conversation ID in the BLoC, we might need to re-join
+      // But typically the BLoC handles initialization
+    });
+    
+    // Listen for all events for debugging
+    _socket?.onAny((event, data) {
+      debugPrint('Socket Any Event: $event -> $data');
     });
 
     _socket?.onConnectError((data) {
@@ -69,7 +76,11 @@ class ChatSocketService {
     _socket?.on('chat:message-created', (data) {
       debugPrint('Socket chat:message-created raw data: $data');
       if (data != null) {
-        final Map<String, dynamic> standardized = Map<String, dynamic>.from(data);
+        // Handle different possible payload structures from NestJS/Socket.io
+        final Map<String, dynamic> raw = data is Map ? Map<String, dynamic>.from(data) : {};
+        final Map<String, dynamic> standardized = raw.containsKey('data') && raw['data'] is Map 
+            ? Map<String, dynamic>.from(raw['data']) 
+            : raw;
         
         // Comprehensive sender identification
         if (standardized['senderId'] == null) {
@@ -88,7 +99,7 @@ class ChatSocketService {
           }
         }
         
-        debugPrint('Standardized message created: senderId=${standardized['senderId']}');
+        debugPrint('Standardized message created: id=${standardized['id']} senderId=${standardized['senderId']}');
         _messageCreatedController.add(standardized);
       }
     });

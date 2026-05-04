@@ -233,6 +233,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
             lastMessage: e.lastMessage,
             counterpartName: e.counterpart.displayName,
             counterpartAvatarUrl: e.counterpart.avatarUrl,
+            // donationTitle and donationImageUrl are no longer available in the schema for this query
           ),
         )
         .toList();
