@@ -101,7 +101,7 @@ class _GaspZeroAppState extends State<GaspZeroApp> {
                   if (state is AuthSuccess) {
                     appRouter.go('/home');
                   } else if (state is AuthUnauthenticated) {
-                    appRouter.go('/login');
+                    appRouter.go('/');
                   }
                 },
                 child: child ?? const SizedBox.shrink(),

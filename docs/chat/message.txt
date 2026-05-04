@@ -1,0 +1,424 @@
+# Chat Client Integration Guide
+
+This guide explains how to integrate the backend chat module with:
+
+- React web client (admin-facing application)
+- Flutter mobile client (normal end users: donor/beneficiary)
+
+It covers GraphQL, WebSocket, lifecycle states, sensitive message consent, and completion flow.
+
+## 1) Transport and Auth
+
+### GraphQL
+
+- Endpoint: `POST /graphql`
+- Auth: `Authorization: Bearer <access_token>`
+
+### WebSocket
+
+- Namespace: `/chat`
+- Socket auth payload:
+
+```json
+{
+  "token": "Bearer <access_token>"
+}
+```
+
+Important: token must include `Bearer ` prefix.
+
+## 2) Conversation Lifecycle
+
+Conversation states:
+
+- `Locked`: read-only, sending blocked
+- `Active`: sending allowed
+- `Archived`: read-only, sending blocked
+
+Client UI rules:
+
+- If `status !== "Active"`, disable composer and send button
+- Show state banner in thread header
+
+## 3) GraphQL Operations
+
+### 3.1 Create or fetch a conversation
+
+```graphql
+mutation GetOrCreateConversation($reservationId: ID!) {
+  getOrCreateConversation(reservationId: $reservationId) {
+    id
+    reservationId
+    status
+    createdAt
+  }
+}
+```
+
+### 3.2 Fetch active conversation list with counterpart preview
+
+This query intentionally returns minimal counterpart info: display name and avatar URL.
+
+```graphql
+query MyActiveConversations {
+  myActiveConversations {
+    id
+    reservationId
+    status
+    lastMessage
+    createdAt
+    counterpart {
+      displayName
+      avatarUrl
+    }
+  }
+}
+```
+
+### 3.3 Fetch paginated messages
+
+```graphql
+query ConversationMessages($input: ConversationMessagesInput!) {
+  conversationMessages(input: $input) {
+    items {
+      id
+      conversationId
+      senderId
+      content
+      isModerated
+      createdAt
+    }
+    totalCount
+    page
+    limit
+    hasNextPage
+    hasPreviousPage
+  }
+}
+```
+
+Variables example:
+
+```json
+{
+  "input": {
+    "conversationId": "<conversation-id>",
+    "pagination": { "page": 1, "limit": 20 }
+  }
+}
+```
+
+### 3.4 Send message (HTTP path)
+
+```graphql
+mutation SendMessage($input: SendMessageInput!) {
+  sendMessage(input: $input) {
+    id
+    conversationId
+    senderId
+    content
+    createdAt
+  }
+}
+```
+
+### 3.5 Approve sensitive message reveal
+
+```graphql
+mutation ApproveSensitiveMessage($input: ApproveSensitiveMessageInput!) {
+  approveSensitiveMessage(input: $input) {
+    id
+    conversationId
+    senderId
+    content
+    createdAt
+  }
+}
+```
+
+### 3.6 Mark transaction completed
+
+```graphql
+mutation MarkTransactionCompleted($input: MarkTransactionCompletedInput!) {
+  markTransactionCompleted(input: $input) {
+    id
+    status
+  }
+}
+```
+
+## 4) WebSocket Contract
+
+### 4.1 Client -> Server events (subscribe names)
+
+- `chat:join-conversation`
+- `chat:leave-conversation`
+- `chat:send-message`
+- `chat:approve-sensitive-message`
+- `chat:mark-transaction-completed`
+
+### 4.2 Server -> Client events
+
+- `chat:conversation-joined`
+- `chat:conversation-left`
+- `chat:message-created`
+- `chat:sensitive-message-approved`
+- `chat:transaction-completed`
+- `chat:error`
+
+### 4.3 Ack shape
+
+All socket handlers respond with ack payload:
+
+```ts
+type ChatAck<T> =
+  | { ok: true; data: T }
+  | { ok: false; error: { message: string } };
+```
+
+## 5) Sensitive Message Consent Model
+
+Sensitive categories are represented with in-content markers:
+
+- `[SENSITIVE:LOCATION]`
+- `[SENSITIVE:TIME]`
+- `[SENSITIVE:PHONE]`
+- `[SENSITIVE:CONTACT]`
+
+Behavior:
+
+- Sender sees full content
+- Recipient sees placeholder until approval
+- Placeholder value:
+  - `[Sensitive details pending recipient approval]`
+
+When recipient approves, server records an internal approval marker and sensitive content becomes visible to that recipient.
+
+Client recommendation:
+
+- If content equals the placeholder, render a dedicated card with an Approve button.
+- Do not ask users to type markers manually; provide “share sensitive info” quick actions.
+
+## 6) React Integration (Admin App)
+
+Admin app is typically monitoring-oriented. Current chat authorization is participant-guarded.
+
+Important:
+
+- Chat operations are allowed only for conversation participants (or future moderator-specific paths).
+- If admin token is not a participant, chat join/send will fail by guard.
+
+Recommended admin usage now:
+
+- Use GraphQL to list/inspect conversation metadata if authorized context supports it.
+- Avoid assuming full transcript access unless backend grants moderator privileges.
+
+### React socket setup example
+
+```ts
+import { io } from 'socket.io-client';
+
+const socket = io(`${API_BASE_URL}/chat`, {
+  transports: ['websocket'],
+  auth: {
+    token: `Bearer ${accessToken}`,
+  },
+});
+
+socket.on('connect', () => {
+  // connected
+});
+```
+
+### React send example with ack
+
+```ts
+socket.emit(
+  'chat:send-message',
+  { conversationId, content },
+  (ack: { ok: boolean; data?: { messageId: string }; error?: { message: string } }) => {
+    if (!ack?.ok) {
+      console.error(ack?.error?.message ?? 'Send failed');
+      return;
+    }
+    console.log('sent', ack.data?.messageId);
+  },
+);
+```
+
+### React realtime listeners
+
+```ts
+socket.on('chat:message-created', (message) => {
+  // append message to active conversation thread
+});
+
+socket.on('chat:transaction-completed', ({ conversationId, status }) => {
+  // update UI to read-only when status becomes Archived
+});
+```
+
+## 7) Flutter Integration (Normal User App)
+
+Users (donor/beneficiary) are primary chat actors and should use both GraphQL + Socket.
+
+### Flutter packages
+
+- GraphQL: `graphql_flutter`
+- Socket: `socket_io_client`
+
+### Flutter socket setup example
+
+```dart
+import 'package:socket_io_client/socket_io_client.dart' as IO;
+
+final socket = IO.io(
+  '$apiBaseUrl/chat',
+  IO.OptionBuilder()
+      .setTransports(['websocket'])
+      .setAuth({'token': 'Bearer $accessToken'})
+      .build(),
+);
+
+socket.onConnect((_) {
+  // connected
+});
+```
+
+### Flutter join conversation with ack
+
+```dart
+socket.emitWithAck(
+  'chat:join-conversation',
+  {'conversationId': conversationId},
+  ack: (dynamic response) {
+    final ok = response['ok'] == true;
+    if (!ok) {
+      // show error
+      return;
+    }
+    // joined room
+  },
+);
+```
+
+### Flutter approve sensitive message
+
+```dart
+socket.emitWithAck(
+  'chat:approve-sensitive-message',
+  {
+    'conversationId': conversationId,
+    'messageId': messageId,
+  },
+  ack: (dynamic response) {
+    final ok = response['ok'] == true;
+    if (!ok) {
+      // show error
+    }
+  },
+);
+```
+
+### Flutter state handling recommendations
+
+- Keep `conversation.status` in local state.
+- Disable sending if not `Active`.
+- On `chat:transaction-completed`, switch thread to read-only immediately.
+- For placeholder content, show `Approve` CTA and call approval mutation/event.
+
+## 8) Suggested Client Sequence
+
+1. Fetch `myActiveConversations`
+2. Open selected thread
+3. `chat:join-conversation`
+4. Fetch `conversationMessages`
+5. Listen to realtime events
+6. Send/approve/complete via mutation or socket event
+7. `chat:leave-conversation` on close/unmount
+
+## 9) Error Handling Checklist
+
+- Token missing/invalid: reconnect after refresh token flow
+- Not conversation member: show access denied state
+- Read-only (`Locked`/`Archived`): keep thread visible, composer disabled
+- Ack `ok: false`: display `error.message`
+
+## 10) Security and Privacy Notes
+
+- Do not render hidden protocol marker messages as normal chat text.
+- Do not expose counterpart email/phone/location in conversation list UI.
+- Treat backend as source of truth for message visibility and chat writability.
+
+## 11) Copy-Paste Event Constants (Recommended)
+
+Use shared constants in clients to avoid event name typos.
+
+### TypeScript (React)
+
+```ts
+export const CHAT_EVENTS = {
+  SUBSCRIBE: {
+    JOIN_CONVERSATION: 'chat:join-conversation',
+    LEAVE_CONVERSATION: 'chat:leave-conversation',
+    SEND_MESSAGE: 'chat:send-message',
+    APPROVE_SENSITIVE_MESSAGE: 'chat:approve-sensitive-message',
+    MARK_TRANSACTION_COMPLETED: 'chat:mark-transaction-completed',
+  },
+  EMIT: {
+    CONVERSATION_JOINED: 'chat:conversation-joined',
+    CONVERSATION_LEFT: 'chat:conversation-left',
+    MESSAGE_CREATED: 'chat:message-created',
+    SENSITIVE_MESSAGE_APPROVED: 'chat:sensitive-message-approved',
+    TRANSACTION_COMPLETED: 'chat:transaction-completed',
+    CHAT_ERROR: 'chat:error',
+  },
+} as const;
+```
+
+Optional ack typing:
+
+```ts
+export type ChatAck<T = Record<string, unknown>> =
+  | { ok: true; data: T }
+  | { ok: false; error: { message: string } };
+```
+
+### Dart (Flutter)
+
+```dart
+class ChatEvents {
+  static const joinConversation = 'chat:join-conversation';
+  static const leaveConversation = 'chat:leave-conversation';
+  static const sendMessage = 'chat:send-message';
+  static const approveSensitiveMessage = 'chat:approve-sensitive-message';
+  static const markTransactionCompleted = 'chat:mark-transaction-completed';
+
+  static const conversationJoined = 'chat:conversation-joined';
+  static const conversationLeft = 'chat:conversation-left';
+  static const messageCreated = 'chat:message-created';
+  static const sensitiveMessageApproved = 'chat:sensitive-message-approved';
+  static const transactionCompleted = 'chat:transaction-completed';
+  static const chatError = 'chat:error';
+}
+```
+
+Optional ack model:
+
+```dart
+class ChatAck {
+  final bool ok;
+  final Map<String, dynamic>? data;
+  final Map<String, dynamic>? error;
+
+  ChatAck({required this.ok, this.data, this.error});
+
+  factory ChatAck.fromJson(Map<String, dynamic> json) {
+    return ChatAck(
+      ok: json['ok'] == true,
+      data: json['data'] as Map<String, dynamic>?,
+      error: json['error'] as Map<String, dynamic>?,
+    );
+  }
+}
+```
