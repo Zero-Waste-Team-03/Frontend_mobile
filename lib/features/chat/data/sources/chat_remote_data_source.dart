@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:ferry/ferry.dart' hide ServerException;
+import 'package:gaspzero/core/exceptions/app_exceptions.dart';
 import 'package:injectable/injectable.dart';
 import 'chat_socket_service.dart';
 
