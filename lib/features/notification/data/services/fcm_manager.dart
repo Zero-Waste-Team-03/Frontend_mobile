@@ -43,9 +43,10 @@ class FcmManager {
       final token = await _firebaseMessaging.getToken();
       if (token != null && token.isNotEmpty) {
         _logger.i('✅ FcmManager: FCM token obtained successfully');
-        _logger.d(
-          '📱 FcmManager: Token (last 20 chars): ...${token.substring(token.length - 20)}',
-        );
+        final _preview = token.length > 20
+            ? '...${token.substring(token.length - 20)}'
+            : token;
+        _logger.d('📱 FcmManager: Token (last 20 chars): $_preview');
         return token;
       } else {
         _logger.w('⚠️  FcmManager: FCM token is null or empty');
@@ -129,9 +130,10 @@ class FcmManager {
       _firebaseMessaging.onTokenRefresh.listen(
         (newToken) {
           _logger.i('🔄 FcmManager: FCM token refreshed');
-          _logger.d(
-            '📱 FcmManager: New token (last 20 chars): ...${newToken.substring(newToken.length - 20)}',
-          );
+          final _preview = newToken.length > 20
+              ? '...${newToken.substring(newToken.length - 20)}'
+              : newToken;
+          _logger.d('📱 FcmManager: New token (last 20 chars): $_preview');
           onTokenRefresh(newToken);
         },
         onError: (error, stackTrace) {
@@ -394,11 +396,12 @@ class FcmManager {
   /// Set APNs token (iOS only) - needed for iOS APNs
   void setApnsToken(String? token) {
     _logger.i('🔔 FcmManager: Setting APNS token...');
-    if (token != null && token.isNotEmpty) {
-      _logger.d(
-        '📱 FcmManager: APNS token (last 20 chars): ...${token.substring(token.length - 20)}',
-      );
-    } else {
+      if (token != null && token.isNotEmpty) {
+        final _preview = token.length > 20
+            ? '...${token.substring(token.length - 20)}'
+            : token;
+        _logger.d('📱 FcmManager: APNS token (last 20 chars): $_preview');
+      } else {
       _logger.w('⚠️  FcmManager: APNS token is null or empty');
     }
   }

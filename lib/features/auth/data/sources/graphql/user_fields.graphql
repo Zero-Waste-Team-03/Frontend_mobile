@@ -21,4 +21,13 @@ fragment UserFields on User {
     url
     fileType
   }
+  settings {
+    id
+    userId
+    appearance
+    isNewDonationsAlertsEnabled
+    isSystemReports
+    isUrgentAlertsEnabled
+    isPushNotificationsEnabled
+  }
 }

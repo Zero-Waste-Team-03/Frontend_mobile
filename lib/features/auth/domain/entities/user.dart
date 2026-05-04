@@ -1,4 +1,5 @@
 ﻿import 'package:equatable/equatable.dart';
+import 'user_settings.dart';
 
 class User extends Equatable {
   final String id;
@@ -12,6 +13,7 @@ class User extends Equatable {
   final String? locationId;
   final Map<String, dynamic>? location;
   final String? avatarUrl;
+  final UserSettings? settings;
 
   const User({
     required this.id,
@@ -25,6 +27,7 @@ class User extends Equatable {
     this.locationId,
     this.location,
     this.avatarUrl,
+    this.settings,
   });
 
   bool get isAdmin => role?.toLowerCase() == 'admin';
@@ -41,6 +44,7 @@ class User extends Equatable {
     String? locationId,
     Map<String, dynamic>? location,
     String? avatarUrl,
+    UserSettings? settings,
   }) {
     return User(
       id: id ?? this.id,
@@ -54,6 +58,7 @@ class User extends Equatable {
       locationId: locationId ?? this.locationId,
       location: location ?? this.location,
       avatarUrl: avatarUrl ?? this.avatarUrl,
+      settings: settings ?? this.settings,
     );
   }
 
@@ -70,5 +75,6 @@ class User extends Equatable {
     locationId,
     location,
     avatarUrl,
+    settings,
   ];
 }

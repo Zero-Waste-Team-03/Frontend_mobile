@@ -3,7 +3,7 @@ import 'package:ferry/ferry.dart' hide ServerException;
 import 'package:injectable/injectable.dart';
 import 'chat_socket_service.dart';
 
-import '../../../../core/exceptions/exceptions.dart';
+import '../../../../core/graphql/graphql_request_executor.dart';
 import '../../domain/entities/chat_message.dart';
 import '../../domain/entities/conversation.dart';
 import '../datasources/graphql/__generated__/conversation_messages.req.gql.dart';
@@ -40,8 +40,13 @@ abstract class ChatRemoteDataSource {
 class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
   final Client _ferryClient;
   final ChatSocketService _socketService;
+  final GraphqlRequestExecutor _graphqlRequestExecutor;
 
-  ChatRemoteDataSourceImpl(this._ferryClient, this._socketService);
+  ChatRemoteDataSourceImpl(
+    this._ferryClient,
+    this._socketService,
+    this._graphqlRequestExecutor,
+  );
 
   @override
   Future<void> initSocket() => _socketService.initSocket();
@@ -113,7 +118,12 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         ..vars.reservationId = reservationId
         ..fetchPolicy = FetchPolicy.NetworkOnly,
     );
-    final response = await _executeRequest(req, 'getOrCreateConversation');
+    final response = await _graphqlRequestExecutor.execute(
+      client: _ferryClient,
+      request: req,
+      operationName: 'getOrCreateConversation',
+      skipOptimisticResponse: true,
+    );
     final data = response.getOrCreateConversation;
 
     final conversation = ConversationEntity(
@@ -130,7 +140,6 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     return conversation;
   }
 
-
   @override
   Future<List<ChatMessageEntity>> getConversationMessages(
     String conversationId,
@@ -142,12 +151,14 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       ..input.pagination.page = page
       ..input.pagination.limit = limit;
 
+
     final req = GGetConversationMessagesReq(
       (b) => b
         ..vars = vars
         ..fetchPolicy = FetchPolicy.NetworkOnly,
     );
     final response = await _executeRequest(req, 'conversationMessages');
+
 
     final messages = response.conversationMessages.items
         .map(
@@ -172,6 +183,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     String conversationId,
     String content,
   ) async {
+
     debugPrint('DataSouce.sendMessage called for $conversationId');
     try {
       // 1. Attempt via Socket first
@@ -216,12 +228,15 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         throw ServerException('Failed to send message. Socket error: $socketError. GraphQL error: $graphqlError');
       }
     }
+
   }
 
   @override
   Future<List<ConversationEntity>> getMyActiveConversations() async {
+
     final req = GMyActiveConversationsReq((b) => b..fetchPolicy = FetchPolicy.NetworkOnly);
     final response = await _executeRequest(req, 'myActiveConversations');
+
 
     return response.myActiveConversations
         .map(
@@ -239,7 +254,6 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         .toList();
   }
 
-
   DateTime _safeParseDate(String? value) {
     if (value == null) return DateTime.now();
     try {
@@ -256,7 +270,12 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     final req = GMarkTransactionCompletedReq(
       (b) => b..vars.input.conversationId = conversationId,
     );
-    final response = await _executeRequest(req, 'markTransactionCompleted');
+    final response = await _graphqlRequestExecutor.execute(
+      client: _ferryClient,
+      request: req,
+      operationName: 'markTransactionCompleted',
+      skipOptimisticResponse: true,
+    );
     final data = response.markTransactionCompleted;
 
     return ConversationEntity(
@@ -268,6 +287,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       lastMessage: data.lastMessage,
     );
   }
+
 
   Future<TData> _executeRequest<TData, TVars>(
     OperationRequest<TData, TVars> request,
@@ -308,4 +328,5 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       throw ServerException('Request failed during $operationName: $e');
     }
   }
+
 }

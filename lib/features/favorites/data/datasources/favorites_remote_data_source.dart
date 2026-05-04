@@ -1,7 +1,7 @@
 import 'package:ferry/ferry.dart' hide ServerException;
-import 'package:logger/logger.dart';
 
 import '../../../../core/exceptions/exceptions.dart';
+import '../../../../core/graphql/graphql_request_executor.dart';
 import '../../../donations/data/models/donation_model.dart';
 import '../../domain/entities/favorite_donations_page.dart';
 import 'graphql/__generated__/liked_donations.req.gql.dart';
@@ -23,19 +23,13 @@ abstract class FavoritesRemoteDataSource {
 }
 
 class FavoritesRemoteDataSourceImpl implements FavoritesRemoteDataSource {
-  FavoritesRemoteDataSourceImpl(this._ferryClient);
+  FavoritesRemoteDataSourceImpl(
+    this._ferryClient,
+    this._graphqlRequestExecutor,
+  );
 
   final Client _ferryClient;
-
-  final Logger _logger = Logger(
-    printer: PrettyPrinter(
-      methodCount: 0,
-      errorMethodCount: 3,
-      lineLength: 80,
-      colors: true,
-      printEmojis: false,
-    ),
-  );
+  final GraphqlRequestExecutor _graphqlRequestExecutor;
 
   @override
   Future<FavoriteDonationsPage> getLikedDonations({
@@ -43,26 +37,23 @@ class FavoritesRemoteDataSourceImpl implements FavoritesRemoteDataSource {
     int limit = 10,
   }) async {
     try {
-
       final vars = GLikedDonationsVars.fromJson({
         'pagination': {'page': page, 'limit': limit},
       });
-
 
       if (vars == null) {
         throw ServerException('Failed to build likedDonations request');
       }
 
-      final data = await _executeRequest(
-        GLikedDonationsReq(
+      final data = await _graphqlRequestExecutor.execute(
+        client: _ferryClient,
+        request: GLikedDonationsReq(
           (b) => b
             ..vars = vars.toBuilder()
             ..fetchPolicy = FetchPolicy.NetworkOnly,
         ),
-        'likedDonations',
+        operationName: 'likedDonations',
       );
-
-    
 
       final items = data.likedDonations.items;
 
@@ -82,7 +73,6 @@ class FavoritesRemoteDataSourceImpl implements FavoritesRemoteDataSource {
         totalCount: data.likedDonations.totalCount,
       );
     } catch (e) {
-
       rethrow;
     }
   }
@@ -94,13 +84,14 @@ class FavoritesRemoteDataSourceImpl implements FavoritesRemoteDataSource {
       throw ServerException('Failed to build likeDonation request');
     }
 
-    await _executeRequest(
-      GLikeDonationReq(
+    await _graphqlRequestExecutor.execute(
+      client: _ferryClient,
+      request: GLikeDonationReq(
         (b) => b
           ..vars = vars.toBuilder()
           ..fetchPolicy = FetchPolicy.NetworkOnly,
       ),
-      'likeDonation',
+      operationName: 'likeDonation',
     );
   }
 
@@ -111,101 +102,14 @@ class FavoritesRemoteDataSourceImpl implements FavoritesRemoteDataSource {
       throw ServerException('Failed to build unlikeDonation request');
     }
 
-    await _executeRequest(
-      GUnlikeDonationReq(
+    await _graphqlRequestExecutor.execute(
+      client: _ferryClient,
+      request: GUnlikeDonationReq(
         (b) => b
           ..vars = vars.toBuilder()
           ..fetchPolicy = FetchPolicy.NetworkOnly,
       ),
-      'unlikeDonation',
+      operationName: 'unlikeDonation',
     );
-  }
-
-  Future<TData> _executeRequest<TData, TVars>(
-    OperationRequest<TData, TVars> request,
-    String operationName,
-  ) async {
-    _logger.i('================================================');
-    _logger.i('Executing GraphQL operation: $operationName');
-    _logger.i('Request type: ${request.runtimeType}');
-    _logger.i('Vars: ${request.vars}');
-    _logger.i('Fetch policy: ${request.fetchPolicy}');
-    _logger.i('================================================');
-
-    try {
-      final response = await _ferryClient.request(request).firstWhere(
-            (event) =>
-                (event.data != null && !event.hasErrors) ||
-                event.hasErrors ||
-                event.linkException != null,
-          );
-
-
-      _logger.i('Response received for $operationName');
-      _logger.i('Has errors: ${response.hasErrors}');
-      _logger.i('Has data: ${response.data != null}');
-      _logger.i('Link exception: ${response.linkException}');
-      _logger.i('GraphQL errors count: ${response.graphqlErrors?.length ?? 0}');
-
-      if (response.graphqlErrors != null &&
-          response.graphqlErrors!.isNotEmpty) {
-        for (var i = 0; i < response.graphqlErrors!.length; i++) {
-          final err = response.graphqlErrors![i];
-          _logger.e('GraphQL Error [$i]');
-          _logger.e('Message: ${err.message}');
-          _logger.e('Path: ${err.path}');
-          _logger.e('Locations: ${err.locations}');
-          _logger.e('Extensions: ${err.extensions}');
-        }
-      }
-
-      if (response.linkException != null) {
-        _logger.e('LinkException type: ${response.linkException.runtimeType}');
-        _logger.e(
-          'Original exception: ${response.linkException?.originalException}',
-        );
-        _logger.e('LinkException full: ${response.linkException}');
-      }
-
-      if (response.hasErrors || response.linkException != null) {
-        final graphQLErrorMessage =
-            response.graphqlErrors != null && response.graphqlErrors!.isNotEmpty
-            ? response.graphqlErrors!.first.message
-            : null;
-
-        final message =
-            graphQLErrorMessage ??
-            response.linkException?.originalException?.toString() ??
-            response.linkException.toString();
-
-        _logger.e('Operation failed: $operationName');
-        _logger.e('Resolved error message: $message');
-
-        throw ServerException('GraphQL error in $operationName: $message');
-      }
-
-      final data = response.data;
-
-      if (data == null) {
-        _logger.e('No data returned for $operationName');
-        throw ServerException('No data returned for $operationName');
-      }
-
-      _logger.i('Operation succeeded: $operationName');
-      _logger.i('Returned data type: ${data.runtimeType}');
-      _logger.i('================================================');
-
-      return data;
-    } catch (e, stackTrace) {
-      _logger.e('Unhandled exception in $operationName');
-      _logger.e('Error: $e');
-      _logger.e('StackTrace: $stackTrace');
-
-      if (e is ServerException) {
-        rethrow;
-      }
-
-      throw ServerException('GraphQL request failed for $operationName: $e');
-    }
   }
 }

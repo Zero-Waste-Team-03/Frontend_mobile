@@ -230,19 +230,10 @@ class FcmInitializationService {
         );
       }
 
-      // Try to get NotificationBloc and initialize FCM token
-      try {
-        final notificationBloc = GetIt.I<NotificationBloc>();
-        _logger.i(
-          '📤 FcmInitializationService: Triggering FCM token initialization in BLoC...',
-        );
-        notificationBloc.add(const InitializeFcmTokenEvent());
-      } catch (e) {
-        _logger.w(
-          '⚠️ FcmInitializationService: Could not initialize FCM in BLoC',
-          error: e,
-        );
-      }
+      // FCM token initialization will be triggered after user authenticates
+      _logger.i(
+        '⏳ FcmInitializationService: FCM token initialization deferred until after auth',
+      );
 
       _logger.i(
         '🎉 FcmInitializationService: FCM post-build initialization complete',
@@ -345,8 +336,11 @@ class FcmInitializationService {
 
       final token = await fcmManager.getFcmToken();
       if (token != null) {
+        final _preview = token.length > 20
+            ? '...${token.substring(token.length - 20)}'
+            : token;
         _logger.i(
-          '📱 FcmInitializationService: FCM token (last 20 chars): ...${token.substring(token.length - 20)}',
+          '📱 FcmInitializationService: FCM token (last 20 chars): $_preview',
         );
       } else {
         _logger.w('⚠️  FcmInitializationService: No FCM token available');
@@ -389,8 +383,11 @@ class FcmInitializationService {
         );
       },
       (registeredToken) {
+        final _preview = registeredToken.length > 20
+            ? '...${registeredToken.substring(registeredToken.length - 20)}'
+            : registeredToken;
         _logger.i(
-          '✅ FcmInitializationService: FCM token registered successfully: ${registeredToken.length > 20 ? '...${registeredToken.substring(registeredToken.length - 20)}' : registeredToken}',
+          '✅ FcmInitializationService: FCM token registered successfully: $_preview',
         );
       },
     );

@@ -322,6 +322,23 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, void>> logout() async {
     try {
       await _clearFcmTokenOnLogout();
+
+      try {
+        await remoteDataSource.logout();
+      } on ServerException catch (e, stackTrace) {
+        _logger.w(
+          '⚠️ [AuthRepository] Remote logout failed; continuing with local sign-out: ${e.message}',
+          error: e,
+          stackTrace: stackTrace,
+        );
+      } catch (e, stackTrace) {
+        _logger.w(
+          '⚠️ [AuthRepository] Unexpected remote logout error; continuing with local sign-out',
+          error: e,
+          stackTrace: stackTrace,
+        );
+      }
+
       await localDataSource.clearTokens();
       await localDataSource.clearUserProfile();
       return const Right(null);
@@ -444,6 +461,7 @@ class AuthRepositoryImpl implements AuthRepository {
     String? email,
     String? phoneNumber,
     Map<String, dynamic>? location,
+    Map<String, dynamic>? settings,
   }) async {
     try {
       final userModel = await remoteDataSource.updateProfile(
@@ -451,9 +469,37 @@ class AuthRepositoryImpl implements AuthRepository {
         email: email,
         phoneNumber: phoneNumber,
         location: location,
+        settings: settings,
       );
 
       // Cache the updated user profile
+      await localDataSource.cacheUserProfile(userModel);
+
+      return Right(userModel.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, User>> updateUserSettings({
+    required bool isPushNotificationsEnabled,
+    required bool isNewDonationsAlertsEnabled,
+    required bool isUrgentAlertsEnabled,
+    required bool isSystemReports,
+    required String appearance,
+  }) async {
+    try {
+      final userModel = await remoteDataSource.updateUserSettings(
+        isPushNotificationsEnabled: isPushNotificationsEnabled,
+        isNewDonationsAlertsEnabled: isNewDonationsAlertsEnabled,
+        isUrgentAlertsEnabled: isUrgentAlertsEnabled,
+        isSystemReports: isSystemReports,
+        appearance: appearance,
+      );
+
       await localDataSource.cacheUserProfile(userModel);
 
       return Right(userModel.toEntity());

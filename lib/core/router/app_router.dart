@@ -30,6 +30,7 @@ import '../../features/profile/presentation/bloc/profile_bloc.dart';
 import '../../features/profile/presentation/bloc/profile_event.dart';
 import '../../features/profile/presentation/pages/edit_profile_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
+import '../../features/profile/presentation/pages/settings_page.dart';
 import '../../features/reservation/presentation/bloc/reservation_bloc.dart';
 import '../../features/reservation/presentation/pages/donation_details_full_page.dart';
 import '../../features/reservation/presentation/pages/my_reservations_page.dart';
@@ -132,6 +133,7 @@ final appRouter = GoRouter(
         return NotificationDetailsPage(notification: notification);
       },
     ),
+
     GoRoute(
       path: '/chat',
       builder: (context, state) {
@@ -196,6 +198,10 @@ final appRouter = GoRouter(
                     GoRoute(
                       path: 'edit',
                       builder: (context, state) => const EditProfilePage(),
+                    ),
+                    GoRoute(
+                      path: 'settings',
+                      builder: (context, state) => const SettingsPage(),
                     ),
                   ],
                 ),

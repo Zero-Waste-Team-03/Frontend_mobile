@@ -3,6 +3,7 @@ import 'package:ferry/ferry.dart' hide ServerException;
 import 'package:logger/logger.dart';
 
 import '../../../../core/exceptions/exceptions.dart';
+import '../../../../core/graphql/graphql_request_executor.dart';
 import '../../../donations/data/models/donation_model.dart';
 import '../../domain/entities/profile_activities_page.dart';
 import 'graphql/__generated__/get_myDonations.req.gql.dart';
@@ -20,9 +21,13 @@ abstract class ProfileActivitiesRemoteDataSource {
 @LazySingleton(as: ProfileActivitiesRemoteDataSource)
 class ProfileActivitiesRemoteDataSourceImpl
     implements ProfileActivitiesRemoteDataSource {
-  ProfileActivitiesRemoteDataSourceImpl(this._ferryClient);
+  ProfileActivitiesRemoteDataSourceImpl(
+    this._ferryClient,
+    this._graphqlRequestExecutor,
+  );
 
   final Client _ferryClient;
+  final GraphqlRequestExecutor _graphqlRequestExecutor;
 
   final Logger _logger = Logger(
     printer: PrettyPrinter(
@@ -59,13 +64,14 @@ class ProfileActivitiesRemoteDataSourceImpl
         throw ServerException('Failed to build myDonations request');
       }
 
-      final data = await _executeRequest(
-        GMyDonationsReq(
+      final data = await _graphqlRequestExecutor.execute(
+        client: _ferryClient,
+        request: GMyDonationsReq(
           (b) => b
             ..vars = vars.toBuilder()
             ..fetchPolicy = FetchPolicy.NetworkOnly,
         ),
-        'myDonations',
+        operationName: 'myDonations',
       );
 
       final items = data.myDonations.items;
@@ -96,46 +102,6 @@ class ProfileActivitiesRemoteDataSourceImpl
       rethrow;
     } catch (e) {
       throw ServerException('Failed to fetch myDonations: $e');
-    }
-  }
-
-  Future<TData> _executeRequest<TData, TVars>(
-    OperationRequest<TData, TVars> request,
-    String operationName,
-  ) async {
-    try {
-      final response = await _ferryClient.request(request).firstWhere(
-            (event) =>
-                (event.data != null && !event.hasErrors) ||
-                event.hasErrors ||
-                event.linkException != null,
-          );
-
-      if (response.hasErrors || response.linkException != null) {
-        final graphQLErrorMessage =
-            response.graphqlErrors != null && response.graphqlErrors!.isNotEmpty
-            ? response.graphqlErrors!.first.message
-            : null;
-
-        final message =
-            graphQLErrorMessage ??
-            response.linkException?.originalException?.toString() ??
-            response.linkException.toString();
-
-        throw ServerException('GraphQL error in $operationName: $message');
-      }
-
-      final data = response.data;
-      if (data == null) {
-        throw ServerException('No data returned for $operationName');
-      }
-
-      return data;
-    } catch (e) {
-      if (e is ServerException) {
-        rethrow;
-      }
-      throw ServerException('GraphQL request failed for $operationName: $e');
     }
   }
 }

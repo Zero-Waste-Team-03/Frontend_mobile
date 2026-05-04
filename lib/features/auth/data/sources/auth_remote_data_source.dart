@@ -5,7 +5,9 @@ import 'package:ferry/ferry.dart' hide ServerException;
 import 'package:injectable/injectable.dart';
 import 'package:logger/logger.dart';
 
+import '../../../../core/device/device_id_provider.dart';
 import '../../../../core/exceptions/exceptions.dart';
+import '../../../../core/graphql/graphql_request_executor.dart';
 import '../models/auth_response_model.dart';
 import '../models/file_upload_response_model.dart';
 import '../models/user_model.dart';
@@ -17,6 +19,7 @@ import 'graphql/__generated__/forgot_password.var.gql.dart';
 import 'graphql/__generated__/get_current_user.req.gql.dart';
 import 'graphql/__generated__/login.req.gql.dart';
 import 'graphql/__generated__/login.var.gql.dart';
+import 'graphql/__generated__/logout.req.gql.dart';
 import 'graphql/__generated__/logout_from_all_devices.req.gql.dart';
 import 'graphql/__generated__/refresh_tokens.req.gql.dart';
 import 'graphql/__generated__/register.req.gql.dart';
@@ -55,6 +58,7 @@ abstract class AuthRemoteDataSource {
   Future<void> forgotPassword(String email);
   Future<void> resetPassword(String token, String newPassword);
   Future<AuthResponseModel> refreshTokens();
+  Future<void> logout();
   Future<void> logoutFromAllDevices();
   Future<void> deleteAccount();
   Future<UserModel> updateProfile({
@@ -62,6 +66,14 @@ abstract class AuthRemoteDataSource {
     String? email,
     String? phoneNumber,
     Map<String, dynamic>? location,
+    Map<String, dynamic>? settings,
+  });
+  Future<UserModel> updateUserSettings({
+    required bool isPushNotificationsEnabled,
+    required bool isNewDonationsAlertsEnabled,
+    required bool isUrgentAlertsEnabled,
+    required bool isSystemReports,
+    required String appearance,
   });
   Future<FileUploadResponseModel> uploadProfileAvatar(File file);
   Future<UserModel> updateProfileWithAvatarId(String avatarAttachmentId);
@@ -69,10 +81,17 @@ abstract class AuthRemoteDataSource {
 
 @LazySingleton(as: AuthRemoteDataSource)
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
-  AuthRemoteDataSourceImpl(this.dio, this._ferryClient);
+  AuthRemoteDataSourceImpl(
+    this.dio,
+    this._ferryClient,
+    this._graphqlRequestExecutor,
+    this._deviceIdProvider,
+  );
 
   final Dio dio;
   final Client _ferryClient;
+  final GraphqlRequestExecutor _graphqlRequestExecutor;
+  final DeviceIdProvider _deviceIdProvider;
 
   final Logger _logger = Logger(
     printer: PrettyPrinter(
@@ -86,6 +105,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<AuthResponseModel> login(String email, String password) async {
+    await _deviceIdProvider.getOrCreateDeviceId();
+
     final vars = GLoginVars.fromJson({
       'loginInput': {'email': email.trim(), 'password': password},
     });
@@ -93,9 +114,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw ServerException('Failed to build login request');
     }
 
-    final data = await _executeRequest(
-      GLoginReq((b) => b.vars = vars.toBuilder()),
-      'login',
+    final data = await _graphqlRequestExecutor.execute(
+      client: _ferryClient,
+      request: GLoginReq((b) => b.vars = vars.toBuilder()),
+      operationName: 'login',
     );
 
     return AuthResponseModel.fromJson(
@@ -110,9 +132,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw ServerException('Failed to build sendVerification request');
     }
 
-    await _executeRequest(
-      GSendVerificationReq((b) => b.vars = vars.toBuilder()),
-      'sendVerification',
+    await _graphqlRequestExecutor.execute(
+      client: _ferryClient,
+      request: GSendVerificationReq((b) => b.vars = vars.toBuilder()),
+      operationName: 'sendVerification',
     );
   }
 
@@ -156,9 +179,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw ServerException('Failed to build register request');
     }
 
-    await _executeRequest(
-      GRegisterReq((b) => b.vars = vars.toBuilder()),
-      'register',
+    await _graphqlRequestExecutor.execute(
+      client: _ferryClient,
+      request: GRegisterReq((b) => b.vars = vars.toBuilder()),
+      operationName: 'register',
     );
   }
 
@@ -195,9 +219,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<UserModel> getCurrentUser() async {
-    final data = await _executeRequest(
-      GGetCurrentUserReq((b) => b..fetchPolicy = FetchPolicy.NetworkOnly),
-      'getCurrentUser',
+    final data = await _graphqlRequestExecutor.execute(
+      client: _ferryClient,
+      request: GGetCurrentUserReq(
+        (b) => b..fetchPolicy = FetchPolicy.NetworkOnly,
+      ),
+      operationName: 'getCurrentUser',
     );
     return UserModel.fromJson(
       Map<String, dynamic>.from(data.currentUser.toJson()),
@@ -221,9 +248,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw ServerException('Failed to build changePassword request');
     }
 
-    await _executeRequest(
-      GChangePasswordReq((b) => b.vars = vars.toBuilder()),
-      'changePassword',
+    await _graphqlRequestExecutor.execute(
+      client: _ferryClient,
+      request: GChangePasswordReq((b) => b.vars = vars.toBuilder()),
+      operationName: 'changePassword',
     );
   }
 
@@ -234,9 +262,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw ServerException('Failed to build forgotPassword request');
     }
 
-    await _executeRequest(
-      GForgotPasswordReq((b) => b.vars = vars.toBuilder()),
-      'forgotPassword',
+    await _graphqlRequestExecutor.execute(
+      client: _ferryClient,
+      request: GForgotPasswordReq((b) => b.vars = vars.toBuilder()),
+      operationName: 'forgotPassword',
     );
   }
 
@@ -249,28 +278,50 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw ServerException('Failed to build resetPassword request');
     }
 
-    await _executeRequest(
-      GResetPasswordReq((b) => b.vars = vars.toBuilder()),
-      'resetPassword',
+    await _graphqlRequestExecutor.execute(
+      client: _ferryClient,
+      request: GResetPasswordReq((b) => b.vars = vars.toBuilder()),
+      operationName: 'resetPassword',
     );
   }
 
   @override
   Future<AuthResponseModel> refreshTokens() async {
-    final data = await _executeRequest(GRefreshTokensReq(), 'refreshTokens');
+    final data = await _graphqlRequestExecutor.execute(
+      client: _ferryClient,
+      request: GRefreshTokensReq(),
+      operationName: 'refreshTokens',
+    );
     return AuthResponseModel.fromJson(
       Map<String, dynamic>.from(data.refreshTokens.toJson()),
     );
   }
 
   @override
+  Future<void> logout() async {
+    await _graphqlRequestExecutor.execute(
+      client: _ferryClient,
+      request: GLogoutReq(),
+      operationName: 'logout',
+    );
+  }
+
+  @override
   Future<void> logoutFromAllDevices() async {
-    await _executeRequest(GLogoutFromAllDevicesReq(), 'logoutFromAllDevices');
+    await _graphqlRequestExecutor.execute(
+      client: _ferryClient,
+      request: GLogoutFromAllDevicesReq(),
+      operationName: 'logoutFromAllDevices',
+    );
   }
 
   @override
   Future<void> deleteAccount() async {
-    await _executeRequest(GDeleteAccountReq(), 'deleteAccount');
+    await _graphqlRequestExecutor.execute(
+      client: _ferryClient,
+      request: GDeleteAccountReq(),
+      operationName: 'deleteAccount',
+    );
   }
 
   @override
@@ -279,6 +330,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     String? email,
     String? phoneNumber,
     Map<String, dynamic>? location,
+    Map<String, dynamic>? settings,
   }) async {
     final updateProfileInput = <String, dynamic>{
       if (displayName != null && displayName.trim().isNotEmpty)
@@ -287,6 +339,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (phoneNumber != null && phoneNumber.trim().isNotEmpty)
         'phoneNumber': phoneNumber.trim(),
       if (location != null) 'location': Map<String, dynamic>.from(location),
+      if (settings != null) 'settings': Map<String, dynamic>.from(settings),
     };
 
     final vars = GUpdateProfileVars.fromJson({
@@ -296,13 +349,34 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw ServerException('Failed to build updateProfile request');
     }
 
-    final data = await _executeRequest(
-      GUpdateProfileReq((b) => b.vars = vars.toBuilder()),
-      'updateProfile',
+    final data = await _graphqlRequestExecutor.execute(
+      client: _ferryClient,
+      request: GUpdateProfileReq((b) => b.vars = vars.toBuilder()),
+      operationName: 'updateProfile',
     );
-
-    return UserModel.fromJson(
+    var userModel = UserModel.fromJson(
       Map<String, dynamic>.from(data.updateProfile.toJson()),
+    );
+    print('UserModel after updateProfile: ${userModel.toJson()}');
+    return userModel;
+  }
+
+  @override
+  Future<UserModel> updateUserSettings({
+    required bool isPushNotificationsEnabled,
+    required bool isNewDonationsAlertsEnabled,
+    required bool isUrgentAlertsEnabled,
+    required bool isSystemReports,
+    required String appearance,
+  }) async {
+    return updateProfile(
+      settings: {
+        'isPushNotificationsEnabled': isPushNotificationsEnabled,
+        'isNewDonationsAlertsEnabled': isNewDonationsAlertsEnabled,
+        'isUrgentAlertsEnabled': isUrgentAlertsEnabled,
+        'isSystemReports': isSystemReports,
+        'appearance': appearance,
+      },
     );
   }
 
@@ -346,9 +420,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw ServerException('Failed to build updateProfile avatar request');
     }
 
-    final data = await _executeRequest(
-      GUpdateProfileReq((b) => b.vars = vars.toBuilder()),
-      'updateProfile',
+    final data = await _graphqlRequestExecutor.execute(
+      client: _ferryClient,
+      request: GUpdateProfileReq((b) => b.vars = vars.toBuilder()),
+      operationName: 'updateProfile',
     );
 
     var userModel = UserModel.fromJson(
@@ -402,48 +477,5 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       location['neighborhood'] = neighborhood.trim();
     }
     return location;
-  }
-
-  Future<TData> _executeRequest<TData, TVars>(
-    OperationRequest<TData, TVars> request,
-    String operationName,
-  ) async {
-    _logger.i('Executing GraphQL operation: $operationName');
-
-    try {
-      final response = await _ferryClient.request(request).firstWhere(
-            (event) =>
-                (event.data != null && !event.hasErrors) ||
-                event.hasErrors ||
-                event.linkException != null,
-          );
-
-      if (response.hasErrors || response.linkException != null) {
-        final graphQLErrors = response.graphqlErrors;
-        final graphQLErrorMessage =
-            graphQLErrors != null && graphQLErrors.isNotEmpty
-            ? graphQLErrors.first.message
-            : null;
-
-        final message =
-            graphQLErrorMessage ??
-            response.linkException?.originalException?.toString() ??
-            response.linkException.toString();
-
-        throw ServerException(message);
-      }
-
-      final data = response.data;
-      if (data == null) {
-        throw ServerException('No data returned for $operationName');
-      }
-
-      return data;
-    } catch (e) {
-      if (e is ServerException) {
-        rethrow;
-      }
-      throw ServerException('GraphQL request failed: $e');
-    }
   }
 }

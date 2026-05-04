@@ -164,7 +164,9 @@ class _ProfilePageState extends State<ProfilePage> {
                         ? state.user
                         : (state is ProfileUpdating
                               ? state.currentUser
-                              : (state is ProfileUpdateSuccess ? state.user : null));
+                              : (state is ProfileUpdateSuccess
+                                    ? state.user
+                                    : null));
                     final isUpdating = state is ProfileUpdating;
 
                     if (user == null) {
@@ -189,42 +191,64 @@ class _ProfilePageState extends State<ProfilePage> {
                         child: Column(
                           children: [
                             // User Avatar and Name Section
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                          vertical: AppDimensions.paddingLarge.h,
-                        ),
-                        child: Column(
-                          children: [
-                            // Avatar with verification badge and camera button for editing
-                            Stack(
-                              children: [
-                                Container(
-                                  width: 120.w,
-                                  height: 120.w,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: AuthColors.primary.withValues(
-                                      alpha: 0.1,
-                                    ),
-                                  ),
-                                  child:
-                                      user.avatarUrl != null &&
-                                          user.avatarUrl!.isNotEmpty
-                                      ? ClipOval(
-                                          child: CachedNetworkImage(
-                                            imageUrl: user.avatarUrl!,
-                                            key: ValueKey(user.avatarUrl),
-                                            fit: BoxFit.cover,
-                                            placeholder: (context, url) {
-                                              return Center(
-                                                child:
-                                                    CircularProgressIndicator(
-                                                      color: AuthColors.primary,
-                                                    ),
-                                              );
-                                            },
-                                            errorWidget: (context, url, error) {
-                                              return Center(
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                vertical: AppDimensions.paddingLarge.h,
+                              ),
+                              child: Column(
+                                children: [
+                                  // Avatar with verification badge and camera button for editing
+                                  Stack(
+                                    children: [
+                                      Container(
+                                        width: 120.w,
+                                        height: 120.w,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: AuthColors.primary.withValues(
+                                            alpha: 0.1,
+                                          ),
+                                        ),
+                                        child:
+                                            user.avatarUrl != null &&
+                                                user.avatarUrl!.isNotEmpty
+                                            ? ClipOval(
+                                                child: CachedNetworkImage(
+                                                  imageUrl: user.avatarUrl!,
+                                                  key: ValueKey(user.avatarUrl),
+                                                  fit: BoxFit.cover,
+                                                  placeholder: (context, url) {
+                                                    return Center(
+                                                      child:
+                                                          CircularProgressIndicator(
+                                                            color: AuthColors
+                                                                .primary,
+                                                          ),
+                                                    );
+                                                  },
+                                                  errorWidget:
+                                                      (context, url, error) {
+                                                        return Center(
+                                                          child: Text(
+                                                            _getInitials(
+                                                              user.name,
+                                                            ),
+                                                            style: TextStyle(
+                                                              fontSize: 48.sp,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w700,
+                                                              color: AuthColors
+                                                                  .primary,
+                                                              fontFamily: AppFonts
+                                                                  .primaryFont,
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
+                                                ),
+                                              )
+                                            : Center(
                                                 child: Text(
                                                   _getInitials(user.name),
                                                   style: TextStyle(
@@ -235,538 +259,596 @@ class _ProfilePageState extends State<ProfilePage> {
                                                         AppFonts.primaryFont,
                                                   ),
                                                 ),
-                                              );
-                                            },
-                                          ),
-                                        )
-                                      : Center(
-                                          child: Text(
-                                            _getInitials(user.name),
-                                            style: TextStyle(
-                                              fontSize: 48.sp,
-                                              fontWeight: FontWeight.w700,
+                                              ),
+                                      ),
+                                      // Verification badge
+                                      if (user.isMailVerified)
+                                        Positioned(
+                                          bottom: 4.w,
+                                          right: 4.w,
+                                          child: Container(
+                                            width: 28.w,
+                                            height: 28.w,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
                                               color: AuthColors.primary,
-                                              fontFamily: AppFonts.primaryFont,
+                                              border: Border.all(
+                                                color: Colors.white,
+                                                width: 2.w,
+                                              ),
+                                            ),
+                                            child: Icon(
+                                              Icons.check,
+                                              color: Colors.white,
+                                              size: 16.sp,
                                             ),
                                           ),
                                         ),
-                                ),
-                                // Verification badge
-                                if (user.isMailVerified)
-                                  Positioned(
-                                    bottom: 4.w,
-                                    right: 4.w,
-                                    child: Container(
-                                      width: 28.w,
-                                      height: 28.w,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: AuthColors.primary,
-                                        border: Border.all(
-                                          color: Colors.white,
-                                          width: 2.w,
-                                        ),
-                                      ),
-                                      child: Icon(
-                                        Icons.check,
-                                        color: Colors.white,
-                                        size: 16.sp,
-                                      ),
-                                    ),
-                                  ),
-                                // Camera button for updating avatar
-                                Positioned(
-                                  bottom: 0,
-                                  right: 0,
-                                  child: GestureDetector(
-                                    onTap: isUpdating
-                                        ? null
-                                        : () => _pickAndUploadAvatar(context),
-                                    child: Container(
-                                      width: 36.w,
-                                      height: 36.w,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: AuthColors.primary,
-                                        border: Border.all(
-                                          color: Colors.white,
-                                          width: 2.w,
-                                        ),
-                                      ),
-                                      child: isUpdating
-                                          ? SizedBox(
-                                              width: 16.w,
-                                              height: 16.w,
-                                              child:
-                                                  const CircularProgressIndicator(
-                                                    strokeWidth: 2,
-                                                    valueColor:
-                                                        AlwaysStoppedAnimation<
-                                                          Color
-                                                        >(Colors.white),
-                                                  ),
-                                            )
-                                          : Icon(
-                                              Icons.edit_rounded,
-                                              color: Colors.white,
-                                              size: 20.sp,
+                                      // Camera button for updating avatar
+                                      Positioned(
+                                        bottom: 0,
+                                        right: 0,
+                                        child: GestureDetector(
+                                          onTap: isUpdating
+                                              ? null
+                                              : () => _pickAndUploadAvatar(
+                                                  context,
+                                                ),
+                                          child: Container(
+                                            width: 36.w,
+                                            height: 36.w,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: AuthColors.primary,
+                                              border: Border.all(
+                                                color: Colors.white,
+                                                width: 2.w,
+                                              ),
                                             ),
+                                            child: isUpdating
+                                                ? SizedBox(
+                                                    width: 16.w,
+                                                    height: 16.w,
+                                                    child: const CircularProgressIndicator(
+                                                      strokeWidth: 2,
+                                                      valueColor:
+                                                          AlwaysStoppedAnimation<
+                                                            Color
+                                                          >(Colors.white),
+                                                    ),
+                                                  )
+                                                : Icon(
+                                                    Icons.edit_rounded,
+                                                    color: Colors.white,
+                                                    size: 20.sp,
+                                                  ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: AppDimensions.paddingMedium.h,
+                                  ),
+
+                                  // User Name
+                                  Center(
+                                    child: Text(
+                                      user.name ?? 'N/A',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: AppDimensions.titleSize.sp,
+                                        fontWeight: FontWeight.w700,
+                                        color: AuthColors.headingText,
+                                        fontFamily: AppFonts.primaryFont,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: AppDimensions.paddingMedium.h),
+                                  SizedBox(
+                                    height: AppDimensions.paddingSmall.h,
+                                  ),
 
-                            // User Name
-                            Center(
-                              child: Text(
-                                user.name ?? 'N/A',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: AppDimensions.titleSize.sp,
-                                  fontWeight: FontWeight.w700,
-                                  color: AuthColors.headingText,
-                                  fontFamily: AppFonts.primaryFont,
-                                ),
+                                  // Email
+                                  Text(
+                                    user.email ?? 'N/A',
+                                    style: TextStyle(
+                                      fontSize: AppDimensions.bodySize.sp,
+                                      fontWeight: FontWeight.w400,
+                                      color: AuthColors.primary,
+                                      fontFamily: AppFonts.primaryFont,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: AppDimensions.paddingMedium.h,
+                                  ),
+
+                                  // Status Badge with leaf icon
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: AppDimensions.paddingSmall.w,
+                                      vertical: 5.h,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AuthColors.primary,
+                                      borderRadius: BorderRadius.circular(
+                                        AppDimensions.borderRadiusExtraLarge.r,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.eco_outlined,
+                                          color: Colors.white,
+                                          size: 14.sp,
+                                        ),
+                                        SizedBox(width: 4.w),
+                                        Text(
+                                          'ACTIVE FOOD SAVER',
+                                          style: TextStyle(
+                                            fontSize: 11.sp,
+                                            fontWeight: FontWeight.w700,
+                                            color: Colors.white,
+                                            fontFamily: AppFonts.primaryFont,
+                                            letterSpacing: 0.5,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: AppDimensions.paddingMedium.h,
+                                  ),
+
+                                  SizedBox(
+                                    width: 140.w,
+                                    height: 32.h,
+                                    child: ElevatedButton(
+                                      onPressed: isUpdating
+                                          ? null
+                                          : () {
+                                              context.push('/profile/edit');
+                                            },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            AuthColors.lightGreenBackground,
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal:
+                                              AppDimensions.paddingSmall.w,
+                                          vertical: 6.h,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            AppDimensions.borderRadiusLarge.r,
+                                          ),
+                                        ),
+                                        elevation: 0,
+                                      ),
+                                      child: Text(
+                                        'Edit Account Info',
+                                        style: TextStyle(
+                                          fontSize: 11.sp,
+                                          fontWeight: FontWeight.w700,
+                                          color: AuthColors.primary,
+                                          fontFamily: AppFonts.primaryFont,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            SizedBox(height: AppDimensions.paddingSmall.h),
 
-                            // Email
-                            Text(
-                              user.email ?? 'N/A',
-                              style: TextStyle(
-                                fontSize: AppDimensions.bodySize.sp,
-                                fontWeight: FontWeight.w400,
-                                color: AuthColors.primary,
-                                fontFamily: AppFonts.primaryFont,
-                              ),
-                            ),
-                            SizedBox(height: AppDimensions.paddingMedium.h),
-
-                            // Status Badge with leaf icon
-                            Container(
+                            // Stats Section
+                            Padding(
                               padding: EdgeInsets.symmetric(
-                                horizontal: AppDimensions.paddingSmall.w,
-                                vertical: 5.h,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AuthColors.primary,
-                                borderRadius: BorderRadius.circular(
-                                  AppDimensions.borderRadiusExtraLarge.r,
-                                ),
+                                horizontal: AppDimensions.paddingLarge.w,
+                                vertical: AppDimensions.paddingLarge.h,
                               ),
                               child: Row(
-                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
                                 children: [
-                                  Icon(
-                                    Icons.eco_outlined,
-                                    color: Colors.white,
-                                    size: 14.sp,
+                                  _StatCard(
+                                    value:
+                                        'N/A', // TODO: Replace with actual saved items count
+                                    label: 'SAVED ITEMS',
                                   ),
-                                  SizedBox(width: 4.w),
-                                  Text(
-                                    'ACTIVE FOOD SAVER',
+                                  Container(
+                                    width: 1.w,
+                                    height: 60.h,
+                                    color: AuthColors.inputBorder,
+                                  ),
+                                  _StatCard(
+                                    value:
+                                        'N/A', // TODO: Replace with actual donations count
+                                    label: 'DONATIONS',
+                                  ),
+                                  Container(
+                                    width: 1.w,
+                                    height: 60.h,
+                                    color: AuthColors.inputBorder,
+                                  ),
+                                  _StatCard(
+                                    value: '${user.reputationScore}',
+                                    label: 'IMPACT PTS',
+                                  ),
+                                ],
+                              ),
+                            ),
+                            // Activity Section
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: AppDimensions.paddingLarge.w,
+                                    vertical: AppDimensions.paddingLarge.h,
+                                  ),
+                                  child: Text(
+                                    'ACTIVITY',
                                     style: TextStyle(
-                                      fontSize: 11.sp,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.white,
+                                      fontSize: AppDimensions.captionSize.sp,
+                                      fontWeight: FontWeight.w600,
+                                      color: AuthColors.labelText,
                                       fontFamily: AppFonts.primaryFont,
                                       letterSpacing: 0.5,
                                     ),
                                   ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: AppDimensions.paddingMedium.h),
+                                ),
 
-                            SizedBox(
-                              width: 140.w,
-                              height: 32.h,
-                              child: ElevatedButton(
-                                onPressed: isUpdating
-                                    ? null
-                                    : () {
-                                        context.push('/profile/edit');
-                                      },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      AuthColors.lightGreenBackground,
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: AppDimensions.paddingSmall.w,
-                                    vertical: 6.h,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(
-                                      AppDimensions.borderRadiusLarge.r,
+                                GestureDetector(
+                                  onTap: () {
+                                    context.push('/my-activities');
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: AppDimensions.paddingLarge.w,
                                     ),
-                                  ),
-                                  elevation: 0,
-                                ),
-                                child: Text(
-                                  'Edit Account Info',
-                                  style: TextStyle(
-                                    fontSize: 11.sp,
-                                    fontWeight: FontWeight.w700,
-                                    color: AuthColors.primary,
-                                    fontFamily: AppFonts.primaryFont,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      // Stats Section
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: AppDimensions.paddingLarge.w,
-                          vertical: AppDimensions.paddingLarge.h,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            _StatCard(
-                              value:
-                                  'N/A', // TODO: Replace with actual saved items count
-                              label: 'SAVED ITEMS',
-                            ),
-                            Container(
-                              width: 1.w,
-                              height: 60.h,
-                              color: AuthColors.inputBorder,
-                            ),
-                            _StatCard(
-                              value:
-                                  'N/A', // TODO: Replace with actual donations count
-                              label: 'DONATIONS',
-                            ),
-                            Container(
-                              width: 1.w,
-                              height: 60.h,
-                              color: AuthColors.inputBorder,
-                            ),
-                            _StatCard(
-                              value: '${user.reputationScore}',
-                              label: 'IMPACT PTS',
-                            ),
-                          ],
-                        ),
-                      ),
-                      // Activity Section
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: AppDimensions.paddingLarge.w,
-                              vertical: AppDimensions.paddingLarge.h,
-                            ),
-                            child: Text(
-                              'ACTIVITY',
-                              style: TextStyle(
-                                fontSize: AppDimensions.captionSize.sp,
-                                fontWeight: FontWeight.w600,
-                                color: AuthColors.labelText,
-                                fontFamily: AppFonts.primaryFont,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                          ),
-
-                          GestureDetector(
-                            onTap: () {
-                              context.push('/my-activities');
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: AppDimensions.paddingLarge.w,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.background,
-                                borderRadius: BorderRadius.circular(
-                                  AppDimensions.borderRadiusLarge.r,
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 40.w,
-                                    height: 40.w,
                                     decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: AuthColors.primary.withValues(
-                                        alpha: 0.1,
+                                      color: AppColors.background,
+                                      borderRadius: BorderRadius.circular(
+                                        AppDimensions.borderRadiusLarge.r,
                                       ),
                                     ),
-                                    child: Center(
-                                      child: Icon(
-                                        Icons.history_rounded,
-                                        color: AuthColors.primary,
-                                        size: 20.sp,
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: AppDimensions.paddingMedium.w,
-                                  ),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                    child: Row(
                                       children: [
-                                        Text(
-                                          'Activity History',
-                                          style: TextStyle(
-                                            fontSize: AppDimensions.bodySize.sp,
-                                            fontWeight: FontWeight.w600,
-                                            color: AuthColors.headingText,
-                                            fontFamily: AppFonts.primaryFont,
+                                        Container(
+                                          width: 40.w,
+                                          height: 40.w,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: AuthColors.primary
+                                                .withValues(alpha: 0.1),
+                                          ),
+                                          child: Center(
+                                            child: Icon(
+                                              Icons.history_rounded,
+                                              color: AuthColors.primary,
+                                              size: 20.sp,
+                                            ),
                                           ),
                                         ),
-                                        SizedBox(height: 4.h),
-                                        Text(
-                                          'View your past donations',
-                                          style: TextStyle(
-                                            fontSize:
-                                                AppDimensions.captionSize.sp,
-                                            fontWeight: FontWeight.w400,
-                                            color: AuthColors.subText,
-                                            fontFamily: AppFonts.primaryFont,
+                                        SizedBox(
+                                          width: AppDimensions.paddingMedium.w,
+                                        ),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Activity History',
+                                                style: TextStyle(
+                                                  fontSize:
+                                                      AppDimensions.bodySize.sp,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: AuthColors.headingText,
+                                                  fontFamily:
+                                                      AppFonts.primaryFont,
+                                                ),
+                                              ),
+                                              SizedBox(height: 4.h),
+                                              Text(
+                                                'View your past donations',
+                                                style: TextStyle(
+                                                  fontSize: AppDimensions
+                                                      .captionSize
+                                                      .sp,
+                                                  fontWeight: FontWeight.w400,
+                                                  color: AuthColors.subText,
+                                                  fontFamily:
+                                                      AppFonts.primaryFont,
+                                                ),
+                                              ),
+                                            ],
                                           ),
+                                        ),
+                                        Icon(
+                                          Icons.chevron_right_rounded,
+                                          color: AuthColors.subText,
+                                          size: AppDimensions.iconSize.sp,
                                         ),
                                       ],
                                     ),
                                   ),
-                                  Icon(
-                                    Icons.chevron_right_rounded,
-                                    color: AuthColors.subText,
-                                    size: AppDimensions.iconSize.sp,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: AppDimensions.paddingMedium.h),
-
-                          GestureDetector(
-                            onTap: () {
-                              context.push('/favorites');
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: AppDimensions.paddingLarge.w,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.background,
-                                borderRadius: BorderRadius.circular(
-                                  AppDimensions.borderRadiusLarge.r,
                                 ),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 40.w,
-                                    height: 40.w,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.red.withValues(alpha: 0.12),
+                                SizedBox(height: AppDimensions.paddingMedium.h),
+
+                                GestureDetector(
+                                  onTap: () {
+                                    context.push('/favorites');
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: AppDimensions.paddingLarge.w,
                                     ),
-                                    child: Center(
-                                      child: Icon(
-                                        Icons.favorite_rounded,
-                                        color: Colors.redAccent,
-                                        size: 20.sp,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.background,
+                                      borderRadius: BorderRadius.circular(
+                                        AppDimensions.borderRadiusLarge.r,
                                       ),
                                     ),
-                                  ),
-                                  SizedBox(
-                                    width: AppDimensions.paddingMedium.w,
-                                  ),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                    child: Row(
                                       children: [
-                                        Text(
-                                          'Favorite Donations',
-                                          style: TextStyle(
-                                            fontSize: AppDimensions.bodySize.sp,
-                                            fontWeight: FontWeight.w600,
-                                            color: AuthColors.headingText,
-                                            fontFamily: AppFonts.primaryFont,
+                                        Container(
+                                          width: 40.w,
+                                          height: 40.w,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Colors.red.withValues(
+                                              alpha: 0.12,
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: Icon(
+                                              Icons.favorite_rounded,
+                                              color: Colors.redAccent,
+                                              size: 20.sp,
+                                            ),
                                           ),
                                         ),
-                                        SizedBox(height: 4.h),
-                                        Text(
-                                          'Manage your liked donation list',
-                                          style: TextStyle(
-                                            fontSize:
-                                                AppDimensions.captionSize.sp,
-                                            fontWeight: FontWeight.w400,
-                                            color: AuthColors.subText,
-                                            fontFamily: AppFonts.primaryFont,
+                                        SizedBox(
+                                          width: AppDimensions.paddingMedium.w,
+                                        ),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Favorite Donations',
+                                                style: TextStyle(
+                                                  fontSize:
+                                                      AppDimensions.bodySize.sp,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: AuthColors.headingText,
+                                                  fontFamily:
+                                                      AppFonts.primaryFont,
+                                                ),
+                                              ),
+                                              SizedBox(height: 4.h),
+                                              Text(
+                                                'Manage your liked donation list',
+                                                style: TextStyle(
+                                                  fontSize: AppDimensions
+                                                      .captionSize
+                                                      .sp,
+                                                  fontWeight: FontWeight.w400,
+                                                  color: AuthColors.subText,
+                                                  fontFamily:
+                                                      AppFonts.primaryFont,
+                                                ),
+                                              ),
+                                            ],
                                           ),
+                                        ),
+                                        Icon(
+                                          Icons.chevron_right_rounded,
+                                          color: AuthColors.subText,
+                                          size: AppDimensions.iconSize.sp,
                                         ),
                                       ],
                                     ),
                                   ),
-                                  Icon(
-                                    Icons.chevron_right_rounded,
-                                    color: AuthColors.subText,
-                                    size: AppDimensions.iconSize.sp,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: AppDimensions.paddingMedium.h),
-                        ],
-                      ),
-
-                      SizedBox(height: AppDimensions.paddingLarge.h),
-
-                      // Preferences and Buttons Section
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: AppDimensions.paddingLarge.w,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'PREFERENCES',
-                              style: TextStyle(
-                                fontSize: AppDimensions.captionSize.sp,
-                                fontWeight: FontWeight.w600,
-                                color: AuthColors.labelText,
-                                letterSpacing: 0.5,
-                                fontFamily: AppFonts.primaryFont,
-                              ),
-                            ),
-                            SizedBox(height: AppDimensions.paddingMedium.h),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(
-                                  AppDimensions.borderRadiusLarge.r,
                                 ),
+                                SizedBox(height: AppDimensions.paddingMedium.h),
+                              ],
+                            ),
+
+                            SizedBox(height: AppDimensions.paddingLarge.h),
+
+                            // Preferences and Buttons Section
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: AppDimensions.paddingLarge.w,
                               ),
                               child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  _PreferenceTile(
-                                    icon: Icons.notifications_rounded,
-                                    title: 'Notifications',
-                                    trailing: Switch(
-                                      value: true,
-                                      onChanged: (_) {
-                                        // TODO: Handle notification preference
+                                  Text(
+                                    'PREFERENCES',
+                                    style: TextStyle(
+                                      fontSize: AppDimensions.captionSize.sp,
+                                      fontWeight: FontWeight.w600,
+                                      color: AuthColors.labelText,
+                                      letterSpacing: 0.5,
+                                      fontFamily: AppFonts.primaryFont,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: AppDimensions.paddingMedium.h,
+                                  ),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(
+                                        AppDimensions.borderRadiusLarge.r,
+                                      ),
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        _PreferenceTile(
+                                          icon: Icons.notifications_rounded,
+                                          title: 'Notifications',
+                                          trailing: Switch(
+                                            value:
+                                                user
+                                                    .settings
+                                                    ?.isPushNotificationsEnabled ??
+                                                false,
+                                            onChanged: isUpdating
+                                                ? null
+                                                : (value) {
+                                                    context.read<ProfileBloc>().add(
+                                                      ProfileSettingsUpdateRequested(
+                                                        isPushNotificationsEnabled:
+                                                            value,
+                                                        isNewDonationsAlertsEnabled:
+                                                            user
+                                                                .settings
+                                                                ?.isNewDonationsAlertsEnabled ??
+                                                            true,
+                                                        isUrgentAlertsEnabled:
+                                                            user
+                                                                .settings
+                                                                ?.isUrgentAlertsEnabled ??
+                                                            true,
+                                                        isSystemReports:
+                                                            user
+                                                                .settings
+                                                                ?.isSystemReports ??
+                                                            true,
+                                                        appearance:
+                                                            user
+                                                                .settings
+                                                                ?.appearance ??
+                                                            'SYSTEM',
+                                                      ),
+                                                    );
+                                                  },
+                                            activeThumbColor:
+                                                AuthColors.primary,
+                                          ),
+                                        ),
+                                        Divider(
+                                          height: 1.h,
+                                          color: AuthColors.dividerColor,
+                                        ),
+                                        GestureDetector(
+                                          onTap: () {
+                                            context.push('/profile/settings');
+                                          },
+                                          child: _PreferenceTile(
+                                            icon: Icons.settings_rounded,
+                                            title: 'Settings',
+                                            trailing: Icon(
+                                              Icons.chevron_right_rounded,
+                                              color: AuthColors.subText,
+                                              size: AppDimensions.iconSize.sp,
+                                            ),
+                                          ),
+                                        ),
+                                        Divider(
+                                          height: 1.h,
+                                          color: AuthColors.dividerColor,
+                                        ),
+                                        _PreferenceTile(
+                                          icon: Icons.help_rounded,
+                                          title: 'Help & Support',
+                                          trailing: Icon(
+                                            Icons.chevron_right_rounded,
+                                            color: AuthColors.subText,
+                                            size: AppDimensions.iconSize.sp,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  SizedBox(
+                                    height: AppDimensions.paddingLarge.h,
+                                  ),
+
+                                  SizedBox(
+                                    height: AppDimensions.paddingMedium.h,
+                                  ),
+
+                                  // Logout Button
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton.icon(
+                                      icon: Icon(
+                                        Icons.logout_rounded,
+                                        size: AppDimensions.iconSize.sp,
+                                        color: Colors.red,
+                                      ),
+                                      onPressed: () {
+                                        context.read<AuthBloc>().add(
+                                          AuthLogoutRequested(),
+                                        );
                                       },
-                                      activeThumbColor: AuthColors.primary,
+
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: AuthColors.background,
+                                        padding: EdgeInsets.symmetric(
+                                          vertical: 12.h,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            AppDimensions.borderRadiusLarge.r,
+                                          ),
+                                          side: BorderSide(
+                                            color: AuthColors.buttonBorder,
+                                            width: 1.5.w,
+                                          ),
+                                        ),
+                                      ),
+                                      label: Text(
+                                        'Logout',
+                                        style: TextStyle(
+                                          fontSize: AppDimensions.bodySize.sp,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.red,
+                                          fontFamily: AppFonts.primaryFont,
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                  Divider(
-                                    height: 1.h,
-                                    color: AuthColors.dividerColor,
+
+                                  SizedBox(
+                                    height: AppDimensions.paddingLarge.h,
                                   ),
-                                  _PreferenceTile(
-                                    icon: Icons.lock_rounded,
-                                    title: 'Privacy Settings',
-                                    trailing: Icon(
-                                      Icons.chevron_right_rounded,
-                                      color: AuthColors.subText,
-                                      size: AppDimensions.iconSize.sp,
+
+                                  // Footer
+                                  Center(
+                                    child: Text(
+                                      'GaspZero v2.4.0 • Eco-friendly Living',
+                                      style: TextStyle(
+                                        fontSize: AppDimensions.captionSize.sp,
+                                        color: AuthColors.subText,
+                                        fontFamily: AppFonts.primaryFont,
+                                      ),
                                     ),
                                   ),
-                                  Divider(
-                                    height: 1.h,
-                                    color: AuthColors.dividerColor,
-                                  ),
-                                  _PreferenceTile(
-                                    icon: Icons.help_rounded,
-                                    title: 'Help & Support',
-                                    trailing: Icon(
-                                      Icons.chevron_right_rounded,
-                                      color: AuthColors.subText,
-                                      size: AppDimensions.iconSize.sp,
-                                    ),
+
+                                  SizedBox(
+                                    height: AppDimensions.paddingLarge.h,
                                   ),
                                 ],
                               ),
                             ),
-
-                            SizedBox(height: AppDimensions.paddingLarge.h),
-
-                            SizedBox(height: AppDimensions.paddingMedium.h),
-
-                            // Logout Button
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton.icon(
-                                icon: Icon(
-                                  Icons.logout_rounded,
-                                  size: AppDimensions.iconSize.sp,
-                                  color: Colors.red,
-                                ),
-                                  onPressed: () {
-                                    context.read<AuthBloc>().add(
-                                          AuthLogoutRequested(),
-                                        );
-                                  },
-
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AuthColors.background,
-                                  padding: EdgeInsets.symmetric(vertical: 12.h),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(
-                                      AppDimensions.borderRadiusLarge.r,
-                                    ),
-                                    side: BorderSide(
-                                      color: AuthColors.buttonBorder,
-                                      width: 1.5.w,
-                                    ),
-                                  ),
-                                ),
-                                label: Text(
-                                  'Logout',
-                                  style: TextStyle(
-                                    fontSize: AppDimensions.bodySize.sp,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.red,
-                                    fontFamily: AppFonts.primaryFont,
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                            SizedBox(height: AppDimensions.paddingLarge.h),
-
-                            // Footer
-                            Center(
-                              child: Text(
-                                'GaspZero v2.4.0 • Eco-friendly Living',
-                                style: TextStyle(
-                                  fontSize: AppDimensions.captionSize.sp,
-                                  color: AuthColors.subText,
-                                  fontFamily: AppFonts.primaryFont,
-                                ),
-                              ),
-                            ),
-
-                            SizedBox(height: AppDimensions.paddingLarge.h),
                           ],
                         ),
                       ),
-                    ],
-                  ),
+                    );
+                  },
                 ),
-              );
-            },
+              ),
+            ],
           ),
-        ),]
-      ),))
+        ),
+      ),
     );
   }
 

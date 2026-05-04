@@ -3,6 +3,7 @@ import 'package:injectable/injectable.dart';
 import 'package:logger/logger.dart';
 
 import '../../../../core/exceptions/exceptions.dart';
+import '../../../../core/graphql/graphql_request_executor.dart';
 import '../models/notification_model.dart';
 import 'graphql/__generated__/delete_notification.req.gql.dart';
 import 'graphql/__generated__/delete_notification.var.gql.dart';
@@ -24,9 +25,13 @@ abstract class NotificationRemoteDataSource {
 
 @LazySingleton(as: NotificationRemoteDataSource)
 class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
-  NotificationRemoteDataSourceImpl(this._ferryClient);
+  NotificationRemoteDataSourceImpl(
+    this._ferryClient,
+    this._graphqlRequestExecutor,
+  );
 
   final Client _ferryClient;
+  final GraphqlRequestExecutor _graphqlRequestExecutor;
 
   final Logger _logger = Logger(
     printer: PrettyPrinter(
@@ -58,15 +63,16 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
         throw ServerException('Failed to build getNotifications request');
       }
 
-      final data = await _executeRequest(
-        GGetNotificationsReq(
+      final data = await _graphqlRequestExecutor.execute(
+        client: _ferryClient,
+        request: GGetNotificationsReq(
           (b) => b
             ..vars = vars.toBuilder()
             ..fetchPolicy = FetchPolicy.NetworkOnly
             ..requestId =
                 'getNotifications-${DateTime.now().microsecondsSinceEpoch}',
         ),
-        'getNotifications',
+        operationName: 'getNotifications',
       );
 
       final items = data.getNotifications.items;
@@ -120,9 +126,10 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
         );
       }
 
-      await _executeRequest(
-        GMarkNotificationsAsReadReq((b) => b.vars = vars.toBuilder()),
-        'markNotificationsAsRead',
+      await _graphqlRequestExecutor.execute(
+        client: _ferryClient,
+        request: GMarkNotificationsAsReadReq((b) => b.vars = vars.toBuilder()),
+        operationName: 'markNotificationsAsRead',
       );
 
       _logger.i(
@@ -156,74 +163,16 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
         throw ServerException('Failed to build deleteNotification request');
       }
 
-      await _executeRequest(
-        GDeleteNotificationReq((b) => b.vars = vars.toBuilder()),
-        'deleteNotification',
+      await _graphqlRequestExecutor.execute(
+        client: _ferryClient,
+        request: GDeleteNotificationReq((b) => b.vars = vars.toBuilder()),
+        operationName: 'deleteNotification',
       );
 
       _logger.i('Successfully deleted notification with id=$notificationId');
     } catch (e) {
       _logger.e('deleteNotification error: $e', error: e);
       rethrow;
-    }
-  }
-
-  Future<TData> _executeRequest<TData, TVars>(
-    OperationRequest<TData, TVars> request,
-    String operationName,
-  ) async {
-    try {
-      final response = await _ferryClient.request(request).firstWhere(
-            (event) =>
-                (event.data != null && !event.hasErrors) ||
-                event.hasErrors ||
-                event.linkException != null,
-          );
-
-
-      if (response.hasErrors || response.linkException != null) {
-        final graphQLErrors = response.graphqlErrors;
-        final graphQLErrorMessage =
-            graphQLErrors != null && graphQLErrors.isNotEmpty
-            ? graphQLErrors.first.message
-            : null;
-
-        String linkExceptionMsg = 'Unknown link exception';
-        if (response.linkException != null) {
-          final originalMsg = response.linkException!.originalException
-              ?.toString();
-          linkExceptionMsg = originalMsg ?? response.linkException!.toString();
-        }
-
-        final errorMessage = graphQLErrorMessage ?? linkExceptionMsg;
-
-        _logger.e(
-          'GraphQL error in $operationName: $errorMessage\n'
-          'Has GraphQL errors: ${response.hasErrors}\n'
-          'Has link exception: ${response.linkException != null}\n'
-          'GraphQL error details: ${graphQLErrors?.map((e) => 'Message: ${e.message}, Extensions: ${e.extensions}').toList()}',
-        );
-
-        throw ServerException('GraphQL error in $operationName: $errorMessage');
-      }
-
-      final data = response.data;
-      if (data == null) {
-        _logger.e('No data returned for $operationName');
-        throw ServerException('No data returned for $operationName');
-      }
-
-      _logger.i('$operationName completed successfully');
-      return data;
-    } catch (e) {
-      if (e is ServerException) {
-        rethrow;
-      }
-      _logger.e(
-        'Unexpected error in GraphQL request for $operationName: $e',
-        error: e,
-      );
-      throw ServerException('GraphQL request failed for $operationName: $e');
     }
   }
 }

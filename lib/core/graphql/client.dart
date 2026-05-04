@@ -7,12 +7,14 @@ import 'package:gql_exec/gql_exec.dart';
 import 'package:gql/language.dart' as gql_lang;
 
 import '../../features/auth/data/sources/auth_local_data_source.dart';
+import '../device/device_id_provider.dart';
 import '../env.dart';
 
 class GraphQLClientFactory {
-  GraphQLClientFactory(this._authLocalDataSource);
+  GraphQLClientFactory(this._authLocalDataSource, this._deviceIdProvider);
 
   final AuthLocalDataSource _authLocalDataSource;
+  final DeviceIdProvider _deviceIdProvider;
 
   bool _isPlaceholderEndpoint(String value) {
     return value.contains('api.example.com') ||
@@ -58,6 +60,9 @@ class GraphQLClientFactory {
           existingHeaders.containsKey('authorization');
 
       final headers = <String, String>{};
+      final deviceId = await _deviceIdProvider.getOrCreateDeviceId();
+      headers['x-device-id'] = deviceId;
+
       if (!hasAuthorizationHeader) {
         final token = isRefreshOperation
             ? await _authLocalDataSource.getRefreshToken()
@@ -82,12 +87,11 @@ class GraphQLClientFactory {
       await for (final response in forward(request)) {
         bool isUnauthorized = false;
 
-        if (response.errors != null &&
-            response.errors!.isNotEmpty) {
+        if (response.errors != null && response.errors!.isNotEmpty) {
           for (final error in response.errors!) {
             final code = error.extensions?['code'];
-            final statusCode = error.extensions?['status'] ??
-                error.extensions?['statusCode'];
+            final statusCode =
+                error.extensions?['status'] ?? error.extensions?['statusCode'];
             final message = error.message;
 
             if (code == 'UNAUTHENTICATED' ||
@@ -107,8 +111,10 @@ class GraphQLClientFactory {
               operationName != 'RefreshTokensForInterceptor') {
             try {
               final dio = GetIt.instance<dio_lib.Dio>();
-              
-              final String queryString = gql_lang.printNode(request.operation.document);
+
+              final String queryString = gql_lang.printNode(
+                request.operation.document,
+              );
 
               final dioResponse = await dio.post(
                 endpoint,
@@ -127,10 +133,12 @@ class GraphQLClientFactory {
                 yield Response(
                   data: data['data'],
                   errors: (data['errors'] as List?)
-                      ?.map((e) => GraphQLError(
-                            message: e['message'],
-                            extensions: e['extensions'],
-                          ))
+                      ?.map(
+                        (e) => GraphQLError(
+                          message: e['message'],
+                          extensions: e['extensions'],
+                        ),
+                      )
                       .toList(),
                   context: response.context,
                   response: data,

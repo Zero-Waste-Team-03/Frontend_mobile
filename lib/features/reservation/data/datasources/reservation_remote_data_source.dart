@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:ferry/ferry.dart' hide ServerException;
 import '../../../../core/exceptions/exceptions.dart';
+import '../../../../core/graphql/graphql_request_executor.dart';
 import '../../domain/entities/reservation.dart';
 import '../models/reservation_model.dart';
 import 'graphql/__generated__/confirm_reservation.req.gql.dart';
@@ -40,8 +41,13 @@ abstract class ReservationRemoteDataSource {
 class ReservationRemoteDataSourceImpl implements ReservationRemoteDataSource {
   final Dio dio;
   final Client _ferryClient;
+  final GraphqlRequestExecutor _graphqlRequestExecutor;
 
-  ReservationRemoteDataSourceImpl(this.dio, this._ferryClient);
+  ReservationRemoteDataSourceImpl(
+    this.dio,
+    this._ferryClient,
+    this._graphqlRequestExecutor,
+  );
 
   @override
   Future<ReservationModel> createReservation({
@@ -56,9 +62,10 @@ class ReservationRemoteDataSourceImpl implements ReservationRemoteDataSource {
       throw ServerException('Failed to build reserveDonation request');
     }
 
-    final data = await _executeRequest(
-      GReserveDonationReq((b) => b.vars = vars.toBuilder()),
-      'reserveDonation',
+    final data = await _graphqlRequestExecutor.execute(
+      client: _ferryClient,
+      request: GReserveDonationReq((b) => b.vars = vars.toBuilder()),
+      operationName: 'reserveDonation',
     );
 
     return ReservationModel.fromJson(
@@ -83,13 +90,14 @@ class ReservationRemoteDataSourceImpl implements ReservationRemoteDataSource {
         throw ServerException('Failed to build myReservations request');
       }
 
-      final data = await _executeRequest(
-        GMyReservationsReq(
+      final data = await _graphqlRequestExecutor.execute(
+        client: _ferryClient,
+        request: GMyReservationsReq(
           (b) => b
             ..vars = vars.toBuilder()
             ..fetchPolicy = FetchPolicy.NetworkOnly,
         ),
-        'myReservations',
+        operationName: 'myReservations',
       );
 
       final items = data.myReservations.items;
@@ -128,9 +136,10 @@ class ReservationRemoteDataSourceImpl implements ReservationRemoteDataSource {
       throw ServerException('Failed to build confirmReservation request');
     }
 
-    final data = await _executeRequest(
-      GConfirmReservationReq((b) => b.vars = vars.toBuilder()),
-      'confirmReservation',
+    final data = await _graphqlRequestExecutor.execute(
+      client: _ferryClient,
+      request: GConfirmReservationReq((b) => b.vars = vars.toBuilder()),
+      operationName: 'confirmReservation',
     );
 
     return ReservationModel.fromJson(
@@ -140,31 +149,28 @@ class ReservationRemoteDataSourceImpl implements ReservationRemoteDataSource {
 
   @override
   Future<ReservationModel> getReservationDetails(String reservationId) async {
-
-
     final vars = GMyReservationVars.fromJson({'id': reservationId});
     if (vars == null) {
-      
       throw ServerException('Failed to build myReservation request');
     }
 
     try {
-      
-      final data = await _executeRequest(
-        GMyReservationReq(
+      final data = await _graphqlRequestExecutor.execute(
+        client: _ferryClient,
+        request: GMyReservationReq(
           (b) => b
             ..vars = vars.toBuilder()
             ..fetchPolicy = FetchPolicy.NetworkOnly,
         ),
-        'myReservation',
+        operationName: 'myReservation',
       );
 
       final responseJson = data.myReservation.toJson();
-    
+
       final model = ReservationModel.fromJson(
         Map<String, dynamic>.from(responseJson),
       );
-     
+
       return model;
     } on ServerException catch (e) {
       print('ServerException in getReservationDetails: ${e.message}');
@@ -230,47 +236,6 @@ class ReservationRemoteDataSourceImpl implements ReservationRemoteDataSource {
       rethrow;
     } catch (e) {
       throw ServerException(e.toString());
-    }
-  }
-
-  Future<TData> _executeRequest<TData, TVars>(
-    OperationRequest<TData, TVars> request,
-    String operationName,
-  ) async {
-    try {
-      final response = await _ferryClient.request(request).firstWhere(
-            (event) =>
-                (event.data != null && !event.hasErrors) ||
-                event.hasErrors ||
-                event.linkException != null,
-          );
-
-
-      if (response.hasErrors || response.linkException != null) {
-        final graphQLErrorMessage =
-            response.graphqlErrors != null && response.graphqlErrors!.isNotEmpty
-            ? response.graphqlErrors!.first.message
-            : null;
-
-        final message =
-            graphQLErrorMessage ??
-            response.linkException?.originalException?.toString() ??
-            response.linkException.toString();
-
-        throw ServerException(message);
-      }
-
-      final data = response.data;
-      if (data == null) {
-        throw ServerException('No data returned for $operationName');
-      }
-
-      return data;
-    } catch (e) {
-      if (e is ServerException) {
-        rethrow;
-      }
-      throw ServerException('GraphQL request failed: $e');
     }
   }
 }

@@ -1,6 +1,7 @@
 ﻿import 'package:equatable/equatable.dart';
 import 'package:logger/logger.dart';
 import '../../domain/entities/user.dart';
+import 'user_settings_model.dart';
 
 final _logger = Logger(
   printer: PrettyPrinter(
@@ -24,6 +25,7 @@ class UserModel extends Equatable {
   final String? locationId;
   final Map<String, dynamic>? location;
   final String? avatarUrl;
+  final UserSettingsModel? settings;
 
   const UserModel({
     required this.id,
@@ -37,6 +39,7 @@ class UserModel extends Equatable {
     this.locationId,
     this.location,
     this.avatarUrl,
+    this.settings,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -107,6 +110,9 @@ class UserModel extends Equatable {
       locationId: json['locationId']?.toString(),
       location: json['location'] as Map<String, dynamic>?,
       avatarUrl: avatarUrl,
+      settings: json['settings'] != null
+          ? UserSettingsModel.fromJson(json['settings'] as Map<String, dynamic>)
+          : null,
     );
   }
 
@@ -123,6 +129,7 @@ class UserModel extends Equatable {
       'locationId': locationId,
       'location': location,
       'avatarUrl': avatarUrl,
+      'settings': settings?.toJson(),
     };
   }
 
@@ -139,6 +146,7 @@ class UserModel extends Equatable {
       locationId: locationId,
       location: location,
       avatarUrl: avatarUrl,
+      settings: settings?.toEntity(),
     );
   }
 
@@ -155,5 +163,6 @@ class UserModel extends Equatable {
     locationId,
     location,
     avatarUrl,
+    settings,
   ];
 }
