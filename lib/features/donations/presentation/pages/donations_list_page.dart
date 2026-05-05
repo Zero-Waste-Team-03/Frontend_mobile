@@ -9,12 +9,12 @@ import '../../../../core/app_icons.dart';
 import '../../../../shared/theme/app_colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection.dart';
+import '../../../../shared/widgets/notification_button.dart';
 import '../bloc/donations_bloc.dart';
 import '../bloc/donations_event.dart';
 import '../bloc/donations_state.dart';
 import '../../domain/entities/donation.dart';
 import '../../domain/entities/category.dart';
-
 
 class DonationsListPage extends StatefulWidget {
   const DonationsListPage({super.key});
@@ -138,21 +138,10 @@ class _DonationsListPageState extends State<DonationsListPage> {
                   context.push('/my-reservations');
                 },
               ),
-              IconButton(
-                icon: Icon(
-                  AppIcons.notifications,
-                  color: AuthColors.primary,
-                  size: AppDimensions.iconSize.sp,
-                ),
-                style: IconButton.styleFrom(
-                  backgroundColor: AuthColors.lightGrayBackground,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                ),
-                onPressed: () {
-                  context.push('/notifications');
-                },
+              NotificationButton(
+                backgroundColor: AuthColors.lightGrayBackground,
+                iconColor: AuthColors.primary,
+                iconSize: AppDimensions.iconSize.sp,
               ),
             ],
           ),

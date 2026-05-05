@@ -51,32 +51,29 @@ class ReservationRepositoryImpl implements ReservationRepository {
   @override
   Future<Either<Failure, List<Reservation>>> getUserReservations({
     required String userId,
+    String? roleFilter,
     String? status,
     int page = 1,
     int limit = 20,
   }) async {
-    
-
     if (remoteDataSource == null) {
       return Left(ServerFailure('Reservation data source is not available'));
     }
 
     try {
-      
       final reservationModels = await remoteDataSource!.getUserReservations(
         userId: userId,
+        roleFilter: roleFilter,
         statusFilter: status,
         page: page,
         limit: limit,
       );
-      
 
       // Convert models to entities
       final reservations =
           reservationModels.map((model) => model.toEntity()).toList()
             ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
-      
       return Right(reservations);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -109,18 +106,15 @@ class ReservationRepositoryImpl implements ReservationRepository {
   Future<Either<Failure, Reservation>> getReservationDetails(
     String reservationId,
   ) async {
-    
-
     if (remoteDataSource == null) {
       return Left(ServerFailure('Reservation data source is not available'));
     }
 
     try {
-      
       final reservation = await remoteDataSource!.getReservationDetails(
         reservationId,
       );
-      
+
       return Right(reservation.toEntity());
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));

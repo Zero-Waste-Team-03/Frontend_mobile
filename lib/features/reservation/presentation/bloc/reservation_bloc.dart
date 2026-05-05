@@ -14,6 +14,7 @@ class ReservationBloc extends Bloc<ReservationEvent, ReservationState> {
 
   // Store current user ID and filter for refetching
   String? _currentUserId;
+  String? _currentReservationsRoleFilter = 'BENEFICIARY';
   String? _currentReservationsFilter;
   int _currentReservationsLimit = 20;
 
@@ -72,6 +73,7 @@ class ReservationBloc extends Bloc<ReservationEvent, ReservationState> {
       emit(
         UserReservationsLoaded(
           currentState.reservations,
+          activeRoleFilter: currentState.activeRoleFilter,
           activeFilter: currentState.activeFilter,
           currentPage: currentState.currentPage,
           isLoadingMore: true,
@@ -82,11 +84,14 @@ class ReservationBloc extends Bloc<ReservationEvent, ReservationState> {
 
     // Store user ID for later refetching
     _currentUserId = event.userId;
+    _currentReservationsRoleFilter =
+        event.roleFilter ?? _currentReservationsRoleFilter;
     _currentReservationsFilter = event.statusFilter;
     _currentReservationsLimit = event.limit;
 
     final result = await getUserReservationsUseCase(
       userId: event.userId,
+      roleFilter: _currentReservationsRoleFilter,
       status: event.statusFilter,
       page: event.page,
       limit: event.limit,
@@ -98,6 +103,7 @@ class ReservationBloc extends Bloc<ReservationEvent, ReservationState> {
           emit(
             UserReservationsLoaded(
               currentState.reservations,
+              activeRoleFilter: currentState.activeRoleFilter,
               activeFilter: currentState.activeFilter,
               currentPage: currentState.currentPage,
               isLoadingMore: false,
@@ -115,6 +121,7 @@ class ReservationBloc extends Bloc<ReservationEvent, ReservationState> {
           emit(
             UserReservationsLoaded(
               reservations,
+              activeRoleFilter: _currentReservationsRoleFilter,
               activeFilter: event.statusFilter,
               currentPage: event.page,
               isLoadingMore: false,
@@ -139,6 +146,7 @@ class ReservationBloc extends Bloc<ReservationEvent, ReservationState> {
         emit(
           UserReservationsLoaded(
             mergedReservations,
+            activeRoleFilter: currentState.activeRoleFilter,
             activeFilter: currentState.activeFilter,
             currentPage: event.page,
             isLoadingMore: false,
@@ -240,6 +248,7 @@ class ReservationBloc extends Bloc<ReservationEvent, ReservationState> {
           emit(
             UserReservationsLoaded(
               updatedReservations,
+              activeRoleFilter: previousState.activeRoleFilter,
               activeFilter: previousState.activeFilter,
               currentPage: previousState.currentPage,
               isLoadingMore: false,
@@ -280,11 +289,14 @@ class ReservationBloc extends Bloc<ReservationEvent, ReservationState> {
     Emitter<ReservationState> emit,
   ) async {
     if (_currentUserId != null) {
+      _currentReservationsRoleFilter =
+          event.roleFilter ?? _currentReservationsRoleFilter;
       _currentReservationsFilter = event.statusFilter;
 
       add(
         FetchUserReservationsEvent(
           _currentUserId!,
+          roleFilter: _currentReservationsRoleFilter,
           statusFilter: _currentReservationsFilter,
           page: 1,
           limit: _currentReservationsLimit,

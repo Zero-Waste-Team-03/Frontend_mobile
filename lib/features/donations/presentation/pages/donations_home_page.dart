@@ -20,6 +20,7 @@ import '../bloc/donations_bloc.dart';
 import '../bloc/donations_event.dart';
 import '../bloc/donations_state.dart';
 import '../../domain/entities/donation.dart';
+import '../../../../shared/widgets/notification_button.dart';
 
 class DonationsHomePage extends StatefulWidget {
   const DonationsHomePage({super.key});
@@ -318,12 +319,7 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
           hintText: l10n.browseSearchHint,
           prefixIcon: const Icon(AppIcons.search),
           border: InputBorder.none,
-          suffixIcon: IconButton(
-            icon: const Icon(AppIcons.notifications),
-            onPressed: () {
-              context.push(AppRoutes.notifications);
-            },
-          ),
+          suffixIcon: const NotificationButton(compact: true),
         ),
       ),
     );

@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:ferry/ferry.dart' hide ServerException;
 import '../../../../core/exceptions/exceptions.dart';
 import '../../../../core/graphql/graphql_request_executor.dart';
-import '../../domain/entities/reservation.dart';
 import '../models/reservation_model.dart';
 import 'graphql/__generated__/confirm_reservation.req.gql.dart';
 import 'graphql/__generated__/confirm_reservation.var.gql.dart';
@@ -23,6 +22,7 @@ abstract class ReservationRemoteDataSource {
   /// Get user reservations
   Future<List<ReservationModel>> getUserReservations({
     required String userId,
+    String? roleFilter,
     String? statusFilter,
     int page = 1,
     int limit = 20,
@@ -76,6 +76,7 @@ class ReservationRemoteDataSourceImpl implements ReservationRemoteDataSource {
   @override
   Future<List<ReservationModel>> getUserReservations({
     required String userId,
+    String? roleFilter,
     String? statusFilter,
     int page = 1,
     int limit = 20,
@@ -83,8 +84,19 @@ class ReservationRemoteDataSourceImpl implements ReservationRemoteDataSource {
     try {
       // Note: The myReservations query returns current user's reservations
       // userId parameter is kept for compatibility but not used in the GraphQL call
+      final normalizedRole = roleFilter?.trim().toUpperCase();
+      final normalizedStatus = statusFilter?.trim().toUpperCase();
+
+      final filter = <String, dynamic>{
+        if (normalizedRole != null && normalizedRole.isNotEmpty)
+          'roleFilter': normalizedRole,
+        if (normalizedStatus != null && normalizedStatus.isNotEmpty)
+          'status': normalizedStatus,
+      };
+
       final vars = GMyReservationsVars.fromJson({
         'pagination': {'page': page, 'limit': limit},
+        if (filter.isNotEmpty) 'filter': filter,
       });
       if (vars == null) {
         throw ServerException('Failed to build myReservations request');
@@ -105,21 +117,13 @@ class ReservationRemoteDataSourceImpl implements ReservationRemoteDataSource {
         return [];
       }
 
-      var reservations = items
+      final reservations = items
           .map(
             (item) => ReservationModel.fromJson(
               Map<String, dynamic>.from(item.toJson()),
             ),
           )
           .toList();
-
-      final normalizedStatus = statusFilter?.trim().toUpperCase();
-      if (normalizedStatus != null && normalizedStatus.isNotEmpty) {
-        final status = ReservationStatusExt.fromString(normalizedStatus);
-        reservations = reservations
-            .where((reservation) => reservation.status == status)
-            .toList();
-      }
 
       return reservations;
     } on ServerException {
