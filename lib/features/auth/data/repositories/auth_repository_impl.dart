@@ -324,7 +324,11 @@ class AuthRepositoryImpl implements AuthRepository {
       await _clearFcmTokenOnLogout();
 
       try {
-        await remoteDataSource.logout();
+        final access_token = await localDataSource.getAccessToken();
+        final refresh_token = await localDataSource.getRefreshToken();
+        if (access_token !=null && access_token != '' && refresh_token !=null && refresh_token != '') {
+          await remoteDataSource.logout();
+        };
       } on ServerException catch (e, stackTrace) {
         _logger.w(
           '⚠️ [AuthRepository] Remote logout failed; continuing with local sign-out: ${e.message}',
