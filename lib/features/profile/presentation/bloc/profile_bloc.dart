@@ -4,6 +4,7 @@ import 'package:injectable/injectable.dart';
 import 'dart:io';
 import 'package:logger/logger.dart';
 import '../../domain/repositories/profile_repository.dart';
+import '../../domain/entities/donations_state.dart';
 import 'profile_event.dart';
 import 'profile_state.dart';
 
@@ -44,10 +45,22 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ) async {
     emit(const ProfileLoading());
     final result = await profileRepository.getCachedOrRemoteUser();
-    result.fold(
-      (failure) => emit(ProfileError(failure.message)),
-      (user) => emit(ProfileLoaded(user)),
+    final userOrFailure = result.fold<ProfileState?>(
+      (failure) => ProfileError(failure.message),
+      (user) => null,
     );
+
+    if (userOrFailure is ProfileError) {
+      if (!emit.isDone) emit(userOrFailure);
+      return;
+    }
+
+    final user = result.getOrElse(() => throw StateError('Unreachable'));
+    final statsState = await _loadDonationsState();
+
+    if (!emit.isDone) {
+      emit(ProfileLoaded(user, donationsState: statsState));
+    }
   }
 
   Future<void> _onProfileRefreshRequested(
@@ -56,10 +69,31 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ) async {
     emit(const ProfileLoading());
     final result = await profileRepository.getRemoteUser();
-    result.fold(
-      (failure) => emit(ProfileError(failure.message)),
-      (user) => emit(ProfileLoaded(user)),
+    final userOrFailure = result.fold<ProfileState?>(
+      (failure) => ProfileError(failure.message),
+      (user) => null,
     );
+
+    if (userOrFailure is ProfileError) {
+      if (!emit.isDone) emit(userOrFailure);
+      return;
+    }
+
+    final user = result.getOrElse(() => throw StateError('Unreachable'));
+    final statsState = await _loadDonationsState();
+
+    if (!emit.isDone) {
+      emit(ProfileLoaded(user, donationsState: statsState));
+    }
+  }
+
+  Future<DonationsState?> _loadDonationsState() async {
+    try {
+      final statsRes = await profileRepository.getDonationsStats();
+      return statsRes.fold((_) => null, (stats) => stats);
+    } catch (_) {
+      return null;
+    }
   }
 
   Future<void> _onProfileUpdateRequested(
@@ -328,13 +362,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     final currentState = state;
     if (currentState is ProfileLoaded) {
       emit(ProfileUpdating(currentState.user));
-      print('Updating settings with: '
-          'Push=${event.isPushNotificationsEnabled}, '
-          'NewDonations=${event.isNewDonationsAlertsEnabled}, '
-          'UrgentAlerts=${event.isUrgentAlertsEnabled}, '
-          'SystemReports=${event.isSystemReports}, '
-          'Appearance=${event.appearance}');
-          
+
       final result = await profileRepository.updateUserSettings(
         isPushNotificationsEnabled: event.isPushNotificationsEnabled,
         isNewDonationsAlertsEnabled: event.isNewDonationsAlertsEnabled,

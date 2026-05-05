@@ -451,8 +451,11 @@ class _ProfilePageState extends State<ProfilePage> {
                                 children: [
                                   _StatCard(
                                     value:
-                                        'N/A', // TODO: Replace with actual saved items count
-                                    label: 'SAVED ITEMS',
+                                        state is ProfileLoaded &&
+                                            state.donationsState != null
+                                        ? '${state.donationsState!.likedDonations.toInt()}'
+                                        : 'N/A',
+                                    label: 'LIKED ITEMS',
                                   ),
                                   Container(
                                     width: 1.w,
@@ -461,7 +464,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                   ),
                                   _StatCard(
                                     value:
-                                        'N/A', // TODO: Replace with actual donations count
+                                        state is ProfileLoaded &&
+                                            state.donationsState != null
+                                        ? '${state.donationsState!.totalDonations.toInt()}'
+                                        : 'N/A',
                                     label: 'DONATIONS',
                                   ),
                                   Container(

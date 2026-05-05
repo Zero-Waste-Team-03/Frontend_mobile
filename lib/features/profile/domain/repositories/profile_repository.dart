@@ -3,6 +3,7 @@ import 'dart:io';
 import '../../../../core/errors/failures.dart';
 import '../../../auth/domain/entities/user.dart';
 import '../entities/profile_activities_page.dart';
+import '../entities/donations_state.dart';
 
 abstract class ProfileRepository {
   /// Get cached user profile, fallback to remote if cache is empty
@@ -34,6 +35,9 @@ abstract class ProfileRepository {
     int page = 1,
     int limit = 10,
   });
+
+  /// Get simple donations counters for the profile header
+  Future<Either<Failure, DonationsState>> getDonationsStats();
 
   /// Update user settings (notifications, appearance, etc.)
   Future<Either<Failure, User>> updateUserSettings({

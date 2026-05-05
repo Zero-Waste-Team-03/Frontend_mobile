@@ -8,6 +8,7 @@ import '../../../donations/data/models/donation_model.dart';
 import '../../domain/entities/profile_activities_page.dart';
 import 'graphql/__generated__/get_myDonations.req.gql.dart';
 import 'graphql/__generated__/get_myDonations.var.gql.dart';
+import 'graphql/__generated__/get_myDonationsState.req.gql.dart';
 
 abstract class ProfileActivitiesRemoteDataSource {
   Future<ProfileActivitiesPage> getUserActivities({
@@ -16,6 +17,8 @@ abstract class ProfileActivitiesRemoteDataSource {
     int page = 1,
     int limit = 10,
   });
+
+  Future<DonationsStateDto> getDonationsStats();
 }
 
 @LazySingleton(as: ProfileActivitiesRemoteDataSource)
@@ -104,4 +107,38 @@ class ProfileActivitiesRemoteDataSourceImpl
       throw ServerException('Failed to fetch myDonations: $e');
     }
   }
+
+  @override
+  Future<DonationsStateDto> getDonationsStats() async {
+    try {
+      final data = await _graphqlRequestExecutor.execute(
+        client: _ferryClient,
+        request: GmyDonationsStatsReq(
+          (b) => b..fetchPolicy = FetchPolicy.NetworkOnly,
+        ),
+        operationName: 'myDonationsStats',
+      );
+
+      final stats = data.myDonationsStats;
+
+      final liked = stats.likedDonations ?? 0;
+      final total = stats.totalDonations ?? 0;
+      return DonationsStateDto(
+        likedDonations: liked.toDouble(),
+        totalDonations: total.toDouble(),
+      );
+    } on ServerException  catch (e) {
+      throw ServerException('Failed to fetch donations stats: $e');
+    }
+  }
+}
+
+class DonationsStateDto {
+  final double likedDonations;
+  final double totalDonations;
+
+  DonationsStateDto({
+    required this.likedDonations,
+    required this.totalDonations,
+  });
 }
