@@ -1,0 +1,6 @@
+query myDonationsStats {
+  myDonationsStats {
+    likedDonations
+    totalDonations
+  }
+}

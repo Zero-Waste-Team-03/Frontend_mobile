@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import '../../../auth/domain/entities/user.dart';
+import '../../domain/entities/donations_state.dart';
 import '../../../donations/domain/entities/donation.dart';
 
 abstract class ProfileState extends Equatable {
@@ -19,11 +20,12 @@ class ProfileLoading extends ProfileState {
 
 class ProfileLoaded extends ProfileState {
   final User user;
+  final DonationsState? donationsState;
 
-  const ProfileLoaded(this.user);
+  const ProfileLoaded(this.user, {this.donationsState});
 
   @override
-  List<Object?> get props => [user];
+  List<Object?> get props => [user, donationsState];
 }
 
 class ProfileUpdating extends ProfileState {

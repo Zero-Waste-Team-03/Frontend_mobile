@@ -37,6 +37,49 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _msgController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  int _currentPage = 1;
+  bool _isLoadingMore = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _setupScrollListener();
+  }
+
+  void _setupScrollListener() {
+    _scrollController.addListener(() {
+      if (_scrollController.hasClients && !_isLoadingMore) {
+        // In a reverse ListView, scrolling up increases pixel offset
+        // Load more when user scrolls past 60% from the top (towards older messages)
+        final maxScroll = _scrollController.position.maxScrollExtent;
+        final currentScroll = _scrollController.position.pixels;
+
+        if (currentScroll >= maxScroll * 0.6) {
+          final chatBloc = context.read<ChatBloc>();
+          final state = chatBloc.state;
+
+          if (state is ChatLoaded && !state.hasReachedMax) {
+            _isLoadingMore = true;
+            _currentPage++;
+            chatBloc.add(
+              ChatMessagesLoadRequested(
+                conversationId: state.conversation.id,
+                page: _currentPage,
+                limit: 20,
+              ),
+            );
+
+            // Reset after a brief delay to allow for the state update
+            Future.delayed(const Duration(milliseconds: 500), () {
+              if (mounted) {
+                _isLoadingMore = false;
+              }
+            });
+          }
+        }
+      }
+    });
+  }
 
   void _sendMessage(BuildContext context) {
     if (_msgController.text.trim().isEmpty) return;
@@ -80,7 +123,9 @@ class _ChatScreenState extends State<ChatScreen> {
       },
       builder: (context, state) {
         final bool isActive =
-            state is ChatLoaded && (state.conversation.status == 'Active' || state.conversation.status == 'ACTIVE');
+            state is ChatLoaded &&
+            (state.conversation.status == 'Active' ||
+                state.conversation.status == 'ACTIVE');
 
         return Scaffold(
           backgroundColor: AuthColors.background,
@@ -105,10 +150,13 @@ class _ChatScreenState extends State<ChatScreen> {
       centerTitle: false,
       title: Row(
         children: [
-          if (state is ChatLoaded && state.conversation.counterpartAvatarUrl != null)
+          if (state is ChatLoaded &&
+              state.conversation.counterpartAvatarUrl != null)
             CircleAvatar(
               radius: 16.r,
-              backgroundImage: NetworkImage(state.conversation.counterpartAvatarUrl!),
+              backgroundImage: NetworkImage(
+                state.conversation.counterpartAvatarUrl!,
+              ),
             )
           else if (state is ChatLoaded)
             CircleAvatar(
@@ -122,7 +170,9 @@ class _ChatScreenState extends State<ChatScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  state is ChatLoaded ? (state.conversation.counterpartName ?? 'Chat') : 'Chat',
+                  state is ChatLoaded
+                      ? (state.conversation.counterpartName ?? 'Chat')
+                      : 'Chat',
                   style: TextStyle(
                     fontSize: 18.sp,
                     color: AuthColors.headingText,
@@ -136,7 +186,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     state.conversation.status,
                     style: TextStyle(
                       fontSize: 12.sp,
-                      color: (state.conversation.status == 'Active' || state.conversation.status == 'ACTIVE')
+                      color:
+                          (state.conversation.status == 'Active' ||
+                              state.conversation.status == 'ACTIVE')
                           ? AuthColors.primary
                           : AuthColors.subText,
                       fontFamily: AppFonts.primaryFont,
@@ -152,7 +204,9 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Divider(height: 1.h, color: AuthColors.dividerColor),
       ),
       actions: [
-        if (state is ChatLoaded && (state.conversation.status == 'Active' || state.conversation.status == 'ACTIVE'))
+        if (state is ChatLoaded &&
+            (state.conversation.status == 'Active' ||
+                state.conversation.status == 'ACTIVE'))
           Padding(
             padding: EdgeInsets.only(right: 8.w),
             child: TextButton.icon(
@@ -176,7 +230,9 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildStatusBanner(ChatState state) {
-    if (state is ChatLoaded && state.conversation.status != 'Active' && state.conversation.status != 'ACTIVE') {
+    if (state is ChatLoaded &&
+        state.conversation.status != 'Active' &&
+        state.conversation.status != 'ACTIVE') {
       return Container(
         width: double.infinity,
         padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
@@ -263,10 +319,12 @@ class _ChatScreenState extends State<ChatScreen> {
         itemBuilder: (context, index) {
           final msg = msgs[index];
           final authState = context.read<AuthBloc>().state;
-          final String? currentUserId =
-              authState is AuthSuccess ? authState.user?.id : null;
+          final String? currentUserId = authState is AuthSuccess
+              ? authState.user?.id
+              : null;
 
-          final bool isMe = currentUserId != null &&
+          final bool isMe =
+              currentUserId != null &&
               (msg.senderId.trim() == currentUserId.trim() ||
                   msg.senderId == '' ||
                   msg.senderId.isEmpty);
@@ -274,14 +332,15 @@ class _ChatScreenState extends State<ChatScreen> {
           return ChatBubble(
             message: msg,
             isMe: isMe,
-            debugInfo: 'ID: ${msg.id.length > 5 ? msg.id.substring(0, 5) : msg.id}... | Sender: "${msg.senderId}" | Current: "$currentUserId" | isMe: $isMe',
+            debugInfo:
+                'ID: ${msg.id.length > 5 ? msg.id.substring(0, 5) : msg.id}... | Sender: "${msg.senderId}" | Current: "$currentUserId" | isMe: $isMe',
             onApproveReveal: () {
               context.read<ChatBloc>().add(
-                    ChatApproveSensitiveMessageRequested(
-                      conversationId: state.conversation.id,
-                      messageId: msg.id,
-                    ),
-                  );
+                ChatApproveSensitiveMessageRequested(
+                  conversationId: state.conversation.id,
+                  messageId: msg.id,
+                ),
+              );
             },
           );
         },
@@ -300,7 +359,10 @@ class _ChatScreenState extends State<ChatScreen> {
               Text(
                 state.message,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: AuthColors.headingText, fontSize: 14.sp),
+                style: TextStyle(
+                  color: AuthColors.headingText,
+                  fontSize: 14.sp,
+                ),
               ),
               SizedBox(height: 16.h),
               ElevatedButton(
@@ -377,21 +439,21 @@ class _ChatScreenState extends State<ChatScreen> {
               duration: const Duration(milliseconds: 200),
               padding: EdgeInsets.all(12.w),
               decoration: BoxDecoration(
-                color: isActive ? AuthColors.primary : AuthColors.subText.withValues(alpha: 0.3),
+                color: isActive
+                    ? AuthColors.primary
+                    : AuthColors.subText.withValues(alpha: 0.3),
                 shape: BoxShape.circle,
-                boxShadow: isActive ? [
-                  BoxShadow(
-                    color: AuthColors.primary.withValues(alpha: 0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  )
-                ] : null,
+                boxShadow: isActive
+                    ? [
+                        BoxShadow(
+                          color: AuthColors.primary.withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ]
+                    : null,
               ),
-              child: Icon(
-                Icons.send_rounded,
-                color: Colors.white,
-                size: 20.sp,
-              ),
+              child: Icon(Icons.send_rounded, color: Colors.white, size: 20.sp),
             ),
           ),
         ],

@@ -591,6 +591,11 @@ The `JSONObject` scalar type represents JSON objects as specified by [ECMA-404](
 """
 scalar JSONObject
 
+type UsersDonationsStats {
+  likedDonations: Float
+  totalDonations: Float
+}
+
 type Location {
   """
   Location city
@@ -1105,6 +1110,13 @@ type Query {
   Get a single reservation by ID if current user is donor or beneficiary
   """
   myReservation(id: ID!): Reservation!
+
+  """
+  Get liked items counts and donations count
+  """
+
+  myDonationsStats: UsersDonationsStats!
+
 
   """
   Get reservations where the current user is donor or beneficiary

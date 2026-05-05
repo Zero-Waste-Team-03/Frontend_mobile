@@ -8,6 +8,7 @@ import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../domain/entities/profile_activities_page.dart';
 import '../datasources/profile_activities_remote_data_source.dart';
 import '../../domain/repositories/profile_repository.dart';
+import '../../domain/entities/donations_state.dart';
 
 @LazySingleton(as: ProfileRepository)
 class ProfileRepositoryImpl implements ProfileRepository {
@@ -140,6 +141,23 @@ class ProfileRepositoryImpl implements ProfileRepository {
           limit: activitiesPage.limit,
           page: activitiesPage.page,
           totalCount: activitiesPage.totalCount,
+        ),
+      );
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, DonationsState>> getDonationsStats() async {
+    try {
+      final dto = await profileActivitiesRemoteDataSource.getDonationsStats();
+      return Right(
+        DonationsState(
+          likedDonations: dto.likedDonations,
+          totalDonations: dto.totalDonations,
         ),
       );
     } on ServerException catch (e) {
