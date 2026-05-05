@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gaspzero/core/di/injection.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/widgets/notification_button.dart';
 import '../../../donations/domain/entities/donation.dart';
 import '../widgets/status_badge.dart';
 import '../widgets/reservation_confirmed_dialog.dart';
@@ -101,21 +102,10 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
             actions: [
               Padding(
                 padding: EdgeInsets.only(right: AppDimensions.paddingMedium.w),
-                child: IconButton(
-                  icon: Icon(
-                    Icons.notifications_none_rounded,
-                    color: AuthColors.primary,
-                    size: AppDimensions.iconSize.sp,
-                  ),
-                  style: IconButton.styleFrom(
-                    backgroundColor: AuthColors.lightGrayBackground,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                  ),
-                  onPressed: () {
-                    context.push('/notifications');
-                  },
+                child: NotificationButton(
+                  backgroundColor: AuthColors.lightGrayBackground,
+                  iconColor: AuthColors.primary,
+                  iconSize: AppDimensions.iconSize.sp,
                 ),
               ),
             ],

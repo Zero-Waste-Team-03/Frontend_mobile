@@ -1,3 +1,4 @@
+import 'package:gaspzero/features/notification/presentation/bloc/notification_stats_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
 import 'package:ferry/ferry.dart';
@@ -241,6 +242,10 @@ Future<void> configureDependencies() async {
     () => DeleteNotificationUseCase(repository: getIt()),
   );
 
+  getIt.registerLazySingleton<GetNotificationStatsUseCase>(
+    () => GetNotificationStatsUseCase(repository: getIt()),
+  );
+
   getIt.registerLazySingleton<FcmTokenRemoteDataSource>(
     () => FcmTokenRemoteDataSourceImpl(getIt(), getIt()),
   );
@@ -294,6 +299,10 @@ Future<void> configureDependencies() async {
       fcmManager: fcmManager,
     );
   });
+
+  getIt.registerLazySingleton<NotificationStatsBloc>(
+    () => NotificationStatsBloc(getNotificationStatsUseCase: getIt()),
+  );
 
   // ── Leaderboard ──
   getIt.registerLazySingleton<LeaderboardRemoteDataSource>(

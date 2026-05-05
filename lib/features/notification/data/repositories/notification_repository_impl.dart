@@ -4,6 +4,7 @@ import 'package:logger/logger.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/exceptions/exceptions.dart';
 import '../../domain/entities/notification.dart';
+import '../../domain/entities/notification_stats.dart';
 import '../../domain/repositories/notification_repository.dart';
 import '../sources/notification_remote_data_source.dart';
 
@@ -50,6 +51,24 @@ class NotificationRepositoryImpl implements NotificationRepository {
     } catch (e) {
       _logger.e(
         'NotificationRepository: Unexpected error in getNotifications: $e',
+      );
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, NotificationStats>> getNotificationStats() async {
+    try {
+      final stats = await remoteDataSource.getNotificationStats();
+      return Right(stats);
+    } on ServerException catch (e) {
+      _logger.e(
+        'NotificationRepository: ServerException in getNotificationStats: $e',
+      );
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      _logger.e(
+        'NotificationRepository: Unexpected error in getNotificationStats: $e',
       );
       return Left(ServerFailure(e.toString()));
     }

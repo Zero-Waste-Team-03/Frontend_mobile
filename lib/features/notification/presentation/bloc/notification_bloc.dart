@@ -2,9 +2,11 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';
 
+import '../../../../core/di/injection.dart';
 import '../../data/services/fcm_manager.dart';
 import '../../domain/usecases/fcm_token_usecases.dart';
 import '../../domain/usecases/notification_usecases.dart';
+import 'notification_stats_bloc.dart';
 import 'notification_event.dart';
 import 'notification_state.dart';
 
@@ -191,6 +193,10 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
             return notif;
           }).toList();
 
+          getIt<NotificationStatsBloc>().add(
+            const FetchNotificationStatsEvent(),
+          );
+
           emit(
             NotificationsLoaded(
               updatedList,
@@ -233,6 +239,10 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
           final updatedList = currentState.notifications
               .where((notif) => notif.id != event.notificationId)
               .toList();
+
+          getIt<NotificationStatsBloc>().add(
+            const FetchNotificationStatsEvent(),
+          );
 
           emit(
             NotificationsLoaded(
@@ -556,6 +566,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
       // Optionally refresh notifications list after receiving notification
       _logger.i('🔄 NotificationBloc: Refreshing notifications list...');
       add(const RefreshNotificationsEvent());
+      getIt<NotificationStatsBloc>().add(const FetchNotificationStatsEvent());
     } catch (e, stackTrace) {
       _logger.e(
         '❌ NotificationBloc: Error processing foreground notification',
