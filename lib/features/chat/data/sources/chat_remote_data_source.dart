@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:ferry/ferry.dart' hide ServerException;
 import 'package:gaspzero/core/exceptions/app_exceptions.dart';
 import 'package:injectable/injectable.dart';
@@ -195,12 +194,9 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     String conversationId,
     String content,
   ) async {
-    debugPrint('DataSouce.sendMessage called for $conversationId');
     try {
       // 1. Attempt via Socket first
-      debugPrint('Attempting socket sendMessage...');
       final data = await _socketService.sendMessage(conversationId, content);
-      debugPrint('Socket sendMessage success: $data');
 
       return ChatMessageEntity(
         id: data['id'] ?? '',
@@ -214,9 +210,6 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       );
     } catch (socketError) {
       // 2. Fallback to GraphQL if socket fails
-      debugPrint(
-        'Socket sendMessage failed: $socketError. Falling back to GraphQL...',
-      );
       try {
         final vars = GSendMessageVarsBuilder()
           ..input.conversationId = conversationId
@@ -226,7 +219,6 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         final response = await _executeRequest(req, 'sendMessage');
         final data = response.sendMessage;
 
-        debugPrint('GraphQL sendMessage success');
         return ChatMessageEntity(
           id: data.id,
           content: data.content,
@@ -237,7 +229,6 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         );
       } catch (graphqlError) {
         // 3. If both fail, rethrow with descriptive message
-        debugPrint('GraphQL sendMessage failed: $graphqlError');
         throw ServerException(
           'Failed to send message. Socket error: $socketError. GraphQL error: $graphqlError',
         );
@@ -309,14 +300,6 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     required String reason,
     String? description,
   }) async {
-    // Logging mutation details for debugging
-    debugPrint('--- GraphQL Mutation: createReport (Executing) ---');
-    debugPrint('Target ID (User): $userId');
-    debugPrint('Target Type: USER');
-    debugPrint('Reason: $reason');
-    if (description != null) debugPrint('Description: $description');
-    debugPrint('---------------------------------------');
-
     final req = GCreateReportReq(
       (b) => b
         ..vars.input.targetId = userId
@@ -326,7 +309,6 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     );
 
     await _executeRequest(req, 'createReport');
-    debugPrint('Report successfully sent to server.');
   }
 
   Future<TData> _executeRequest<TData, TVars>(
@@ -334,13 +316,6 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     String operationName,
   ) async {
     try {
-      // Set fetch policy to network only for mutations or if needed
-      // Ferry usually handles this via the request, but we can ensure it here
-
-      debugPrint('Executing GraphQL Request: $operationName');
-      final token = await _socketService.authLocalDataSource.getAccessToken();
-      debugPrint('GraphQL Token: Bearer $token');
-
       final response = await _ferryClient.request(request).firstWhere((event) {
         // Skip optimistic data and wait for actual data or error
         if (event.dataSource == DataSource.Optimistic) return false;

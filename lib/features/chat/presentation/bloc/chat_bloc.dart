@@ -147,33 +147,22 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           try {
             final res = await _ferryClient.request(reservationReq).first;
             final reservationData = res.data?.myReservation;
-            _logger.i('Raw Reservation Data: $reservationData');
             
             if (reservationData != null) {
-              _logger.i('Beneficiary ID: ${reservationData.beneficiaryId}');
-              _logger.i('Donation User: ${reservationData.donation?.user.displayName} (ID: ${reservationData.donation?.user.id})');
-              _logger.i('Beneficiary User: ${reservationData.beneficiary?.displayName} (ID: ${reservationData.beneficiary?.id})');
-              _logger.i('Current User ID: $currentUserId');
-
               donationTitle = reservationData.donation?.title;
               donationImageUrl = reservationData.donation?.mainAttachment?.url;
               
-              // Always try to get the counterpart name from reservation if we have currentUserId
               if (currentUserId != null) {
                 if (reservationData.beneficiaryId == currentUserId) {
                   counterpartName = reservationData.donation?.user.displayName;
                   counterpartAvatarUrl = reservationData.donation?.user.avatar?.url;
                   counterpartId = reservationData.donation?.user.id;
-                  _logger.i('Identified counterpart as Donor: $counterpartName');
                 } else {
                   counterpartName = reservationData.beneficiary?.displayName;
                   counterpartAvatarUrl = reservationData.beneficiary?.avatar?.url;
                   counterpartId = reservationData.beneficiary?.id;
-                  _logger.i('Identified counterpart as Beneficiary: $counterpartName');
                 }
               }
-            } else {
-              _logger.w('Reservation details not found in data: ${res.data}');
             }
           } catch (e) {
             _logger.e('Failed to fetch reservation details: $e');
@@ -186,8 +175,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             counterpartAvatarUrl: counterpartAvatarUrl,
             counterpartId: counterpartId,
           );
-
-          _logger.i('Final Conversation Metadata: name=$counterpartName, title=$donationTitle, id=$counterpartId');
 
           // Fetch initial messages
           final messagesResult = await chatRepository.getConversationMessages(
