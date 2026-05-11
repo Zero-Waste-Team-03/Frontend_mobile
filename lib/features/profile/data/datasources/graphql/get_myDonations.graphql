@@ -29,8 +29,13 @@ query MyDonations($pagination: PaginationInput, $filter: DonationsFilterInput) {
         longitude
       }
       user {
+        id
         displayName
         email
+        avatar {
+          id
+          url
+        }
       }
     }
   }

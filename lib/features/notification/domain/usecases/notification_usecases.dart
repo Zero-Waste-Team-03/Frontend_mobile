@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/errors/failures.dart';
 import '../entities/notification.dart';
+import '../entities/notification_stats.dart';
 import '../repositories/notification_repository.dart';
 
 class GetNotificationsUseCase {
@@ -33,5 +34,15 @@ class DeleteNotificationUseCase {
 
   Future<Either<Failure, void>> call(String notificationId) {
     return repository.deleteNotification(notificationId);
+  }
+}
+
+class GetNotificationStatsUseCase {
+  final NotificationRepository repository;
+
+  GetNotificationStatsUseCase({required this.repository});
+
+  Future<Either<Failure, NotificationStats>> call() {
+    return repository.getNotificationStats();
   }
 }

@@ -1,5 +1,8 @@
-query MyReservations($pagination: PaginationInput) {
-  myReservations(pagination: $pagination) {
+query MyReservations(
+  $filter: ReservationsFilterInput
+  $pagination: PaginationInput
+) {
+  myReservations(filter: $filter, pagination: $pagination) {
     hasNextPage
     hasPreviousPage
     totalCount

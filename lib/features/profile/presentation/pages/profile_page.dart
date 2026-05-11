@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/widgets/notification_button.dart';
 import '../widgets/profile_loading_skeleton.dart';
 import '../bloc/profile_bloc.dart';
 import '../bloc/profile_event.dart';
@@ -84,21 +85,10 @@ class _ProfilePageState extends State<ProfilePage> {
                         fontFamily: AppFonts.primaryFont,
                       ),
                     ),
-                    IconButton(
-                      icon: Icon(
-                        Icons.notifications_none_rounded,
-                        color: AuthColors.primary,
-                        size: AppDimensions.iconSize.sp,
-                      ),
-                      style: IconButton.styleFrom(
-                        backgroundColor: AuthColors.lightGrayBackground,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                        ),
-                      ),
-                      onPressed: () {
-                        context.push('/notifications');
-                      },
+                    NotificationButton(
+                      backgroundColor: AuthColors.lightGrayBackground,
+                      iconColor: AuthColors.primary,
+                      iconSize: AppDimensions.iconSize.sp,
                     ),
                   ],
                 ),
@@ -451,8 +441,11 @@ class _ProfilePageState extends State<ProfilePage> {
                                 children: [
                                   _StatCard(
                                     value:
-                                        'N/A', // TODO: Replace with actual saved items count
-                                    label: 'SAVED ITEMS',
+                                        state is ProfileLoaded &&
+                                            state.donationsState != null
+                                        ? '${state.donationsState!.likedDonations.toInt()}'
+                                        : 'N/A',
+                                    label: 'LIKED ITEMS',
                                   ),
                                   Container(
                                     width: 1.w,
@@ -461,7 +454,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                   ),
                                   _StatCard(
                                     value:
-                                        'N/A', // TODO: Replace with actual donations count
+                                        state is ProfileLoaded &&
+                                            state.donationsState != null
+                                        ? '${state.donationsState!.totalDonations.toInt()}'
+                                        : 'N/A',
                                     label: 'DONATIONS',
                                   ),
                                   Container(

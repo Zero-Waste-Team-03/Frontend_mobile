@@ -7,16 +7,21 @@ import '../../../../core/graphql/graphql_request_executor.dart';
 import '../models/notification_model.dart';
 import 'graphql/__generated__/delete_notification.req.gql.dart';
 import 'graphql/__generated__/delete_notification.var.gql.dart';
+import 'graphql/__generated__/get_notification_stats.req.gql.dart';
+import 'graphql/__generated__/get_notification_stats.var.gql.dart';
 import 'graphql/__generated__/get_notifications.req.gql.dart';
 import 'graphql/__generated__/get_notifications.var.gql.dart';
 import 'graphql/__generated__/mark_notifications_as_read.req.gql.dart';
 import 'graphql/__generated__/mark_notifications_as_read.var.gql.dart';
+import '../../domain/entities/notification_stats.dart';
 
 abstract class NotificationRemoteDataSource {
   Future<List<NotificationModel>> getNotifications({
     int page = 1,
     int limit = 10,
   });
+
+  Future<NotificationStats> getNotificationStats();
 
   Future<void> markNotificationsAsRead(List<String> notificationIds);
 
@@ -91,6 +96,35 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
           .toList();
     } catch (e) {
       _logger.e('getNotifications error: $e', error: e);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<NotificationStats> getNotificationStats() async {
+    _logger.i('getNotificationStats called');
+
+    try {
+      final vars = GGetNotificationStatsVars.fromJson(const {});
+      if (vars == null) {
+        throw ServerException('Failed to build getNotificationStats request');
+      }
+
+      final data = await _graphqlRequestExecutor.execute(
+        client: _ferryClient,
+        request: GGetNotificationStatsReq(
+          (b) => b
+            ..vars = vars.toBuilder()
+            ..fetchPolicy = FetchPolicy.NetworkOnly,
+        ),
+        operationName: 'getNotificationStats',
+      );
+
+      return NotificationStats(
+        unreadCount: data.getNotificationStats.unreadCount,
+      );
+    } catch (e) {
+      _logger.e('getNotificationStats error: $e', error: e);
       rethrow;
     }
   }

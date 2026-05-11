@@ -591,6 +591,11 @@ The `JSONObject` scalar type represents JSON objects as specified by [ECMA-404](
 """
 scalar JSONObject
 
+type UsersDonationsStats {
+  likedDonations: Float
+  totalDonations: Float
+}
+
 type Location {
   """
   Location city
@@ -903,6 +908,10 @@ type PaginatedNotifications {
   totalCount: Int!
 }
 
+type NotificationStats {
+  unreadCount: Int!
+}
+
 type PaginatedReports {
   hasNextPage: Boolean!
   hasPreviousPage: Boolean!
@@ -1074,6 +1083,11 @@ type Query {
   getNotifications(pagination: PaginationQueryInput): PaginatedNotifications!
 
   """
+  Get unread notification stats for the authenticated user
+  """
+  getNotificationStats: NotificationStats!
+
+  """
   Get liked donations for the authenticated user with the same standard filters and pagination
   """
   likedDonations(
@@ -1105,6 +1119,11 @@ type Query {
   Get a single reservation by ID if current user is donor or beneficiary
   """
   myReservation(id: ID!): Reservation!
+
+  """
+  Get liked items counts and donations count
+  """
+  myDonationsStats: UsersDonationsStats!
 
   """
   Get reservations where the current user is donor or beneficiary
@@ -1254,7 +1273,13 @@ type Reservation {
 }
 
 input ReservationsFilterInput {
+  roleFilter: ReservationRoleFilter
   status: ReservationStatus
+}
+
+enum ReservationRoleFilter {
+  BENEFICIARY
+  DONOR
 }
 
 """

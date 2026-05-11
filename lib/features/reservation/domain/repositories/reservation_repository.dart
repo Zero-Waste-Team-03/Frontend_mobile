@@ -13,6 +13,7 @@ abstract class ReservationRepository {
   /// Get all reservations for the current user as beneficiary
   Future<Either<Failure, List<Reservation>>> getUserReservations({
     required String userId,
+    String? roleFilter,
     String? status,
     int page = 1,
     int limit = 20,

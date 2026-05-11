@@ -9,7 +9,7 @@ import '../bloc/reservation_bloc.dart';
 import '../bloc/reservation_event.dart';
 import '../bloc/reservation_state.dart';
 import '../widgets/reservation_card.dart';
-import '../widgets/status_filter_chip.dart';
+import '../../domain/entities/reservation.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../../core/di/injection.dart';
 
@@ -22,7 +22,8 @@ class MyReservationsPage extends StatefulWidget {
 
 class _MyReservationsPageState extends State<MyReservationsPage> {
   static const int _pageSize = 20;
-  String? _selectedFilter;
+  String _selectedRoleFilter = 'BENEFICIARY';
+  String _selectedStatusGroup = 'ALL';
   String? _currentUserId;
   late ScrollController _scrollController;
   Completer<void>? _refreshCompleter;
@@ -48,7 +49,8 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
       context.read<ReservationBloc>().add(
         FetchUserReservationsEvent(
           _currentUserId!,
-          statusFilter: _selectedFilter,
+          roleFilter: _selectedRoleFilter,
+          statusFilter: _statusFilterForApi(),
           page: currentState.currentPage + 1,
           limit: _pageSize,
         ),
@@ -79,7 +81,8 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
     context.read<ReservationBloc>().add(
       FetchUserReservationsEvent(
         _currentUserId!,
-        statusFilter: _selectedFilter,
+        roleFilter: _selectedRoleFilter,
+        statusFilter: _statusFilterForApi(),
         page: 1,
         limit: _pageSize,
       ),
@@ -117,81 +120,35 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
         child: BlocListener<ReservationBloc, ReservationState>(
           listener: (context, state) {
             if (state is UserReservationsLoaded) {
-              _selectedFilter = state.activeFilter;
+              if (state.activeRoleFilter != null) {
+                setState(() {
+                  _selectedRoleFilter = state.activeRoleFilter!;
+                });
+              }
             }
           },
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Filter Chips
+              // Top role switch: My Reservations / My Donations
               Container(
                 padding: EdgeInsets.symmetric(
                   horizontal: AppDimensions.paddingMedium.w,
-                  vertical: AppDimensions.paddingMedium.h,
+                  vertical: AppDimensions.paddingSmall.h,
                 ),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      StatusFilterChip(
-                        label: 'All',
-                        isSelected:
-                            _selectedFilter == null || _selectedFilter!.isEmpty,
-                        onTap: () {
-                          setState(() => _selectedFilter = null);
-                          context.read<ReservationBloc>().add(
-                            const FilterReservationsEvent(null),
-                          );
-                        },
-                      ),
-                      SizedBox(width: AppDimensions.paddingSmall.w),
-                      StatusFilterChip(
-                        label: 'Pending',
-                        isSelected: _selectedFilter == 'PENDING',
-                        onTap: () {
-                          setState(() => _selectedFilter = 'PENDING');
-                          context.read<ReservationBloc>().add(
-                            const FilterReservationsEvent('PENDING'),
-                          );
-                        },
-                      ),
-                      SizedBox(width: AppDimensions.paddingSmall.w),
-                      StatusFilterChip(
-                        label: 'Confirmed',
-                        isSelected: _selectedFilter == 'CONFIRMED',
-                        onTap: () {
-                          setState(() => _selectedFilter = 'CONFIRMED');
-                          context.read<ReservationBloc>().add(
-                            const FilterReservationsEvent('CONFIRMED'),
-                          );
-                        },
-                      ),
-                      SizedBox(width: AppDimensions.paddingSmall.w),
-                      StatusFilterChip(
-                        label: 'Completed',
-                        isSelected: _selectedFilter == 'COMPLETED',
-                        onTap: () {
-                          setState(() => _selectedFilter = 'COMPLETED');
-                          context.read<ReservationBloc>().add(
-                            const FilterReservationsEvent('COMPLETED'),
-                          );
-                        },
-                      ),
-                      SizedBox(width: AppDimensions.paddingSmall.w),
-                      StatusFilterChip(
-                        label: 'Cancelled',
-                        isSelected: _selectedFilter == 'CANCELLED',
-                        onTap: () {
-                          setState(() => _selectedFilter = 'CANCELLED');
-                          context.read<ReservationBloc>().add(
-                            const FilterReservationsEvent('CANCELLED'),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
+                child: _buildRoleSwitch(),
               ),
+
+              // Secondary status tabs: All / Active / Past
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppDimensions.paddingMedium.w,
+                  vertical: AppDimensions.paddingSmall.h,
+                ),
+                child: _buildStatusTabs(),
+              ),
+
+              Divider(height: 1.h, color: AuthColors.inputBorder),
 
               // Reservations List
               Expanded(
@@ -284,7 +241,11 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                     }
 
                     if (state is UserReservationsLoaded) {
-                      if (state.reservations.isEmpty) {
+                      final filteredReservations = _applyStatusGroupFilter(
+                        state.reservations,
+                      );
+
+                      if (filteredReservations.isEmpty) {
                         return RefreshIndicator(
                           onRefresh: _onRefresh,
                           color: AuthColors.primary,
@@ -305,7 +266,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                                       height: AppDimensions.paddingMedium.h,
                                     ),
                                     Text(
-                                      'No reservations yet',
+                                      'No reservations found',
                                       style: TextStyle(
                                         fontSize: AppDimensions.bodySize.sp,
                                         color: AuthColors.subText,
@@ -327,13 +288,13 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                         child: ListView.builder(
                           controller: _scrollController,
                           itemCount:
-                              state.reservations.length +
+                              filteredReservations.length +
                               (state.isLoadingMore ? 1 : 0),
                           padding: EdgeInsets.only(
                             bottom: AppDimensions.paddingMedium.h,
                           ),
                           itemBuilder: (context, index) {
-                            if (index == state.reservations.length) {
+                            if (index == filteredReservations.length) {
                               return Padding(
                                 padding: EdgeInsets.symmetric(vertical: 16.h),
                                 child: Center(
@@ -344,7 +305,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                               );
                             }
 
-                            final reservation = state.reservations[index];
+                            final reservation = filteredReservations[index];
 
                             return ReservationCard(
                               reservation: reservation,
@@ -380,5 +341,147 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  String? _statusFilterForApi() {
+    if (_selectedStatusGroup == 'ALL') return null;
+    // The API expects enum names: PENDING, CONFIRMED, COMPLETED, CANCELLED
+    return _selectedStatusGroup;
+  }
+
+  List<Reservation> _applyStatusGroupFilter(List<Reservation> reservations) {
+    // Server-side filtering using ReservationStatus enum; return received list as-is
+    return reservations;
+  }
+
+  Widget _buildRoleSwitch() {
+    return Container(
+      decoration: BoxDecoration(
+        color: AuthColors.lightGrayBackground,
+        borderRadius: BorderRadius.circular(32.r),
+      ),
+      padding: EdgeInsets.all(4.w),
+      child: Row(
+        children: [
+          _buildRoleOption(title: 'My Reservations', value: 'BENEFICIARY'),
+          _buildRoleOption(title: 'My Donations', value: 'DONOR'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRoleOption({required String title, required String value}) {
+    final isSelected = _selectedRoleFilter == value;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          if (_selectedRoleFilter == value) return;
+
+          setState(() {
+            _selectedRoleFilter = value;
+          });
+
+          context.read<ReservationBloc>().add(
+            FilterReservationsEvent(null, roleFilter: _selectedRoleFilter),
+          );
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 0),
+          padding: EdgeInsets.symmetric(vertical: 12.h),
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.white : Colors.transparent,
+            borderRadius: BorderRadius.circular(28.r),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.06),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Center(
+            child: Text(
+              title,
+              style: TextStyle(
+                fontSize: AppDimensions.bodySize.sp,
+                fontWeight: FontWeight.w700,
+                color: isSelected ? AuthColors.primary : AuthColors.subText,
+                fontFamily: AppFonts.primaryFont,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusTabs() {
+    return SizedBox(
+      height: 44.h,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        child: Row(
+          children: [
+            _buildStatusTab('All', 'ALL'),
+            _buildStatusTab('Pending', 'PENDING'),
+            _buildStatusTab('Confirmed', 'CONFIRMED'),
+            _buildStatusTab('Completed', 'COMPLETED'),
+            _buildStatusTab('Cancelled', 'CANCELLED'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusTab(String title, String value) {
+    final isSelected = _selectedStatusGroup == value;
+
+    return Padding(
+      padding: EdgeInsets.only(right: 10.w),
+      child: GestureDetector(
+        onTap: () {
+          if (_selectedStatusGroup == value) return;
+
+          setState(() {
+            _selectedStatusGroup = value;
+          });
+
+          // Trigger server-side filtering using the selected enum value
+          context.read<ReservationBloc>().add(
+            FilterReservationsEvent(
+              _statusFilterForApi(),
+              roleFilter: _selectedRoleFilter,
+            ),
+          );
+        },
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? AuthColors.primary.withValues(alpha: 0.08)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(18.r),
+            border: Border.all(
+              color: isSelected ? AuthColors.primary : AuthColors.inputBorder,
+              width: 1,
+            ),
+          ),
+          child: Center(
+            child: Text(
+              title,
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w600,
+                color: isSelected ? AuthColors.primary : AuthColors.subText,
+                fontFamily: AppFonts.primaryFont,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

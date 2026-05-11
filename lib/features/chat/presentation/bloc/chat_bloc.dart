@@ -34,8 +34,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<ChatTransactionCompletedReceived>(_onTransactionCompletedReceived);
     on<ChatLeaveConversationRequested>(_onLeaveConversation);
     on<ChatApproveSensitiveMessageRequested>(_onApproveSensitiveMessage);
+
     on<ChatSensitiveMessageApprovedReceived>(_onSensitiveMessageApprovedReceived);
     on<ChatUserReportRequested>(_onReportUser);
+
   }
 
   @override
@@ -69,7 +71,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         },
         (conversation) async {
           _logger.i('Conversation obtained: ${conversation.id}');
-          
+
           // CRITICAL: Initialize socket and setup listeners FIRST
           // This ensures that when we join the room, we are ready to receive events
           await chatRepository.initSocket();
@@ -83,16 +85,19 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           });
 
           _transactionSubscription?.cancel();
-          _transactionSubscription =
-              chatRepository.onTransactionCompleted.listen((conv) {
+          _transactionSubscription = chatRepository.onTransactionCompleted
+              .listen((conv) {
                 _logger.d('Socket Event: Transaction Completed [${conv.id}]');
                 add(ChatTransactionCompletedReceived(conv));
               });
 
           _sensitiveMessageSubscription?.cancel();
-          _sensitiveMessageSubscription =
-              chatRepository.onSensitiveMessageApproved.listen((message) {
-                _logger.d('Socket Event: Sensitive Message Approved [${message.id}]');
+          _sensitiveMessageSubscription = chatRepository
+              .onSensitiveMessageApproved
+              .listen((message) {
+                _logger.d(
+                  'Socket Event: Sensitive Message Approved [${message.id}]',
+                );
                 add(ChatSensitiveMessageApprovedReceived(message));
               });
 
@@ -199,7 +204,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     }
   }
 
-
   Future<void> _onLoadMessages(
     ChatMessagesLoadRequested event,
     Emitter<ChatState> emit,
@@ -213,13 +217,28 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       );
 
       messagesResult.fold(
-        (failure) => _logger.e('Failed to load messages page \${event.page}'),
+        (failure) => _logger.e('Failed to load messages page ${event.page}'),
         (msgs) {
+          // Prevent duplicate messages when backend pages overlap or indexing differs.
+          final existingIds = currentState.messages.map((m) => m.id).toSet();
+          final newMsgs = msgs
+              .where((m) => !existingIds.contains(m.id))
+              .toList();
+
+          final combined = [...currentState.messages, ...newMsgs];
+
+          // If the backend returned no items, we've reached the end.
+          // Also consider we've reached the end if none of the fetched items were new.
+          final reachedMax = msgs.isEmpty || newMsgs.isEmpty;
+
+          _logger.d(
+            'Loaded page ${event.page}: fetched=${msgs.length}, new=${newMsgs.length}',
+          );
+
           emit(
             currentState.copyWith(
-              // We append below, assume the backend sorts them, or sort dynamically.
-              messages: [...currentState.messages, ...msgs],
-              hasReachedMax: msgs.isEmpty,
+              messages: combined,
+              hasReachedMax: reachedMax,
             ),
           );
         },
@@ -234,8 +253,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     final currentState = state;
     if (currentState is ChatLoaded) {
       final authState = getIt<AuthBloc>().state;
-      final String currentUserId =
-          authState is AuthSuccess ? authState.user!.id : '';
+      final String currentUserId = authState is AuthSuccess
+          ? authState.user!.id
+          : '';
 
       // 1. Create a temporary "sending" message
       final tempId = 'temp_${DateTime.now().millisecondsSinceEpoch}';
@@ -278,9 +298,13 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           (newMessage) {
             // Replace temp message with real "sent" message
             final index = currentMsgs.indexWhere((m) => m.id == tempId);
-            final messageToInsert = currentUserId.isNotEmpty &&
+            final messageToInsert =
+                currentUserId.isNotEmpty &&
                     (newMessage.senderId.isEmpty || newMessage.senderId == '')
-                ? newMessage.copyWith(senderId: currentUserId, status: MessageStatus.sent)
+                ? newMessage.copyWith(
+                    senderId: currentUserId,
+                    status: MessageStatus.sent,
+                  )
                 : newMessage.copyWith(status: MessageStatus.sent);
 
             if (index != -1) {

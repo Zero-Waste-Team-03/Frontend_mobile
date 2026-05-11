@@ -10,12 +10,14 @@ class GetUserReservationsUseCase {
 
   Future<Either<Failure, List<Reservation>>> call({
     required String userId,
+    String? roleFilter,
     String? status,
     int page = 1,
     int limit = 20,
   }) async {
     return repository.getUserReservations(
       userId: userId,
+      roleFilter: roleFilter,
       status: status,
       page: page,
       limit: limit,

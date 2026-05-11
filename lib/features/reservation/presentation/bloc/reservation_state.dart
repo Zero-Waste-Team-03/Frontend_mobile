@@ -44,6 +44,7 @@ class UserReservationsLoading extends ReservationState {
 
 class UserReservationsLoaded extends ReservationState {
   final List<Reservation> reservations;
+  final String? activeRoleFilter;
   final String? activeFilter;
   final int currentPage;
   final bool isLoadingMore;
@@ -51,6 +52,7 @@ class UserReservationsLoaded extends ReservationState {
 
   const UserReservationsLoaded(
     this.reservations, {
+    this.activeRoleFilter,
     this.activeFilter,
     this.currentPage = 1,
     this.isLoadingMore = false,
@@ -60,6 +62,7 @@ class UserReservationsLoaded extends ReservationState {
   @override
   List<Object?> get props => [
     reservations,
+    activeRoleFilter,
     activeFilter,
     currentPage,
     isLoadingMore,

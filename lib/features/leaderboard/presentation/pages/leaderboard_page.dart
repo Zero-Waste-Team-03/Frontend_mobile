@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../shared/theme/app_colors.dart' as shared_theme;
+import '../../../../shared/widgets/notification_button.dart';
 import '../../domain/entities/leaderboard_period.dart';
 import '../bloc/leaderboard_bloc.dart';
 import '../bloc/leaderboard_event.dart';
@@ -123,24 +124,12 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                                   ),
                                 ),
                               ),
-                              GestureDetector(
-                                onTap: () => context.push('/notifications'),
-                                child: Container(
-                                  width: shared_theme.AppDimensions.inputHeight,
-                                  height:
-                                      shared_theme.AppDimensions.inputHeight,
-                                  decoration: BoxDecoration(
-                                    color: AppColors.divider.withValues(
-                                      alpha: 0.45,
-                                    ),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(
-                                    Icons.notifications_none_rounded,
-                                    color: AppColors.primary,
-                                    size: shared_theme.AppDimensions.iconSize,
-                                  ),
+                              NotificationButton(
+                                backgroundColor: AppColors.divider.withValues(
+                                  alpha: 0.45,
                                 ),
+                                iconColor: AppColors.primary,
+                                iconSize: shared_theme.AppDimensions.iconSize,
                               ),
                             ],
                           ),

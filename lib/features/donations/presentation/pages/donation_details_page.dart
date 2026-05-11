@@ -11,6 +11,7 @@ import 'package:maplibre_gl/maplibre_gl.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/map/map_config.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/widgets/notification_button.dart';
 import '../../../favorites/domain/repositories/favorites_repository.dart';
 import '../../../reservation/presentation/bloc/reservation_bloc.dart';
 import '../../../reservation/presentation/bloc/reservation_event.dart';
@@ -221,79 +222,87 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                   ),
                   child: SafeArea(
                     top: false,
-                      child: Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () async {
-                              // Show loading or just try to find reservation
-                              final authRepository = getIt<AuthRepository>();
-                              final userResult = await authRepository.getCachedUser();
-                              
-                              if (!mounted) return;
+                    child: Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () async {
+                            // Show loading or just try to find reservation
+                            final authRepository = getIt<AuthRepository>();
+                            final userResult = await authRepository
+                                .getCachedUser();
 
-                              String? userId;
-                              userResult.fold((_) => null, (u) => userId = u.id);
+                            if (!mounted) return;
 
-                              if (userId == null) {
-                                context.push('/login');
-                                return;
-                              }
+                            String? userId;
+                            userResult.fold((_) => null, (u) => userId = u.id);
 
-                              // Try to find if user already has a reservation for this donation
-                              final reservationRepo = getIt<ReservationRepository>();
-                              final resResult = await reservationRepo.getUserReservations(
-                                userId: userId!,
-                                status: 'PENDING', // Check pending or confirmed
-                              );
+                            if (userId == null) {
+                              context.push('/login');
+                              return;
+                            }
 
-                              if (!mounted) return;
-
-                              String? existingReservationId;
-                              resResult.fold(
-                                (_) => null,
-                                (reservations) {
-                                  try {
-                                    existingReservationId = reservations.firstWhere(
-                                      (r) => r.donationId == widget.donation.id
-                                    ).id;
-                                  } catch (_) {}
-                                }
-                              );
-
-                              if (existingReservationId != null) {
-                                if (!mounted) return;
-                                context.push('/chat', extra: existingReservationId);
-                              } else {
-                                // If no reservation exists, user must reserve first to chat
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Please reserve the item first to start a chat with the donor.'),
-                                    backgroundColor: AuthColors.primary,
-                                  ),
+                            // Try to find if user already has a reservation for this donation
+                            final reservationRepo =
+                                getIt<ReservationRepository>();
+                            final resResult = await reservationRepo
+                                .getUserReservations(
+                                  userId: userId!,
+                                  status:
+                                      'PENDING', // Check pending or confirmed
                                 );
-                              }
-                            },
-                            child: Container(
-                              width: 56.w,
-                              height: 56.w,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(16.r),
-                                border: Border.all(
-                                  color: AuthColors.primary,
-                                  width: 1.5,
+
+                            if (!mounted) return;
+
+                            String? existingReservationId;
+                            resResult.fold((_) => null, (reservations) {
+                              try {
+                                existingReservationId = reservations
+                                    .firstWhere(
+                                      (r) => r.donationId == widget.donation.id,
+                                    )
+                                    .id;
+                              } catch (_) {}
+                            });
+
+                            if (existingReservationId != null) {
+                              if (!mounted) return;
+                              context.push(
+                                '/chat',
+                                extra: existingReservationId,
+                              );
+                            } else {
+                              // If no reservation exists, user must reserve first to chat
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Please reserve the item first to start a chat with the donor.',
+                                  ),
+                                  backgroundColor: AuthColors.primary,
                                 ),
+                              );
+                            }
+                          },
+                          child: Container(
+                            width: 56.w,
+                            height: 56.w,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16.r),
+                              border: Border.all(
+                                color: AuthColors.primary,
+                                width: 1.5,
                               ),
-                              child: Center(
-                                child: Icon(
-                                  Icons.chat_bubble_outline_rounded,
-                                  color: AuthColors.primary,
-                                  size: 24.sp,
-                                ),
+                            ),
+                            child: Center(
+                              child: Icon(
+                                Icons.chat_bubble_outline_rounded,
+                                color: AuthColors.primary,
+                                size: 24.sp,
                               ),
                             ),
                           ),
-                          SizedBox(width: 16.w),
+                        ),
+                        SizedBox(width: 16.w),
                         Expanded(
                           child: BlocBuilder<ReservationBloc, ReservationState>(
                             builder: (context, state) {
@@ -567,26 +576,6 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
         ),
       ),
       actions: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: GestureDetector(
-            onTap: () {
-              context.push('/notifications');
-            },
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: const Color(0xFF131615).withValues(alpha: 0.4),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.notifications_none_rounded,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
-          ),
-        ),
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: GestureDetector(
@@ -868,15 +857,25 @@ class _OwnerCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 20.r,
-            backgroundColor: AuthColors.primary.withValues(alpha: 0.15),
-            child: Icon(
-              Icons.person_rounded,
-              color: AuthColors.primary,
-              size: 20.sp,
-            ),
-          ),
+          donation.authorDetails != null &&
+                  donation.authorDetails!.avatarUrl != null &&
+                  donation.authorDetails!.avatarUrl!.isNotEmpty
+              ? CircleAvatar(
+                  radius: 20.r,
+                  backgroundColor: AuthColors.primary.withValues(alpha: 0.15),
+                  backgroundImage: NetworkImage(
+                    donation.authorDetails!.avatarUrl!,
+                  ),
+                )
+              : CircleAvatar(
+                  radius: 20.r,
+                  backgroundColor: AuthColors.primary.withValues(alpha: 0.15),
+                  child: Icon(
+                    Icons.person_rounded,
+                    color: AuthColors.primary,
+                    size: 20.sp,
+                  ),
+                ),
           SizedBox(width: 10.w),
           Expanded(
             child: Column(
@@ -894,7 +893,7 @@ class _OwnerCard extends StatelessWidget {
                 ),
                 SizedBox(height: 2.h),
                 Text(
-                  donation.status,
+                  'Posted on ${donation.createdAt.toString().split(' ')[0]}',
                   style: TextStyle(
                     fontSize: 12.sp,
                     color: const Color(0xFF64748B),

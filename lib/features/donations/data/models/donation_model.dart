@@ -1,6 +1,7 @@
 import '../../domain/entities/donation.dart';
 import 'category_model.dart';
 import '../../../../core/env.dart';
+import 'package:gaspzero/features/auth/data/models/user_model.dart';
 
 class DonationModel extends Donation {
   const DonationModel({
@@ -20,10 +21,12 @@ class DonationModel extends Donation {
     super.urgency,
     super.createdAt,
     super.isLikedByMe,
+    super.userId,
+    super.authorDetails,
   });
 
   factory DonationModel.fromJson(Map<String, dynamic> json) {
-    // Parse location if it exists
+    // Location
     final location = json['location'] as Map<String, dynamic>?;
     final lat = location != null
         ? (location['latitude'] as num?)?.toDouble()
@@ -32,63 +35,79 @@ class DonationModel extends Donation {
         ? (location['longitude'] as num?)?.toDouble()
         : null;
 
-    // Parse imageUrl from API, with fallback to mainAttachment or mainAttachmentId
+    // Base URL
     final baseUrl = const String.fromEnvironment(
       'API_BASE_URL',
       defaultValue: 'https://api.gaspzero.qzz.io/',
     );
     final envBaseUrl = Env.get('API_BASE_URL') ?? baseUrl;
 
+    // Image URL fallback
     String imageUrl =
-        'https://ui-avatars.com/api/?name=${Uri.encodeComponent(json['title'] ?? 'Food')}&background=random';
+        'https://ui-avatars.com/api/?name=${Uri.encodeComponent((json['title'] ?? 'Food').toString())}&background=random';
 
-    // Priority 1: Use imageUrl directly from API (new field)
-    if (json['imageUrl'] != null && (json['imageUrl'] as String).isNotEmpty) {
-      imageUrl = json['imageUrl'] as String;
-    }
-    // Priority 2: Use mainAttachment URL
-    else {
+    // Prefer explicit imageUrl
+    if (json['imageUrl'] != null &&
+        (json['imageUrl'] as String?)?.isNotEmpty == true) {
+      imageUrl = json['imageUrl'].toString();
+    } else {
       final mainAttachment = json['mainAttachment'] as Map<String, dynamic>?;
-      final fallbackAttachmentId = json['mainAttachmentId'] as String?;
+      final fallbackAttachmentId = json['mainAttachmentId'] != null
+          ? json['mainAttachmentId'].toString()
+          : null;
 
       if (mainAttachment != null && mainAttachment['url'] != null) {
-        imageUrl = mainAttachment['url'] as String;
-      } else if (fallbackAttachmentId != null) {
+        imageUrl = mainAttachment['url'].toString();
+      } else if (fallbackAttachmentId != null &&
+          fallbackAttachmentId.isNotEmpty) {
         imageUrl = '${envBaseUrl}attachments/$fallbackAttachmentId';
       }
     }
 
-    // Parse the user (author)
-    final user = json['user'] as Map<String, dynamic>?;
-    final authorName = user != null
-        ? (user['displayName'] ?? user['email'])
-        : 'Unknown';
+    // User / author
+    final userMap = json['user'] as Map<String, dynamic>?;
+    final userId = userMap != null
+        ? (userMap['id']?.toString())
+        : (json['userId']?.toString());
+
+    final authorDetails = userMap != null ? UserModel.fromJson(userMap) : null;
+
+    final authorName = userMap != null
+        ? ((userMap['displayName'] ?? userMap['email'])?.toString() ??
+              'Unknown')
+        : (json['author']?.toString() ??
+              json['postedBy']?.toString() ??
+              'Unknown');
+
+    // Dates & misc
     final expiryDateRaw = json['expiryDate'] as String?;
     final expiryDate = expiryDateRaw != null
         ? DateTime.tryParse(expiryDateRaw)
         : null;
-    final urgency = json['urgency'] as String?;
     final createdAtRaw = json['createdAt'] as String?;
     final createdAt = createdAtRaw != null
         ? DateTime.tryParse(createdAtRaw)
         : null;
+    final urgency = json['urgency'] as String?;
     final isLikedByMe = json['isLikedByMe'] as bool?;
 
     return DonationModel(
-      id: json['id'] as String,
-      title: json['title'] as String,
-      description: json['description'] as String,
+      id: (json['id'] ?? '').toString(),
+      title: (json['title'] ?? '').toString(),
+      description: (json['description'] ?? '').toString(),
       quantity: (json['quantity'] as num?)?.toInt() ?? 1,
-      categoryId: json['categoryId'] as String,
+      categoryId: (json['categoryId'] ?? '').toString(),
       category: json['category'] != null
           ? CategoryModel.fromJson(json['category'] as Map<String, dynamic>)
           : null,
-      condition: json['urgency'] as String? ?? 'MEDIUM',
-      status: json['status'] as String? ?? 'DRAFT',
-      author: authorName as String,
+      condition: (json['urgency'] as String?) ?? 'MEDIUM',
+      status: (json['status'] as String?) ?? 'DRAFT',
+      author: authorName,
       imageUrl: imageUrl,
       latitude: lat,
       longitude: lng,
+      userId: userId,
+      authorDetails: authorDetails,
       expiryDate: expiryDate,
       urgency: urgency,
       createdAt: createdAt,

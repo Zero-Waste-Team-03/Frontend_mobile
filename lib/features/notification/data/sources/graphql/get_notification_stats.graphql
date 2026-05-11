@@ -1,0 +1,5 @@
+query GetNotificationStats {
+  getNotificationStats {
+    unreadCount
+  }
+}
