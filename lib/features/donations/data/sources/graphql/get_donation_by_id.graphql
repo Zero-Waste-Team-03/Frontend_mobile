@@ -23,8 +23,13 @@ query GetDonationById($id: ID!) {
       longitude
     }
     user {
+      id
       displayName
       email
+      avatar {
+        id
+        url
+      }
     }
   }
 }

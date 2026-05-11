@@ -119,15 +119,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
           title: Text(
             'Edit Profile',
             style: TextStyle(
-              color: AuthColors.headingText,
-              fontSize: AppDimensions.buttonTextSize.sp,
+              color: AuthColors.primary,
+              fontSize: AppDimensions.appBarTitleSize.sp,
               fontWeight: FontWeight.w600,
             ),
           ),
           leading: IconButton(
             icon: Icon(
               Icons.arrow_back,
-              color: AuthColors.headingText,
+              color: AuthColors.primary,
               size: AppDimensions.iconSize.sp,
             ),
             onPressed: () => context.pop(),

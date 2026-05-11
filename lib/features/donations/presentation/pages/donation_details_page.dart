@@ -578,15 +578,6 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
       actions: [
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: NotificationButton(
-            compact: false,
-            backgroundColor: const Color(0xFF131615).withValues(alpha: 0.4),
-            iconColor: Colors.white,
-            iconSize: 20,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
           child: GestureDetector(
             onTap: () {},
             child: Container(
@@ -866,15 +857,25 @@ class _OwnerCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 20.r,
-            backgroundColor: AuthColors.primary.withValues(alpha: 0.15),
-            child: Icon(
-              Icons.person_rounded,
-              color: AuthColors.primary,
-              size: 20.sp,
-            ),
-          ),
+          donation.authorDetails != null &&
+                  donation.authorDetails!.avatarUrl != null &&
+                  donation.authorDetails!.avatarUrl!.isNotEmpty
+              ? CircleAvatar(
+                  radius: 20.r,
+                  backgroundColor: AuthColors.primary.withValues(alpha: 0.15),
+                  backgroundImage: NetworkImage(
+                    donation.authorDetails!.avatarUrl!,
+                  ),
+                )
+              : CircleAvatar(
+                  radius: 20.r,
+                  backgroundColor: AuthColors.primary.withValues(alpha: 0.15),
+                  child: Icon(
+                    Icons.person_rounded,
+                    color: AuthColors.primary,
+                    size: 20.sp,
+                  ),
+                ),
           SizedBox(width: 10.w),
           Expanded(
             child: Column(
@@ -892,7 +893,7 @@ class _OwnerCard extends StatelessWidget {
                 ),
                 SizedBox(height: 2.h),
                 Text(
-                  donation.status,
+                  'Posted on ${donation.createdAt.toString().split(' ')[0]}',
                   style: TextStyle(
                     fontSize: 12.sp,
                     color: const Color(0xFF64748B),
