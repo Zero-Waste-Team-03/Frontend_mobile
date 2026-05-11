@@ -1,7 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:logger/logger.dart';
+import 'package:ferry/ferry.dart';
+import 'package:gaspzero/features/chat/data/repositories/chat_repository_impl.dart';
+import '../../../reservation/data/datasources/graphql/__generated__/my_reservation.req.gql.dart';
 import '../../../../core/di/injection.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
@@ -13,12 +17,15 @@ import 'chat_state.dart';
 @injectable
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
   final ChatRepository chatRepository;
+  final Client _ferryClient;
   final Logger _logger = Logger();
 
   StreamSubscription? _messageSubscription;
   StreamSubscription? _transactionSubscription;
 
-  ChatBloc({required this.chatRepository}) : super(ChatInitial()) {
+  ChatBloc({required this.chatRepository, required Client ferryClient}) 
+      : _ferryClient = ferryClient, 
+        super(ChatInitial()) {
     on<ChatInitializeRequested>(_onInitialize);
     on<ChatMessagesLoadRequested>(_onLoadMessages);
     on<ChatMessageSent>(_onSendMessage);
@@ -28,6 +35,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<ChatLeaveConversationRequested>(_onLeaveConversation);
     on<ChatApproveSensitiveMessageRequested>(_onApproveSensitiveMessage);
     on<ChatSensitiveMessageApprovedReceived>(_onSensitiveMessageApprovedReceived);
+    on<ChatUserReportRequested>(_onReportUser);
   }
 
   @override
@@ -96,6 +104,91 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             _logger.e('Failed to join conversation room: $e');
           }
 
+          // Fetch reservation/donation details to avoid hardcoded UI
+          _logger.i('Fetching reservation details for reservationId: ${conversation.reservationId}');
+          final reservationReq = GMyReservationReq(
+            (b) => b
+              ..vars.id = conversation.reservationId
+              ..fetchPolicy = FetchPolicy.NetworkOnly,
+          );
+
+          String? donationTitle;
+          String? donationImageUrl;
+          String? counterpartName = conversation.counterpartName;
+          String? counterpartAvatarUrl = conversation.counterpartAvatarUrl;
+          String? counterpartId = conversation.counterpartId;
+
+          final authState = getIt<AuthBloc>().state;
+          String? currentUserId;
+          if (authState is AuthSuccess) {
+            currentUserId = authState.user?.id;
+          } else {
+            // Fallback: decode JWT from repository if Bloc state is not yet ready or in transition
+            try {
+              final dataSource = (chatRepository as ChatRepositoryImpl).remoteDataSource;
+              final token = await dataSource.authLocalDataSource.getAccessToken();
+              
+              if (token != null) {
+                // Manual decode to avoid jwt_decoder dependency issue if it's missing from pubspec
+                final parts = token.split('.');
+                if (parts.length == 3) {
+                  final payload = parts[1];
+                  final String decoded = String.fromCharCodes(base64Url.decode(base64Url.normalize(payload)));
+                  final Map<String, dynamic> decodedToken = jsonDecode(decoded);
+                  currentUserId = decodedToken['id'];
+                  _logger.i('Recovered currentUserId from payload: $currentUserId');
+                }
+              }
+            } catch (e) {
+              _logger.e('Failed to recover userId from token: $e');
+            }
+          }
+
+          try {
+            final res = await _ferryClient.request(reservationReq).first;
+            final reservationData = res.data?.myReservation;
+            _logger.i('Raw Reservation Data: $reservationData');
+            
+            if (reservationData != null) {
+              _logger.i('Beneficiary ID: ${reservationData.beneficiaryId}');
+              _logger.i('Donation User: ${reservationData.donation?.user.displayName} (ID: ${reservationData.donation?.user.id})');
+              _logger.i('Beneficiary User: ${reservationData.beneficiary?.displayName} (ID: ${reservationData.beneficiary?.id})');
+              _logger.i('Current User ID: $currentUserId');
+
+              donationTitle = reservationData.donation?.title;
+              donationImageUrl = reservationData.donation?.mainAttachment?.url;
+              
+              // Always try to get the counterpart name from reservation if we have currentUserId
+              if (currentUserId != null) {
+                if (reservationData.beneficiaryId == currentUserId) {
+                  counterpartName = reservationData.donation?.user.displayName;
+                  counterpartAvatarUrl = reservationData.donation?.user.avatar?.url;
+                  counterpartId = reservationData.donation?.user.id;
+                  _logger.i('Identified counterpart as Donor: $counterpartName');
+                } else {
+                  counterpartName = reservationData.beneficiary?.displayName;
+                  counterpartAvatarUrl = reservationData.beneficiary?.avatar?.url;
+                  counterpartId = reservationData.beneficiary?.id;
+                  _logger.i('Identified counterpart as Beneficiary: $counterpartName');
+                }
+              }
+            } else {
+              _logger.w('Reservation details not found in data: ${res.data}');
+            }
+          } catch (e) {
+            _logger.e('Failed to fetch reservation details: $e');
+          }
+
+          final updatedConversation = conversation.copyWith(
+            donationTitle: donationTitle,
+            donationImageUrl: donationImageUrl,
+            counterpartName: counterpartName ?? 'User',
+            counterpartAvatarUrl: counterpartAvatarUrl,
+            counterpartId: counterpartId,
+          );
+
+          _logger.i('Final Conversation Metadata: name=$counterpartName, title=$donationTitle, id=$counterpartId');
+
           // Fetch initial messages
           final messagesResult = await chatRepository.getConversationMessages(
             conversation.id,
@@ -108,7 +201,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             },
             (msgs) {
               _logger.i('Chat loaded with ${msgs.length} messages');
-              emit(ChatLoaded(conversation: conversation, messages: msgs));
+              emit(ChatLoaded(conversation: updatedConversation, messages: msgs));
             },
           );
         },
@@ -294,5 +387,20 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       }).toList();
       emit(currentState.copyWith(messages: updatedMessages));
     }
+  }
+
+  Future<void> _onReportUser(
+    ChatUserReportRequested event,
+    Emitter<ChatState> emit,
+  ) async {
+    final result = await chatRepository.reportUser(
+      userId: event.userId,
+      reason: event.reason,
+      description: event.description,
+    );
+    result.fold(
+      (f) => _logger.e('Failed to report user: ${f.message}'),
+      (_) => _logger.i('User reported successfully'),
+    );
   }
 }

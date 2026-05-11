@@ -97,19 +97,21 @@ class NotificationCard extends StatelessWidget {
                 : AppColors.notificationCardBorder,
             width: 1.0,
           ),
-          boxShadow: [
-            !notification.isRead
-                ? BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
-                    blurRadius: 8,
+          boxShadow: !notification.isRead
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.06),
+                    blurRadius: 16,
                     offset: const Offset(0, 4),
-                  )
-                : BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
+                  ),
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.02),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
-          ],
+                ]
+              : null,
+
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,

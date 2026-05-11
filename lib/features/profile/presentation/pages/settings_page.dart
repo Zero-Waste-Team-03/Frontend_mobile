@@ -192,7 +192,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AuthColors.primary,
                           disabledBackgroundColor: AuthColors.primary
-                              .withOpacity(0.5),
+                              .withValues(alpha: 0.5),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(
                               AppDimensions.borderRadiusLarge.r,
@@ -335,7 +335,7 @@ class _SettingsTile extends StatelessWidget {
           Switch(
             value: value,
             onChanged: enabled ? onChanged : null,
-            activeTrackColor: AuthColors.primary.withOpacity(0.3),
+            activeTrackColor: AuthColors.primary.withValues(alpha: 0.3),
             activeThumbColor: AuthColors.primary,
             inactiveThumbColor: Colors.grey,
           ),

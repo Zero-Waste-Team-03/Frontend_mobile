@@ -9,13 +9,14 @@ class ChatSocketService {
   final AuthLocalDataSource authLocalDataSource;
   IO.Socket? _socket;
 
-  final _messageCreatedController =
+  StreamController<Map<String, dynamic>> _messageCreatedController =
       StreamController<Map<String, dynamic>>.broadcast();
-  final _sensitiveMessageApprovedController =
+  StreamController<Map<String, dynamic>> _sensitiveMessageApprovedController =
       StreamController<Map<String, dynamic>>.broadcast();
-  final _transactionCompletedController =
+  StreamController<Map<String, dynamic>> _transactionCompletedController =
       StreamController<Map<String, dynamic>>.broadcast();
-  final _errorController = StreamController<Map<String, dynamic>>.broadcast();
+  StreamController<Map<String, dynamic>> _errorController =
+      StreamController<Map<String, dynamic>>.broadcast();
 
   ChatSocketService(this.authLocalDataSource);
 
@@ -28,6 +29,23 @@ class ChatSocketService {
   Stream<Map<String, dynamic>> get onError => _errorController.stream;
 
   Future<void> initSocket() async {
+    // If controllers are closed, recreate them
+    if (_messageCreatedController.isClosed) {
+      _messageCreatedController =
+          StreamController<Map<String, dynamic>>.broadcast();
+    }
+    if (_sensitiveMessageApprovedController.isClosed) {
+      _sensitiveMessageApprovedController =
+          StreamController<Map<String, dynamic>>.broadcast();
+    }
+    if (_transactionCompletedController.isClosed) {
+      _transactionCompletedController =
+          StreamController<Map<String, dynamic>>.broadcast();
+    }
+    if (_errorController.isClosed) {
+      _errorController = StreamController<Map<String, dynamic>>.broadcast();
+    }
+
     final token = await authLocalDataSource.getAccessToken();
     if (token == null) {
       throw ServerException('No auth token available for socket connection');
@@ -100,13 +118,35 @@ class ChatSocketService {
         }
         
         debugPrint('Standardized message created: id=${standardized['id']} senderId=${standardized['senderId']}');
-        _messageCreatedController.add(standardized);
+        if (!_messageCreatedController.isClosed) {
+          _messageCreatedController.add(standardized);
+        }
+      }
+    });
+
+    _socket?.on('chat:presence-updated', (data) {
+      debugPrint('Socket chat:presence-updated: $data');
+      if (data != null && data is Map) {
+        final Map<String, dynamic> raw = Map<String, dynamic>.from(data);
+        final Map<String, dynamic> standardized = raw.containsKey('data') && raw['data'] is Map 
+            ? Map<String, dynamic>.from(raw['data']) 
+            : raw;
+        
+        if (!_transactionCompletedController.isClosed) {
+           // We use the transaction controller or add a new one, but for now 
+           // let's just make sure we capture it for potential UI updates
+           _transactionCompletedController.add({
+             'type': 'presence',
+             'userId': standardized['userId'],
+             'isOnline': standardized['isOnline'],
+           });
+        }
       }
     });
 
     _socket?.on('chat:sensitive-message-approved', (data) {
       debugPrint('Socket chat:sensitive-message-approved received: $data');
-      if (data != null) {
+      if (data != null && !_sensitiveMessageApprovedController.isClosed) {
         _sensitiveMessageApprovedController.add(
           Map<String, dynamic>.from(data),
         );
@@ -115,17 +155,21 @@ class ChatSocketService {
 
     _socket?.on('chat:transaction-completed', (data) {
       debugPrint('Socket chat:transaction-completed received: $data');
-      if (data != null) {
+      if (data != null && !_transactionCompletedController.isClosed) {
         _transactionCompletedController.add(Map<String, dynamic>.from(data));
       }
     });
 
     _socket?.on('chat:error', (data) {
       debugPrint('Socket chat:error received: $data');
-      if (data != null) _errorController.add(Map<String, dynamic>.from(data));
+      if (data != null && !_errorController.isClosed) {
+        _errorController.add(Map<String, dynamic>.from(data));
+      }
     });
     _socket?.on('exception', (data) {
-      if (data != null) _errorController.add(Map<String, dynamic>.from(data));
+      if (data != null && !_errorController.isClosed) {
+        _errorController.add(Map<String, dynamic>.from(data));
+      }
     });
     _socket?.onDisconnect((_) {
       debugPrint('Chat Socket disconnected');
