@@ -137,11 +137,25 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/chat',
       builder: (context, state) {
-        final reservationId = state.extra as String?;
-        if (reservationId == null) {
+        final extra = state.extra;
+        String? reservationId;
+        String? conversationId;
+
+        if (extra is String) {
+          reservationId = extra;
+        } else if (extra is Map) {
+          final extraMap = Map<String, dynamic>.from(extra);
+          reservationId = extraMap['reservationId'] as String?;
+          conversationId = extraMap['conversationId'] as String?;
+        }
+
+        if (reservationId == null && conversationId == null) {
           return const Scaffold(body: Center(child: Text('Invalid chat')));
         }
-        return ChatPage(reservationId: reservationId);
+        return ChatPage(
+          reservationId: reservationId,
+          conversationId: conversationId,
+        );
       },
     ),
     GoRoute(path: '/chats', builder: (context, state) => const ChatsListPage()),

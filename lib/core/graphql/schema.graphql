@@ -1040,6 +1040,11 @@ type Query {
   conversationMessages(input: ConversationMessagesInput!): PaginatedMessages!
 
   """
+  Get a conversation preview by conversation ID
+  """
+  conversationDetails(conversationId: ID!): ConversationPreview!
+
+  """
   Get current authenticated user profile
   """
   currentUser: User!

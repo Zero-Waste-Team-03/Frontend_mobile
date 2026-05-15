@@ -12,16 +12,25 @@ import '../bloc/chat_state.dart';
 import '../widgets/chat_bubble.dart';
 
 class ChatPage extends StatelessWidget {
-  final String reservationId;
+  final String? reservationId;
+  final String? conversationId;
 
-  const ChatPage({super.key, required this.reservationId});
+  const ChatPage({super.key, this.reservationId, this.conversationId})
+    : assert(
+        reservationId != null || conversationId != null,
+        'Either reservationId or conversationId must be provided',
+      );
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          getIt<ChatBloc>()
-            ..add(ChatInitializeRequested(reservationId: reservationId)),
+      create: (context) => getIt<ChatBloc>()
+        ..add(
+          ChatInitializeRequested(
+            reservationId: reservationId,
+            conversationId: conversationId,
+          ),
+        ),
       child: const ChatScreen(),
     );
   }

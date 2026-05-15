@@ -47,13 +47,16 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     ChatInitializeRequested event,
     Emitter<ChatState> emit,
   ) async {
-    _logger.i('Initializing chat for reservation: ${event.reservationId}');
+    _logger.i(
+      'Initializing chat for reservation: ${event.reservationId}, conversation: ${event.conversationId}',
+    );
     emit(ChatLoading());
 
     try {
       // 1. Get or create conversation
       final result = await chatRepository.getOrCreateConversation(
-        event.reservationId,
+        reservationId: event.reservationId,
+        conversationId: event.conversationId,
       );
 
       await result.fold(
