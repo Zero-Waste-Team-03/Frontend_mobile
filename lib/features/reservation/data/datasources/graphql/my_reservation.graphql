@@ -15,16 +15,26 @@ query MyReservation($id: ID!) {
     }
     donation {
       id
+      createdAt
       title
       description
       quantity
       categoryId
+      category {
+        id
+        name
+      }
       status
       urgency
       isLikedByMe
+      isReservable
       expiryDate
       publishedAt
       locationId
+      location {
+        latitude
+        longitude
+      }
       mainAttachmentId
       attachmentIds
       userId
@@ -44,15 +54,22 @@ query MyReservation($id: ID!) {
         uploadedById
       }
       user {
+        id
         avatarAttachmentId
         createdAt
         description
         displayName
         email
-        id
         isMailVerified
         lastChangedPasswordDate
         locationId
+        location {
+          city
+          country
+          latitude
+          longitude
+          neighborhood
+        }
         phoneNumber
         reputationScore
         role

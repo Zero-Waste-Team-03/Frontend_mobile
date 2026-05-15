@@ -29,44 +29,45 @@ class _ChatsListPageState extends State<ChatsListPage> {
 
   Future<void> _loadConversations() async {
     final result = await _chatRepository.getMyActiveConversations();
-    
-    result.fold(
-      (failure) => setState(() => _error = failure.message),
-      (conversations) async {
-        // Enriched conversations list
-        final List<ConversationEntity> enriched = [];
-        
-        for (var conv in conversations) {
-          try {
-            final reservationReq = GMyReservationReq(
-              (b) => b
-                ..vars.id = conv.reservationId
-                ..fetchPolicy = FetchPolicy.CacheFirst,
-            );
-            
-            final res = await _ferryClient.request(reservationReq).first;
-            final reservationData = res.data?.myReservation;
-            
-            if (reservationData != null) {
-              enriched.add(conv.copyWith(
+
+    result.fold((failure) => setState(() => _error = failure.message), (
+      conversations,
+    ) async {
+      // Enriched conversations list
+      final List<ConversationEntity> enriched = [];
+
+      for (var conv in conversations) {
+        try {
+          final reservationReq = GMyReservationReq(
+            (b) => b
+              ..vars.id = conv.reservationId
+              ..fetchPolicy = FetchPolicy.CacheFirst,
+          );
+
+          final res = await _ferryClient.request(reservationReq).first;
+          final reservationData = res.data?.myReservation;
+
+          if (reservationData != null) {
+            enriched.add(
+              conv.copyWith(
                 donationTitle: reservationData.donation?.title,
                 donationImageUrl: reservationData.donation?.mainAttachment?.url,
-              ));
-            } else {
-              enriched.add(conv);
-            }
-          } catch (_) {
+              ),
+            );
+          } else {
             enriched.add(conv);
           }
+        } catch (_) {
+          enriched.add(conv);
         }
-        
-        if (mounted) {
-          setState(() {
-            _conversations = enriched;
-          });
-        }
-      },
-    );
+      }
+
+      if (mounted) {
+        setState(() {
+          _conversations = enriched;
+        });
+      }
+    });
   }
 
   @override
@@ -171,17 +172,23 @@ class _ChatsListPageState extends State<ChatsListPage> {
                       fit: BoxFit.cover,
                     )
                   : conversation.counterpartAvatarUrl != null
-                      ? DecorationImage(
-                          image: NetworkImage(conversation.counterpartAvatarUrl!),
-                          fit: BoxFit.cover,
-                        )
-                      : null,
+                  ? DecorationImage(
+                      image: NetworkImage(conversation.counterpartAvatarUrl!),
+                      fit: BoxFit.cover,
+                    )
+                  : null,
             ),
-            child: (conversation.donationImageUrl == null && conversation.counterpartAvatarUrl == null)
+            child:
+                (conversation.donationImageUrl == null &&
+                    conversation.counterpartAvatarUrl == null)
                 ? Stack(
                     alignment: Alignment.center,
                     children: [
-                      Icon(Icons.shopping_basket_outlined, color: AuthColors.primary, size: 24.sp),
+                      Icon(
+                        Icons.shopping_basket_outlined,
+                        color: AuthColors.primary,
+                        size: 24.sp,
+                      ),
                       if (conversation.isOnline)
                         Positioned(
                           right: 0,
@@ -192,31 +199,37 @@ class _ChatsListPageState extends State<ChatsListPage> {
                             decoration: BoxDecoration(
                               color: Colors.green,
                               shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 2.w),
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 2.w,
+                              ),
                             ),
                           ),
                         ),
                     ],
                   )
                 : (conversation.isOnline
-                    ? Stack(
-                        children: [
-                          Positioned(
-                            right: 0,
-                            bottom: 0,
-                            child: Container(
-                              width: 12.r,
-                              height: 12.r,
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                shape: BoxShape.circle,
-                                border: Border.all(color: Colors.white, width: 2.w),
+                      ? Stack(
+                          children: [
+                            Positioned(
+                              right: 0,
+                              bottom: 0,
+                              child: Container(
+                                width: 12.r,
+                                height: 12.r,
+                                decoration: BoxDecoration(
+                                  color: Colors.green,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 2.w,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      )
-                    : null),
+                          ],
+                        )
+                      : null),
           ),
           title: Text(
             conversation.counterpartName ?? 'User',
@@ -225,12 +238,18 @@ class _ChatsListPageState extends State<ChatsListPage> {
             overflow: TextOverflow.ellipsis,
           ),
           subtitle: Text(
-            conversation.donationTitle ?? conversation.lastMessage ?? 'No messages yet',
+            conversation.donationTitle ??
+                conversation.lastMessage ??
+                'No messages yet',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(color: AuthColors.subText, fontSize: 13.sp),
           ),
-          trailing: Icon(Icons.chevron_right, color: AuthColors.inputText, size: 20.sp),
+          trailing: Icon(
+            Icons.chevron_right,
+            color: AuthColors.inputText,
+            size: 20.sp,
+          ),
           onTap: () {
             context.push('/chat', extra: conversation.reservationId);
           },

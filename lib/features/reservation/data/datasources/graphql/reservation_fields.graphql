@@ -8,6 +8,7 @@ fragment ReservationFields on Reservation {
   updatedAt
   donation {
     id
+    createdAt
     title
     description
     quantity
@@ -18,17 +19,25 @@ fragment ReservationFields on Reservation {
     }
     status
     urgency
+    isLikedByMe
+    isReservable
     mainAttachmentId
     mainAttachment {
       url
     }
+    locationId
     location {
       latitude
       longitude
     }
     user {
+      id
       displayName
       email
+      avatar {
+        id
+        url
+      }
     }
   }
   beneficiary {

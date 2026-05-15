@@ -1,4 +1,5 @@
 import 'package:ferry/ferry.dart' hide ServerException;
+import 'package:flutter/material.dart';
 import 'package:gaspzero/core/exceptions/app_exceptions.dart';
 import 'package:injectable/injectable.dart';
 import 'package:gaspzero/features/auth/data/sources/auth_local_data_source.dart';
@@ -174,7 +175,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
     final req = GGetOrCreateConversationReq(
       (b) => b
-        ..vars.conversationId = conversationId
+        ..vars.reservationId = reservationId
         ..fetchPolicy = FetchPolicy.NetworkOnly,
     );
     final response = await _graphqlRequestExecutor.execute(
@@ -393,10 +394,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         final message = response.graphqlErrors?.isNotEmpty == true
             ? response.graphqlErrors!.first.message
             : response.linkException?.toString() ?? 'Unknown error';
-        final message = response.graphqlErrors?.isNotEmpty == true
-            ? response.graphqlErrors!.first.message
-            : response.linkException?.toString() ?? 'Unknown error';
-        throw ServerException(message);
+        debugPrint('GraphQL Error in $operationName: $message');
+        throw ServerException('GraphQL error in $operationName: $message');
       }
 
       final data = response.data;

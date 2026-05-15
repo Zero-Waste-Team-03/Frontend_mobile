@@ -15,23 +15,39 @@ class NotificationActionHandler {
     print(notification);
     final meta = notification.meta ?? <String, dynamic>{};
     final action = (meta['action'] as String?)?.trim() ?? 'notification.open';
-    print("Handling notification action for notification id: ${notification.id}");
+    print(
+      "Handling notification action for notification id: ${notification.id}",
+    );
     print("Notification action: $action");
     print("Notification meta: $meta");
     switch (action) {
       case 'chat.open':
+        print(
+          'Handling chat.open action for notification id: ${notification.id}',
+        );
         // Prefer reservationId, else open chats list
-        final reservationId =
-            meta['reservationId'] as String? ??
-            meta['conversationId'] as String?;
-        if (reservationId != null && reservationId.isNotEmpty) {
-          context.push('/chat', extra: reservationId);
+        final reservationID = meta['reservationId'] as String?;
+        final conversationID = meta['conversationId'] as String?;
+        print('Navigating to chat with reservation ID: $reservationID');
+        print('Navigating to chat with conversation ID: $conversationID');
+        final id = reservationID ?? conversationID;
+        if (id != null && id.isNotEmpty) {
+          context.push(
+            '/chat',
+            extra: {
+              'reservationId': reservationID,
+              'conversationId': conversationID,
+            },
+          );
         } else {
           context.push('/chats');
         }
         return;
 
       case 'donation.open':
+        print(
+          'Handling donation.open action for notification id: ${notification.id}',
+        );
         final donationId = meta['donationId'] as String?;
         if (donationId != null && donationId.isNotEmpty) {
           try {
@@ -47,37 +63,56 @@ class NotificationActionHandler {
         break;
 
       case 'reservation.open':
+        print(
+          'Handling reservation.open action for notification id: ${notification.id}',
+        );
         final reservationId = meta['reservationId'] as String?;
         if (reservationId != null && reservationId.isNotEmpty) {
           context.push('/reservation-details', extra: reservationId);
           return;
         }
-        print('No reservationId found in notification meta for reservation.open action');
+        print(
+          'No reservationId found in notification meta for reservation.open action',
+        );
         break;
 
       case 'report.open':
+        print(
+          'Handling report.open action for notification id: ${notification.id}',
+        );
         final reportId = meta['reportId'] as String?;
         if (reportId != null && reportId.isNotEmpty) {
           context.push('/reports/$reportId');
           return;
         }
-        print('No reportId found in notification meta for report.open action'); 
+        print('No reportId found in notification meta for report.open action');
         break;
 
       case 'account.open':
+        print(
+          'Handling account.open action for notification id: ${notification.id}',
+        );
         context.push('/profile/settings');
         return;
 
       case 'achievement.open':
+        print(
+          'Handling achievement.open action for notification id: ${notification.id}',
+        );
         final achievementId = meta['achievementId'] as String?;
         if (achievementId != null && achievementId.isNotEmpty) {
           context.push('/profile/achievements/$achievementId');
           return;
         }
-        print('No achievementId found in notification meta for achievement.open action');
+        print(
+          'No achievementId found in notification meta for achievement.open action',
+        );
         break;
 
       case 'post.open':
+        print(
+          'Handling post.open action for notification id: ${notification.id}',
+        );
         final postId = meta['postId'] as String?;
         if (postId != null && postId.isNotEmpty) {
           context.push('/posts/$postId');
@@ -87,6 +122,9 @@ class NotificationActionHandler {
         break;
 
       case 'message.open':
+        print(
+          'Handling message.open action for notification id: ${notification.id}',
+        );
         // route to chats list or specific thread if supplied
         final threadId =
             meta['threadId'] as String? ?? meta['senderId'] as String?;

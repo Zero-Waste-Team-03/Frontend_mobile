@@ -123,7 +123,9 @@ class ReservationConfirmedDialog extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () {
                   onDismiss();
+                  print('View Pickup Details button pressed with reservation ID: $reservation_id');
                   if (reservation_id.isNotEmpty) {
+                    print('Navigating to reservation details with ID: $reservation_id');
                     context.push('/reservation-details', extra: reservation_id);
                   }
                 },

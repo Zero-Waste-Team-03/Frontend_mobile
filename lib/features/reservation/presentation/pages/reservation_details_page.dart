@@ -1,9 +1,14 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gaspzero/features/auth/data/models/user_model.dart';
 import 'package:go_router/go_router.dart';
+import 'package:maplibre_gl/maplibre_gl.dart';
+import '../../../../core/map/map_config.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../donations/domain/entities/donation.dart';
 import '../../domain/entities/reservation.dart';
 import '../bloc/reservation_bloc.dart';
 import '../bloc/reservation_event.dart';
@@ -155,90 +160,114 @@ class _ReservationDetailsPageState extends State<ReservationDetailsPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Location Card
-                      Container(
-                        padding: EdgeInsets.all(AppDimensions.paddingMedium.w),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(
-                            AppDimensions.borderRadiusMedium,
+                      if (reservation.donation != null)
+                        Container(
+                          padding: EdgeInsets.all(
+                            AppDimensions.paddingMedium.w,
                           ),
-                          border: Border.all(color: AuthColors.dividerColor),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Pickup Location',
-                              style: TextStyle(
-                                fontSize: AppDimensions.bodySize.sp,
-                                fontWeight: FontWeight.w600,
-                                color: AuthColors.labelText,
-                                fontFamily: AppFonts.primaryFont,
-                              ),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(
+                              AppDimensions.borderRadiusMedium,
                             ),
-                            SizedBox(height: AppDimensions.paddingMedium.h),
-                            Container(
-                              width: double.infinity,
-                              height: 150.h,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(
-                                  AppDimensions.borderRadiusMedium,
-                                ),
-                                color: AuthColors.lightGrayBackground,
-                              ),
-                              child: Center(
-                                child: Icon(
-                                  Icons.location_on_outlined,
-                                  size: 48.sp,
-                                  color: AuthColors.primary,
+                            border: Border.all(color: AuthColors.dividerColor),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Pickup Location',
+                                style: TextStyle(
+                                  fontSize: AppDimensions.bodySize.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: AuthColors.labelText,
+                                  fontFamily: AppFonts.primaryFont,
                                 ),
                               ),
-                            ),
-                            SizedBox(height: AppDimensions.paddingMedium.h),
-                            Text(
-                              'Green Grocer Central',
-                              style: TextStyle(
-                                fontSize: AppDimensions.bodySize.sp,
-                                fontWeight: FontWeight.w600,
-                                color: AuthColors.headingText,
-                                fontFamily: AppFonts.primaryFont,
+                              SizedBox(height: AppDimensions.paddingMedium.h),
+                              _LocationMapCard(donation: reservation.donation!),
+                              SizedBox(height: AppDimensions.paddingMedium.h),
+                              Text(
+                                reservation.donation!.title,
+                                style: TextStyle(
+                                  fontSize: AppDimensions.bodySize.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: AuthColors.headingText,
+                                  fontFamily: AppFonts.primaryFont,
+                                ),
                               ),
-                            ),
-                            SizedBox(height: 4.h),
-                            Text(
-                              '123 Eco Avenue, Sustainability District',
-                              style: TextStyle(
-                                fontSize: AppDimensions.captionSize.sp,
-                                color: AuthColors.subText,
-                                fontFamily: AppFonts.primaryFont,
-                              ),
-                            ),
-                            SizedBox(height: AppDimensions.paddingMedium.h),
-                            SizedBox(
-                              width: double.infinity,
-                              child: OutlinedButton.icon(
-                                onPressed: () {
-                                  // Navigate to maps
-                                },
-                                icon: Icon(Icons.navigation, size: 18.sp),
-                                label: Text(
-                                  'Get Directions',
+                              SizedBox(height: 4.h),
+                              if (reservation.donation!.latitude != null &&
+                                  reservation.donation!.longitude != null)
+                                Text(
+                                  'Lat ${reservation.donation!.latitude!.toStringAsFixed(3)}, Lng ${reservation.donation!.longitude!.toStringAsFixed(3)}',
                                   style: TextStyle(
-                                    fontSize: AppDimensions.bodySize.sp,
+                                    fontSize: AppDimensions.captionSize.sp,
+                                    color: AuthColors.subText,
+                                    fontFamily: AppFonts.primaryFont,
                                   ),
                                 ),
-                                style: OutlinedButton.styleFrom(
-                                  side: BorderSide(
-                                    color: AuthColors.primary,
-                                    width: 1.5,
+                              SizedBox(height: AppDimensions.paddingMedium.h),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: OutlinedButton.icon(
+                                      onPressed: () {
+                                        // Navigate to maps
+                                      },
+                                      icon: Icon(Icons.navigation, size: 18.sp),
+                                      label: Text(
+                                        'Get Directions',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontSize: AppDimensions.bodySize.sp,
+                                        ),
+                                      ),
+                                      style: OutlinedButton.styleFrom(
+                                        side: BorderSide(
+                                          color: AuthColors.primary,
+                                          width: 1.5,
+                                        ),
+                                        foregroundColor: AuthColors.primary,
+                                      ),
+                                    ),
                                   ),
-                                  foregroundColor: AuthColors.primary,
-                                ),
+                                  SizedBox(width: 12.w),
+                                  Expanded(
+                                    child: OutlinedButton.icon(
+                                      onPressed: () {
+                                        context.push(
+                                          '/donation-details',
+                                          extra: reservation.donation,
+                                        );
+                                      },
+                                      icon: Icon(
+                                        Icons.info_outline,
+                                        size: 18.sp,
+                                      ),
+                                      label: Text(
+                                        'View Donation',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontSize: AppDimensions.bodySize.sp,
+                                        ),
+                                      ),
+                                      style: OutlinedButton.styleFrom(
+                                        side: BorderSide(
+                                          color: AuthColors.primary,
+                                          width: 1.5,
+                                        ),
+                                        foregroundColor: AuthColors.primary,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
                       SizedBox(height: AppDimensions.paddingLarge.h),
 
                       // Timeline
@@ -319,6 +348,66 @@ class _ReservationDetailsPageState extends State<ReservationDetailsPage> {
               return const SizedBox.shrink();
             },
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LocationMapCard extends StatelessWidget {
+  final Donation donation;
+
+  const _LocationMapCard({required this.donation});
+
+  @override
+  Widget build(BuildContext context) {
+    final hasLocation = donation.latitude != null && donation.longitude != null;
+    final target = hasLocation
+        ? LatLng(donation.latitude!, donation.longitude!)
+        : MapConfig.defaultTarget;
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16.r),
+      child: SizedBox(
+        height: 120.h,
+        width: double.infinity,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            MapLibreMap(
+              styleString: MapConfig.styleUrl,
+              initialCameraPosition: MapConfig.cameraPosition(
+                target: target,
+                zoom: hasLocation ? 14 : MapConfig.defaultZoom,
+              ),
+              compassEnabled: false,
+              rotateGesturesEnabled: false,
+              scrollGesturesEnabled: false,
+              zoomGesturesEnabled: false,
+              tiltGesturesEnabled: false,
+              attributionButtonMargins: Point<double>(12.w, 12.h),
+            ),
+            Container(
+              width: 32.w,
+              height: 32.w,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.18),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Icon(
+                Icons.location_on,
+                color: AuthColors.primary,
+                size: 18.sp,
+              ),
+            ),
+          ],
         ),
       ),
     );
