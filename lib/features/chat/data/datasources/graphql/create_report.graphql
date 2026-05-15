@@ -1,0 +1,8 @@
+mutation CreateReport($input: CreateReportInput!) {
+  createReport(input: $input) {
+    id
+    reason
+    targetId
+    targetType
+  }
+}

@@ -140,19 +140,20 @@ class _AddDonationPageState extends State<AddDonationPage> {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: Icon(AppIcons.back, color: AuthColors.headingText, size: 24.sp),
+          icon: Icon(AppIcons.back, color: AuthColors.primary, size: AppDimensions.iconSize.sp),
           onPressed: _prevStep,
         ),
         title: Text(
           'Add Donation',
           style: GoogleFonts.inter(
-            fontSize: 18.sp,
+            fontSize: AppDimensions.appBarTitleSize.sp,
             fontWeight: FontWeight.w700,
-            color: AuthColors.headingText,
+            color: AuthColors.primary,
             letterSpacing: -0.5,
           ),
+          textAlign: TextAlign.start,
         ),
-        centerTitle: true,
+        
       ),
       body: Column(
         children: [
@@ -422,6 +423,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
                                 ? AuthColors.primary
                                 : const Color(0xFF334155),
                           ),
+                          textAlign: TextAlign.center,
                         ),
                       ],
                     ),

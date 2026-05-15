@@ -13,6 +13,7 @@ import '../../presentation/bloc/notification_bloc.dart';
 import '../../presentation/bloc/notification_event.dart';
 import '../../presentation/bloc/notification_state.dart';
 import '../widgets/notification_card.dart';
+import '../notification_action_handler.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({Key? key}) : super(key: key);
@@ -544,8 +545,15 @@ class _NotificationsPageState extends State<NotificationsPage> {
         final notification = notifications[notifIndex];
         return NotificationCard(
           notification: notification,
-          onTap: () {
-            context.push('/notification-details', extra: notification);
+          onTap: () async {
+            // mark read handled by NotificationCard caller
+            // handle smart action routing
+            try {
+              await NotificationActionHandler.handle(context, notification);
+            } catch (_) {
+              // fallback to notification details
+              context.push('/notification-details', extra: notification);
+            }
           },
           onMarkAsRead: () {
             _notificationBloc!.add(

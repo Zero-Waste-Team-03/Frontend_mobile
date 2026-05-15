@@ -1,18 +1,14 @@
+import 'dart:math';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:gaspzero/core/di/injection.dart';
+import 'package:maplibre_gl/maplibre_gl.dart';
+
+import '../../../../core/map/map_config.dart';
 import '../../../../shared/theme/app_colors.dart';
-import '../../../../shared/widgets/notification_button.dart';
 import '../../../donations/domain/entities/donation.dart';
-import '../widgets/status_badge.dart';
-import '../widgets/reservation_confirmed_dialog.dart';
-import '../widgets/api_error_dialog.dart';
-import '../bloc/reservation_bloc.dart';
-import '../bloc/reservation_event.dart';
-import '../bloc/reservation_state.dart';
-import 'dart:convert';
 
 class DonationDetailsFullPage extends StatefulWidget {
   final Donation donation;
@@ -25,399 +21,368 @@ class DonationDetailsFullPage extends StatefulWidget {
 }
 
 class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
-  final TextEditingController _reserveQuantityController =
-      TextEditingController(text: '1');
-  String? _reserveQuantityError;
-
-  @override
-  void dispose() {
-    _reserveQuantityController.dispose();
-    super.dispose();
-  }
-
-  int? _validateReserveQuantity() {
-    final raw = _reserveQuantityController.text.trim();
-    final parsed = int.tryParse(raw);
-
-    if (parsed == null) {
-      setState(() {
-        _reserveQuantityError = 'Enter a valid quantity';
-      });
-      return null;
-    }
-
-    if (parsed <= 0) {
-      setState(() {
-        _reserveQuantityError = 'Please enter a valid quantity';
-      });
-      return null;
-    }
-
-    if (parsed > widget.donation.quantity) {
-      setState(() {
-        _reserveQuantityError =
-            'Only ${widget.donation.quantity} units available';
-      });
-      return null;
-    }
-
-    setState(() {
-      _reserveQuantityError = null;
-    });
-    return parsed;
-  }
+  Offset _chatPos = const Offset(300, 500);
+  final GlobalKey _stackKey = GlobalKey();
+  static const double _chatButtonSize = 56;
+  static const double _chatTopLimit = 116;
+  static const double _chatBottomLimit = 118;
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<ReservationBloc>(),
-      child: BlocListener<ReservationBloc, ReservationState>(
-        listener: (context, state) {
-          if (state is ReservationCreated) {
-            showReservationConfirmedDialog(
-              context,
-              onDismiss: () {
-                Navigator.of(context).pop();
-              },
-              donationTitle: widget.donation.title,
-              expiryAt: state.reservation.expiresAt != null
-                  ? state.reservation.expiresAt!.toLocal().toString().split(
-                      '.',
-                    )[0]
-                  : null,
-            );
-          } else if (state is ReservationCreationError) {
-            _showErrorDialog(context, state.message);
-          }
-        },
-        child: Scaffold(
-          backgroundColor: AuthColors.background,
-          appBar: AppBar(
-            backgroundColor: Colors.white,
-            elevation: 0,
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back, color: AuthColors.headingText),
-              onPressed: () => context.pop(),
-            ),
-            actions: [
-              Padding(
-                padding: EdgeInsets.only(right: AppDimensions.paddingMedium.w),
-                child: NotificationButton(
-                  backgroundColor: AuthColors.lightGrayBackground,
-                  iconColor: AuthColors.primary,
-                  iconSize: AppDimensions.iconSize.sp,
+    if (_chatPos == const Offset(300, 500)) {
+      final size = MediaQuery.sizeOf(context);
+      _chatPos = _clampChatPosition(
+        Offset(size.width - 72.w, size.height - 180.h),
+        size,
+      );
+    }
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FA),
+      body: Stack(
+        key: _stackKey,
+        children: [
+          CustomScrollView(
+            paintOrder: SliverPaintOrder.lastIsTop,
+            slivers: [
+              _buildSliverAppBar(),
+              SliverToBoxAdapter(
+                child: Container(
+                  clipBehavior: Clip.antiAlias,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(24.r),
+                    ),
+                  ),
+                  transform: Matrix4.translationValues(0, -32.h, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildMainInfoCard(),
+                      _buildKeyMetricsRow(),
+                      _buildDescriptionSection(),
+                      _buildPostedBySection(),
+                      _buildPickupLocationSection(),
+                      SizedBox(height: 32.h),
+                    ],
+                  ),
                 ),
               ),
             ],
           ),
-          body: SafeArea(
-            child: SingleChildScrollView(
+          Positioned(
+            left: _chatPos.dx,
+            top: _chatPos.dy,
+            child: Draggable(
+              feedback: _buildChatButtonUI(isDragging: true),
+              childWhenDragging: const SizedBox.shrink(),
+              onDragEnd: (details) {
+                setState(() {
+                  double dx = details.offset.dx;
+                  double dy = details.offset.dy;
+                  final screenSize = MediaQuery.sizeOf(context);
+                  if (dx < 0) dx = 0;
+                  if (dx > screenSize.width - 64) {
+                    dx = screenSize.width - 64;
+                  }
+                  if (dy < kToolbarHeight) dy = kToolbarHeight;
+                  if (dy > screenSize.height - 100) {
+                    dy = screenSize.height - 100;
+                  }
+                  _chatPos = Offset(dx, dy);
+                });
+              },
+              child: _buildChatButtonUI(isDragging: false),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSliverAppBar() {
+    return SliverAppBar(
+      expandedHeight: 300.h,
+      pinned: true,
+      backgroundColor: AuthColors.primary,
+      automaticallyImplyLeading: false,
+      flexibleSpace: FlexibleSpaceBar(
+        background: Stack(
+          fit: StackFit.expand,
+          children: [
+            Hero(
+              tag: 'donation_img_${widget.donation.id}',
+              child: CachedNetworkImage(
+                imageUrl: widget.donation.imageUrl,
+                fit: BoxFit.cover,
+                placeholder: (context, url) =>
+                    Container(color: Colors.grey[200]),
+                errorWidget: (context, url, error) => Container(
+                  color: Colors.grey[200],
+                  child: const Icon(Icons.error, color: Colors.grey),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      leading: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: GestureDetector(
+          onTap: () => context.pop(),
+          child: Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFF131615).withValues(alpha: 0.4),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.arrow_back, color: Colors.white),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMainInfoCard() {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            widget.donation.title,
+            style: TextStyle(
+              fontSize: 24.sp,
+              fontWeight: FontWeight.w800,
+              color: const Color(0xFF131615),
+              height: 1.2,
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Row(
+            children: [
+              Icon(
+                Icons.location_on_outlined,
+                size: 16.sp,
+                color: const Color(0xFF64748B),
+              ),
+              SizedBox(width: 4.w),
+              Text(
+                widget.donation.latitude != null &&
+                        widget.donation.longitude != null
+                    ? '${widget.donation.latitude!.toStringAsFixed(4)}, ${widget.donation.longitude!.toStringAsFixed(4)}'
+                    : 'Location unavailable',
+                style: TextStyle(
+                  fontSize: 13.sp,
+                  color: const Color(0xFF64748B),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildKeyMetricsRow() {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 0),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF0FDF4),
+                borderRadius: BorderRadius.circular(16.r),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Hero Image
-                  Container(
-                    width: double.infinity,
-                    height: 250.h,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: NetworkImage(widget.donation.imageUrl),
-                        fit: BoxFit.cover,
-                        onError: (_, __) {},
-                      ),
+                  Text(
+                    'Quantity',
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: const Color(0xFF15803D),
+                      fontWeight: FontWeight.w500,
                     ),
-                    child: widget.donation.imageUrl.isEmpty
-                        ? Container(
-                            color: AuthColors.lightGrayBackground,
-                            child: Icon(
-                              Icons.image_not_supported,
-                              color: AuthColors.inputText,
-                              size: 48.sp,
-                            ),
-                          )
-                        : null,
                   ),
-
-                  // Content
-                  Container(
-                    padding: EdgeInsets.all(AppDimensions.paddingLarge.w),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Title and Status
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                widget.donation.title,
-                                style: TextStyle(
-                                  fontSize: AppDimensions.titleSize.sp,
-                                  fontWeight: FontWeight.bold,
-                                  color: AuthColors.headingText,
-                                  fontFamily: AppFonts.primaryFont,
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: AppDimensions.paddingMedium.w),
-                            StatusBadge(
-                              status: widget.donation.status,
-                              label: _getStatusLabel(widget.donation.status),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: AppDimensions.paddingLarge.h),
-
-                        // Donation Details
-                        _DetailRow(
-                          icon: Icons.category,
-                          label: 'Category',
-                          value: widget.donation.category?.name ?? 'N/A',
-                        ),
-                        SizedBox(height: AppDimensions.paddingMedium.h),
-
-                        _DetailRow(
-                          icon: Icons.shopping_bag,
-                          label: 'Quantity',
-                          value: '${widget.donation.quantity} items',
-                        ),
-                        SizedBox(height: AppDimensions.paddingMedium.h),
-
-                        _DetailRow(
-                          icon: Icons.info_outline,
-                          label: 'Condition',
-                          value: widget.donation.condition,
-                        ),
-                        SizedBox(height: AppDimensions.paddingLarge.h),
-
-                        // Description
-                        Text(
-                          'Description',
-                          style: TextStyle(
-                            fontSize: AppDimensions.subtitleSize.sp,
-                            fontWeight: FontWeight.bold,
-                            color: AuthColors.headingText,
-                            fontFamily: AppFonts.primaryFont,
-                          ),
-                        ),
-                        SizedBox(height: AppDimensions.paddingMedium.h),
-
-                        Text(
-                          widget.donation.description,
-                          style: TextStyle(
-                            fontSize: AppDimensions.bodySize.sp,
-                            color: AuthColors.subText,
-                            fontFamily: AppFonts.primaryFont,
-                            height: 1.6,
-                          ),
-                        ),
-                        SizedBox(height: AppDimensions.paddingLarge.h),
-
-                        // Donor Info
-                        Text(
-                          'Donor',
-                          style: TextStyle(
-                            fontSize: AppDimensions.subtitleSize.sp,
-                            fontWeight: FontWeight.bold,
-                            color: AuthColors.headingText,
-                            fontFamily: AppFonts.primaryFont,
-                          ),
-                        ),
-                        SizedBox(height: AppDimensions.paddingMedium.h),
-
-                        Container(
-                          padding: EdgeInsets.all(
-                            AppDimensions.paddingMedium.w,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(
-                              AppDimensions.borderRadiusMedium,
-                            ),
-                            border: Border.all(color: AuthColors.dividerColor),
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 48.w,
-                                height: 48.w,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: AuthColors.lightGrayBackground,
-                                ),
-                                child: Icon(
-                                  Icons.person,
-                                  color: AuthColors.inputText,
-                                ),
-                              ),
-                              SizedBox(width: AppDimensions.paddingMedium.w),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      widget.donation.author,
-                                      style: TextStyle(
-                                        fontSize: AppDimensions.bodySize.sp,
-                                        fontWeight: FontWeight.w600,
-                                        color: AuthColors.headingText,
-                                        fontFamily: AppFonts.primaryFont,
-                                      ),
-                                    ),
-                                    SizedBox(height: 4.h),
-                                    Text(
-                                      'Verified Donor',
-                                      style: TextStyle(
-                                        fontSize: AppDimensions.captionSize.sp,
-                                        color: AuthColors.subText,
-                                        fontFamily: AppFonts.primaryFont,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: AppDimensions.paddingLarge.h),
-
-                        Text(
-                          'Reserve Quantity',
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w600,
-                            color: AuthColors.labelText,
-                            fontFamily: AppFonts.primaryFont,
-                          ),
-                        ),
-                        SizedBox(height: 8.h),
-                        TextField(
-                          controller: _reserveQuantityController,
-                          keyboardType: const TextInputType.numberWithOptions(
-                            decimal: false,
-                            signed: false,
-                          ),
-                          onChanged: (_) {
-                            if (_reserveQuantityError != null) {
-                              _validateReserveQuantity();
-                            }
-                          },
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            color: AuthColors.headingText,
-                            fontFamily: AppFonts.primaryFont,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: 'Quantity',
-                            errorText: _reserveQuantityError,
-                            filled: true,
-                            fillColor: const Color(0xFFF8FAFC),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 16.w,
-                              vertical: 14.h,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.r),
-                              borderSide: const BorderSide(
-                                color: Color(0xFFE2E8F0),
-                              ),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.r),
-                              borderSide: const BorderSide(
-                                color: Color(0xFFE2E8F0),
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.r),
-                              borderSide: BorderSide(
-                                color: AuthColors.primary,
-                                width: 1.5,
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 8.h),
-                        Text(
-                          'Available quantity: ${widget.donation.quantity} items',
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            color: const Color(0xFF64748B),
-                            fontFamily: AppFonts.primaryFont,
-                          ),
-                        ),
-                        SizedBox(height: AppDimensions.paddingLarge.h),
-
-                        // Action Button
-                        if (widget.donation.status == 'PUBLISHED')
-                          SizedBox(
-                            width: double.infinity,
-                            child: BlocBuilder<ReservationBloc, ReservationState>(
-                              builder: (context, state) {
-                                final isReserving =
-                                    state is ReservationCreating;
-                                return ElevatedButton(
-                                  onPressed:
-                                      isReserving ||
-                                          widget.donation.quantity <= 0
-                                      ? null
-                                      : () {
-                                          final quantity =
-                                              _validateReserveQuantity();
-                                          if (quantity == null) {
-                                            return;
-                                          }
-                                          context.read<ReservationBloc>().add(
-                                            CreateReservationEvent(
-                                              donationId: widget.donation.id,
-                                              quantity: quantity,
-                                            ),
-                                          );
-                                        },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AuthColors.primary,
-                                    padding: EdgeInsets.symmetric(
-                                      vertical: AppDimensions.paddingMedium.h,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                        AppDimensions.borderRadiusLarge,
-                                      ),
-                                    ),
-                                  ),
-                                  child: isReserving
-                                      ? SizedBox(
-                                          height: 20.h,
-                                          width: 20.w,
-                                          child:
-                                              const CircularProgressIndicator(
-                                                valueColor:
-                                                    AlwaysStoppedAnimation<
-                                                      Color
-                                                    >(Colors.white),
-                                                strokeWidth: 2,
-                                              ),
-                                        )
-                                      : Text(
-                                          'Reserve Now',
-                                          style: TextStyle(
-                                            fontSize:
-                                                AppDimensions.buttonTextSize.sp,
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.white,
-                                            fontFamily: AppFonts.primaryFont,
-                                          ),
-                                        ),
-                                );
-                              },
-                            ),
-                          ),
-                      ],
+                  SizedBox(height: 4.h),
+                  Text(
+                    '${widget.donation.quantity} units',
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      color: const Color(0xFF15803D),
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ],
               ),
+            ),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Container(
+              padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF7ED),
+                borderRadius: BorderRadius.circular(16.r),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.access_time_rounded,
+                        size: 14.sp,
+                        color: const Color(0xFFEA580C),
+                      ),
+                      SizedBox(width: 4.w),
+                      Text(
+                        'Status',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: const Color(0xFFEA580C),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 4.h),
+                  Text(
+                    widget.donation.status,
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      color: const Color(0xFFEA580C),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDescriptionSection() {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20.w, 24.h, 20.w, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Description',
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF131615),
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            widget.donation.description.isEmpty
+                ? 'No additional description provided.'
+                : widget.donation.description,
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: const Color(0xFF4A5550),
+              height: 1.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPostedBySection() {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20.w, 24.h, 20.w, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Posted By',
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF131615),
+            ),
+          ),
+          SizedBox(height: 12.h),
+          _OwnerCard(donation: widget.donation),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPickupLocationSection() {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20.w, 24.h, 20.w, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Pickup Location',
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF131615),
+                ),
+              ),
+              Text(
+                widget.donation.latitude != null &&
+                        widget.donation.longitude != null
+                    ? 'Lat ${widget.donation.latitude!.toStringAsFixed(3)}, Lng ${widget.donation.longitude!.toStringAsFixed(3)}'
+                    : 'Coordinates unavailable',
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  color: const Color(0xFF64748B),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 12.h),
+          _LocationMapCard(donation: widget.donation),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildChatButtonUI({required bool isDragging}) {
+    return GestureDetector(
+      onTap: () {
+        context.push('/chats');
+      },
+      child: Material(
+        color: Colors.transparent,
+        elevation: isDragging ? 10 : 6,
+        shape: const CircleBorder(),
+        child: Container(
+          width: 56.w,
+          height: 56.w,
+          decoration: BoxDecoration(
+            color: AuthColors.primary,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: AuthColors.primary.withValues(alpha: 0.3),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Center(
+            child: Icon(
+              Icons.chat_bubble_rounded,
+              color: Colors.white,
+              size: 26.sp,
             ),
           ),
         ),
@@ -425,108 +390,139 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
     );
   }
 
-  void _showErrorDialog(BuildContext context, String errorMessage) {
-    // Try to parse error message if it's a JSON error response
-    String displayMessage = errorMessage;
-    String? statusCode;
-    String? timestamp;
-
-    try {
-      // Check if error message contains JSON
-      if (errorMessage.contains('{') && errorMessage.contains('}')) {
-        final jsonStr = errorMessage.substring(
-          errorMessage.indexOf('{'),
-          errorMessage.lastIndexOf('}') + 1,
-        );
-        final jsonData = jsonDecode(jsonStr);
-
-        displayMessage = jsonData['message'] ?? errorMessage;
-        statusCode = jsonData['statusCode']?.toString() ?? 'Unknown';
-        timestamp = jsonData['timestamp'];
-      }
-    } catch (e) {
-      // If parsing fails, use the original message
-      displayMessage = errorMessage;
-    }
-
-    showApiErrorDialog(
-      context,
-      message: displayMessage,
-      statusCode: statusCode,
-      timestamp: timestamp,
-      onRetry: () {
-        final quantity = _validateReserveQuantity();
-        if (quantity == null) {
-          return;
-        }
-        context.read<ReservationBloc>().add(
-          CreateReservationEvent(
-            donationId: widget.donation.id,
-            quantity: quantity,
-          ),
-        );
-      },
-    );
-  }
-
-  String _getStatusLabel(String status) {
-    switch (status.toUpperCase()) {
-      case 'ACTIVE':
-      case 'PUBLISHED':
-        return 'ACTIVE';
-      case 'RESERVED':
-        return 'RESERVED';
-      case 'COMPLETED':
-        return 'COMPLETED';
-      case 'EXPIRED':
-      case 'DRAFT':
-        return 'EXPIRED';
-      default:
-        return status;
-    }
+  Offset _clampChatPosition(Offset raw, Size size) {
+    final maxX = size.width - _chatButtonSize;
+    final maxY = size.height - _chatBottomLimit;
+    final dx = raw.dx.clamp(0.0, maxX);
+    final dy = raw.dy.clamp(_chatTopLimit, maxY);
+    return Offset(dx, dy);
   }
 }
 
-class _DetailRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
+class _OwnerCard extends StatelessWidget {
+  final Donation donation;
 
-  const _DetailRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-  });
+  const _OwnerCard({required this.donation});
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, color: AuthColors.primary, size: AppDimensions.iconSize.sp),
-        SizedBox(width: AppDimensions.paddingMedium.w),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: AppDimensions.captionSize.sp,
-                color: AuthColors.labelText,
-                fontFamily: AppFonts.primaryFont,
-              ),
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(14.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Row(
+        children: [
+          donation.authorDetails != null &&
+                  donation.authorDetails!.avatarUrl != null &&
+                  donation.authorDetails!.avatarUrl!.isNotEmpty
+              ? CircleAvatar(
+                  radius: 20.r,
+                  backgroundColor: AuthColors.primary.withValues(alpha: 0.15),
+                  backgroundImage: NetworkImage(
+                    donation.authorDetails!.avatarUrl!,
+                  ),
+                )
+              : CircleAvatar(
+                  radius: 20.r,
+                  backgroundColor: AuthColors.primary.withValues(alpha: 0.15),
+                  child: Icon(
+                    Icons.person_rounded,
+                    color: AuthColors.primary,
+                    size: 20.sp,
+                  ),
+                ),
+          SizedBox(width: 10.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  donation.author,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF131615),
+                  ),
+                ),
+                SizedBox(height: 2.h),
+                Text(
+                  'Posted on ${donation.createdAt.toString().split(' ')[0]}',
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    color: const Color(0xFF64748B),
+                  ),
+                ),
+              ],
             ),
-            SizedBox(height: 2.h),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: AppDimensions.bodySize.sp,
-                color: AuthColors.subText,
-                fontFamily: AppFonts.primaryFont,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LocationMapCard extends StatelessWidget {
+  final Donation donation;
+
+  const _LocationMapCard({required this.donation});
+
+  @override
+  Widget build(BuildContext context) {
+    final hasLocation = donation.latitude != null && donation.longitude != null;
+    final target = hasLocation
+        ? LatLng(donation.latitude!, donation.longitude!)
+        : MapConfig.defaultTarget;
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16.r),
+      child: SizedBox(
+        height: 120.h,
+        width: double.infinity,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            MapLibreMap(
+              styleString: MapConfig.styleUrl,
+              initialCameraPosition: MapConfig.cameraPosition(
+                target: target,
+                zoom: hasLocation ? 14 : MapConfig.defaultZoom,
+              ),
+              compassEnabled: false,
+              rotateGesturesEnabled: false,
+              scrollGesturesEnabled: false,
+              zoomGesturesEnabled: false,
+              tiltGesturesEnabled: false,
+              attributionButtonMargins: Point<double>(12.w, 12.h),
+            ),
+            Container(
+              width: 32.w,
+              height: 32.w,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.18),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Icon(
+                Icons.location_on,
+                color: AuthColors.primary,
+                size: 18.sp,
               ),
             ),
           ],
         ),
-      ],
+      ),
     );
   }
 }

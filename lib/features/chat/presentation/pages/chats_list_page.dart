@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ferry/ferry.dart';
 import 'package:gaspzero/core/di/injection.dart';
 import 'package:gaspzero/shared/theme/app_colors.dart';
+import '../../../reservation/data/datasources/graphql/__generated__/my_reservation.req.gql.dart';
 import '../../domain/repositories/chat_repository.dart';
 import '../../domain/entities/conversation.dart';
 
@@ -15,6 +17,7 @@ class ChatsListPage extends StatefulWidget {
 
 class _ChatsListPageState extends State<ChatsListPage> {
   final ChatRepository _chatRepository = getIt<ChatRepository>();
+  final Client _ferryClient = getIt<Client>();
   List<ConversationEntity>? _conversations;
   String? _error;
 
@@ -26,12 +29,44 @@ class _ChatsListPageState extends State<ChatsListPage> {
 
   Future<void> _loadConversations() async {
     final result = await _chatRepository.getMyActiveConversations();
-    setState(() {
-      result.fold(
-        (failure) => _error = failure.message,
-        (conversations) => _conversations = conversations,
-      );
-    });
+    
+    result.fold(
+      (failure) => setState(() => _error = failure.message),
+      (conversations) async {
+        // Enriched conversations list
+        final List<ConversationEntity> enriched = [];
+        
+        for (var conv in conversations) {
+          try {
+            final reservationReq = GMyReservationReq(
+              (b) => b
+                ..vars.id = conv.reservationId
+                ..fetchPolicy = FetchPolicy.CacheFirst,
+            );
+            
+            final res = await _ferryClient.request(reservationReq).first;
+            final reservationData = res.data?.myReservation;
+            
+            if (reservationData != null) {
+              enriched.add(conv.copyWith(
+                donationTitle: reservationData.donation?.title,
+                donationImageUrl: reservationData.donation?.mainAttachment?.url,
+              ));
+            } else {
+              enriched.add(conv);
+            }
+          } catch (_) {
+            enriched.add(conv);
+          }
+        }
+        
+        if (mounted) {
+          setState(() {
+            _conversations = enriched;
+          });
+        }
+      },
+    );
   }
 
   @override
@@ -129,30 +164,73 @@ class _ChatsListPageState extends State<ChatsListPage> {
             height: 48.w,
             decoration: BoxDecoration(
               color: AuthColors.primary.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-              image: conversation.counterpartAvatarUrl != null
+              borderRadius: BorderRadius.circular(10.r),
+              image: conversation.donationImageUrl != null
                   ? DecorationImage(
-                      image: NetworkImage(conversation.counterpartAvatarUrl!),
+                      image: NetworkImage(conversation.donationImageUrl!),
                       fit: BoxFit.cover,
                     )
-                  : null,
+                  : conversation.counterpartAvatarUrl != null
+                      ? DecorationImage(
+                          image: NetworkImage(conversation.counterpartAvatarUrl!),
+                          fit: BoxFit.cover,
+                        )
+                      : null,
             ),
-            child: conversation.counterpartAvatarUrl == null
-                ? Icon(Icons.person, color: AuthColors.primary, size: 24.sp)
-                : null,
+            child: (conversation.donationImageUrl == null && conversation.counterpartAvatarUrl == null)
+                ? Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Icon(Icons.shopping_basket_outlined, color: AuthColors.primary, size: 24.sp),
+                      if (conversation.isOnline)
+                        Positioned(
+                          right: 0,
+                          bottom: 0,
+                          child: Container(
+                            width: 12.r,
+                            height: 12.r,
+                            decoration: BoxDecoration(
+                              color: Colors.green,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2.w),
+                            ),
+                          ),
+                        ),
+                    ],
+                  )
+                : (conversation.isOnline
+                    ? Stack(
+                        children: [
+                          Positioned(
+                            right: 0,
+                            bottom: 0,
+                            child: Container(
+                              width: 12.r,
+                              height: 12.r,
+                              decoration: BoxDecoration(
+                                color: Colors.green,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.white, width: 2.w),
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    : null),
           ),
           title: Text(
-            conversation.counterpartName ?? 'Reservation Chat',
+            conversation.counterpartName ?? 'User',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.sp),
-          ),
-
-          subtitle: Text(
-            conversation.lastMessage ?? 'No messages yet',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(color: AuthColors.subText, fontSize: 14.sp),
           ),
-          trailing: Icon(Icons.chevron_right, color: AuthColors.inputText),
+          subtitle: Text(
+            conversation.donationTitle ?? conversation.lastMessage ?? 'No messages yet',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(color: AuthColors.subText, fontSize: 13.sp),
+          ),
+          trailing: Icon(Icons.chevron_right, color: AuthColors.inputText, size: 20.sp),
           onTap: () {
             context.push('/chat', extra: conversation.reservationId);
           },

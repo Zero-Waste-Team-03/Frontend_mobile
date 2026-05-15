@@ -27,8 +27,13 @@ query GetDonations(
         longitude
       }
       user {
+        id
         displayName
         email
+        avatar {
+          id
+          url
+        }
       }
     }
   }

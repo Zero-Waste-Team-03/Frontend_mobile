@@ -64,7 +64,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
         backgroundColor: AuthColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AuthColors.headingText),
+          icon: Icon(Icons.arrow_back, color: AuthColors.primary),
           onPressed: () => context.pop(),
         ),
         title: Text(
@@ -72,7 +72,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
           style: TextStyle(
             fontSize: AppDimensions.appBarTitleSize.sp,
             fontWeight: FontWeight.bold,
-            color: AuthColors.headingText,
+            color: AuthColors.primary,
             fontFamily: AppFonts.primaryFont,
           ),
         ),

@@ -33,15 +33,13 @@ class ReservationTimeline extends StatelessWidget {
         // Timeline Items
         _TimelineItem(
           title: 'Reserved',
-          status: TimelineStatus.completed,
+          checked: true,
           time: _formatTime(reservation.createdAt),
           isLast: false,
         ),
         _TimelineItem(
           title: 'Confirmed',
-          status: isConfirmed
-              ? TimelineStatus.completed
-              : TimelineStatus.pending,
+          checked: isConfirmed || isPickedUp,
           time: isConfirmed
               ? _formatTime(reservation.confirmedAt ?? DateTime.now())
               : 'Waiting for your arrival',
@@ -49,9 +47,7 @@ class ReservationTimeline extends StatelessWidget {
         ),
         _TimelineItem(
           title: 'Picked up',
-          status: isPickedUp
-              ? TimelineStatus.completed
-              : TimelineStatus.pending,
+          checked: isPickedUp,
           time: isPickedUp
               ? _formatTime(reservation.pickedUpAt ?? DateTime.now())
               : 'Step pending',
@@ -71,20 +67,19 @@ enum TimelineStatus { pending, completed }
 
 class _TimelineItem extends StatelessWidget {
   final String title;
-  final TimelineStatus status;
+  final bool checked;
   final String time;
   final bool isLast;
 
   const _TimelineItem({
     required this.title,
-    required this.status,
+    required this.checked,
     required this.time,
     required this.isLast,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isCompleted = status == TimelineStatus.completed;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,17 +92,17 @@ class _TimelineItem extends StatelessWidget {
               height: 28.w,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: isCompleted
+                color: checked
                     ? AuthColors.primary
                     : AuthColors.dividerColor,
                 border: Border.all(
-                  color: isCompleted
+                  color: checked
                       ? AuthColors.primary
                       : AuthColors.dividerColor,
                   width: 2,
                 ),
               ),
-              child: isCompleted
+              child: checked
                   ? Icon(Icons.check, color: Colors.white, size: 16.sp)
                   : null,
             ),

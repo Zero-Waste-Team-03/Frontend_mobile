@@ -1,7 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:ferry/ferry.dart' hide ServerException;
 import 'package:gaspzero/core/exceptions/app_exceptions.dart';
 import 'package:injectable/injectable.dart';
+import 'package:gaspzero/features/auth/data/sources/auth_local_data_source.dart';
 import 'chat_socket_service.dart';
 
 import '../../../../core/graphql/graphql_request_executor.dart';
@@ -15,8 +15,11 @@ import '../datasources/graphql/__generated__/send_message.req.gql.dart';
 import '../datasources/graphql/__generated__/send_message.var.gql.dart';
 import '../datasources/graphql/__generated__/conversation_messages.var.gql.dart';
 import '../datasources/graphql/__generated__/my_active_conversations.req.gql.dart';
+import '../datasources/graphql/__generated__/create_report.req.gql.dart';
+import '../../../../core/graphql/__generated__/schema.schema.gql.dart';
 
 abstract class ChatRemoteDataSource {
+  AuthLocalDataSource get authLocalDataSource;
   Future<List<ConversationEntity>> getMyActiveConversations();
   Future<ConversationEntity> getConversation(String conversationId);
   Future<ConversationEntity> getOrCreateConversation({
@@ -30,6 +33,11 @@ abstract class ChatRemoteDataSource {
   );
   Future<ChatMessageEntity> sendMessage(String conversationId, String content);
   Future<ConversationEntity> markTransactionCompleted(String conversationId);
+  Future<void> reportUser({
+    required String userId,
+    required String reason,
+    String? description,
+  });
 
   Future<void> initSocket();
   void disposeSocket();
@@ -53,6 +61,10 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     this._socketService,
     this._graphqlRequestExecutor,
   );
+
+  @override
+  AuthLocalDataSource get authLocalDataSource =>
+      _socketService.authLocalDataSource;
 
   @override
   Future<void> initSocket() => _socketService.initSocket();
@@ -162,7 +174,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
     final req = GGetOrCreateConversationReq(
       (b) => b
-        ..vars.reservationId = reservationId
+        ..vars.conversationId = conversationId
         ..fetchPolicy = FetchPolicy.NetworkOnly,
     );
     final response = await _graphqlRequestExecutor.execute(
@@ -179,6 +191,11 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       status: data.status.name,
       createdAt: _safeParseDate(data.createdAt.value),
       lastMessage: data.lastMessage,
+      // Note: donation info and counterpart are currently not in this specific mutation
+      // due to schema-generator limitations, they will be updated via myActiveConversations
+      // or subsequent events.
+      // due to schema-generator limitations, they will be updated via myActiveConversations
+      // or subsequent events.
     );
 
     // Proactively join the socket room after getting the conversation ID
@@ -231,7 +248,6 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     debugPrint('DataSouce.sendMessage called for $conversationId');
     try {
       // 1. Attempt via Socket first
-      debugPrint('Attempting socket sendMessage...');
       final data = await _socketService.sendMessage(conversationId, content);
       debugPrint('Socket sendMessage success: $data');
 
@@ -259,7 +275,6 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         final response = await _executeRequest(req, 'sendMessage');
         final data = response.sendMessage;
 
-        debugPrint('GraphQL sendMessage success');
         return ChatMessageEntity(
           id: data.id,
           content: data.content,
@@ -295,6 +310,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
             lastMessage: e.lastMessage,
             counterpartName: e.counterpart.displayName,
             counterpartAvatarUrl: e.counterpart.avatarUrl,
+            // counterpartId: e.counterpart.id, // Skip if not in schema
             // donationTitle and donationImageUrl are no longer available in the schema for this query
           ),
         )
@@ -334,6 +350,22 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       lastMessage: data.lastMessage,
     );
   }
+  @override
+  Future<void> reportUser({
+    required String userId,
+    required String reason,
+    String? description,
+  }) async {
+    final req = GCreateReportReq(
+      (b) => b
+        ..vars.input.targetId = userId
+        ..vars.input.targetType = GReportTargetType.USER
+        ..vars.input.reason = reason
+        ..vars.input.description = description,
+    );
+
+    await _executeRequest(req, 'createReport');
+  }
 
   Future<TData> _executeRequest<TData, TVars>(
     OperationRequest<TData, TVars> request,
@@ -352,11 +384,15 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         if (event.dataSource == DataSource.Optimistic) return false;
         // Also skip cache if it's empty to force network fetch in some scenarios
         if (event.dataSource == DataSource.Cache && event.data == null)
+         
           return false;
         return true;
       });
 
       if (response.hasErrors || response.linkException != null) {
+        final message = response.graphqlErrors?.isNotEmpty == true
+            ? response.graphqlErrors!.first.message
+            : response.linkException?.toString() ?? 'Unknown error';
         final message = response.graphqlErrors?.isNotEmpty == true
             ? response.graphqlErrors!.first.message
             : response.linkException?.toString() ?? 'Unknown error';

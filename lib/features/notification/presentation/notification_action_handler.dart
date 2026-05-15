@@ -15,19 +15,17 @@ class NotificationActionHandler {
     print(notification);
     final meta = notification.meta ?? <String, dynamic>{};
     final action = (meta['action'] as String?)?.trim() ?? 'notification.open';
-    print(
-      "Handling notification action for notification id: ${notification.id}",
-    );
+    print("Handling notification action for notification id: ${notification.id}");
     print("Notification action: $action");
     print("Notification meta: $meta");
     switch (action) {
       case 'chat.open':
-        final reservationId = meta['reservationId'] as String?;
-        final conversationId = meta['conversationId'] as String?;
-        if (conversationId != null && conversationId.isNotEmpty) {
-          context.push('/chat', extra: {'conversationId': conversationId});
-        } else if (reservationId != null && reservationId.isNotEmpty) {
-          context.push('/chat', extra: {'reservationId': reservationId});
+        // Prefer reservationId, else open chats list
+        final reservationId =
+            meta['reservationId'] as String? ??
+            meta['conversationId'] as String?;
+        if (reservationId != null && reservationId.isNotEmpty) {
+          context.push('/chat', extra: reservationId);
         } else {
           context.push('/chats');
         }
@@ -54,9 +52,7 @@ class NotificationActionHandler {
           context.push('/reservation-details', extra: reservationId);
           return;
         }
-        print(
-          'No reservationId found in notification meta for reservation.open action',
-        );
+        print('No reservationId found in notification meta for reservation.open action');
         break;
 
       case 'report.open':
@@ -65,7 +61,7 @@ class NotificationActionHandler {
           context.push('/reports/$reportId');
           return;
         }
-        print('No reportId found in notification meta for report.open action');
+        print('No reportId found in notification meta for report.open action'); 
         break;
 
       case 'account.open':
@@ -78,9 +74,7 @@ class NotificationActionHandler {
           context.push('/profile/achievements/$achievementId');
           return;
         }
-        print(
-          'No achievementId found in notification meta for achievement.open action',
-        );
+        print('No achievementId found in notification meta for achievement.open action');
         break;
 
       case 'post.open':

@@ -44,7 +44,7 @@ class ChatBubble extends StatelessWidget {
             constraints: BoxConstraints(maxWidth: 0.75.sw),
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
             decoration: BoxDecoration(
-              color: isMe ? AuthColors.primary : const Color(0xFFF3F4F6),
+              color: isMe ? AuthColors.primary : const Color(0xFFE5E7EB),
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(16.r),
                 topRight: Radius.circular(16.r),

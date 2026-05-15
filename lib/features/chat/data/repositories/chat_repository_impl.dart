@@ -159,6 +159,26 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
+  Future<Either<Failure, void>> reportUser({
+    required String userId,
+    required String reason,
+    String? description,
+  }) async {
+    try {
+      await remoteDataSource.reportUser(
+        userId: userId,
+        reason: reason,
+        description: description,
+      );
+      return right(null);
+    } on ServerException catch (e) {
+      return left(ServerFailure(e.message));
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
   Stream<ChatMessageEntity> get onMessageCreated =>
       remoteDataSource.onMessageCreated;
 

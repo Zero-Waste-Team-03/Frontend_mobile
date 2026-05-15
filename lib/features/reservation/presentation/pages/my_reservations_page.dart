@@ -386,7 +386,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
           );
         },
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
+          duration: const Duration(milliseconds: 0),
           padding: EdgeInsets.symmetric(vertical: 12.h),
           decoration: BoxDecoration(
             color: isSelected ? Colors.white : Colors.transparent,
