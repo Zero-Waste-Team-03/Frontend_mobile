@@ -30,6 +30,7 @@ class GraphqlRequestExecutor {
     try {
       await _deviceIdProvider.getOrCreateDeviceId();
 
+      _logger.d('Waiting for GraphQL response for: $operationName');
       final response = await client.request(request).firstWhere((event) {
         final validSource =
             !skipOptimisticResponse ||
@@ -40,6 +41,11 @@ class GraphqlRequestExecutor {
             event.linkException != null;
         return validSource && hasTerminalPayload;
       });
+
+      _logger.d(
+        'GraphQL response received - hasErrors: ${response.hasErrors}, '
+        'hasLinkException: ${response.linkException != null}',
+      );
 
       if (response.hasErrors || response.linkException != null) {
         final graphQLErrors = response.graphqlErrors;
@@ -53,6 +59,12 @@ class GraphqlRequestExecutor {
             response.linkException?.toString() ??
             'Unknown link exception';
 
+        _logger.e(
+          'GraphQL error in $operationName:\n'
+          'GraphQL Errors: $graphQLErrorMessage\n'
+          'Link Exception: $linkExceptionMessage',
+        );
+
         final message = graphQLErrorMessage ?? linkExceptionMessage;
 
         throw ServerException('GraphQL error in $operationName: $message');
@@ -60,14 +72,21 @@ class GraphqlRequestExecutor {
 
       final data = response.data;
       if (data == null) {
+        _logger.e('No data returned for $operationName');
         throw ServerException('No data returned for $operationName');
       }
 
+      _logger.d('Successfully received data for $operationName');
       return data;
-    } catch (e) {
-      if (e is ServerException) {
-        rethrow;
-      }
+    } on ServerException {
+      rethrow;
+    } catch (e, stackTrace) {
+      _logger.e(
+        'GraphQL request failed for $operationName: $e\n'
+        'Error type: ${e.runtimeType}\n'
+        'Stack trace: $stackTrace',
+        error: e,
+      );
       throw ServerException('GraphQL request failed for $operationName: $e');
     }
   }
