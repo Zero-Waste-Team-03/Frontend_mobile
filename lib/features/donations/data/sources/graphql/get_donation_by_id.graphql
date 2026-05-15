@@ -13,6 +13,7 @@ query GetDonationById($id: ID!) {
     status
     urgency
     isLikedByMe
+    isReservable
     mainAttachmentId
     mainAttachment {
       url

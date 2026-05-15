@@ -392,6 +392,11 @@ type Donation {
   isLikedByMe: Boolean!
 
   """
+  Whether the authenticated user can reserve this donation
+  """
+  isReservable: Boolean
+
+  """
   Date when listing expires for visibility
   """
   listingExpiresAt: DateTime
@@ -1038,6 +1043,11 @@ type Query {
   Get paginated messages of a conversation
   """
   conversationMessages(input: ConversationMessagesInput!): PaginatedMessages!
+
+  """
+  Get a conversation preview by conversation ID
+  """
+  conversationDetails(conversationId: ID!): ConversationPreview!
 
   """
   Get current authenticated user profile

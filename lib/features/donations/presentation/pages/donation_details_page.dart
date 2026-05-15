@@ -11,15 +11,12 @@ import 'package:maplibre_gl/maplibre_gl.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/map/map_config.dart';
 import '../../../../shared/theme/app_colors.dart';
-import '../../../../shared/widgets/notification_button.dart';
 import '../../../favorites/domain/repositories/favorites_repository.dart';
 import '../../../reservation/presentation/bloc/reservation_bloc.dart';
 import '../../../reservation/presentation/bloc/reservation_event.dart';
 import '../../../reservation/presentation/bloc/reservation_state.dart';
 import '../../../reservation/presentation/widgets/api_error_dialog.dart';
 import '../../../reservation/presentation/widgets/reservation_confirmed_dialog.dart';
-import '../../../auth/domain/repositories/auth_repository.dart';
-import '../../../reservation/domain/repositories/reservation_repository.dart';
 import '../../domain/entities/donation.dart';
 
 class DonationDetailsPage extends StatefulWidget {
@@ -165,6 +162,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                       '.',
                     )[0]
                   : 'N/A',
+              reservation_id: state.reservation.id,
             );
           } else if (state is ReservationCreationError) {
             _showErrorDialog(context, state.message);
@@ -224,84 +222,6 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                     top: false,
                     child: Row(
                       children: [
-                        GestureDetector(
-                          onTap: () async {
-                            // Show loading or just try to find reservation
-                            final authRepository = getIt<AuthRepository>();
-                            final userResult = await authRepository
-                                .getCachedUser();
-
-                            if (!mounted) return;
-
-                            String? userId;
-                            userResult.fold((_) => null, (u) => userId = u.id);
-
-                            if (userId == null) {
-                              context.push('/login');
-                              return;
-                            }
-
-                            // Try to find if user already has a reservation for this donation
-                            final reservationRepo =
-                                getIt<ReservationRepository>();
-                            final resResult = await reservationRepo
-                                .getUserReservations(
-                                  userId: userId!,
-                                  status:
-                                      'PENDING', // Check pending or confirmed
-                                );
-
-                            if (!mounted) return;
-
-                            String? existingReservationId;
-                            resResult.fold((_) => null, (reservations) {
-                              try {
-                                existingReservationId = reservations
-                                    .firstWhere(
-                                      (r) => r.donationId == widget.donation.id,
-                                    )
-                                    .id;
-                              } catch (_) {}
-                            });
-
-                            if (existingReservationId != null) {
-                              if (!mounted) return;
-                              context.push(
-                                '/chat',
-                                extra: existingReservationId,
-                              );
-                            } else {
-                              // If no reservation exists, user must reserve first to chat
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Please reserve the item first to start a chat with the donor.',
-                                  ),
-                                  backgroundColor: AuthColors.primary,
-                                ),
-                              );
-                            }
-                          },
-                          child: Container(
-                            width: 56.w,
-                            height: 56.w,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16.r),
-                              border: Border.all(
-                                color: AuthColors.primary,
-                                width: 1.5,
-                              ),
-                            ),
-                            child: Center(
-                              child: Icon(
-                                Icons.chat_bubble_outline_rounded,
-                                color: AuthColors.primary,
-                                size: 24.sp,
-                              ),
-                            ),
-                          ),
-                        ),
                         SizedBox(width: 16.w),
                         Expanded(
                           child: BlocBuilder<ReservationBloc, ReservationState>(
@@ -309,7 +229,9 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                               final isReserving = state is ReservationCreating;
                               return ElevatedButton(
                                 onPressed:
-                                    isReserving || widget.donation.quantity <= 0
+                                    isReserving ||
+                                        widget.donation.quantity <= 0 ||
+                                        widget.donation.isReservable == false
                                     ? null
                                     : () {
                                         final quantity =

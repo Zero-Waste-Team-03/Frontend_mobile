@@ -12,6 +12,7 @@ mutation CreateDonation($input: CreateDonationInput!) {
     }
     status
     urgency
+    isReservable
     mainAttachmentId
     mainAttachment {
       url

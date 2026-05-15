@@ -202,42 +202,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
           return Column(
             children: [
-              // Filter chips
-              SizedBox(
-                height: 45,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.screenHorizontal,
-                    vertical: 8.0,
-                  ),
-                  itemCount: _filterOptions.length,
-                  itemBuilder: (context, index) {
-                    final option = _filterOptions[index];
-                    final isSelected = option == _selectedFilter;
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: FilterChip(
-                        label: Text(option),
-                        selected: isSelected,
-                        onSelected: (selected) {
-                          setState(() => _selectedFilter = option);
-                        },
-                        showCheckmark: false,
-                        backgroundColor: isSelected
-                            ? AppColors.primary
-                            : const Color(0xFFE8F1ED),
-                        labelStyle: TextStyle(
-                          color: isSelected
-                              ? AppColors.onPrimary
-                              : AppColors.primary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
+              
               Expanded(child: _buildContent(state)),
             ],
           );

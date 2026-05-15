@@ -1,0 +1,13 @@
+query GetConversation($conversationId: ID!) {
+  conversationDetails(conversationId: $conversationId) {
+    id
+    createdAt
+    status
+    lastMessage
+    reservationId
+    counterpart {
+      displayName
+      avatarUrl
+    }
+  }
+}
