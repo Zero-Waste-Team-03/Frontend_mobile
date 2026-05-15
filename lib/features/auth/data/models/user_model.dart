@@ -2,8 +2,6 @@
 import '../../domain/entities/user.dart';
 import 'user_settings_model.dart';
 
-
-
 class UserModel extends Equatable {
   final String id;
   final String? email;
@@ -38,7 +36,6 @@ class UserModel extends Equatable {
     String? avatarUrl;
     String? avatarId;
 
-
     // Try nested avatar object: { avatar: { url: "...", id: "..." } }
     if (json['avatar'] is Map<String, dynamic>) {
       final avatarMap = json['avatar'] as Map<String, dynamic>;
@@ -52,20 +49,15 @@ class UserModel extends Equatable {
       } else if (avatarId != null && avatarId.isNotEmpty) {
         // Construct URL from ID if URL is not provided
         avatarUrl = '/api/v1/files/$avatarId';
-      } else {
-      }
-    }
-    else if (json['avatarUrl'] is String) {
+      } else {}
+    } else if (json['avatarUrl'] is String) {
       avatarUrl = json['avatarUrl'] as String?;
-    }
-    else if (json['avatar'] is String) {
+    } else if (json['avatar'] is String) {
       avatarUrl = json['avatar'] as String?;
     }
 
-    
-
     return UserModel(
-      id: json['id'] as String,
+      id: (json['id'] ?? '').toString(),
       email: json['email'] as String?,
       displayName: (json['displayName'] ?? json['name']) as String?,
       phoneNumber: json['phoneNumber'] as String?,

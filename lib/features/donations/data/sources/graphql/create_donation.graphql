@@ -22,8 +22,13 @@ mutation CreateDonation($input: CreateDonationInput!) {
       longitude
     }
     user {
+      id
       displayName
       email
+      avatar {
+        id
+        url
+      }
     }
   }
 }

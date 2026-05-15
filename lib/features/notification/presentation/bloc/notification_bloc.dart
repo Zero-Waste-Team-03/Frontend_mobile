@@ -380,7 +380,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
       _logger.i('👆 NotificationBloc: Setting up notification tap handler...');
       fcmManager!.setupNotificationTapHandler((RemoteMessage message) async {
         _logger.i('👆 NotificationBloc: User tapped notification');
-        // Handle notification tap navigation here if needed
+        add(FcmNotificationReceivedEvent(message.data));
       });
 
       _logger.i('📤 NotificationBloc: Registering FCM token with backend...');

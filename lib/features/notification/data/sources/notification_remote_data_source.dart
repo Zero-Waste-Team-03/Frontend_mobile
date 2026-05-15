@@ -68,6 +68,7 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
         throw ServerException('Failed to build getNotifications request');
       }
 
+      _logger.d('Executing GraphQL getNotifications request');
       final data = await _graphqlRequestExecutor.execute(
         client: _ferryClient,
         request: GGetNotificationsReq(
@@ -84,16 +85,41 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
       _logger.i('getNotifications returned ${items?.length ?? 0} items');
 
       if (items == null || items.isEmpty) {
+        _logger.d('No notification items returned');
         return const [];
       }
 
-      return items
-          .map(
-            (item) => NotificationModel.fromJson(
-              Map<String, dynamic>.from(item.toJson()),
-            ),
-          )
-          .toList();
+      // Manually parse items with safe meta field handling
+      final notificationModels = <NotificationModel>[];
+      for (int i = 0; i < items.length; i++) {
+        try {
+          final item = items[i];
+          _logger.d('Parsing notification item $i');
+
+          final itemJson = Map<String, dynamic>.from(item.toJson());
+          _logger.d('Item $i JSON keys: ${itemJson.keys.toList()}');
+          _logger.d('Item $i meta type: ${itemJson['meta']?.runtimeType}');
+          _logger.d('Item $i meta value: ${itemJson['meta']}');
+
+          final model = NotificationModel.fromJson(itemJson);
+          notificationModels.add(model);
+          _logger.d('Successfully parsed notification item $i: ${model.id}');
+        } catch (itemError) {
+          _logger.e(
+            'Error parsing notification item $i: $itemError',
+            error: itemError,
+          );
+          // Log the problematic item and continue
+          rethrow;
+        }
+      }
+
+      _logger.i(
+        'Successfully parsed ${notificationModels.length} notification items',
+      );
+      return notificationModels;
+    } on ServerException {
+      rethrow;
     } catch (e) {
       _logger.e('getNotifications error: $e', error: e);
       rethrow;
