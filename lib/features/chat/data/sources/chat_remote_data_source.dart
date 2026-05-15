@@ -1,7 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:ferry/ferry.dart' hide ServerException;
 import 'package:gaspzero/core/exceptions/app_exceptions.dart';
 import 'package:injectable/injectable.dart';
+import 'package:gaspzero/features/auth/data/sources/auth_local_data_source.dart';
 import 'chat_socket_service.dart';
 
 import '../../../../core/graphql/graphql_request_executor.dart';
@@ -14,8 +14,11 @@ import '../datasources/graphql/__generated__/send_message.req.gql.dart';
 import '../datasources/graphql/__generated__/send_message.var.gql.dart';
 import '../datasources/graphql/__generated__/conversation_messages.var.gql.dart';
 import '../datasources/graphql/__generated__/my_active_conversations.req.gql.dart';
+import '../datasources/graphql/__generated__/create_report.req.gql.dart';
+import '../../../../core/graphql/__generated__/schema.schema.gql.dart';
 
 abstract class ChatRemoteDataSource {
+  AuthLocalDataSource get authLocalDataSource;
   Future<List<ConversationEntity>> getMyActiveConversations();
   Future<ConversationEntity> getOrCreateConversation(String reservationId);
   Future<List<ChatMessageEntity>> getConversationMessages(
@@ -25,6 +28,11 @@ abstract class ChatRemoteDataSource {
   );
   Future<ChatMessageEntity> sendMessage(String conversationId, String content);
   Future<ConversationEntity> markTransactionCompleted(String conversationId);
+  Future<void> reportUser({
+    required String userId,
+    required String reason,
+    String? description,
+  });
 
   Future<void> initSocket();
   void disposeSocket();
@@ -48,6 +56,10 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     this._socketService,
     this._graphqlRequestExecutor,
   );
+
+  @override
+  AuthLocalDataSource get authLocalDataSource =>
+      _socketService.authLocalDataSource;
 
   @override
   Future<void> initSocket() => _socketService.initSocket();
@@ -119,12 +131,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         ..vars.reservationId = reservationId
         ..fetchPolicy = FetchPolicy.NetworkOnly,
     );
-    final response = await _graphqlRequestExecutor.execute(
-      client: _ferryClient,
-      request: req,
-      operationName: 'getOrCreateConversation',
-      skipOptimisticResponse: true,
-    );
+    final response = await _executeRequest(req, 'getOrCreateConversation');
     final data = response.getOrCreateConversation;
 
     final conversation = ConversationEntity(
@@ -133,6 +140,11 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       status: data.status.name,
       createdAt: _safeParseDate(data.createdAt.value),
       lastMessage: data.lastMessage,
+      // Note: donation info and counterpart are currently not in this specific mutation
+      // due to schema-generator limitations, they will be updated via myActiveConversations
+      // or subsequent events.
+      // due to schema-generator limitations, they will be updated via myActiveConversations
+      // or subsequent events.
     );
 
     // Proactively join the socket room after getting the conversation ID
@@ -152,14 +164,12 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       ..input.pagination.page = page
       ..input.pagination.limit = limit;
 
-
     final req = GGetConversationMessagesReq(
       (b) => b
         ..vars = vars
         ..fetchPolicy = FetchPolicy.NetworkOnly,
     );
     final response = await _executeRequest(req, 'conversationMessages');
-
 
     final messages = response.conversationMessages.items
         .map(
@@ -184,14 +194,10 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     String conversationId,
     String content,
   ) async {
-
-    debugPrint('DataSouce.sendMessage called for $conversationId');
     try {
       // 1. Attempt via Socket first
-      debugPrint('Attempting socket sendMessage...');
       final data = await _socketService.sendMessage(conversationId, content);
-      debugPrint('Socket sendMessage success: $data');
-      
+
       return ChatMessageEntity(
         id: data['id'] ?? '',
         content: data['content'] ?? '',
@@ -204,7 +210,6 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       );
     } catch (socketError) {
       // 2. Fallback to GraphQL if socket fails
-      debugPrint('Socket sendMessage failed: $socketError. Falling back to GraphQL...');
       try {
         final vars = GSendMessageVarsBuilder()
           ..input.conversationId = conversationId
@@ -214,7 +219,6 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         final response = await _executeRequest(req, 'sendMessage');
         final data = response.sendMessage;
 
-        debugPrint('GraphQL sendMessage success');
         return ChatMessageEntity(
           id: data.id,
           content: data.content,
@@ -225,19 +229,19 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         );
       } catch (graphqlError) {
         // 3. If both fail, rethrow with descriptive message
-        debugPrint('GraphQL sendMessage failed: $graphqlError');
-        throw ServerException('Failed to send message. Socket error: $socketError. GraphQL error: $graphqlError');
+        throw ServerException(
+          'Failed to send message. Socket error: $socketError. GraphQL error: $graphqlError',
+        );
       }
     }
-
   }
 
   @override
   Future<List<ConversationEntity>> getMyActiveConversations() async {
-
-    final req = GMyActiveConversationsReq((b) => b..fetchPolicy = FetchPolicy.NetworkOnly);
+    final req = GMyActiveConversationsReq(
+      (b) => b..fetchPolicy = FetchPolicy.NetworkOnly,
+    );
     final response = await _executeRequest(req, 'myActiveConversations');
-
 
     return response.myActiveConversations
         .map(
@@ -249,6 +253,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
             lastMessage: e.lastMessage,
             counterpartName: e.counterpart.displayName,
             counterpartAvatarUrl: e.counterpart.avatarUrl,
+            // counterpartId: e.counterpart.id, // Skip if not in schema
             // donationTitle and donationImageUrl are no longer available in the schema for this query
           ),
         )
@@ -289,32 +294,41 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     );
   }
 
+  @override
+  Future<void> reportUser({
+    required String userId,
+    required String reason,
+    String? description,
+  }) async {
+    final req = GCreateReportReq(
+      (b) => b
+        ..vars.input.targetId = userId
+        ..vars.input.targetType = GReportTargetType.USER
+        ..vars.input.reason = reason
+        ..vars.input.description = description,
+    );
+
+    await _executeRequest(req, 'createReport');
+  }
 
   Future<TData> _executeRequest<TData, TVars>(
     OperationRequest<TData, TVars> request,
     String operationName,
   ) async {
     try {
-      // Set fetch policy to network only for mutations or if needed
-      // Ferry usually handles this via the request, but we can ensure it here
-      
-      debugPrint('Executing GraphQL Request: $operationName');
-      final token = await _socketService.authLocalDataSource.getAccessToken();
-      debugPrint('GraphQL Token: Bearer $token');
-      
       final response = await _ferryClient.request(request).firstWhere((event) {
         // Skip optimistic data and wait for actual data or error
         if (event.dataSource == DataSource.Optimistic) return false;
         // Also skip cache if it's empty to force network fetch in some scenarios
-        if (event.dataSource == DataSource.Cache && event.data == null) return false;
+        if (event.dataSource == DataSource.Cache && event.data == null)
+          return false;
         return true;
       });
 
       if (response.hasErrors || response.linkException != null) {
-        final message =
-            response.graphqlErrors?.isNotEmpty == true
-                ? response.graphqlErrors!.first.message
-                : response.linkException?.toString() ?? 'Unknown error';
+        final message = response.graphqlErrors?.isNotEmpty == true
+            ? response.graphqlErrors!.first.message
+            : response.linkException?.toString() ?? 'Unknown error';
         throw ServerException(message);
       }
 
@@ -329,5 +343,4 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       throw ServerException('Request failed during $operationName: $e');
     }
   }
-
 }

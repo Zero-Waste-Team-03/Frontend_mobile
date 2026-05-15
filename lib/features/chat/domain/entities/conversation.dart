@@ -6,8 +6,11 @@ class ConversationEntity {
   final String? lastMessage;
   final String? counterpartName;
   final String? counterpartAvatarUrl;
+  final String? counterpartId;
   final String? donationTitle;
   final String? donationImageUrl;
+
+  final bool isOnline;
 
   ConversationEntity({
     required this.id,
@@ -17,8 +20,10 @@ class ConversationEntity {
     this.lastMessage,
     this.counterpartName,
     this.counterpartAvatarUrl,
+    this.counterpartId,
     this.donationTitle,
     this.donationImageUrl,
+    this.isOnline = false,
   });
 
   ConversationEntity copyWith({
@@ -29,8 +34,10 @@ class ConversationEntity {
     String? lastMessage,
     String? counterpartName,
     String? counterpartAvatarUrl,
+    String? counterpartId,
     String? donationTitle,
     String? donationImageUrl,
+    bool? isOnline,
   }) {
     return ConversationEntity(
       id: id ?? this.id,
@@ -40,8 +47,10 @@ class ConversationEntity {
       lastMessage: lastMessage ?? this.lastMessage,
       counterpartName: counterpartName ?? this.counterpartName,
       counterpartAvatarUrl: counterpartAvatarUrl ?? this.counterpartAvatarUrl,
+      counterpartId: counterpartId ?? this.counterpartId,
       donationTitle: donationTitle ?? this.donationTitle,
       donationImageUrl: donationImageUrl ?? this.donationImageUrl,
+      isOnline: isOnline ?? this.isOnline,
     );
   }
 }

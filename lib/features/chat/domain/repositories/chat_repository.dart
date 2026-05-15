@@ -29,6 +29,11 @@ abstract class ChatRepository {
     String conversationId,
     String messageId,
   );
+  Future<Either<Failure, void>> reportUser({
+    required String userId,
+    required String reason,
+    String? description,
+  });
 
   Stream<ChatMessageEntity> get onMessageCreated;
   Stream<ChatMessageEntity> get onSensitiveMessageApproved;

@@ -5,6 +5,14 @@ query MyReservation($id: ID!) {
     createdAt
     confirmedAt
     updatedAt
+    beneficiaryId
+    beneficiary {
+      id
+      displayName
+      avatar {
+        url
+      }
+    }
     donation {
       id
       title

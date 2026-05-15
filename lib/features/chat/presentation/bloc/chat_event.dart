@@ -101,3 +101,18 @@ class ChatSensitiveMessageApprovedReceived extends ChatEvent {
   List<Object?> get props => [message];
 }
 
+class ChatUserReportRequested extends ChatEvent {
+  final String userId;
+  final String reason;
+  final String? description;
+
+  const ChatUserReportRequested({
+    required this.userId,
+    required this.reason,
+    this.description,
+  });
+
+  @override
+  List<Object?> get props => [userId, reason, description];
+}
+

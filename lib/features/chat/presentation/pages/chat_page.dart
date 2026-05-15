@@ -143,6 +143,8 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context, ChatState state) {
+    final String? donationTitle = state is ChatLoaded ? state.conversation.donationTitle : null;
+
     return AppBar(
       backgroundColor: AuthColors.background,
       surfaceTintColor: Colors.transparent,
@@ -150,19 +152,67 @@ class _ChatScreenState extends State<ChatScreen> {
       centerTitle: false,
       title: Row(
         children: [
-          if (state is ChatLoaded &&
-              state.conversation.counterpartAvatarUrl != null)
-            CircleAvatar(
-              radius: 16.r,
-              backgroundImage: NetworkImage(
-                state.conversation.counterpartAvatarUrl!,
-              ),
+
+          if (state is ChatLoaded && (state.conversation.donationImageUrl != null || state.conversation.counterpartAvatarUrl != null))
+            Stack(
+              children: [
+                if (state.conversation.donationImageUrl != null)
+                  Container(
+                    width: 36.r,
+                    height: 36.r,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8.r),
+                      image: DecorationImage(
+                        image: NetworkImage(state.conversation.donationImageUrl!),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  )
+                else
+                  CircleAvatar(
+                    radius: 18.r,
+                    backgroundImage: NetworkImage(state.conversation.counterpartAvatarUrl!),
+                  ),
+                if (state.conversation.isOnline)
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      width: 10.r,
+                      height: 10.r,
+                      decoration: BoxDecoration(
+                        color: Colors.green,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2.w),
+                      ),
+                    ),
+                  ),
+              ],
+
             )
           else if (state is ChatLoaded)
-            CircleAvatar(
-              radius: 16.r,
-              backgroundColor: AuthColors.primary.withValues(alpha: 0.1),
-              child: Icon(Icons.person, size: 18.sp, color: AuthColors.primary),
+            Stack(
+              children: [
+                CircleAvatar(
+                  radius: 18.r,
+                  backgroundColor: AuthColors.primary.withValues(alpha: 0.1),
+                  child: Icon(Icons.person, size: 20.sp, color: AuthColors.primary),
+                ),
+                if (state.conversation.isOnline)
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      width: 10.r,
+                      height: 10.r,
+                      decoration: BoxDecoration(
+                        color: Colors.green,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2.w),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           if (state is ChatLoaded) SizedBox(width: 12.w),
           Expanded(
@@ -170,9 +220,9 @@ class _ChatScreenState extends State<ChatScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  state is ChatLoaded
-                      ? (state.conversation.counterpartName ?? 'Chat')
-                      : 'Chat',
+
+                  state is ChatLoaded ? (state.conversation.counterpartName ?? 'User') : 'Loading...',
+
                   style: TextStyle(
                     fontSize: 18.sp,
                     color: AuthColors.headingText,
@@ -181,18 +231,18 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
-                if (state is ChatLoaded)
+                if (state is ChatLoaded && donationTitle != null)
                   Text(
-                    state.conversation.status,
+                    donationTitle,
                     style: TextStyle(
                       fontSize: 12.sp,
-                      color:
-                          (state.conversation.status == 'Active' ||
-                              state.conversation.status == 'ACTIVE')
-                          ? AuthColors.primary
-                          : AuthColors.subText,
+
+                      color: AuthColors.subText,
+
                       fontFamily: AppFonts.primaryFont,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
               ],
             ),
@@ -204,9 +254,16 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Divider(height: 1.h, color: AuthColors.dividerColor),
       ),
       actions: [
-        if (state is ChatLoaded &&
-            (state.conversation.status == 'Active' ||
-                state.conversation.status == 'ACTIVE'))
+
+        if (state is ChatLoaded)
+          IconButton(
+            icon: Icon(Icons.info_outline, size: 24.sp, color: AuthColors.primary),
+            onPressed: () {
+              _showUserReportDialog(context, state.conversation);
+            },
+          ),
+        if (state is ChatLoaded && (state.conversation.status == 'Active' || state.conversation.status == 'ACTIVE'))
+
           Padding(
             padding: EdgeInsets.only(right: 8.w),
             child: TextButton.icon(
@@ -381,7 +438,9 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildInputArea(BuildContext context, bool isActive) {
+    // Input area implementation...
     return Container(
+      // existing container code...
       padding: EdgeInsets.only(
         left: 16.w,
         right: 16.w,
@@ -459,5 +518,210 @@ class _ChatScreenState extends State<ChatScreen> {
         ],
       ),
     );
+  }
+
+  void _showUserReportDialog(BuildContext context, dynamic conversation) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (innerContext) => Container(
+        height: MediaQuery.of(innerContext).size.height * 0.7,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+        ),
+        padding: EdgeInsets.all(20.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40.w,
+                height: 4.h,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2.r),
+                ),
+              ),
+            ),
+            SizedBox(height: 20.h),
+            Text(
+              'User Information',
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.bold,
+                color: AuthColors.headingText,
+              ),
+            ),
+            SizedBox(height: 20.h),
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 30.r,
+                  backgroundImage: conversation.counterpartAvatarUrl != null
+                      ? NetworkImage(conversation.counterpartAvatarUrl!)
+                      : null,
+                  child: conversation.counterpartAvatarUrl == null
+                      ? Icon(Icons.person, size: 30.sp)
+                      : null,
+                ),
+                SizedBox(width: 16.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        conversation.counterpartName ?? 'Unknown User',
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      if (conversation.donationTitle != null)
+                        Text(
+                          'Interested in: ${conversation.donationTitle}',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: AuthColors.subText,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 30.h),
+            Text(
+              'Actions',
+              style: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 10.h),
+            ListTile(
+              leading: const Icon(Icons.report_problem_outlined, color: Colors.red),
+              title: const Text('Report User', style: TextStyle(color: Colors.red)),
+              subtitle: const Text('Notify admins about suspicious behavior'),
+              onTap: () {
+                Navigator.pop(innerContext);
+                _showReportReasonSelection(context, conversation);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.block_outlined, color: Colors.grey),
+              title: const Text('Block User'),
+              onTap: () {
+                Navigator.pop(innerContext);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Blocking feature coming soon')),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showReportReasonSelection(BuildContext context, dynamic conversation) {
+    final List<String> reasons = [
+      'Inappropriate behavior',
+      'Spam or advertising',
+      'Scam or fraudulent activity',
+      'Hate speech',
+      'Harassment',
+      'Other',
+    ];
+
+    // Capture the bloc before showing the modal
+    final chatBloc = context.read<ChatBloc>();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (innerContext) => Container(
+        height: MediaQuery.of(innerContext).size.height * 0.6,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+        ),
+        padding: EdgeInsets.all(20.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40.w,
+                height: 4.h,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2.r),
+                ),
+              ),
+            ),
+            SizedBox(height: 20.h),
+            Text(
+              'Reason for reporting',
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.bold,
+                color: AuthColors.headingText,
+              ),
+            ),
+            SizedBox(height: 10.h),
+            Expanded(
+              child: ListView.separated(
+                itemCount: reasons.length,
+                separatorBuilder: (context, index) => Divider(height: 1.h, color: AuthColors.dividerColor),
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(reasons[index]),
+                    onTap: () {
+                      Navigator.pop(innerContext);
+                      _submitReport(context, chatBloc, conversation, reasons[index]);
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _submitReport(BuildContext context, ChatBloc chatBloc, dynamic conversation, String reason) {
+    final state = chatBloc.state;
+
+    if (state is ChatLoaded) {
+      final targetUserId = state.conversation.counterpartId;
+
+      if (targetUserId != null) {
+        chatBloc.add(
+          ChatUserReportRequested(
+            userId: targetUserId,
+            reason: reason,
+          ),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Report submitted for ${state.conversation.counterpartName}'),
+            backgroundColor: AuthColors.primary,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Could not identify user to report'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 }
