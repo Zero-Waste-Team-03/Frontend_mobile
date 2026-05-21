@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart' hide Notification;
 import 'package:intl/intl.dart';
 import 'package:gaspzero/core/theme/app_colors.dart';
@@ -73,6 +76,126 @@ class NotificationCard extends StatelessWidget {
     }
   }
 
+  bool _isMessageNotification() {
+    final isMessage = notification.type == NotificationType.message;
+    return isMessage;
+  }
+
+  Map<String, dynamic> _extractMeta(dynamic metaValue) {
+    if (metaValue is Map<String, dynamic>) {
+      return <String, dynamic>{...metaValue};
+    }
+    if (metaValue is Map) {
+      try {
+        return Map<String, dynamic>.from(metaValue);
+      } catch (_) {
+        return <String, dynamic>{};
+      }
+    }
+    if (metaValue is String && metaValue.trim().isNotEmpty) {
+      try {
+        final decoded = jsonDecode(metaValue);
+        if (decoded is Map<String, dynamic>)
+          return <String, dynamic>{...decoded};
+        if (decoded is Map) return Map<String, dynamic>.from(decoded);
+      } catch (_) {
+        return <String, dynamic>{};
+      }
+    }
+    return <String, dynamic>{};
+  }
+
+  String? _resolveSenderAvatarUrl() {
+    if (!_isMessageNotification()) return null;
+
+    final meta = _extractMeta(notification.meta);
+    final candidates = <String?>[
+      meta['senderAvatarUrl']?.toString(),
+      meta['avatarUrl']?.toString(),
+      meta['senderPhotoUrl']?.toString(),
+      meta['senderImageUrl']?.toString(),
+    ];
+
+    for (final candidate in candidates) {
+      final url = candidate?.trim();
+      if (url != null && url.isNotEmpty) {
+        final uri = Uri.tryParse(url);
+        if (uri != null && (uri.scheme == 'http' || uri.scheme == 'https'))
+          return url;
+      }
+    }
+
+    return null;
+  }
+
+  String _resolveBodyText() {
+    if (!_isMessageNotification()) return notification.body ?? '';
+
+    final meta = _extractMeta(notification.meta);
+    final candidates = <String?>[
+      meta['donationUrl']?.toString(),
+      meta['donationLink']?.toString(),
+      meta['url']?.toString(),
+      meta['donationPageUrl']?.toString(),
+      notification.body,
+    ];
+
+    for (final candidate in candidates) {
+      final value = candidate?.trim();
+      if (value != null && value.isNotEmpty) return value;
+    }
+
+    return notification.body ?? '';
+  }
+
+  Widget _buildLeadingIcon() {
+    final avatarUrl = _resolveSenderAvatarUrl();
+
+    if (avatarUrl != null) {
+      return Container(
+        margin: const EdgeInsets.all(AppSpacing.md),
+        width: 48.0,
+        height: 48.0,
+        decoration: BoxDecoration(
+          color: _getTypeBackgroundColor(),
+          shape: BoxShape.circle,
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: CachedNetworkImage(
+          imageUrl: avatarUrl,
+          fit: BoxFit.cover,
+          placeholder: (context, url) => Center(
+            child: Icon(
+              Icons.person_rounded,
+              color: _getTypeColor(),
+              size: 22.0,
+            ),
+          ),
+          errorWidget: (context, url, error) => Center(
+            child: Icon(
+              Icons.person_rounded,
+              color: _getTypeColor(),
+              size: 22.0,
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      margin: const EdgeInsets.all(AppSpacing.md),
+      width: 48.0,
+      height: 48.0,
+      decoration: BoxDecoration(
+        color: _getTypeBackgroundColor(),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+      ),
+      child: Center(
+        child: Icon(_getTypeIcon(), color: _getTypeColor(), size: 24.0),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final timeAgo = _getTimeAgo(notification.createdAt);
@@ -111,7 +234,6 @@ class NotificationCard extends StatelessWidget {
                   ),
                 ]
               : null,
-
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -127,19 +249,8 @@ class NotificationCard extends StatelessWidget {
                 ),
               ),
             ),
-            // Icon container with badge
-            Container(
-              margin: const EdgeInsets.all(AppSpacing.md),
-              width: 48.0,
-              height: 48.0,
-              decoration: BoxDecoration(
-                color: _getTypeBackgroundColor(),
-                borderRadius: BorderRadius.circular(AppRadius.lg),
-              ),
-              child: Center(
-                child: Icon(_getTypeIcon(), color: _getTypeColor(), size: 24.0),
-              ),
-            ),
+            // Icon / avatar
+            _buildLeadingIcon(),
             // Content
             Expanded(
               child: Padding(
@@ -173,7 +284,7 @@ class NotificationCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 6.0),
                     Text(
-                      notification.body,
+                      _resolveBodyText(),
                       style: AppTextStyles.bodySmall.copyWith(
                         color: AppColors.textTertiary,
                       ),

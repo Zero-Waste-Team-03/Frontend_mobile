@@ -1,0 +1,9 @@
+query GetLeaderboardAllTime($limit: Int = 10) {
+  leaderboardAllTime(limit: $limit) {
+    avatarUrl
+    displayName
+    rank
+    score
+    userId
+  }
+}

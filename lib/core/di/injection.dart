@@ -223,7 +223,9 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton<ChatRepository>(
     () => ChatRepositoryImpl(getIt()),
   );
-  getIt.registerFactory(() => ChatBloc(chatRepository: getIt(), ferryClient: getIt()));
+  getIt.registerFactory(
+    () => ChatBloc(chatRepository: getIt(), ferryClient: getIt()),
+  );
 
   // ── Notification ──
   getIt.registerLazySingleton<NotificationRemoteDataSource>(
@@ -306,7 +308,7 @@ Future<void> configureDependencies() async {
 
   // ── Leaderboard ──
   getIt.registerLazySingleton<LeaderboardRemoteDataSource>(
-    () => LeaderboardRemoteDataSourceImpl(),
+    () => LeaderboardRemoteDataSourceImpl(getIt(), getIt()),
   );
   getIt.registerLazySingleton<LeaderboardRepository>(
     () => LeaderboardRepositoryImpl(remoteDataSource: getIt()),

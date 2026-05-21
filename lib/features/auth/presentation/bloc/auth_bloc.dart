@@ -1,10 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:logger/logger.dart';
-import 'package:get_it/get_it.dart';
 import '../../domain/repositories/auth_repository.dart';
-import '../../../notification/presentation/bloc/notification_bloc.dart';
-import '../../../notification/presentation/bloc/notification_event.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
@@ -54,7 +51,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       response,
     ) async {
       emit(AuthSuccess(response.user));
-      _triggerNotificationPermissionRequest();
     });
   }
 
@@ -97,7 +93,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           response,
         ) async {
           emit(AuthSuccess(response.user));
-          _triggerNotificationPermissionRequest();
         });
       },
     );
@@ -118,7 +113,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (response) {
         _logger.i('🟢 [AuthBloc] Emitting AuthSuccess from Google OAuth');
         emit(AuthSuccess(response.user));
-        _triggerNotificationPermissionRequest();
       },
     );
   }
@@ -157,22 +151,5 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     _logger.i('[AuthBloc] Logout requested, clearing session');
     await authRepository.logout();
     emit(AuthUnauthenticated());
-  }
-
-  /// Trigger notification permission request after successful auth
-  /// This ensures users are only prompted after they have logged in
-  void _triggerNotificationPermissionRequest() {
-    try {
-      final notificationBloc = GetIt.I<NotificationBloc>();
-      _logger.i(
-        '🔔 [AuthBloc] Triggering notification permission request after auth success',
-      );
-      notificationBloc.add(const InitializeFcmTokenEvent());
-    } catch (e) {
-      _logger.w(
-        '⚠️ [AuthBloc] Could not trigger notification permission (NotificationBloc not available)',
-        error: e,
-      );
-    }
   }
 }

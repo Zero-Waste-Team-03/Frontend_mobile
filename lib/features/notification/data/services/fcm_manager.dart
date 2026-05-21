@@ -1,6 +1,8 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:logger/logger.dart';
 
+import '../../../../core/permissions/permission_request_coordinator.dart';
+
 /// Handles FCM token operations with comprehensive logging and error handling
 class FcmManager {
   late FirebaseMessaging _firebaseMessaging;
@@ -74,6 +76,7 @@ class FcmManager {
     }
     _logger.i('🔔 FcmManager: Requesting notification permissions...');
     try {
+      await PermissionRequestCoordinator.waitForLocationRequestsToFinish();
       final settings = await _firebaseMessaging.requestPermission(
         alert: true,
         announcement: true,
@@ -396,12 +399,12 @@ class FcmManager {
   /// Set APNs token (iOS only) - needed for iOS APNs
   void setApnsToken(String? token) {
     _logger.i('🔔 FcmManager: Setting APNS token...');
-      if (token != null && token.isNotEmpty) {
-        final _preview = token.length > 20
-            ? '...${token.substring(token.length - 20)}'
-            : token;
-        _logger.d('📱 FcmManager: APNS token (last 20 chars): $_preview');
-      } else {
+    if (token != null && token.isNotEmpty) {
+      final _preview = token.length > 20
+          ? '...${token.substring(token.length - 20)}'
+          : token;
+      _logger.d('📱 FcmManager: APNS token (last 20 chars): $_preview');
+    } else {
       _logger.w('⚠️  FcmManager: APNS token is null or empty');
     }
   }
