@@ -9,6 +9,7 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
 import '../../../../core/router/app_router.dart';
+import 'android_notification_display_service.dart';
 import '../../data/services/fcm_manager.dart';
 import '../../domain/entities/notification.dart' as n;
 import '../../domain/entities/notification_type.dart';
@@ -154,6 +155,18 @@ class FcmInitializationService {
             '📬 FcmInitializationService: Foreground notification received',
           );
           try {
+            await AndroidNotificationDisplayService.showForegroundNotification(
+              message,
+            );
+          } catch (e, st) {
+            _logger.w(
+              '⚠️  FcmInitializationService: Android foreground notification display failed',
+              error: e,
+              stackTrace: st,
+            );
+          }
+
+          try {
             final notificationBloc = GetIt.I<NotificationBloc>();
             notificationBloc.add(FcmNotificationReceivedEvent(message.data));
           } catch (e) {
@@ -278,6 +291,18 @@ class FcmInitializationService {
     try {
       // Process the notification here
       // You can store it, log it, or trigger analytics
+      try {
+        await AndroidNotificationDisplayService.showForegroundNotification(
+          message,
+        );
+      } catch (e, st) {
+        _logger.w(
+          '⚠️ FcmInitializationService: Failed to display background notification card',
+          error: e,
+          stackTrace: st,
+        );
+      }
+
       _logger.i(
         '✅ FcmInitializationService: Background notification processed',
       );

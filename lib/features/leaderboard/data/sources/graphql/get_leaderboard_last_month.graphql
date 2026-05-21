@@ -1,0 +1,9 @@
+query GetLeaderboardLastMonth($limit: Int = 10) {
+  leaderboardLastMonth(limit: $limit) {
+    avatarUrl
+    displayName
+    rank
+    score
+    userId
+  }
+}

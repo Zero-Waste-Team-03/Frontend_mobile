@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -14,11 +15,18 @@ class LeaderboardTopThreeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final rankMap = {for (final entry in topThree) entry.rank: entry};
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(14, 10, 14, 14),
-      color: AppColors.background,
-      child: Row(
+    final shimmerBase = const Color(0xFFDDE2E8);
+    final shimmerHighlight = const Color(0xFFF4F6F8);
+
+    return Shimmer.fromColors(
+      baseColor: shimmerBase,
+      highlightColor: shimmerHighlight,
+      period: const Duration(milliseconds: 1200),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(14, 10, 14, 14),
+        color: AppColors.background,
+        child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
@@ -46,7 +54,7 @@ class LeaderboardTopThreeCard extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ));
   }
 }
 
@@ -71,6 +79,8 @@ class _TopRankAvatar extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
+    final hasAvatar = _hasValidAvatarUrl(entry!.avatarUrl);
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -82,11 +92,15 @@ class _TopRankAvatar extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(color: borderColor, width: 4),
-            image: DecorationImage(
-              image: NetworkImage(entry!.avatarUrl),
-              fit: BoxFit.cover,
-            ),
           ),
+          clipBehavior: Clip.antiAlias,
+          child: hasAvatar
+              ? Image.network(
+                  entry!.avatarUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => _buildFallbackAvatar(),
+                )
+              : _buildFallbackAvatar(),
         ),
         Transform.translate(
           offset: const Offset(0, -12),
@@ -109,7 +123,7 @@ class _TopRankAvatar extends StatelessWidget {
           ),
         ),
         Text(
-          entry!.name,
+          entry!.name.isNotEmpty ? entry!.name : 'Unknown user',
           style: AppTextStyles.headlineMedium.copyWith(
             fontSize: shared_theme.AppDimensions.leaderboardTopNameFontSize,
             color: AppColors.textPrimary,
@@ -125,6 +139,97 @@ class _TopRankAvatar extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildFallbackAvatar() {
+    return Container(
+      color: AppColors.surface,
+      child: const Center(
+        child: Icon(Icons.person_rounded, color: AppColors.textMuted, size: 30),
+      ),
+    );
+  }
+
+  bool _hasValidAvatarUrl(String value) {
+    if (value.trim().isEmpty) {
+      return false;
+    }
+
+    final uri = Uri.tryParse(value);
+    return uri != null && (uri.scheme == 'http' || uri.scheme == 'https');
+  }
+}
+
+class LeaderboardTopThreeSkeleton extends StatelessWidget {
+  const LeaderboardTopThreeSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final double avatarPrimary =
+        shared_theme.AppDimensions.leaderboardTopAvatarPrimarySize;
+    final double avatarSecondary =
+        shared_theme.AppDimensions.leaderboardTopAvatarSecondarySize;
+
+    Widget _placeholder(double size) {
+      return Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: AppColors.surface.withValues(alpha: 0.8),
+          shape: BoxShape.circle,
+        ),
+      );
+    }
+
+    Widget _bar(double width, double height) {
+      return Container(
+        width: width,
+        height: height,
+        color: AppColors.surface.withValues(alpha: 0.75),
+      );
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(14, 10, 14, 14),
+      color: AppColors.background,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _placeholder(avatarSecondary),
+              const SizedBox(height: 8),
+              _bar(avatarSecondary * 0.9, 12),
+              const SizedBox(height: 6),
+              _bar(avatarSecondary * 0.6, 10),
+            ],
+          ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _placeholder(avatarPrimary),
+              const SizedBox(height: 8),
+              _bar(avatarPrimary * 0.9, 12),
+              const SizedBox(height: 6),
+              _bar(avatarPrimary * 0.6, 10),
+            ],
+          ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _placeholder(avatarSecondary),
+              const SizedBox(height: 8),
+              _bar(avatarSecondary * 0.9, 12),
+              const SizedBox(height: 6),
+              _bar(avatarSecondary * 0.6, 10),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

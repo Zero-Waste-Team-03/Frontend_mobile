@@ -19,6 +19,7 @@ dependencies:
   dio: ^5.9.2
   ferry: ^0.16.1
   gql_http_link: ^1.2.0
+  flutter_local_notifications: ^21.0.0
 
   # Routing
   go_router: ^17.0.0

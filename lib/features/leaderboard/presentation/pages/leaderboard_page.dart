@@ -194,7 +194,18 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
 
   Widget _buildBody(LeaderboardState state) {
     if (state is LeaderboardLoading) {
-      return const Center(child: CircularProgressIndicator());
+      // show skeleton: one top-3 skeleton + several row skeletons
+      return ListView.separated(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 170),
+        itemCount: 6,
+        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            return const LeaderboardTopThreeSkeleton();
+          }
+          return const LeaderboardUserCardSkeleton();
+        },
+      );
     }
 
     if (state is LeaderboardError) {
@@ -216,6 +227,33 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
 
     if (state is! LeaderboardLoaded) {
       return const SizedBox.shrink();
+    }
+
+    // empty-data handling
+    if (state.topThree.isEmpty && state.remainingRanks.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.leaderboard_outlined,
+              size: 64,
+              color: AppColors.textMuted,
+            ),
+            const SizedBox(height: 12),
+            Text('No leaderboard data yet', style: AppTextStyles.titleMedium),
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: () {
+                context.read<LeaderboardBloc>().add(
+                  FetchLeaderboardEvent(period: state.period),
+                );
+              },
+              child: const Text('Refresh'),
+            ),
+          ],
+        ),
+      );
     }
 
     final hasCurrentUser = state.currentUser != null;
@@ -322,8 +360,10 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
             ? _chatBottomPaddingWithCard
             : _chatBottomPaddingNoCard);
 
-    // Keep initial button in an obvious free zone: right side, mid vertical range.
-    final candidate = Offset(maxX, (maxY + _chatTopLimit) / 2);
+    // Place the button at the bottom-right with a small inset so it
+    // doesn't overlap the bottom card; ensure we respect the top limit.
+    final desiredDy = (maxY - 12).clamp(_chatTopLimit, maxY);
+    final candidate = Offset(maxX, desiredDy);
     return _clampChatPosition(
       candidate,
       size: size,

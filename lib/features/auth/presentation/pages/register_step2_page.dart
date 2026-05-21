@@ -9,6 +9,7 @@ import 'package:gaspzero/shared/widgets/app_button.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
+import '../../../../core/permissions/permission_request_coordinator.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
@@ -111,7 +112,9 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
 
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
+        permission = await PermissionRequestCoordinator.runLocationRequest(
+          Geolocator.requestPermission,
+        );
       }
 
       if (permission == LocationPermission.denied ||
