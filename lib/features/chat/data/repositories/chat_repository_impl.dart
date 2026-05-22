@@ -27,6 +27,19 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
+  Future<Either<Failure, List<ConversationEntity>>>
+  getMyArchivedConversations() async {
+    try {
+      final result = await remoteDataSource.getMyArchivedConversations();
+      return right(result);
+    } on ServerException catch (e) {
+      return left(ServerFailure(e.message));
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, ConversationEntity>> getConversation(
     String conversationId,
   ) async {

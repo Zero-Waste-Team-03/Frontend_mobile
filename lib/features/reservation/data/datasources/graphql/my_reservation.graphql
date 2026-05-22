@@ -60,7 +60,7 @@ query MyReservation($id: ID!) {
         description
         displayName
         email
-        isMailVerified
+        isVerified
         lastChangedPasswordDate
         locationId
         location {

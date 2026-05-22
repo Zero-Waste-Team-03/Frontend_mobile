@@ -1,0 +1,15 @@
+query MyArchivedConversations($pagination: PaginationInput) {
+  myArchivedConversations(pagination: $pagination) {
+    items {
+      id
+      reservationId
+      status
+      lastMessage
+      createdAt
+      counterpart {
+        displayName
+        avatarUrl
+      }
+    }
+  }
+}

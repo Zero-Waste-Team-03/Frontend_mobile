@@ -446,7 +446,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
             phoneNumber: userModel.phoneNumber,
             role: userModel.role,
             description: userModel.description,
-            isMailVerified: userModel.isMailVerified,
+            isVerified: userModel.isVerified,
             reputationScore: userModel.reputationScore,
             locationId: userModel.locationId,
             location: userModel.location,

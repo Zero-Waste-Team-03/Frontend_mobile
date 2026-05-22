@@ -1,4 +1,4 @@
-﻿import 'dart:ui' as ui;
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gaspzero/core/theme/app_colors.dart';
@@ -44,7 +44,19 @@ class _MainShellState extends State<MainShell> {
         children: [
           Scaffold(
             extendBody: true,
-            body: widget.navigationShell,
+            body: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 250),
+              transitionBuilder: (child, animation) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: child,
+                );
+              },
+              child: KeyedSubtree(
+                key: ValueKey<int>(widget.navigationShell.currentIndex),
+                child: widget.navigationShell,
+              ),
+            ),
             bottomNavigationBar: ClipRRect(
               child: BackdropFilter(
                 filter: ui.ImageFilter.blur(sigmaX: 24.0, sigmaY: 24.0),

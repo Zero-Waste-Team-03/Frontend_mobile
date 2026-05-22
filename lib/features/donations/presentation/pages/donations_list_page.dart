@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -29,11 +30,51 @@ class _DonationsListPageState extends State<DonationsListPage> {
   String _selectedCategory = 'All';
   String? _selectedCategoryId;
   LatLng? _currentPosition;
+  
+  final FocusNode _searchFocusNode = FocusNode();
+  final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  Timer? _searchDebounce;
+  String? _lastProcessedQuery;
 
   @override
   void initState() {
     super.initState();
     _determinePosition();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _searchFocusNode.dispose();
+    _searchController.dispose();
+    _scrollController.dispose();
+    _searchDebounce?.cancel();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_isBottom && mounted) {
+      final state = context.read<DonationsBloc>().state;
+      if (state is DonationsLoaded && state.hasNextPage) {
+        context.read<DonationsBloc>().add(
+          LoadDonationsEvent(
+            categoryId: _selectedCategoryId,
+            searchQuery: _searchController.text,
+            latitude: _currentPosition?.latitude,
+            longitude: _currentPosition?.longitude,
+            append: true,
+          ),
+        );
+      }
+    }
+  }
+
+  bool get _isBottom {
+    if (!_scrollController.hasClients) return false;
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.offset;
+    return currentScroll >= (maxScroll * 0.9);
   }
 
   Future<void> _determinePosition() async {
@@ -61,6 +102,21 @@ class _DonationsListPageState extends State<DonationsListPage> {
 
   @override
   Widget build(BuildContext context) {
+    try {
+      final routerState = GoRouterState.of(context);
+      final currentFocusQuery = routerState.uri.queryParameters['focus'];
+      if (currentFocusQuery != _lastProcessedQuery) {
+        _lastProcessedQuery = currentFocusQuery;
+        if (currentFocusQuery == 'true') {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted && !_searchFocusNode.hasFocus) {
+              _searchFocusNode.requestFocus();
+            }
+          });
+        }
+      }
+    } catch (_) {}
+
     return BlocProvider(
       create: (context) =>
           getIt<DonationsBloc>()..add(const LoadDonationsEvent()),
@@ -156,32 +212,45 @@ class _DonationsListPageState extends State<DonationsListPage> {
   Widget _buildSearchBar() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20.r),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+      child: Hero(
+        tag: 'search_bar',
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20.r),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: TextField(
+              controller: _searchController,
+              focusNode: _searchFocusNode,
+              onChanged: (value) {
+                _searchDebounce?.cancel();
+                _searchDebounce = Timer(const Duration(milliseconds: 300), () {
+                  if (mounted) {
+                    setState(() {
+                      _selectedCategory = 'All';
+                      _selectedCategoryId = null;
+                    });
+                    context.read<DonationsBloc>().add(
+                      LoadDonationsEvent(searchQuery: value),
+                    );
+                  }
+                });
+              },
+              decoration: const InputDecoration(
+                hintText: 'Search donations...',
+                prefixIcon: Icon(AppIcons.search),
+                border: InputBorder.none,
+              ),
             ),
-          ],
-        ),
-        child: TextField(
-          onChanged: (value) {
-            setState(() {
-              _selectedCategory = 'All';
-              _selectedCategoryId = null;
-            });
-            context.read<DonationsBloc>().add(
-              LoadDonationsEvent(searchQuery: value),
-            );
-          },
-          decoration: const InputDecoration(
-            hintText: 'Search donations...',
-            prefixIcon: Icon(AppIcons.search),
-            border: InputBorder.none,
           ),
         ),
       ),
@@ -277,23 +346,54 @@ class _DonationsListPageState extends State<DonationsListPage> {
   }
 
   Widget _buildDonationsList() {
-    return RefreshIndicator(
-      onRefresh: () async {
-        if (!mounted) return;
-        context.read<DonationsBloc>().add(
-          LoadDonationsEvent(categoryId: _selectedCategoryId),
+    return BlocBuilder<DonationsBloc, DonationsState>(
+      builder: (context, state) {
+        final hasNextPage = state is DonationsLoaded ? state.hasNextPage : false;
+        
+        return RefreshIndicator(
+          onRefresh: () async {
+            if (!mounted) return;
+            context.read<DonationsBloc>().add(
+              LoadDonationsEvent(
+                categoryId: _selectedCategoryId,
+                searchQuery: _searchController.text,
+                latitude: _currentPosition?.latitude,
+                longitude: _currentPosition?.longitude,
+              ),
+            );
+            await Future.delayed(const Duration(milliseconds: 500));
+          },
+          color: AuthColors.primary,
+          backgroundColor: Colors.white,
+          child: ListView.builder(
+            controller: _scrollController,
+            padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 80.h),
+            itemCount: hasNextPage ? _donations.length + 1 : _donations.length,
+            itemBuilder: (context, index) {
+              if (index >= _donations.length) {
+                return _buildPaginationLoadingIndicator();
+              }
+              final donation = _donations[index];
+              return _buildDonationCard(donation, index);
+            },
+          ),
         );
-        await Future.delayed(const Duration(milliseconds: 500));
       },
-      color: AuthColors.primary,
-      backgroundColor: Colors.white,
-      child: ListView.builder(
-        padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 80.h),
-        itemCount: _donations.length,
-        itemBuilder: (context, index) {
-          final donation = _donations[index];
-          return _buildDonationCard(donation, index);
-        },
+    );
+  }
+
+  Widget _buildPaginationLoadingIndicator() {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 16.h),
+      child: Center(
+        child: SizedBox(
+          width: 24.w,
+          height: 24.w,
+          child: const CircularProgressIndicator(
+            strokeWidth: 2,
+            valueColor: AlwaysStoppedAnimation<Color>(AuthColors.primary),
+          ),
+        ),
       ),
     );
   }

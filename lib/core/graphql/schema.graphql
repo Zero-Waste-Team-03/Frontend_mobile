@@ -191,6 +191,8 @@ input ChangePasswordInput {
 type ChatCounterpartPreview {
   avatarUrl: String
   displayName: String!
+  isOnline: Boolean!
+  userId: String!
 }
 
 type ChatMessage {
@@ -222,6 +224,15 @@ type ConversationPreview {
   lastMessage: String
   reservationId: ID!
   status: ConversationStatus!
+}
+
+type PaginatedConversationPreviews {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  items: [ConversationPreview!]
+  limit: Int!
+  page: Int!
+  totalCount: Int!
 }
 
 """
@@ -1146,6 +1157,21 @@ type Query {
     filter: ReservationsFilterInput
     pagination: PaginationInput
   ): PaginatedReservations!
+
+  """
+  Get a single conversation by id with counterpart preview (name and image)
+  """
+  conversationDetails(conversationId: ID!): ConversationPreview!
+
+  """
+  Get paginated archived conversations for the current user, ordered by most recent message
+  """
+  myArchivedConversations(pagination: PaginationInput): PaginatedConversationPreviews!
+
+  """
+  Get total count of archived conversations for the current user
+  """
+  myArchivedConversationsCount: Int!
 }
 
 input RegisterInput {
@@ -1543,7 +1569,7 @@ type User {
   """
   Whether the user has verified their email
   """
-  isMailVerified: Boolean!
+  isVerified: Boolean!
 
   """
   Date the user last changed password

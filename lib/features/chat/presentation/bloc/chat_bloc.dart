@@ -34,10 +34,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<ChatTransactionCompletedReceived>(_onTransactionCompletedReceived);
     on<ChatLeaveConversationRequested>(_onLeaveConversation);
     on<ChatApproveSensitiveMessageRequested>(_onApproveSensitiveMessage);
-
     on<ChatSensitiveMessageApprovedReceived>(_onSensitiveMessageApprovedReceived);
     on<ChatUserReportRequested>(_onReportUser);
-
   }
 
   @override

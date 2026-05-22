@@ -92,6 +92,8 @@ class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
       final varsMap = <String, dynamic>{
         'pagination': {'page': page, 'limit': limit},
         if (filter.isNotEmpty) 'filter': filter,
+        if (searchQuery != null && searchQuery.isNotEmpty)
+          'searchName': searchQuery,
       };
 
       _logger.d('Building getDonations variables: $varsMap');
