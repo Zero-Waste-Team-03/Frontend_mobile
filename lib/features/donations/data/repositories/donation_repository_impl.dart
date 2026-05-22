@@ -1,9 +1,11 @@
 import 'dart:io';
+import 'package:fpdart/fpdart.dart';
+import '../../../../core/errors/failures.dart';
+import '../../../../core/exceptions/exceptions.dart';
 import '../../domain/entities/category.dart';
 import '../../domain/entities/donation.dart';
 import '../../domain/repositories/donation_repository.dart';
 import '../sources/donation_remote_data_source.dart';
-import 'package:geolocator/geolocator.dart';
 
 class DonationRepositoryImpl implements DonationRepository {
   final DonationRemoteDataSource remoteDataSource;
@@ -11,7 +13,7 @@ class DonationRepositoryImpl implements DonationRepository {
   DonationRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<List<Donation>> getDonations({
+  Future<Either<Failure, List<Donation>>> getDonations({
     int page = 1,
     int limit = 50,
     String? categoryId,
@@ -20,59 +22,56 @@ class DonationRepositoryImpl implements DonationRepository {
     double? longitude,
     double? radius,
   }) async {
-    final donations = await remoteDataSource.getDonations(
-      page: page,
-      limit: limit,
-      categoryId: categoryId,
-      searchQuery: searchQuery,
-      latitude: latitude,
-      longitude: longitude,
-      radius: radius,
-    );
-
-    var filtered = List<Donation>.from(donations);
-
-    if (searchQuery != null && searchQuery.isNotEmpty) {
-      final query = searchQuery.toLowerCase();
-      filtered = filtered
-          .where(
-            (d) =>
-                d.title.toLowerCase().contains(query) ||
-                d.description.toLowerCase().contains(query),
-          )
-          .toList();
+    try {
+      final donations = await remoteDataSource.getDonations(
+        page: page,
+        limit: limit,
+        categoryId: categoryId,
+        searchQuery: searchQuery,
+        latitude: latitude,
+        longitude: longitude,
+        radius: radius,
+      );
+      return right(donations);
+    } on ServerException catch (e) {
+      return left(ServerFailure(e.message));
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
     }
+  }
 
-    if (latitude != null && longitude != null && radius != null) {
-      filtered = filtered.where((d) {
-        if (d.latitude == null || d.longitude == null) return false;
-        final distKm =
-            Geolocator.distanceBetween(
-              latitude,
-              longitude,
-              d.latitude!,
-              d.longitude!,
-            ) /
-            1000.0;
-        return distKm <= radius;
-      }).toList();
+  @override
+  Future<Either<Failure, String>> uploadDonationImage(File file) async {
+    try {
+      final result = await remoteDataSource.uploadDonationImage(file);
+      return right(result);
+    } on ServerException catch (e) {
+      return left(ServerFailure(e.message));
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
     }
-
-    return filtered;
   }
 
   @override
-  Future<String> uploadDonationImage(File file) async {
-    return await remoteDataSource.uploadDonationImage(file);
+  Future<Either<Failure, List<Category>>> getCategories({
+    int page = 1,
+    int limit = 50,
+  }) async {
+    try {
+      final categories = await remoteDataSource.getCategories(
+        page: page,
+        limit: limit,
+      );
+      return right(categories);
+    } on ServerException catch (e) {
+      return left(ServerFailure(e.message));
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
+    }
   }
 
   @override
-  Future<List<Category>> getCategories({int page = 1, int limit = 50}) async {
-    return await remoteDataSource.getCategories(page: page, limit: limit);
-  }
-
-  @override
-  Future<Donation> createDonation({
+  Future<Either<Failure, Donation>> createDonation({
     required String title,
     required String description,
     required String categoryId,
@@ -86,19 +85,26 @@ class DonationRepositoryImpl implements DonationRepository {
     double? latitude,
     double? longitude,
   }) async {
-    return await remoteDataSource.createDonation(
-      title: title,
-      description: description,
-      categoryId: categoryId,
-      quantity: quantity,
-      foodWeightKg: foodWeightKg,
-      urgency: urgency,
-      mainAttachmentId: mainAttachmentId,
-      attachmentIds: attachmentIds,
-      expiryDate: expiryDate,
-      safetyChecklistCompleted: safetyChecklistCompleted,
-      latitude: latitude,
-      longitude: longitude,
-    );
+    try {
+      final donation = await remoteDataSource.createDonation(
+        title: title,
+        description: description,
+        categoryId: categoryId,
+        quantity: quantity,
+        foodWeightKg: foodWeightKg,
+        urgency: urgency,
+        mainAttachmentId: mainAttachmentId,
+        attachmentIds: attachmentIds,
+        expiryDate: expiryDate,
+        safetyChecklistCompleted: safetyChecklistCompleted,
+        latitude: latitude,
+        longitude: longitude,
+      );
+      return right(donation);
+    } on ServerException catch (e) {
+      return left(ServerFailure(e.message));
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
+    }
   }
 }

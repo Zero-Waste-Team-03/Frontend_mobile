@@ -1,9 +1,10 @@
-import 'dart:io';
+import 'package:fpdart/fpdart.dart';
+import '../../../../core/errors/failures.dart';
 import '../entities/category.dart';
 import '../entities/donation.dart';
 
 abstract class DonationRepository {
-  Future<List<Donation>> getDonations({
+  Future<Either<Failure, List<Donation>>> getDonations({
     int page = 1,
     int limit = 50,
     String? categoryId,
@@ -12,9 +13,9 @@ abstract class DonationRepository {
     double? longitude,
     double? radius,
   });
-  Future<List<Category>> getCategories({int page = 1, int limit = 50});
-  Future<String> uploadDonationImage(File file);
-  Future<Donation> createDonation({
+  Future<Either<Failure, List<Category>>> getCategories({int page = 1, int limit = 50});
+  Future<Either<Failure, String>> uploadDonationImage(File file);
+  Future<Either<Failure, Donation>> createDonation({
     required String title,
     required String description,
     required String categoryId,

@@ -19,6 +19,8 @@ class DonationsLoaded extends DonationsState {
   final List<Donation> standardDonations;
   final List<Category> categories;
   final String? selectedCategoryId;
+  final int currentPage;
+  final bool hasNextPage;
 
   const DonationsLoaded({
     required this.donations,
@@ -26,6 +28,8 @@ class DonationsLoaded extends DonationsState {
     required this.standardDonations,
     required this.categories,
     this.selectedCategoryId,
+    this.currentPage = 1,
+    this.hasNextPage = true,
   });
 
   @override
@@ -35,7 +39,29 @@ class DonationsLoaded extends DonationsState {
     standardDonations,
     categories,
     selectedCategoryId,
+    currentPage,
+    hasNextPage,
   ];
+
+  DonationsLoaded copyWith({
+    List<Donation>? donations,
+    List<Donation>? featuredDonations,
+    List<Donation>? standardDonations,
+    List<Category>? categories,
+    String? selectedCategoryId,
+    int? currentPage,
+    bool? hasNextPage,
+  }) {
+    return DonationsLoaded(
+      donations: donations ?? this.donations,
+      featuredDonations: featuredDonations ?? this.featuredDonations,
+      standardDonations: standardDonations ?? this.standardDonations,
+      categories: categories ?? this.categories,
+      selectedCategoryId: selectedCategoryId ?? this.selectedCategoryId,
+      currentPage: currentPage ?? this.currentPage,
+      hasNextPage: hasNextPage ?? this.hasNextPage,
+    );
+  }
 }
 
 class DonationsError extends DonationsState {

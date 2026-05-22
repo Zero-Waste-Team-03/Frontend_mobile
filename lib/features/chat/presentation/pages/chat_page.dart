@@ -152,7 +152,6 @@ class _ChatScreenState extends State<ChatScreen> {
       centerTitle: false,
       title: Row(
         children: [
-
           if (state is ChatLoaded && (state.conversation.donationImageUrl != null || state.conversation.counterpartAvatarUrl != null))
             Stack(
               children: [
@@ -188,9 +187,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                   ),
               ],
-
             )
           else if (state is ChatLoaded)
+
             Stack(
               children: [
                 CircleAvatar(
@@ -220,9 +219,7 @@ class _ChatScreenState extends State<ChatScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-
                   state is ChatLoaded ? (state.conversation.counterpartName ?? 'User') : 'Loading...',
-
                   style: TextStyle(
                     fontSize: 18.sp,
                     color: AuthColors.headingText,
@@ -236,9 +233,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     donationTitle,
                     style: TextStyle(
                       fontSize: 12.sp,
-
                       color: AuthColors.subText,
-
                       fontFamily: AppFonts.primaryFont,
                     ),
                     maxLines: 1,
@@ -254,7 +249,6 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Divider(height: 1.h, color: AuthColors.dividerColor),
       ),
       actions: [
-
         if (state is ChatLoaded)
           IconButton(
             icon: Icon(Icons.info_outline, size: 24.sp, color: AuthColors.primary),
@@ -263,7 +257,6 @@ class _ChatScreenState extends State<ChatScreen> {
             },
           ),
         if (state is ChatLoaded && (state.conversation.status == 'Active' || state.conversation.status == 'ACTIVE'))
-
           Padding(
             padding: EdgeInsets.only(right: 8.w),
             child: TextButton.icon(

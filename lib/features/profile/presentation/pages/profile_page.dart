@@ -252,7 +252,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                               ),
                                       ),
                                       // Verification badge
-                                      if (user.isMailVerified)
+                                      if (user.isVerified)
                                         Positioned(
                                           bottom: 4.w,
                                           right: 4.w,

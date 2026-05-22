@@ -14,12 +14,14 @@ import '../datasources/graphql/__generated__/send_message.req.gql.dart';
 import '../datasources/graphql/__generated__/send_message.var.gql.dart';
 import '../datasources/graphql/__generated__/conversation_messages.var.gql.dart';
 import '../datasources/graphql/__generated__/my_active_conversations.req.gql.dart';
+import '../datasources/graphql/__generated__/my_archived_conversations.req.gql.dart';
 import '../datasources/graphql/__generated__/create_report.req.gql.dart';
 import '../../../../core/graphql/__generated__/schema.schema.gql.dart';
 
 abstract class ChatRemoteDataSource {
   AuthLocalDataSource get authLocalDataSource;
   Future<List<ConversationEntity>> getMyActiveConversations();
+  Future<List<ConversationEntity>> getMyArchivedConversations();
   Future<ConversationEntity> getOrCreateConversation(String reservationId);
   Future<List<ChatMessageEntity>> getConversationMessages(
     String conversationId,
@@ -258,6 +260,29 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
           ),
         )
         .toList();
+  }
+
+  @override
+  Future<List<ConversationEntity>> getMyArchivedConversations() async {
+    final req = GMyArchivedConversationsReq(
+      (b) => b..fetchPolicy = FetchPolicy.NetworkOnly,
+    );
+    final response = await _executeRequest(req, 'myArchivedConversations');
+
+    return response.myArchivedConversations.items
+        ?.map(
+          (e) => ConversationEntity(
+            id: e.id,
+            reservationId: e.reservationId,
+            status: e.status.name,
+            createdAt: _safeParseDate(e.createdAt.value),
+            lastMessage: e.lastMessage,
+            counterpartName: e.counterpart.displayName,
+            counterpartAvatarUrl: e.counterpart.avatarUrl,
+          ),
+        )
+        .toList() ??
+        const [];
   }
 
   DateTime _safeParseDate(String? value) {

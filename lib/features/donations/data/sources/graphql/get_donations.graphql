@@ -1,8 +1,9 @@
 query GetDonations(
   $pagination: PaginationInput
   $filter: DonationsFilterInput
+  $searchName: String
 ) {
-  donations(pagination: $pagination, filter: $filter) {
+  donations(pagination: $pagination, filter: $filter, searchName: $searchName) {
     items {
       id
       createdAt

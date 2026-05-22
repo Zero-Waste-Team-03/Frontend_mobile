@@ -298,28 +298,31 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
   Widget _buildSearchBar() {
     final l10n = AppLocalizations.of(context);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+    return Hero(
+      tag: 'search_bar',
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: TextField(
+          readOnly: true,
+          onTap: () {
+            context.go('/browse?focus=true');
+          },
+          decoration: InputDecoration(
+            hintText: l10n.browseSearchHint,
+            prefixIcon: const Icon(AppIcons.search),
+            border: InputBorder.none,
+            suffixIcon: const NotificationButton(compact: true),
           ),
-        ],
-      ),
-      child: TextField(
-        controller: _searchController,
-        onChanged: (_) {
-          setState(() {});
-        },
-        decoration: InputDecoration(
-          hintText: l10n.browseSearchHint,
-          prefixIcon: const Icon(AppIcons.search),
-          border: InputBorder.none,
-          suffixIcon: const NotificationButton(compact: true),
         ),
       ),
     );

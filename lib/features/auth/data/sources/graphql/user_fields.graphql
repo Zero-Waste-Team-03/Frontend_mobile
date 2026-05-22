@@ -4,7 +4,7 @@ fragment UserFields on User {
   displayName
   role
   description
-  isMailVerified
+  isVerified
   phoneNumber
   reputationScore
   locationId

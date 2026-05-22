@@ -38,7 +38,7 @@ fragment ReservationFields on Reservation {
     phoneNumber
     role
     description
-    isMailVerified
+    isVerified
     reputationScore
     locationId
     location {

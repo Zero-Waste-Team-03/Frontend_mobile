@@ -50,7 +50,7 @@ query MyReservation($id: ID!) {
         displayName
         email
         id
-        isMailVerified
+        isVerified
         lastChangedPasswordDate
         locationId
         phoneNumber

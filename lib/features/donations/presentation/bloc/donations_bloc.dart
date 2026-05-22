@@ -42,31 +42,91 @@ class DonationsBloc extends Bloc<DonationsEvent, DonationsState> {
     }
 
     try {
-      _cachedCategories = await donationRepository.getCategories();
-      final donations = currentState is DonationsLoaded
-          ? currentState.donations
-          : const <Donation>[];
-      final selectedCategoryId = currentState is DonationsLoaded
-          ? currentState.selectedCategoryId
-          : null;
+      final categoriesResult = await donationRepository.getCategories();
+      categoriesResult.fold(
+        (failure) {
+          if (currentState is! DonationsLoaded) {
+            emit(DonationsError(failure.message));
+          }
+        },
+        (cats) {
+          _cachedCategories = cats;
+          final donations = currentState is DonationsLoaded
+              ? currentState.donations
+              : const <Donation>[];
+          final selectedCategoryId = currentState is DonationsLoaded
+              ? currentState.selectedCategoryId
+              : null;
 
-      emit(
-        DonationsLoaded(
-          donations: donations,
-          featuredDonations: currentState is DonationsLoaded
-              ? currentState.featuredDonations
-              : const [],
-          standardDonations: currentState is DonationsLoaded
-              ? currentState.standardDonations
-              : const [],
-          categories: _cachedCategories,
-          selectedCategoryId: selectedCategoryId,
-        ),
+          emit(
+            DonationsLoaded(
+              donations: donations,
+              featuredDonations: currentState is DonationsLoaded
+                  ? currentState.featuredDonations
+                  : const [],
+              standardDonations: currentState is DonationsLoaded
+                  ? currentState.standardDonations
+                  : const [],
+              categories: _cachedCategories,
+              selectedCategoryId: selectedCategoryId,
+            ),
+          );
+        },
       );
     } catch (e) {
       if (currentState is! DonationsLoaded) {
         emit(DonationsError(e.toString()));
       }
+    }
+  }
+
+  Future<void> _onUploadImage(
+    UploadDonationImageEvent event,
+    Emitter<DonationsState> emit,
+  ) async {
+    emit(DonationImageUploadLoading());
+    try {
+      final result = await donationRepository.uploadDonationImage(
+        event.imageFile,
+      );
+      result.fold(
+        (failure) => emit(DonationImageUploadError(failure.message)),
+        (attachmentId) => emit(DonationImageUploadSuccess(attachmentId)),
+      );
+    } catch (e) {
+      emit(DonationImageUploadError(e.toString()));
+    }
+  }
+
+  Future<void> _onAddDonation(
+    AddDonationEvent event,
+    Emitter<DonationsState> emit,
+  ) async {
+    emit(DonationAddLoading());
+    try {
+      final result = await donationRepository.createDonation(
+        title: event.title,
+        description: event.description,
+        categoryId: event.categoryId,
+        quantity: event.quantity,
+        foodWeightKg: event.foodWeightKg,
+        urgency: event.urgency,
+        mainAttachmentId: event.mainAttachmentId,
+        attachmentIds: event.attachmentIds,
+        expiryDate: event.expiryDate,
+        safetyChecklistCompleted: event.safetyChecklistCompleted,
+        latitude: event.latitude,
+        longitude: event.longitude,
+      );
+      result.fold(
+        (failure) => emit(DonationAddError(failure.message)),
+        (newDonation) => emit(DonationAddSuccess(newDonation)),
+      );
+    } catch (e) {
+      emit(DonationAddError(e.toString()));
+    }
+  }
+
     }
   }
 
@@ -92,15 +152,24 @@ class DonationsBloc extends Bloc<DonationsEvent, DonationsState> {
     final currentState = state;
     List<Donation> existingDonations = [];
     List<Category> categories = _cachedCategories;
+    int pageToLoad = 1;
 
-    if (currentState is DonationsLoaded && categories.isEmpty) {
-      categories = List<Category>.from(currentState.categories);
-      _cachedCategories = categories;
+    if (currentState is DonationsLoaded) {
+      if (categories.isEmpty) {
+        categories = List<Category>.from(currentState.categories);
+        _cachedCategories = categories;
+      }
+      
+      if (event.append) {
+        existingDonations = List.from(currentState.donations);
+        pageToLoad = currentState.currentPage + 1;
+        
+        // If we already know there's no next page, don't load
+        if (!currentState.hasNextPage) return;
+      }
     }
 
-    if (event.append && currentState is DonationsLoaded) {
-      existingDonations = List.from(currentState.donations);
-    } else {
+    if (!event.append) {
       if (currentState is! DonationsLoaded) {
         emit(DonationsLoading());
       }
@@ -108,11 +177,20 @@ class DonationsBloc extends Bloc<DonationsEvent, DonationsState> {
 
     try {
       if (categories.isEmpty) {
-        categories = await donationRepository.getCategories();
-        _cachedCategories = categories;
+        final categoriesResult = await donationRepository.getCategories();
+        categoriesResult.fold(
+          (failure) => throw Exception(failure.message),
+          (cats) {
+            categories = cats;
+            _cachedCategories = categories;
+          },
+        );
       }
 
-      final donations = await donationRepository.getDonations(
+      final limit = 10;
+      final donationsResult = await donationRepository.getDonations(
+        page: pageToLoad,
+        limit: limit,
         categoryId: event.categoryId,
         searchQuery: event.searchQuery,
         latitude: event.latitude,
@@ -120,42 +198,57 @@ class DonationsBloc extends Bloc<DonationsEvent, DonationsState> {
         radius: event.radius,
       );
 
-      if (event.append) {
-        final Map<String, Donation> merged = {
-          for (var d in existingDonations) d.id: d,
-          for (var d in donations) d.id: d,
-        };
-        final mergedDonations = merged.values.toList();
-        final split = _splitDonations(
-          mergedDonations,
-          event.latitude,
-          event.longitude,
-        );
-        emit(
-          DonationsLoaded(
-            donations: mergedDonations,
-            featuredDonations: split.$1,
-            standardDonations: split.$2,
-            categories: categories,
-            selectedCategoryId: event.categoryId,
-          ),
-        );
-      } else {
-        final split = _splitDonations(
-          donations,
-          event.latitude,
-          event.longitude,
-        );
-        emit(
-          DonationsLoaded(
-            donations: donations,
-            featuredDonations: split.$1,
-            standardDonations: split.$2,
-            categories: categories,
-            selectedCategoryId: event.categoryId,
-          ),
-        );
-      }
+      donationsResult.fold(
+        (failure) {
+          if (!event.append) {
+            emit(DonationsError(failure.message));
+          }
+        },
+        (donations) {
+          final hasNextPage = donations.length == limit;
+
+          if (event.append) {
+            final Map<String, Donation> merged = {
+              for (var d in existingDonations) d.id: d,
+              for (var d in donations) d.id: d,
+            };
+            final mergedDonations = merged.values.toList();
+            final split = _splitDonations(
+              mergedDonations,
+              event.latitude,
+              event.longitude,
+            );
+            emit(
+              DonationsLoaded(
+                donations: mergedDonations,
+                featuredDonations: split.$1,
+                standardDonations: split.$2,
+                categories: categories,
+                selectedCategoryId: event.categoryId,
+                currentPage: pageToLoad,
+                hasNextPage: hasNextPage,
+              ),
+            );
+          } else {
+            final split = _splitDonations(
+              donations,
+              event.latitude,
+              event.longitude,
+            );
+            emit(
+              DonationsLoaded(
+                donations: donations,
+                featuredDonations: split.$1,
+                standardDonations: split.$2,
+                categories: categories,
+                selectedCategoryId: event.categoryId,
+                currentPage: pageToLoad,
+                hasNextPage: hasNextPage,
+              ),
+            );
+          }
+        },
+      );
     } catch (e) {
       if (!event.append) {
         emit(DonationsError(e.toString()));

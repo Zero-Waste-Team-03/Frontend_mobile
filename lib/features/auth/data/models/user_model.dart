@@ -1,4 +1,4 @@
-﻿import 'package:equatable/equatable.dart';
+import 'package:equatable/equatable.dart';
 import '../../domain/entities/user.dart';
 import 'user_settings_model.dart';
 
@@ -11,7 +11,7 @@ class UserModel extends Equatable {
   final String? phoneNumber;
   final String? role;
   final String? description;
-  final bool isMailVerified;
+  final bool isVerified;
   final int reputationScore;
   final String? locationId;
   final Map<String, dynamic>? location;
@@ -25,7 +25,7 @@ class UserModel extends Equatable {
     this.phoneNumber,
     this.role,
     this.description,
-    this.isMailVerified = false,
+    this.isVerified = false,
     this.reputationScore = 0,
     this.locationId,
     this.location,
@@ -71,7 +71,7 @@ class UserModel extends Equatable {
       phoneNumber: json['phoneNumber'] as String?,
       role: json['role'] as String?,
       description: json['description'] as String?,
-      isMailVerified: (json['isMailVerified'] as bool?) ?? false,
+      isVerified: (json['isVerified'] as bool?) ?? (json['isMailVerified'] as bool?) ?? false,
       reputationScore: (json['reputationScore'] as num?)?.toInt() ?? 0,
       locationId: json['locationId']?.toString(),
       location: json['location'] as Map<String, dynamic>?,
@@ -90,7 +90,7 @@ class UserModel extends Equatable {
       'phoneNumber': phoneNumber,
       'role': role,
       'description': description,
-      'isMailVerified': isMailVerified,
+      'isVerified': isVerified,
       'reputationScore': reputationScore,
       'locationId': locationId,
       'location': location,
@@ -107,7 +107,7 @@ class UserModel extends Equatable {
       phoneNumber: phoneNumber,
       role: role,
       description: description,
-      isMailVerified: isMailVerified,
+      isVerified: isVerified,
       reputationScore: reputationScore,
       locationId: locationId,
       location: location,
@@ -124,7 +124,7 @@ class UserModel extends Equatable {
     phoneNumber,
     role,
     description,
-    isMailVerified,
+    isVerified,
     reputationScore,
     locationId,
     location,

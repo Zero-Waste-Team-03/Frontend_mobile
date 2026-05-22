@@ -11,7 +11,6 @@ import 'package:maplibre_gl/maplibre_gl.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/map/map_config.dart';
 import '../../../../shared/theme/app_colors.dart';
-import '../../../../shared/widgets/notification_button.dart';
 import '../../../favorites/domain/repositories/favorites_repository.dart';
 import '../../../reservation/presentation/bloc/reservation_bloc.dart';
 import '../../../reservation/presentation/bloc/reservation_event.dart';

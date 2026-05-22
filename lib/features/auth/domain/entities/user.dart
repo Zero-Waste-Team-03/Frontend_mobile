@@ -1,4 +1,4 @@
-﻿import 'package:equatable/equatable.dart';
+import 'package:equatable/equatable.dart';
 import 'user_settings.dart';
 
 class User extends Equatable {
@@ -8,7 +8,7 @@ class User extends Equatable {
   final String? phoneNumber;
   final String? role;
   final String? description;
-  final bool isMailVerified;
+  final bool isVerified;
   final int reputationScore;
   final String? locationId;
   final Map<String, dynamic>? location;
@@ -22,7 +22,7 @@ class User extends Equatable {
     this.phoneNumber,
     this.role,
     this.description,
-    this.isMailVerified = false,
+    this.isVerified = false,
     this.reputationScore = 0,
     this.locationId,
     this.location,
@@ -39,7 +39,7 @@ class User extends Equatable {
     String? phoneNumber,
     String? role,
     String? description,
-    bool? isMailVerified,
+    bool? isVerified,
     int? reputationScore,
     String? locationId,
     Map<String, dynamic>? location,
@@ -53,7 +53,7 @@ class User extends Equatable {
       phoneNumber: phoneNumber ?? this.phoneNumber,
       role: role ?? this.role,
       description: description ?? this.description,
-      isMailVerified: isMailVerified ?? this.isMailVerified,
+      isVerified: isVerified ?? this.isVerified,
       reputationScore: reputationScore ?? this.reputationScore,
       locationId: locationId ?? this.locationId,
       location: location ?? this.location,
@@ -70,7 +70,7 @@ class User extends Equatable {
     phoneNumber,
     role,
     description,
-    isMailVerified,
+    isVerified,
     reputationScore,
     locationId,
     location,

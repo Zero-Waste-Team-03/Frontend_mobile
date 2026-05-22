@@ -5,6 +5,7 @@ import '../entities/chat_message.dart';
 
 abstract class ChatRepository {
   Future<Either<Failure, List<ConversationEntity>>> getMyActiveConversations();
+  Future<Either<Failure, List<ConversationEntity>>> getMyArchivedConversations();
   Future<Either<Failure, ConversationEntity>> getOrCreateConversation(
     String reservationId,
   );
