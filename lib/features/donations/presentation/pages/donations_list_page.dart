@@ -7,6 +7,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../../core/app_icons.dart';
+import '../../../../core/permissions/permission_request_coordinator.dart';
 import '../../../../shared/theme/app_colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection.dart';
@@ -83,7 +84,9 @@ class _DonationsListPageState extends State<DonationsListPage> {
 
       var permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
+        permission = await PermissionRequestCoordinator.runLocationRequest(
+          Geolocator.requestPermission,
+        );
         if (permission == LocationPermission.denied) return;
       }
       if (permission == LocationPermission.deniedForever) return;

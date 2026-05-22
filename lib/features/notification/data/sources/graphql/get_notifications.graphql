@@ -10,6 +10,7 @@ query GetNotifications($pagination: PaginationQueryInput) {
       createdAt
       id
       isRead
+      meta
       receiverId
       title
       type

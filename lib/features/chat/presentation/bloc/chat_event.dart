@@ -10,12 +10,17 @@ abstract class ChatEvent extends Equatable {
 }
 
 class ChatInitializeRequested extends ChatEvent {
-  final String reservationId;
+  final String? reservationId;
+  final String? conversationId;
 
-  const ChatInitializeRequested({required this.reservationId});
+  const ChatInitializeRequested({this.reservationId, this.conversationId})
+    : assert(
+        reservationId != null || conversationId != null,
+        'Either reservationId or conversationId must be provided',
+      );
 
   @override
-  List<Object?> get props => [reservationId];
+  List<Object?> get props => [reservationId, conversationId];
 }
 
 class ChatMessagesLoadRequested extends ChatEvent {

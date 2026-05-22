@@ -3,6 +3,7 @@ import 'package:gaspzero/features/auth/data/models/user_model.dart';
 import '../../domain/entities/reservation.dart';
 import '../../../../core/entities/attachment.dart';
 import '../../../donations/domain/entities/donation.dart';
+import '../../../donations/domain/entities/category.dart';
 
 class ReservationModel extends Reservation {
   const ReservationModel({
@@ -20,7 +21,6 @@ class ReservationModel extends Reservation {
   });
 
   factory ReservationModel.fromJson(Map<String, dynamic> json) {
-
     try {
       // Parse donation with attachments
       Donation? donation;
@@ -45,7 +45,6 @@ class ReservationModel extends Reservation {
                 _asString(donationJson['userId']) ??
                 '0',
           };
-  
         }
         final author = UserModel.fromJson(userJson);
 
@@ -53,7 +52,7 @@ class ReservationModel extends Reservation {
         List<Attachment> attachments = [];
         if (donationJson['attachmentIds'] != null) {
           final attachmentIds = donationJson['attachmentIds'] as List<dynamic>;
-      
+
           attachments = attachmentIds
               .map(
                 (id) => Attachment(
@@ -67,15 +66,32 @@ class ReservationModel extends Reservation {
               .toList();
         }
 
-      
         // Extract image URL from mainAttachment
         String imageUrl = '';
         if (donationJson['mainAttachment'] != null) {
           final mainAttachment =
               donationJson['mainAttachment'] as Map<String, dynamic>;
           imageUrl = mainAttachment['url'] as String? ?? '';
-          } else {
-          }
+        }
+
+        // Extract location data
+        double? latitude;
+        double? longitude;
+        if (donationJson['location'] != null) {
+          final location = donationJson['location'] as Map<String, dynamic>;
+          latitude = (location['latitude'] as num?)?.toDouble();
+          longitude = (location['longitude'] as num?)?.toDouble();
+        }
+
+        // Parse category
+        Category? category;
+        if (donationJson['category'] != null) {
+          final categoryJson = donationJson['category'] as Map<String, dynamic>;
+          category = Category(
+            id: _asString(categoryJson['id']) ?? 'unknown',
+            name: _asString(categoryJson['name']) ?? 'Unknown',
+          );
+        }
 
         donation = Donation(
           id: _asString(donationJson['id']) ?? '',
@@ -83,13 +99,13 @@ class ReservationModel extends Reservation {
           description: _asString(donationJson['description']) ?? '',
           quantity: (donationJson['quantity'] as num?)?.toInt() ?? 1,
           categoryId: _asString(donationJson['categoryId']) ?? 'unknown',
-          category: null, // Could be fetched separately
+          category: category,
           condition: _asString(donationJson['urgency']) ?? 'MEDIUM',
           status: _asString(donationJson['status']) ?? 'PUBLISHED',
-          author: _asString(donationJson['userId']) ?? 'Unknown',
+          author: author.displayName ?? 'Unknown',
           imageUrl: imageUrl,
-          latitude: null,
-          longitude: null,
+          latitude: latitude,
+          longitude: longitude,
           attachments: attachments,
           userId: _asString(donationJson['userId']),
           foodWeightKg: (donationJson['foodWeightKg'] as num?)?.toDouble(),
@@ -98,14 +114,16 @@ class ReservationModel extends Reservation {
               : null,
           urgency: _asString(donationJson['urgency']),
           isLikedByMe: donationJson['isLikedByMe'] as bool?,
+          isReservable: donationJson['isReservable'] as bool?,
           authorDetails: author,
+          createdAt: donationJson['createdAt'] != null
+              ? DateTime.tryParse(_asString(donationJson['createdAt']) ?? '')
+              : null,
         );
-        
-      } else {
-        }
+      }
 
       final reservationId = _asString(json['id']) ?? 'unknown_reservation';
-      
+
       final model = ReservationModel(
         id: reservationId,
         donationId: _asString(json['donation']?['id']) ?? '',
@@ -174,4 +192,5 @@ class ReservationModel extends Reservation {
     );
   }
 }
+
 //nothing

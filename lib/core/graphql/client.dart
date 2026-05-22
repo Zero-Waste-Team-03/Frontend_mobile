@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:dio/dio.dart' as dio_lib;
 import 'package:ferry/ferry.dart' as ferry;
 import 'package:gql_http_link/gql_http_link.dart';
@@ -26,10 +27,7 @@ class GraphQLClientFactory {
     final rawGraphQLEndpoint = Env.get('GRAPHQL_ENDPOINT')?.trim();
     final configuredBaseUrl =
         Env.get('API_BASE_URL')?.trim() ??
-        const String.fromEnvironment(
-          'API_BASE_URL',
-          defaultValue: 'https://api.gaspzero.qzz.io/',
-        );
+        const String.fromEnvironment('API_BASE_URL');
 
     final fallbackEndpoint = Uri.parse(
       configuredBaseUrl.endsWith('/')
@@ -85,6 +83,9 @@ class GraphQLClientFactory {
       if (forward == null) return;
 
       await for (final response in forward(request)) {
+        // Transform JSON scalars in notifications to handle meta field properly
+        _transformNotificationMetaFields(response);
+
         bool isUnauthorized = false;
 
         if (response.errors != null && response.errors!.isNotEmpty) {
@@ -161,5 +162,49 @@ class GraphQLClientFactory {
       cache: ferry.Cache(),
       requestController: StreamController<ferry.OperationRequest>.broadcast(),
     );
+  }
+
+  /// Transform meta fields in notification responses to ensure proper JSON serialization
+  void _transformNotificationMetaFields(Response response) {
+    try {
+      if (response.data == null) return;
+
+      // Handle getNotifications query
+      final getNotifications =
+          (response.data as Map<String, dynamic>)['getNotifications'];
+      if (getNotifications is Map<String, dynamic>) {
+        final items = getNotifications['items'];
+        if (items is List) {
+          for (final item in items) {
+            if (item is Map<String, dynamic>) {
+              _transformMetaField(item);
+            }
+          }
+        }
+      }
+    } catch (e) {
+      // Silent fail - don't break the response if transformation fails
+    }
+  }
+
+  /// Convert meta field to JSON string if it's a Map or List
+  void _transformMetaField(Map<String, dynamic> item) {
+    final meta = item['meta'];
+    if (meta == null) return;
+
+    // If meta is already a string or primitive, leave it
+    if (meta is String || meta is num || meta is bool) {
+      return;
+    }
+
+    // If meta is a Map or List, convert to JSON string
+    if (meta is Map || meta is List) {
+      try {
+        item['meta'] = jsonEncode(meta);
+      } catch (e) {
+        // If encoding fails, set to null
+        item['meta'] = null;
+      }
+    }
   }
 }

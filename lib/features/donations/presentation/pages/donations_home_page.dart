@@ -13,6 +13,7 @@ import '../../../../core/app_icons.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/map/map_config.dart';
 import '../../../../core/map/map_marker_utils.dart';
+import '../../../../core/permissions/permission_request_coordinator.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -70,7 +71,9 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
 
       var permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
+        permission = await PermissionRequestCoordinator.runLocationRequest(
+          Geolocator.requestPermission,
+        );
       }
       if (permission == LocationPermission.denied ||
           permission == LocationPermission.deniedForever) {

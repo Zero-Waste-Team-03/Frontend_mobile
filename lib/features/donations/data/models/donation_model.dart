@@ -21,6 +21,7 @@ class DonationModel extends Donation {
     super.urgency,
     super.createdAt,
     super.isLikedByMe,
+    super.isReservable,
     super.userId,
     super.authorDetails,
   });
@@ -90,6 +91,7 @@ class DonationModel extends Donation {
         : null;
     final urgency = json['urgency'] as String?;
     final isLikedByMe = json['isLikedByMe'] as bool?;
+    final isReservable = json['isReservable'] as bool?;
 
     return DonationModel(
       id: (json['id'] ?? '').toString(),
@@ -112,6 +114,7 @@ class DonationModel extends Donation {
       urgency: urgency,
       createdAt: createdAt,
       isLikedByMe: isLikedByMe,
+      isReservable: isReservable,
     );
   }
 }

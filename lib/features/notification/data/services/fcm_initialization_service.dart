@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -7,16 +8,23 @@ import 'dart:io';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
+import '../../../../core/router/app_router.dart';
+import 'android_notification_display_service.dart';
 import '../../data/services/fcm_manager.dart';
+import '../../domain/entities/notification.dart' as n;
+import '../../domain/entities/notification_type.dart';
 import '../../domain/usecases/fcm_token_usecases.dart';
 import '../../presentation/bloc/notification_bloc.dart';
 import '../../presentation/bloc/notification_event.dart';
+import '../../presentation/notification_action_handler.dart';
 
 /// Global FCM initialization service
 /// Handles all FCM setup and configuration at app startup
 class FcmInitializationService {
   static bool _postLoginListenersConfigured = false;
   static bool _postLoginInitializationInProgress = false;
+  static bool _tapHandlersConfigured = false;
+  static final Set<String> _handledTapIds = <String>{};
 
   static final Logger _logger = Logger(
     printer: PrettyPrinter(
@@ -147,6 +155,18 @@ class FcmInitializationService {
             '📬 FcmInitializationService: Foreground notification received',
           );
           try {
+            await AndroidNotificationDisplayService.showForegroundNotification(
+              message,
+            );
+          } catch (e, st) {
+            _logger.w(
+              '⚠️  FcmInitializationService: Android foreground notification display failed',
+              error: e,
+              stackTrace: st,
+            );
+          }
+
+          try {
             final notificationBloc = GetIt.I<NotificationBloc>();
             notificationBloc.add(FcmNotificationReceivedEvent(message.data));
           } catch (e) {
@@ -157,14 +177,12 @@ class FcmInitializationService {
           }
         });
 
-        fcmManager.setupNotificationTapHandler((RemoteMessage message) async {
-          _logger.i(
-            '👆 FcmInitializationService: Notification tapped after login',
-          );
-        });
+        _ensureTapHandlersConfigured(fcmManager);
 
         _postLoginListenersConfigured = true;
       }
+
+      await _processInitialNotificationTap(fcmManager, source: 'after-login');
 
       // Always request permission after a successful login so the user
       // is prompted explicitly when they authenticate.
@@ -219,9 +237,14 @@ class FcmInitializationService {
     try {
       // Get FCM Manager and try to initialize Firebase Messaging
       try {
-        GetIt.I<FcmManager>();
+        final fcmManager = GetIt.I<FcmManager>();
         _logger.i(
           '✅ FcmInitializationService: FcmManager retrieved successfully',
+        );
+
+        _ensureTapHandlersConfigured(fcmManager);
+        unawaited(
+          _processInitialNotificationTap(fcmManager, source: 'after-build'),
         );
       } catch (e) {
         _logger.w(
@@ -268,6 +291,18 @@ class FcmInitializationService {
     try {
       // Process the notification here
       // You can store it, log it, or trigger analytics
+      try {
+        await AndroidNotificationDisplayService.showForegroundNotification(
+          message,
+        );
+      } catch (e, st) {
+        _logger.w(
+          '⚠️ FcmInitializationService: Failed to display background notification card',
+          error: e,
+          stackTrace: st,
+        );
+      }
+
       _logger.i(
         '✅ FcmInitializationService: Background notification processed',
       );
@@ -292,6 +327,170 @@ class FcmInitializationService {
         stackTrace: stackTrace,
       );
     }
+  }
+
+  static void _ensureTapHandlersConfigured(FcmManager fcmManager) {
+    if (_tapHandlersConfigured) {
+      return;
+    }
+
+    _logger.i(
+      '👆 FcmInitializationService: Configuring notification tap handlers',
+    );
+
+    fcmManager.setupNotificationTapHandler((RemoteMessage message) async {
+      await _handleNotificationTap(message, source: 'onMessageOpenedApp');
+    });
+
+    _tapHandlersConfigured = true;
+    _logger.i(
+      '✅ FcmInitializationService: Notification tap handlers configured',
+    );
+  }
+
+  static Future<void> _processInitialNotificationTap(
+    FcmManager fcmManager, {
+    required String source,
+  }) async {
+    final initialMessage = await fcmManager.getInitialNotification();
+    if (initialMessage == null) {
+      _logger.d(
+        '📭 FcmInitializationService: No initial notification tap ($source)',
+      );
+      return;
+    }
+
+    await _handleNotificationTap(initialMessage, source: '$source-initial');
+  }
+
+  static Future<void> _handleNotificationTap(
+    RemoteMessage message, {
+    required String source,
+  }) async {
+    final tapId =
+        message.messageId ??
+        (message.data['id']?.toString() ??
+            '${message.sentTime?.millisecondsSinceEpoch ?? DateTime.now().millisecondsSinceEpoch}');
+
+    if (_handledTapIds.contains(tapId)) {
+      _logger.d(
+        '↩️ FcmInitializationService: Skipping duplicate tap handling for id=$tapId from $source',
+      );
+      return;
+    }
+
+    final context = await _waitForRouterContext();
+    if (context == null) {
+      _logger.w(
+        '⚠️ FcmInitializationService: Navigation context unavailable for tap id=$tapId from $source',
+      );
+      return;
+    }
+
+    final notification = _buildNotificationFromRemoteMessage(message);
+
+    _logger.i(
+      '🚦 FcmInitializationService: Handling notification tap id=$tapId from $source',
+    );
+    _logger.d('📋 FcmInitializationService: Tap meta=${notification.meta}');
+
+    try {
+      await NotificationActionHandler.handle(context, notification);
+      _handledTapIds.add(tapId);
+      _logger.i(
+        '✅ FcmInitializationService: Notification tap handled id=$tapId',
+      );
+    } catch (e, stackTrace) {
+      _logger.e(
+        '❌ FcmInitializationService: Failed to handle notification tap id=$tapId',
+        error: e,
+        stackTrace: stackTrace,
+      );
+    }
+  }
+
+  static Future<BuildContext?> _waitForRouterContext() async {
+    for (var i = 0; i < 12; i++) {
+      final context = appRouter.routerDelegate.navigatorKey.currentContext;
+      if (context != null && context.mounted) {
+        return context;
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 250));
+    }
+    return null;
+  }
+
+  static n.Notification _buildNotificationFromRemoteMessage(
+    RemoteMessage message,
+  ) {
+    final data = <String, dynamic>{...message.data};
+    final meta = _extractMetaFromMessageData(data);
+
+    final action =
+        (meta['action'] as String?) ??
+        (data['action'] as String?) ??
+        (data['click_action'] as String?);
+    if (action != null && action.isNotEmpty) {
+      meta['action'] = action;
+    }
+
+    return n.Notification(
+      id:
+          data['id']?.toString() ??
+          message.messageId ??
+          'fcm-${DateTime.now().millisecondsSinceEpoch}',
+      receiverId: data['receiverId']?.toString() ?? '',
+      title:
+          message.notification?.title ??
+          data['title']?.toString() ??
+          'Notification',
+      body: message.notification?.body ?? data['body']?.toString() ?? '',
+      type: NotificationTypeExt.fromString(data['type']?.toString() ?? 'TEST'),
+      isRead: false,
+      meta: meta,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+  }
+
+  static Map<String, dynamic> _extractMetaFromMessageData(
+    Map<String, dynamic> data,
+  ) {
+    final metaValue = data['meta'];
+
+    if (metaValue is Map<String, dynamic>) {
+      return <String, dynamic>{...metaValue};
+    }
+
+    if (metaValue is Map) {
+      return Map<String, dynamic>.from(metaValue);
+    }
+
+    if (metaValue is String && metaValue.trim().isNotEmpty) {
+      try {
+        final decoded = jsonDecode(metaValue);
+        if (decoded is Map<String, dynamic>) {
+          return <String, dynamic>{...decoded};
+        }
+        if (decoded is Map) {
+          return Map<String, dynamic>.from(decoded);
+        }
+        if (decoded is List) {
+          return <String, dynamic>{'value': decoded};
+        }
+      } catch (_) {
+        // Keep parsing resilient; if invalid JSON, fall through to flat payload.
+      }
+    }
+
+    final flatMeta = <String, dynamic>{};
+    for (final entry in data.entries) {
+      if (entry.key == 'meta') {
+        continue;
+      }
+      flatMeta[entry.key] = entry.value;
+    }
+    return flatMeta;
   }
 
   /// Cleanup FCM resources when the app is destroyed

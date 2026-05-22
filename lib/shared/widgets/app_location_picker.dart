@@ -6,6 +6,7 @@ import 'package:maplibre_gl/maplibre_gl.dart';
 
 import '../../core/app_icons.dart';
 import '../../core/map/map_config.dart';
+import '../../core/permissions/permission_request_coordinator.dart';
 import '../../core/theme/app_colors.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -58,7 +59,9 @@ class _AppLocationPickerState extends State<AppLocationPicker> {
 
       var permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
+        permission = await PermissionRequestCoordinator.runLocationRequest(
+          Geolocator.requestPermission,
+        );
       }
 
       if (permission == LocationPermission.denied) {

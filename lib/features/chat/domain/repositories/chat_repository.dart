@@ -6,9 +6,13 @@ import '../entities/chat_message.dart';
 abstract class ChatRepository {
   Future<Either<Failure, List<ConversationEntity>>> getMyActiveConversations();
   Future<Either<Failure, List<ConversationEntity>>> getMyArchivedConversations();
-  Future<Either<Failure, ConversationEntity>> getOrCreateConversation(
-    String reservationId,
+  Future<Either<Failure, ConversationEntity>> getConversation(
+    String conversationId,
   );
+  Future<Either<Failure, ConversationEntity>> getOrCreateConversation({
+    String? reservationId,
+    String? conversationId,
+  });
   Future<Either<Failure, List<ChatMessageEntity>>> getConversationMessages(
     String conversationId, {
     int page = 1,

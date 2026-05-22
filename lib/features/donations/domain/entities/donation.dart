@@ -23,6 +23,7 @@ class Donation {
   final DateTime? expiryDate;
   final String? urgency;
   final bool? isLikedByMe;
+  final bool? isReservable;
   final UserModel? authorDetails;
   final DateTime? createdAt;
 
@@ -46,6 +47,7 @@ class Donation {
     this.expiryDate,
     this.urgency,
     this.isLikedByMe,
+    this.isReservable,
     this.authorDetails,
     this.createdAt,
   });

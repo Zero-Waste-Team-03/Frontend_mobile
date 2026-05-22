@@ -403,6 +403,11 @@ type Donation {
   isLikedByMe: Boolean!
 
   """
+  Whether the authenticated user can reserve this donation
+  """
+  isReservable: Boolean
+
+  """
   Date when listing expires for visibility
   """
   listingExpiresAt: DateTime
@@ -979,6 +984,10 @@ type Query {
   """
   adminGetUserStats: UserStats!
 
+  leaderboardAllTime(limit: Int = 10): [LeaderboardEntry!]!
+
+  leaderboardLastMonth(limit: Int = 10): [LeaderboardEntry!]!
+
   """
   Get paginated list of users for admin panel
   """
@@ -1049,6 +1058,11 @@ type Query {
   Get paginated messages of a conversation
   """
   conversationMessages(input: ConversationMessagesInput!): PaginatedMessages!
+
+  """
+  Get a conversation preview by conversation ID
+  """
+  conversationDetails(conversationId: ID!): ConversationPreview!
 
   """
   Get current authenticated user profile
@@ -1662,4 +1676,12 @@ type UserStats {
   Percentage increase of total users since last month
   """
   totalUsersIncrease: Float!
+}
+
+type LeaderboardEntry {
+  avatarUrl: String
+  displayName: String!
+  rank: Int!
+  score: Int!
+  userId: String!
 }
