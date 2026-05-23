@@ -86,6 +86,9 @@ class AndroidNotificationDisplayService {
 
     await initialize();
     if (!_initialized) {
+      _logger.w(
+        '⚠️ AndroidNotificationDisplayService: cannot show notification because initialization failed',
+      );
       return;
     }
 
@@ -98,6 +101,9 @@ class AndroidNotificationDisplayService {
         data.isNotEmpty;
 
     if (!hasVisibleContent) {
+      _logger.w(
+        '⚠️ AndroidNotificationDisplayService: skipping notification with no visible content',
+      );
       return;
     }
 
@@ -184,13 +190,22 @@ class AndroidNotificationDisplayService {
 
   static bool _isMessageNotification(Map<String, dynamic> data) {
     final typeValue = data['type']?.toString().trim().toUpperCase();
-    if (typeValue == 'MESSAGE') {
+    if (typeValue == 'MESSAGE' || typeValue == 'CHAT_MESSAGE') {
+      _logger.i(
+        'AndroidNotificationDisplayService: identified message notification by type field',
+      );
       return true;
     }
 
     final meta = _extractMeta(data);
     final metaTypeValue = meta['type']?.toString().trim().toUpperCase();
-    return metaTypeValue == 'MESSAGE';
+    final isMessageType = metaTypeValue == 'MESSAGE' || metaTypeValue == 'CHAT_MESSAGE';
+    if (isMessageType) {
+      _logger.i(
+        'AndroidNotificationDisplayService: identified message notification by meta field',
+      );
+    }
+    return isMessageType;
   }
 
   static String? _resolveSenderAvatarUrl(RemoteMessage message) {

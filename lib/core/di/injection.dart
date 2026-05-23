@@ -316,5 +316,10 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton<GetLeaderboardUseCase>(
     () => GetLeaderboardUseCase(getIt()),
   );
-  getIt.registerFactory(() => LeaderboardBloc(getLeaderboardUseCase: getIt()));
+  getIt.registerFactory(
+    () => LeaderboardBloc(
+      getLeaderboardUseCase: getIt(),
+      authLocalDataSource: getIt(),
+    ),
+  );
 }

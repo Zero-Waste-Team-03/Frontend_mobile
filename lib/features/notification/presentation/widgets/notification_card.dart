@@ -77,7 +77,9 @@ class NotificationCard extends StatelessWidget {
   }
 
   bool _isMessageNotification() {
-    final isMessage = notification.type == NotificationType.message;
+    final isMessage = notification.type == NotificationType.message
+    || notification.type == NotificationType.chatMessage
+    ;
     return isMessage;
   }
 

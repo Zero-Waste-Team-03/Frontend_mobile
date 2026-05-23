@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:logger/logger.dart';
+import 'package:gaspzero/features/notification/data/services/fcm_initialization_service.dart';
 import '../../domain/repositories/auth_repository.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
@@ -112,6 +113,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       },
       (response) {
         _logger.i('🟢 [AuthBloc] Emitting AuthSuccess from Google OAuth');
+        FcmInitializationService.initializeAfterLogin();
         emit(AuthSuccess(response.user));
       },
     );

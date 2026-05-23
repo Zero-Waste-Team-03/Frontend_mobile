@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gaspzero/features/leaderboard/domain/entities/leaderboard_entry.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -57,6 +58,17 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
     }
   }
 
+  Future<void> _refreshLeaderboard() async {
+    final currentState = context.read<LeaderboardBloc>().state;
+    final period = currentState is LeaderboardLoaded
+        ? currentState.period
+        : LeaderboardPeriod.monthly;
+
+    context.read<LeaderboardBloc>().add(
+      FetchLeaderboardEvent(period: period, page: 1, limit: _pageSize),
+    );
+  }
+
   @override
   void dispose() {
     _scrollController.dispose();
@@ -73,7 +85,8 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
             final stackSize = Size(constraints.maxWidth, constraints.maxHeight);
             final blocState = context.watch<LeaderboardBloc>().state;
             final hasCurrentUserCard =
-                blocState is LeaderboardLoaded && blocState.currentUser != null;
+                blocState is LeaderboardLoaded &&
+                blocState.currentUserId != null;
 
             final resolvedChatPos = _chatInitialized
                 ? _clampChatPosition(
@@ -171,7 +184,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                                 is LeaderboardLoaded &&
                             (context.read<LeaderboardBloc>().state
                                         as LeaderboardLoaded)
-                                    .currentUser !=
+                                    .currentUserId !=
                                 null;
 
                         _chatPos = _clampChatPosition(
@@ -195,31 +208,38 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
   Widget _buildBody(LeaderboardState state) {
     if (state is LeaderboardLoading) {
       // show skeleton: one top-3 skeleton + several row skeletons
-      return ListView.separated(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 170),
-        itemCount: 6,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
-        itemBuilder: (context, index) {
-          if (index == 0) {
-            return const LeaderboardTopThreeSkeleton();
-          }
-          return const LeaderboardUserCardSkeleton();
-        },
+      return RefreshIndicator(
+        onRefresh: _refreshLeaderboard,
+        child: ListView.separated(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 170),
+          itemCount: 6,
+          separatorBuilder: (_, __) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            if (index == 0) {
+              return const LeaderboardTopThreeSkeleton();
+            }
+            return const LeaderboardUserCardSkeleton();
+          },
+        ),
       );
     }
 
     if (state is LeaderboardError) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+      return RefreshIndicator(
+        onRefresh: _refreshLeaderboard,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 80, 16, 170),
           children: [
+            const SizedBox(height: 96),
             const Icon(
               Icons.error_outline,
               size: 42,
               color: AppColors.textMuted,
             ),
             const SizedBox(height: 10),
-            Text(state.message, style: AppTextStyles.bodyLarge),
+            Center(child: Text(state.message, style: AppTextStyles.bodyLarge)),
           ],
         ),
       );
@@ -231,67 +251,108 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
 
     // empty-data handling
     if (state.topThree.isEmpty && state.remainingRanks.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+      return RefreshIndicator(
+        onRefresh: _refreshLeaderboard,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 80, 16, 170),
           children: [
+            const SizedBox(height: 96),
             const Icon(
               Icons.leaderboard_outlined,
               size: 64,
               color: AppColors.textMuted,
             ),
             const SizedBox(height: 12),
-            Text('No leaderboard data yet', style: AppTextStyles.titleMedium),
+            Center(
+              child: Text(
+                'No leaderboard data yet',
+                style: AppTextStyles.titleMedium,
+              ),
+            ),
             const SizedBox(height: 8),
-            ElevatedButton(
-              onPressed: () {
-                context.read<LeaderboardBloc>().add(
-                  FetchLeaderboardEvent(period: state.period),
-                );
-              },
-              child: const Text('Refresh'),
+            Center(
+              child: ElevatedButton(
+                onPressed: _refreshLeaderboard,
+                child: const Text('Refresh'),
+              ),
             ),
           ],
         ),
       );
     }
 
-    final hasCurrentUser = state.currentUser != null;
+    final loadedState = state;
+    final currentUserId = loadedState.currentUserId;
+    LeaderboardEntry? currentUserEntry;
+    if (currentUserId != null) {
+      debugPrint(
+        'LeaderboardPage: currentUserId=$currentUserId, '
+        'entries=${loadedState.entries.length}',
+      );
+      for (final entry in loadedState.entries) {
+        if (entry.id == currentUserId) {
+          currentUserEntry = entry;
+          debugPrint(
+            'LeaderboardPage: matched current user entry => '
+            'id=${entry.id}, rank=${entry.rank}, name=${entry.name}',
+          );
+          break;
+        }
+      }
+      if (currentUserEntry == null) {
+        debugPrint(
+          'LeaderboardPage: no matching current user entry found for '
+          'currentUserId=$currentUserId',
+        );
+      }
+    } else {
+      debugPrint('LeaderboardPage: currentUserId is null');
+    }
+    final hasCurrentUser = currentUserEntry != null;
+    debugPrint(
+      'LeaderboardPage: hasCurrentUser=$hasCurrentUser, '
+      'currentUserEntryId=${currentUserEntry?.id}',
+    );
     final itemCount =
         1 + state.remainingRanks.length + (state.isLoadingMore ? 1 : 0);
 
     return Stack(
       children: [
-        ListView.separated(
-          controller: _scrollController,
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 170),
-          itemCount: itemCount,
-          separatorBuilder: (_, __) => const SizedBox(height: 12),
-          itemBuilder: (context, index) {
-            if (index == 0) {
-              return LeaderboardTopThreeCard(topThree: state.topThree);
-            }
+        RefreshIndicator(
+          onRefresh: _refreshLeaderboard,
+          child: ListView.separated(
+            controller: _scrollController,
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 170),
+            itemCount: itemCount,
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                return LeaderboardTopThreeCard(topThree: state.topThree);
+              }
 
-            final listIndex = index - 1;
-            if (listIndex < state.remainingRanks.length) {
-              return LeaderboardUserCard(
-                entry: state.remainingRanks[listIndex],
+              final listIndex = index - 1;
+              if (listIndex < state.remainingRanks.length) {
+                return LeaderboardUserCard(
+                  entry: state.remainingRanks[listIndex],
+                );
+              }
+
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16),
+                child: Center(child: CircularProgressIndicator()),
               );
-            }
-
-            return const Padding(
-              padding: EdgeInsets.symmetric(vertical: 16),
-              child: Center(child: CircularProgressIndicator()),
-            );
-          },
+            },
+          ),
         ),
-        if (hasCurrentUser)
+        if (currentUserEntry != null)
           Positioned(
             left: 16,
             right: 16,
             bottom: 10,
             child: LeaderboardUserCard(
-              entry: state.currentUser!,
+              entry: currentUserEntry,
               highlighted: true,
             ),
           ),
@@ -301,7 +362,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
 
   Widget _buildFloatingChatButton({required bool isDragging}) {
     return GestureDetector(
-      onTap: () => context.go('/chat'),
+      onTap: () => context.push('/chats'),
       child: Material(
         color: Colors.transparent,
         elevation: isDragging ? 10 : 6,

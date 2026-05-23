@@ -26,113 +26,140 @@ class LeaderboardUserCard extends StatelessWidget {
     final pointsColor = highlighted ? AppColors.onPrimary : AppColors.primary;
     final hasAvatar = _hasValidAvatarUrl(entry.avatarUrl);
 
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: shared_theme.AppDimensions.leaderboardCardHorizontalPadding,
-        vertical: shared_theme.AppDimensions.leaderboardCardVerticalPadding,
-      ),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(
-          shared_theme.AppDimensions.leaderboardCardRadius,
-        ),
-        boxShadow: highlighted
-            ? [
-                BoxShadow(
-                  color: AppColors.textPrimary.withValues(alpha: 0.14),
-                  blurRadius: 16,
-                  offset: const Offset(0, 8),
-                ),
-              ]
-            : null,
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: shared_theme.AppDimensions.leaderboardRankWidth,
-            child: Text(
-              '#${entry.rank}',
-              style: AppTextStyles.headlineMedium.copyWith(
-                fontSize:
-                    shared_theme.AppDimensions.leaderboardCardNameFontSize,
-                color: highlighted
-                    ? AppColors.onPrimary.withValues(alpha: 0.95)
-                    : AppColors.textMuted,
-                fontWeight: FontWeight.w700,
-              ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final maxW = constraints.maxWidth;
+        // reserve space for rank and points columns
+        final rankArea = shared_theme.AppDimensions.leaderboardRankWidth + 8.0;
+        final pointsArea = 72.0; // approx width for points column
+        final avatarDefault =
+            shared_theme.AppDimensions.leaderboardAvatarRadius * 2;
+        final availableForAvatarAndText = (maxW - rankArea - pointsArea - 40)
+            .clamp(48.0, maxW);
+        final avatarSize = (availableForAvatarAndText * 0.22).clamp(
+          28.0,
+          avatarDefault,
+        );
+
+        return Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal:
+                shared_theme.AppDimensions.leaderboardCardHorizontalPadding,
+            vertical: shared_theme.AppDimensions.leaderboardCardVerticalPadding,
+          ),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(
+              shared_theme.AppDimensions.leaderboardCardRadius,
             ),
+            boxShadow: highlighted
+                ? [
+                    BoxShadow(
+                      color: AppColors.textPrimary.withValues(alpha: 0.14),
+                      blurRadius: 16,
+                      offset: const Offset(0, 8),
+                    ),
+                  ]
+                : null,
           ),
-          const SizedBox(width: 8),
-          CircleAvatar(
-            radius: shared_theme.AppDimensions.leaderboardAvatarRadius,
-            backgroundColor: AppColors.surface,
-            backgroundImage: hasAvatar ? NetworkImage(entry.avatarUrl) : null,
-            child: hasAvatar
-                ? null
-                : Icon(
-                    Icons.person_rounded,
-                    color: AppColors.textMuted,
-                    size: shared_theme.AppDimensions.leaderboardAvatarRadius,
-                  ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  entry.name.isNotEmpty ? entry.name : 'Unknown user',
+          child: Row(
+            children: [
+              SizedBox(
+                width: shared_theme.AppDimensions.leaderboardRankWidth,
+                child: Text(
+                  '#${entry.rank}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.headlineMedium.copyWith(
                     fontSize:
                         shared_theme.AppDimensions.leaderboardCardNameFontSize,
-                    color: nameColor,
+                    color: highlighted
+                        ? AppColors.onPrimary.withValues(alpha: 0.95)
+                        : AppColors.textMuted,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 2),
-                Row(
+              ),
+              const SizedBox(width: 8),
+              // avatar
+              SizedBox(
+                width: avatarSize,
+                height: avatarSize,
+                child: CircleAvatar(
+                  radius: avatarSize / 2,
+                  backgroundColor: AppColors.surface,
+                  backgroundImage: hasAvatar
+                      ? NetworkImage(entry.avatarUrl)
+                      : null,
+                  child: hasAvatar
+                      ? null
+                      : Icon(
+                          Icons.person_rounded,
+                          color: AppColors.textMuted,
+                          size: (avatarSize * 0.6).clamp(12.0, 28.0),
+                        ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              // name + sub
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.eco_outlined, size: 14, color: subColor),
-                    const SizedBox(width: 4),
                     Text(
-                      '${entry.kgSaved.toStringAsFixed(1)} kg saved',
-                      style: AppTextStyles.bodyMedium.copyWith(
+                      entry.name.isNotEmpty ? entry.name : 'Unknown user',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.headlineMedium.copyWith(
+                        fontSize: shared_theme
+                            .AppDimensions
+                            .leaderboardCardNameFontSize,
+                        color: nameColor,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        Icon(Icons.eco_outlined, size: 14, color: subColor),
+                        const SizedBox(width: 4),
+                        
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              // points
+              ConstrainedBox(
+                constraints: const BoxConstraints(minWidth: 56, maxWidth: 88),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      entry.points.toString(),
+                      style: AppTextStyles.headlineMedium.copyWith(
+                        color: pointsColor,
+                        fontSize: shared_theme
+                            .AppDimensions
+                            .leaderboardPointsFontSize,
+                      ),
+                    ),
+                    Text(
+                      'points',
+                      style: AppTextStyles.bodySmall.copyWith(
                         color: subColor,
                         fontSize: shared_theme
                             .AppDimensions
-                            .leaderboardCardSubTextSize,
+                            .leaderboardPointsLabelFontSize,
                       ),
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                entry.points.toString(),
-                style: AppTextStyles.headlineMedium.copyWith(
-                  color: pointsColor,
-                  fontSize:
-                      shared_theme.AppDimensions.leaderboardPointsFontSize,
-                ),
-              ),
-              Text(
-                'points',
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: subColor,
-                  fontSize:
-                      shared_theme.AppDimensions.leaderboardPointsLabelFontSize,
-                ),
               ),
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -162,7 +189,8 @@ class LeaderboardUserCardSkeleton extends StatelessWidget {
       period: const Duration(milliseconds: 1200),
       child: Container(
         padding: const EdgeInsets.symmetric(
-          horizontal: shared_theme.AppDimensions.leaderboardCardHorizontalPadding,
+          horizontal:
+              shared_theme.AppDimensions.leaderboardCardHorizontalPadding,
           vertical: shared_theme.AppDimensions.leaderboardCardVerticalPadding,
         ),
         decoration: BoxDecoration(
@@ -172,61 +200,61 @@ class LeaderboardUserCardSkeleton extends StatelessWidget {
           ),
         ),
         child: Row(
-        children: [
-          SizedBox(
-            width: shared_theme.AppDimensions.leaderboardRankWidth,
-            child: Container(
-              height: 16,
-              color: AppColors.surface.withValues(alpha: 0.8),
+          children: [
+            SizedBox(
+              width: shared_theme.AppDimensions.leaderboardRankWidth,
+              child: Container(
+                height: 16,
+                color: AppColors.surface.withValues(alpha: 0.8),
+              ),
             ),
-          ),
-          const SizedBox(width: 8),
-          Container(
-            width: avatarRadius * 2,
-            height: avatarRadius * 2,
-            decoration: BoxDecoration(
-              color: AppColors.surface.withValues(alpha: 0.8),
-              shape: BoxShape.circle,
+            const SizedBox(width: 8),
+            Container(
+              width: avatarRadius * 2,
+              height: avatarRadius * 2,
+              decoration: BoxDecoration(
+                color: AppColors.surface.withValues(alpha: 0.8),
+                shape: BoxShape.circle,
+              ),
             ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    height: 14,
+                    width: double.infinity,
+                    color: AppColors.surface.withValues(alpha: 0.8),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    height: 12,
+                    width: 120,
+                    color: AppColors.surface.withValues(alpha: 0.75),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Container(
-                  height: 14,
-                  width: double.infinity,
+                  height: 18,
+                  width: 48,
                   color: AppColors.surface.withValues(alpha: 0.8),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
                 Container(
-                  height: 12,
-                  width: 120,
+                  height: 10,
+                  width: 36,
                   color: AppColors.surface.withValues(alpha: 0.75),
                 ),
               ],
             ),
-          ),
-          const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Container(
-                height: 18,
-                width: 48,
-                color: AppColors.surface.withValues(alpha: 0.8),
-              ),
-              const SizedBox(height: 6),
-              Container(
-                height: 10,
-                width: 36,
-                color: AppColors.surface.withValues(alpha: 0.75),
-              ),
-            ],
-          ),
-        ],
-      ),
+          ],
+        ),
       ),
     );
   }
