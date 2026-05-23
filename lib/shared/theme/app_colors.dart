@@ -70,7 +70,7 @@ class AppDimensions {
   static const double leaderboardTopAvatarSecondarySize = 62.0;
   static const double leaderboardTopAvatarPrimarySize = 86.0;
   static const double leaderboardTopBadgeFontSize = 14.0;
-  static const double leaderboardTopNameFontSize = 16.0;
+  static const double leaderboardTopNameFontSize = 20.0;
   static const double leaderboardTopWeightFontSize = 14.0;
 
   static const double leaderboardCardHorizontalPadding = 14.0;
@@ -83,7 +83,7 @@ class AppDimensions {
   static const double leaderboardPointsFontSize = 17.0;
   static const double leaderboardPointsLabelFontSize = 11.0;
 }
-
+  
 class AppFonts {
   static const String primaryFont = 'Inter';
 }

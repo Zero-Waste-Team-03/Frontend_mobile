@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:logger/logger.dart';
 import '../../../../core/exceptions/exceptions.dart';
 import '../models/user_model.dart';
 
@@ -22,6 +23,7 @@ abstract class AuthLocalDataSource {
 class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   final FlutterSecureStorage secureStorage;
   final SharedPreferences sharedPreferences;
+  final Logger _logger = Logger();
 
   static const accessTokenKey = 'CACHED_ACCESS_TOKEN';
   static const refreshTokenKey = 'CACHED_REFRESH_TOKEN';
@@ -75,9 +77,16 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   @override
   Future<void> cacheUserProfile(UserModel user) async {
     try {
+      _logger.i(
+        'AuthLocalDataSource: caching user profile => id=${user.id}, '
+        'displayName=${user.displayName}, email=${user.email}',
+      );
       final userJson = user.toJson();
       final jsonString = jsonEncode(userJson);
       await sharedPreferences.setString(userProfileKey, jsonString);
+      _logger.i(
+        'AuthLocalDataSource: user profile cached under $userProfileKey',
+      );
     } catch (e) {
       throw CacheException('Failed to cache user profile');
     }
@@ -88,11 +97,22 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
     try {
       final userJsonString = sharedPreferences.getString(userProfileKey);
       if (userJsonString == null) {
+        _logger.w('AuthLocalDataSource: no cached user profile found');
         return null;
       }
+      _logger.i('AuthLocalDataSource: raw cached user profile string found');
       final userJson = jsonDecode(userJsonString) as Map<String, dynamic>;
-      return UserModel.fromJson(userJson);
+      final userModel = UserModel.fromJson(userJson);
+      _logger.i(
+        'AuthLocalDataSource: decoded cached user profile => '
+        'id=${userModel.id}, displayName=${userModel.displayName}',
+      );
+      return userModel;
     } catch (e) {
+      _logger.e(
+        'AuthLocalDataSource: failed to read cached user profile',
+        error: e,
+      );
       throw CacheException('Failed to get cached user profile');
     }
   }

@@ -20,7 +20,7 @@ class LeaderboardLoading extends LeaderboardState {
 
 class LeaderboardLoaded extends LeaderboardState {
   final List<LeaderboardEntry> entries;
-  final LeaderboardEntry? currentUser;
+  final String? currentUserId;
   final LeaderboardPeriod period;
   final int currentPage;
   final int totalCount;
@@ -29,7 +29,7 @@ class LeaderboardLoaded extends LeaderboardState {
 
   const LeaderboardLoaded({
     required this.entries,
-    required this.currentUser,
+    required this.currentUserId,
     required this.period,
     required this.currentPage,
     required this.totalCount,
@@ -48,7 +48,7 @@ class LeaderboardLoaded extends LeaderboardState {
   @override
   List<Object?> get props => [
     entries,
-    currentUser,
+    currentUserId,
     period,
     currentPage,
     totalCount,

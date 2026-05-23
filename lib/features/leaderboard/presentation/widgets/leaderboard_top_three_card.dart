@@ -1,6 +1,5 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:shimmer/shimmer.dart';
-
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../shared/theme/app_colors.dart' as shared_theme;
@@ -15,46 +14,48 @@ class LeaderboardTopThreeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final rankMap = {for (final entry in topThree) entry.rank: entry};
 
-    final shimmerBase = const Color(0xFFDDE2E8);
-    final shimmerHighlight = const Color(0xFFF4F6F8);
-
-    return Shimmer.fromColors(
-      baseColor: shimmerBase,
-      highlightColor: shimmerHighlight,
-      period: const Duration(milliseconds: 1200),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.fromLTRB(14, 10, 14, 14),
-        color: AppColors.background,
-        child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(14, 10, 14, 14),
+      color: AppColors.background,
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          _TopRankAvatar(
-            entry: rankMap[2],
-            borderColor: const Color(0xFFB8C0D0),
-            badgeColor: const Color(0xFF98A2B2),
-            avatarSize:
-                shared_theme.AppDimensions.leaderboardTopAvatarSecondarySize,
+          Expanded(
+            child: _TopRankAvatar(
+              entry: rankMap[2],
+              borderColor: const Color(0xFFB8C0D0),
+              badgeColor: const Color(0xFF98A2B2),
+              avatarSize:
+                  shared_theme.AppDimensions.leaderboardTopAvatarSecondarySize,
+              lift: -8,
+            ),
           ),
-          _TopRankAvatar(
-            entry: rankMap[1],
-            borderColor: const Color(0xFFE8B90A),
-            badgeColor: const Color(0xFFE8B90A),
-            avatarSize:
-                shared_theme.AppDimensions.leaderboardTopAvatarPrimarySize,
-            crowned: true,
+          Expanded(
+            child: _TopRankAvatar(
+              entry: rankMap[1],
+              borderColor: const Color(0xFFE8B90A),
+              badgeColor: const Color(0xFFE8B90A),
+              avatarSize:
+                  shared_theme.AppDimensions.leaderboardTopAvatarPrimarySize *
+                  1.08,
+              crowned: true,
+              lift: -20,
+            ),
           ),
-          _TopRankAvatar(
-            entry: rankMap[3],
-            borderColor: const Color(0xFFF0B26E),
-            badgeColor: const Color(0xFFF29B44),
-            avatarSize:
-                shared_theme.AppDimensions.leaderboardTopAvatarSecondarySize,
+          Expanded(
+            child: _TopRankAvatar(
+              entry: rankMap[3],
+              borderColor: const Color(0xFFF0B26E),
+              badgeColor: const Color(0xFFF29B44),
+              avatarSize:
+                  shared_theme.AppDimensions.leaderboardTopAvatarSecondarySize,
+              lift: -8,
+            ),
           ),
         ],
       ),
-    ));
+    );
   }
 }
 
@@ -64,6 +65,7 @@ class _TopRankAvatar extends StatelessWidget {
   final Color badgeColor;
   final double avatarSize;
   final bool crowned;
+  final double lift;
 
   const _TopRankAvatar({
     required this.entry,
@@ -71,83 +73,147 @@ class _TopRankAvatar extends StatelessWidget {
     required this.badgeColor,
     required this.avatarSize,
     this.crowned = false,
+    this.lift = -8,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (entry == null) {
+    final currentEntry = entry;
+    if (currentEntry == null) {
       return const SizedBox.shrink();
     }
+    final hasAvatar = _hasValidAvatarUrl(currentEntry.avatarUrl);
 
-    final hasAvatar = _hasValidAvatarUrl(entry!.avatarUrl);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final maxWidth = constraints.maxWidth;
+        final avatarLimit = (maxWidth * 0.72).clamp(42.0, avatarSize);
+        final textWidth = (maxWidth * 0.95).clamp(56.0, maxWidth);
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (crowned)
-          Icon(Icons.workspace_premium, color: borderColor, size: 24),
-        Container(
-          width: avatarSize,
-          height: avatarSize,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: borderColor, width: 4),
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: hasAvatar
-              ? Image.network(
-                  entry!.avatarUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => _buildFallbackAvatar(),
-                )
-              : _buildFallbackAvatar(),
-        ),
-        Transform.translate(
-          offset: const Offset(0, -12),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 2),
-            decoration: BoxDecoration(
-              color: badgeColor,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.surface, width: 2),
-            ),
-            child: Text(
-              entry!.rank.toString(),
-              style: AppTextStyles.titleMedium.copyWith(
-                color: AppColors.onPrimary,
-                fontWeight: FontWeight.w700,
-                fontSize:
-                    shared_theme.AppDimensions.leaderboardTopBadgeFontSize,
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            if (crowned) const SizedBox(height: 2),
+
+            if (crowned)
+              Icon(Icons.workspace_premium, color: borderColor, size: 24),
+
+            SizedBox(height: crowned ? 8 : 0),
+
+            Transform.translate(
+              offset: Offset(0, lift),
+              child: Container(
+                width: avatarLimit + 10,
+                height: avatarLimit + 10,
+                alignment: Alignment.center,
+                child: Container(
+                  width: avatarLimit,
+                  height: avatarLimit,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.surface,
+                    border: Border.all(
+                      color: borderColor,
+                      width: crowned ? 4.5 : 3,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.06),
+                        blurRadius: 6,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: hasAvatar
+                      ? CircleAvatar(
+                          backgroundImage: NetworkImage( currentEntry.avatarUrl),
+                          foregroundColor: Colors.white,
+                          onBackgroundImageError: (_, __) {},
+                          child: currentEntry.avatarUrl.isEmpty
+                          ? _buildFallbackAvatar()
+                          : null,
+                        )
+                      : _buildFallbackAvatar(),
+                ),
               ),
             ),
-          ),
-        ),
-        Text(
-          entry!.name.isNotEmpty ? entry!.name : 'Unknown user',
-          style: AppTextStyles.headlineMedium.copyWith(
-            fontSize: shared_theme.AppDimensions.leaderboardTopNameFontSize,
-            color: AppColors.textPrimary,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          '${entry!.kgSaved.toStringAsFixed(1)} kg',
-          style: AppTextStyles.titleMedium.copyWith(
-            color: AppColors.primary,
-            fontWeight: FontWeight.w700,
-            fontSize: shared_theme.AppDimensions.leaderboardTopWeightFontSize,
-          ),
-        ),
-      ],
+
+            Transform.translate(
+              offset: Offset(0, lift / 2),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 2,
+                ),
+                decoration: BoxDecoration(
+                  color: badgeColor,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.surface, width: 2),
+                ),
+                child: Text(
+                  currentEntry.rank.toString(),
+                  style: AppTextStyles.titleMedium.copyWith(
+                    color: AppColors.onPrimary,
+                    fontWeight: FontWeight.w700,
+                    fontSize:
+                        shared_theme.AppDimensions.leaderboardTopBadgeFontSize,
+                  ),
+                ),
+              ),
+            ),
+
+            SizedBox(height: 30),
+
+            // name: horizontally scrollable so the full name can be read without overflow
+            Transform.translate(
+              offset: Offset(0, 2*lift ),
+              child: SizedBox(
+                width: textWidth,
+                child: ClipRect(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    physics: const BouncingScrollPhysics(),
+                    child: Text(
+                      currentEntry.name.isNotEmpty
+                          ? currentEntry.name
+                          : 'Unknown user',
+                      maxLines: 1,
+                      softWrap: false,
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.visible,
+                      style: AppTextStyles.headlineMedium.copyWith(
+                        fontSize:
+                            shared_theme.AppDimensions.leaderboardTopNameFontSize,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 4),
+
+            Text(
+              '${_formatPoints(currentEntry.points)} points',
+              style: AppTextStyles.titleMedium.copyWith(
+                color: AppColors.primary,
+                fontWeight: FontWeight.w700,
+                fontSize: shared_theme.AppDimensions.bodySize,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
   Widget _buildFallbackAvatar() {
-    return Container(
-      color: AppColors.surface,
-      child: const Center(
-        child: Icon(Icons.person_rounded, color: AppColors.textMuted, size: 30),
-      ),
+    return CircleAvatar(
+      backgroundImage: const AssetImage('assets/images/default_avatar.png'),
+      backgroundColor: AppColors.surface,
     );
   }
 
@@ -158,6 +224,11 @@ class _TopRankAvatar extends StatelessWidget {
 
     final uri = Uri.tryParse(value);
     return uri != null && (uri.scheme == 'http' || uri.scheme == 'https');
+  }
+
+  String _formatPoints(int value) {
+    final s = value.toString();
+    return s.replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ',');
   }
 }
 
