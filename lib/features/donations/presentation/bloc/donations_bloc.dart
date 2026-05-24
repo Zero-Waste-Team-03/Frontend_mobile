@@ -143,18 +143,20 @@ class DonationsBloc extends Bloc<DonationsEvent, DonationsState> {
       }
       
       if (event.append) {
+        // Prevent concurrent page loads
+        if (currentState.isLoadingMore || !currentState.hasNextPage) return;
+        
         existingDonations = List.from(currentState.donations);
         pageToLoad = currentState.currentPage + 1;
         
-        // If we already know there's no next page, don't load
-        if (!currentState.hasNextPage) return;
+        // Emit loading more state
+        emit(currentState.copyWith(isLoadingMore: true));
       }
     }
 
+    // Force a fresh loading state if not appending
     if (!event.append) {
-      if (currentState is! DonationsLoaded) {
-        emit(DonationsLoading());
-      }
+      emit(DonationsLoading());
     }
 
     try {
@@ -184,12 +186,14 @@ class DonationsBloc extends Bloc<DonationsEvent, DonationsState> {
         (failure) {
           if (!event.append) {
             emit(DonationsError(failure.message));
+          } else if (state is DonationsLoaded) {
+            emit((state as DonationsLoaded).copyWith(isLoadingMore: false));
           }
         },
         (donations) {
           final hasNextPage = donations.length == limit;
 
-          if (event.append) {
+          if (event.append && state is DonationsLoaded) {
             final Map<String, Donation> merged = {
               for (var d in existingDonations) d.id: d,
               for (var d in donations) d.id: d,
@@ -201,7 +205,7 @@ class DonationsBloc extends Bloc<DonationsEvent, DonationsState> {
               event.longitude,
             );
             emit(
-              DonationsLoaded(
+              (state as DonationsLoaded).copyWith(
                 donations: mergedDonations,
                 featuredDonations: split.$1,
                 standardDonations: split.$2,
@@ -209,6 +213,7 @@ class DonationsBloc extends Bloc<DonationsEvent, DonationsState> {
                 selectedCategoryId: event.categoryId,
                 currentPage: pageToLoad,
                 hasNextPage: hasNextPage,
+                isLoadingMore: false,
               ),
             );
           } else {
@@ -226,6 +231,7 @@ class DonationsBloc extends Bloc<DonationsEvent, DonationsState> {
                 selectedCategoryId: event.categoryId,
                 currentPage: pageToLoad,
                 hasNextPage: hasNextPage,
+                isLoadingMore: false,
               ),
             );
           }
@@ -234,6 +240,8 @@ class DonationsBloc extends Bloc<DonationsEvent, DonationsState> {
     } catch (e) {
       if (!event.append) {
         emit(DonationsError(e.toString()));
+      } else if (state is DonationsLoaded) {
+        emit((state as DonationsLoaded).copyWith(isLoadingMore: false));
       }
     }
   }

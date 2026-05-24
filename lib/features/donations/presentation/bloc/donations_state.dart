@@ -21,6 +21,7 @@ class DonationsLoaded extends DonationsState {
   final String? selectedCategoryId;
   final int currentPage;
   final bool hasNextPage;
+  final bool isLoadingMore;
 
   const DonationsLoaded({
     required this.donations,
@@ -30,6 +31,7 @@ class DonationsLoaded extends DonationsState {
     this.selectedCategoryId,
     this.currentPage = 1,
     this.hasNextPage = true,
+    this.isLoadingMore = false,
   });
 
   @override
@@ -41,6 +43,7 @@ class DonationsLoaded extends DonationsState {
     selectedCategoryId,
     currentPage,
     hasNextPage,
+    isLoadingMore,
   ];
 
   DonationsLoaded copyWith({
@@ -51,6 +54,7 @@ class DonationsLoaded extends DonationsState {
     String? selectedCategoryId,
     int? currentPage,
     bool? hasNextPage,
+    bool? isLoadingMore,
   }) {
     return DonationsLoaded(
       donations: donations ?? this.donations,
@@ -60,6 +64,7 @@ class DonationsLoaded extends DonationsState {
       selectedCategoryId: selectedCategoryId ?? this.selectedCategoryId,
       currentPage: currentPage ?? this.currentPage,
       hasNextPage: hasNextPage ?? this.hasNextPage,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
     );
   }
 }
