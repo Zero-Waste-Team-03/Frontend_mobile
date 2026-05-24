@@ -152,9 +152,7 @@ class DonationsBloc extends Bloc<DonationsEvent, DonationsState> {
     }
 
     if (!event.append) {
-      if (currentState is! DonationsLoaded) {
-        emit(DonationsLoading());
-      }
+      emit(DonationsLoading());
     }
 
     try {

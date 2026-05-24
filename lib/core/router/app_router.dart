@@ -10,6 +10,7 @@ import '../../features/auth/presentation/pages/forgot_password_page.dart';
 import '../../features/auth/presentation/pages/intro_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_flow_page.dart';
+import '../../features/chat/presentation/pages/archived_chats_page.dart';
 import '../../features/chat/presentation/pages/chat_page.dart';
 import '../../features/chat/presentation/pages/chats_list_page.dart';
 import '../../features/donations/domain/entities/donation.dart';
@@ -159,6 +160,10 @@ final appRouter = GoRouter(
       },
     ),
     GoRoute(path: '/chats', builder: (context, state) => const ChatsListPage()),
+    GoRoute(
+      path: '/archived-chats',
+      builder: (context, state) => const ArchivedChatsPage(),
+    ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
         return MainShell(navigationShell: navigationShell);
