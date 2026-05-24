@@ -56,7 +56,7 @@ class _DonationsListPageState extends State<DonationsListPage> {
   void _onScroll() {
     if (_isBottom && mounted) {
       final state = context.read<DonationsBloc>().state;
-      if (state is DonationsLoaded && state.hasNextPage) {
+      if (state is DonationsLoaded && state.hasNextPage && !state.isLoadingMore) {
         context.read<DonationsBloc>().add(
           LoadDonationsEvent(
             categoryId: _selectedCategoryId,
@@ -120,47 +120,51 @@ class _DonationsListPageState extends State<DonationsListPage> {
     return BlocProvider(
       create: (context) =>
           getIt<DonationsBloc>()..add(const LoadDonationsEvent()),
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF8F9FA),
-        body: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(),
-              _buildSearchBar(),
-              SizedBox(height: 16.h),
-              BlocBuilder<DonationsBloc, DonationsState>(
-                builder: (context, state) {
-                  final categories = state is DonationsLoaded
-                      ? state.categories
-                      : const <Category>[];
-                  return _buildCategoryFilters(categories);
-                },
+      child: Builder(
+        builder: (context) {
+          return Scaffold(
+            backgroundColor: const Color(0xFFF8F9FA),
+            body: SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeader(),
+                  _buildSearchBar(context),
+                  SizedBox(height: 16.h),
+                  BlocBuilder<DonationsBloc, DonationsState>(
+                    builder: (context, state) {
+                      final categories = state is DonationsLoaded
+                          ? state.categories
+                          : const <Category>[];
+                      return _buildCategoryFilters(context, categories);
+                    },
+                  ),
+                  SizedBox(height: 16.h),
+                  _buildListMetadata(),
+                  Expanded(
+                    child: BlocBuilder<DonationsBloc, DonationsState>(
+                      builder: (context, state) {
+                        if (state is DonationsLoading ||
+                            state is DonationsInitial) {
+                          return _buildLoadingSkeleton();
+                        } else if (state is DonationsLoaded) {
+                          _donations = state.donations;
+                          if (_donations.isEmpty) {
+                            return const Center(child: Text('No donations found.'));
+                          }
+                          return _buildDonationsList();
+                        } else if (state is DonationsError) {
+                          return Center(child: Text('Error: ${state.message}'));
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                  ),
+                ],
               ),
-              SizedBox(height: 16.h),
-              _buildListMetadata(),
-              Expanded(
-                child: BlocBuilder<DonationsBloc, DonationsState>(
-                  builder: (context, state) {
-                    if (state is DonationsLoading ||
-                        state is DonationsInitial) {
-                      return _buildLoadingSkeleton();
-                    } else if (state is DonationsLoaded) {
-                      _donations = state.donations;
-                      if (_donations.isEmpty) {
-                        return const Center(child: Text('No donations found.'));
-                      }
-                      return _buildDonationsList();
-                    } else if (state is DonationsError) {
-                      return Center(child: Text('Error: ${state.message}'));
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
+            ),
+          );
+        }
       ),
     );
   }
@@ -209,7 +213,7 @@ class _DonationsListPageState extends State<DonationsListPage> {
     );
   }
 
-  Widget _buildSearchBar() {
+  Widget _buildSearchBar(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: Hero(
@@ -239,8 +243,14 @@ class _DonationsListPageState extends State<DonationsListPage> {
                       _selectedCategory = 'All';
                       _selectedCategoryId = null;
                     });
+                    // Explicitly call context.read inside the timer
                     context.read<DonationsBloc>().add(
-                      LoadDonationsEvent(searchQuery: value),
+                      LoadDonationsEvent(
+                        searchQuery: value,
+                        latitude: _currentPosition?.latitude,
+                        longitude: _currentPosition?.longitude,
+                        append: false,
+                      ),
                     );
                   }
                 });
@@ -257,7 +267,7 @@ class _DonationsListPageState extends State<DonationsListPage> {
     );
   }
 
-  Widget _buildCategoryFilters(List<Category> categories) {
+  Widget _buildCategoryFilters(BuildContext context, List<Category> categories) {
     final labels = ['All', ...categories.map((c) => c.name)];
     return SizedBox(
       height: 36.h,
@@ -265,7 +275,7 @@ class _DonationsListPageState extends State<DonationsListPage> {
         scrollDirection: Axis.horizontal,
         itemCount: labels.length,
         padding: EdgeInsets.symmetric(horizontal: 20.w),
-        itemBuilder: (context, index) {
+        itemBuilder: (ctx, index) {
           final category = labels[index];
           final isSelected = category == _selectedCategory;
           return Padding(
@@ -279,7 +289,13 @@ class _DonationsListPageState extends State<DonationsListPage> {
                       : categories[index - 1].id;
                 });
                 context.read<DonationsBloc>().add(
-                  LoadDonationsEvent(categoryId: _selectedCategoryId),
+                  LoadDonationsEvent(
+                    categoryId: _selectedCategoryId,
+                    searchQuery: _searchController.text,
+                    latitude: _currentPosition?.latitude,
+                    longitude: _currentPosition?.longitude,
+                    append: false,
+                  ),
                 );
               },
               child: AnimatedContainer(
