@@ -57,6 +57,7 @@ import '../../features/notification/data/services/fcm_manager.dart';
 import '../../features/leaderboard/data/datasources/leaderboard_remote_data_source.dart';
 import '../../features/leaderboard/data/repositories/leaderboard_repository_impl.dart';
 import '../../features/leaderboard/domain/repositories/leaderboard_repository.dart';
+import '../../features/leaderboard/domain/usecases/get_current_user_leaderboard_usecase.dart';
 import '../../features/leaderboard/domain/usecases/get_leaderboard_usecase.dart';
 import '../../features/leaderboard/presentation/bloc/leaderboard_bloc.dart';
 
@@ -316,10 +317,13 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton<GetLeaderboardUseCase>(
     () => GetLeaderboardUseCase(getIt()),
   );
+  getIt.registerLazySingleton<GetCurrentUserLeaderboardUseCase>(
+    () => GetCurrentUserLeaderboardUseCase(getIt()),
+  );
   getIt.registerFactory(
     () => LeaderboardBloc(
       getLeaderboardUseCase: getIt(),
-      authLocalDataSource: getIt(),
+      getCurrentUserLeaderboardUseCase: getIt(),
     ),
   );
 }

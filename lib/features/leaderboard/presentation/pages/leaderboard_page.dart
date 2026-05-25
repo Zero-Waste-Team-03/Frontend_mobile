@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gaspzero/features/leaderboard/domain/entities/leaderboard_entry.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -32,7 +31,10 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
 
   Offset _chatPos = Offset.zero;
   bool _chatInitialized = false;
+  bool _hidePinnedCurrentUserCard = false;
   final GlobalKey _stackKey = GlobalKey();
+  final GlobalKey _pinnedCurrentUserCardKey = GlobalKey();
+  final GlobalKey _currentUserListCardKey = GlobalKey();
 
   @override
   void initState() {
@@ -56,17 +58,84 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
         const LoadMoreLeaderboardEvent(limit: _pageSize),
       );
     }
+
+    _schedulePinnedCardVisibilityCheck();
   }
 
   Future<void> _refreshLeaderboard() async {
     final currentState = context.read<LeaderboardBloc>().state;
-    final period = currentState is LeaderboardLoaded
-        ? currentState.period
-        : LeaderboardPeriod.monthly;
+    final period = _leaderboardPeriod(currentState);
 
     context.read<LeaderboardBloc>().add(
       FetchLeaderboardEvent(period: period, page: 1, limit: _pageSize),
     );
+  }
+
+  LeaderboardPeriod _leaderboardPeriod(LeaderboardState state) {
+    if (state is LeaderboardLoaded) {
+      return state.period;
+    }
+    if (state is LeaderboardLoading) {
+      return state.period;
+    }
+    if (state is LeaderboardError) {
+      return state.period;
+    }
+    if (state is LeaderboardInitial) {
+      return state.period;
+    }
+    return LeaderboardPeriod.monthly;
+  }
+
+  void _schedulePinnedCardVisibilityCheck() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      _updatePinnedCardVisibility();
+    });
+  }
+
+  void _updatePinnedCardVisibility() {
+
+    final listContext = _currentUserListCardKey.currentContext;
+    final pinnedContext = _pinnedCurrentUserCardKey.currentContext;
+
+    if (listContext == null || pinnedContext == null) {
+      if (_hidePinnedCurrentUserCard) {
+        setState(() {
+          _hidePinnedCurrentUserCard = false;
+        });
+      }
+      return;
+    }
+
+    final listBox = listContext.findRenderObject() as RenderBox?;
+    final pinnedBox = pinnedContext.findRenderObject() as RenderBox?;
+    if (listBox == null || pinnedBox == null) {
+      return;
+    }
+
+    final listTopLeft = listBox.localToGlobal(Offset.zero);
+    final pinnedTopLeft = pinnedBox.localToGlobal(Offset.zero);
+
+    final listRect = listTopLeft & listBox.size;
+    final pinnedRect = pinnedTopLeft & pinnedBox.size;
+
+    final size = MediaQuery.of(context).size;
+
+    final shouldHidePinned =
+        listRect.top <= pinnedRect.top
+        &&
+        listRect.bottom >= size.height * 0.2
+        ;
+         
+
+    if (shouldHidePinned != _hidePinnedCurrentUserCard) {
+      setState(() {
+        _hidePinnedCurrentUserCard = shouldHidePinned;
+      });
+    }
   }
 
   @override
@@ -86,7 +155,8 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
             final blocState = context.watch<LeaderboardBloc>().state;
             final hasCurrentUserCard =
                 blocState is LeaderboardLoaded &&
-                blocState.currentUserId != null;
+                blocState.currentUser != null &&
+                !_hidePinnedCurrentUserCard;
 
             final resolvedChatPos = _chatInitialized
                 ? _clampChatPosition(
@@ -116,9 +186,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
               children: [
                 BlocBuilder<LeaderboardBloc, LeaderboardState>(
                   builder: (context, state) {
-                    final period = state is LeaderboardLoaded
-                        ? state.period
-                        : LeaderboardPeriod.monthly;
+                    final period = _leaderboardPeriod(state);
 
                     return Column(
                       children: [
@@ -184,7 +252,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                                 is LeaderboardLoaded &&
                             (context.read<LeaderboardBloc>().state
                                         as LeaderboardLoaded)
-                                    .currentUserId !=
+                                    .currentUser !=
                                 null;
 
                         _chatPos = _clampChatPosition(
@@ -283,37 +351,8 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
     }
 
     final loadedState = state;
-    final currentUserId = loadedState.currentUserId;
-    LeaderboardEntry? currentUserEntry;
-    if (currentUserId != null) {
-      debugPrint(
-        'LeaderboardPage: currentUserId=$currentUserId, '
-        'entries=${loadedState.entries.length}',
-      );
-      for (final entry in loadedState.entries) {
-        if (entry.id == currentUserId) {
-          currentUserEntry = entry;
-          debugPrint(
-            'LeaderboardPage: matched current user entry => '
-            'id=${entry.id}, rank=${entry.rank}, name=${entry.name}',
-          );
-          break;
-        }
-      }
-      if (currentUserEntry == null) {
-        debugPrint(
-          'LeaderboardPage: no matching current user entry found for '
-          'currentUserId=$currentUserId',
-        );
-      }
-    } else {
-      debugPrint('LeaderboardPage: currentUserId is null');
-    }
-    final hasCurrentUser = currentUserEntry != null;
-    debugPrint(
-      'LeaderboardPage: hasCurrentUser=$hasCurrentUser, '
-      'currentUserEntryId=${currentUserEntry?.id}',
-    );
+    final currentUserEntry = loadedState.currentUser;
+    _schedulePinnedCardVisibilityCheck();
     final itemCount =
         1 + state.remainingRanks.length + (state.isLoadingMore ? 1 : 0);
 
@@ -334,8 +373,15 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
 
               final listIndex = index - 1;
               if (listIndex < state.remainingRanks.length) {
+                final listEntry = state.remainingRanks[listIndex];
+                final isCurrentUserRow =
+                    currentUserEntry != null &&
+                    listEntry.id == currentUserEntry.id;
+
                 return LeaderboardUserCard(
-                  entry: state.remainingRanks[listIndex],
+                  key: isCurrentUserRow ? _currentUserListCardKey : null,
+                  entry: listEntry,
+                  highlighted: isCurrentUserRow,
                 );
               }
 
@@ -351,9 +397,18 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
             left: 16,
             right: 16,
             bottom: 10,
-            child: LeaderboardUserCard(
-              entry: currentUserEntry,
-              highlighted: true,
+            child: AnimatedOpacity(
+              key: _pinnedCurrentUserCardKey,
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOut,
+              opacity: _hidePinnedCurrentUserCard ? 0 : 1,
+              child: IgnorePointer(
+                ignoring: _hidePinnedCurrentUserCard,
+                child: LeaderboardUserCard(
+                  entry: currentUserEntry,
+                  highlighted: true,
+                ),
+              ),
             ),
           ),
       ],

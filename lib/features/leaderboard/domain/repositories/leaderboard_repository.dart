@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 
 import '../../../../core/errors/failures.dart';
+import '../entities/leaderboard_entry.dart';
 import '../entities/leaderboard_page_data.dart';
 import '../entities/leaderboard_period.dart';
 
@@ -9,5 +10,9 @@ abstract class LeaderboardRepository {
     required LeaderboardPeriod period,
     int page = 1,
     int limit = 10,
+  });
+
+  Future<Either<Failure, LeaderboardEntry?>> getCurrentUserLeaderboardEntry({
+    required LeaderboardPeriod period,
   });
 }

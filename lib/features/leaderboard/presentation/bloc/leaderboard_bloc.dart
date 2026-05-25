@@ -1,19 +1,21 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';
 
+import '../../domain/entities/leaderboard_entry.dart';
+import '../../domain/entities/leaderboard_period.dart';
+import '../../domain/usecases/get_current_user_leaderboard_usecase.dart';
 import '../../domain/usecases/get_leaderboard_usecase.dart';
-import '../../../auth/data/sources/auth_local_data_source.dart';
 import 'leaderboard_event.dart';
 import 'leaderboard_state.dart';
 
 class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
   final GetLeaderboardUseCase getLeaderboardUseCase;
-  final AuthLocalDataSource authLocalDataSource;
+  final GetCurrentUserLeaderboardUseCase getCurrentUserLeaderboardUseCase;
   final Logger _logger = Logger();
 
   LeaderboardBloc({
     required this.getLeaderboardUseCase,
-    required this.authLocalDataSource,
+    required this.getCurrentUserLeaderboardUseCase,
   }) : super(const LeaderboardInitial()) {
     on<FetchLeaderboardEvent>(_onFetchLeaderboard);
     on<ChangeLeaderboardPeriodEvent>(_onChangePeriod);
@@ -26,26 +28,13 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
   ) async {
     final currentState = state;
     final isFirstPage = event.page == 1;
-    String? cachedUserId;
+    Future<LeaderboardEntry?>? currentUserFuture;
     if (isFirstPage) {
-      // try to get cached user id to include in state (use local data source)
-      try {
-        final cachedModel = await authLocalDataSource.getCachedUserProfile();
-        cachedUserId = cachedModel?.id;
-        _logger.i(
-          'LeaderboardBloc: cached user lookup => '
-          'cachedUserId=$cachedUserId, page=${event.page}, period=${event.period}',
-        );
-      } catch (_) {
-        cachedUserId = null;
-        _logger.w(
-          'LeaderboardBloc: failed to load cached user profile for leaderboard',
-        );
-      }
+      currentUserFuture = _fetchCurrentUser(period: event.period);
     }
 
     if (isFirstPage) {
-      emit(const LeaderboardLoading());
+      emit(LeaderboardLoading(period: event.period));
     } else if (currentState is LeaderboardLoaded) {
       if (currentState.hasReachedMax || currentState.isLoadingMore) {
         return;
@@ -54,7 +43,7 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
       emit(
         LeaderboardLoaded(
           entries: currentState.entries,
-          currentUserId: currentState.currentUserId,
+          currentUser: currentState.currentUser,
           period: currentState.period,
           currentPage: currentState.currentPage,
           totalCount: currentState.totalCount,
@@ -70,8 +59,11 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
       limit: event.limit,
     );
 
-    result.fold(
-      (failure) {
+    await result.fold<Future<void>>(
+      (failure) async {
+        if (emit.isDone) {
+          return;
+        }
         _logger.e(
           'LeaderboardBloc: fetch failed for page=${event.page}, '
           'period=${event.period}, isFirstPage=$isFirstPage',
@@ -81,7 +73,7 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
           emit(
             LeaderboardLoaded(
               entries: currentState.entries,
-              currentUserId: currentState.currentUserId,
+              currentUser: currentState.currentUser,
               period: currentState.period,
               currentPage: currentState.currentPage,
               totalCount: currentState.totalCount,
@@ -90,22 +82,31 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
             ),
           );
         } else {
-          emit(LeaderboardError(failure.message));
+          emit(LeaderboardError(failure.message, period: event.period));
         }
       },
-      (pageData) {
+      (pageData) async {
+        final currentUserEntry = isFirstPage
+            ? await currentUserFuture
+            : currentState is LeaderboardLoaded
+            ? currentState.currentUser
+            : null;
+
+        if (emit.isDone) {
+          return;
+        }
+
         _logger.i(
           'LeaderboardBloc: page received => '
           'entries=${pageData.entries.length}, '
-          'currentUserId=${pageData.currentUser?.id}, '
-          'cachedUserId=$cachedUserId, '
+          'currentUserId=${currentUserEntry?.id}, '
           'page=${pageData.page}, hasNextPage=${pageData.hasNextPage}',
         );
         if (isFirstPage || currentState is! LeaderboardLoaded) {
           emit(
             LeaderboardLoaded(
               entries: pageData.entries,
-              currentUserId: pageData.currentUser?.id ?? cachedUserId,
+              currentUser: currentUserEntry,
               period: pageData.period,
               currentPage: pageData.page,
               totalCount: pageData.totalCount,
@@ -115,7 +116,7 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
           );
           _logger.i(
             'LeaderboardBloc: emitted first-page state with currentUserId='
-            '${pageData.currentUser?.id ?? cachedUserId}',
+            '${currentUserEntry?.id}',
           );
           return;
         }
@@ -133,8 +134,7 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
         emit(
           LeaderboardLoaded(
             entries: merged,
-            currentUserId:
-                pageData.currentUser?.id ?? currentState.currentUserId,
+            currentUser: currentUserEntry,
             period: pageData.period,
             currentPage: pageData.page,
             totalCount: pageData.totalCount,
@@ -144,7 +144,7 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
         );
         _logger.i(
           'LeaderboardBloc: emitted merged state with currentUserId='
-          '${pageData.currentUser?.id ?? currentState.currentUserId}',
+          '${currentUserEntry?.id}',
         );
       },
     );
@@ -177,5 +177,35 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
         limit: event.limit,
       ),
     );
+  }
+
+  Future<LeaderboardEntry?> _fetchCurrentUser({
+    required LeaderboardPeriod period,
+  }) async {
+    try {
+      final result = await getCurrentUserLeaderboardUseCase(period: period);
+      return result.fold(
+        (failure) {
+          _logger.w(
+            'LeaderboardBloc: current user lookup failed for period=$period, '
+            'error=${failure.message}',
+          );
+          return null;
+        },
+        (entry) {
+          _logger.i(
+            'LeaderboardBloc: current user lookup succeeded for '
+            'period=$period, userId=${entry?.id}',
+          );
+          return entry;
+        },
+      );
+    } catch (e) {
+      _logger.w(
+        'LeaderboardBloc: current user lookup threw for period=$period',
+        error: e,
+      );
+      return null;
+    }
   }
 }
