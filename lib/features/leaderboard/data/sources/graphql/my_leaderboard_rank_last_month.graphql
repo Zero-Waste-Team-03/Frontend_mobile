@@ -1,0 +1,9 @@
+query GetMyLeaderboardRankLastMonth {
+  myLeaderboardRankLastMonth {
+    avatarUrl
+    displayName
+    rank
+    score
+    userId
+  }
+}

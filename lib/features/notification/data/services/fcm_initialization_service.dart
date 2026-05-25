@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/widgets.dart';
-import 'dart:io';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
@@ -272,9 +272,18 @@ class FcmInitializationService {
 
   /// Handle notifications received in background/terminated state
   /// This is a static method that Firebase calls directly
+  @pragma('vm:entry-point')
   static Future<void> _handleBackgroundNotification(
     RemoteMessage message,
   ) async {
+    WidgetsFlutterBinding.ensureInitialized();
+
+    try {
+      await Firebase.initializeApp();
+    } catch (_) {
+      // Firebase may already be initialized in some app states.
+    }
+
     _logger.i(
       '📲 FcmInitializationService._handleBackgroundNotification: Processing background notification',
     );
@@ -292,7 +301,7 @@ class FcmInitializationService {
       // Process the notification here
       // You can store it, log it, or trigger analytics
       try {
-        await AndroidNotificationDisplayService.showForegroundNotification(
+        await AndroidNotificationDisplayService.showBackgroundNotification(
           message,
         );
       } catch (e, st) {

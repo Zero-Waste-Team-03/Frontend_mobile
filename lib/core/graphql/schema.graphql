@@ -989,6 +989,16 @@ type Query {
   leaderboardLastMonth(limit: Int = 10): [LeaderboardEntry!]!
 
   """
+  Get the authenticated user's leaderboard entry for all time
+  """
+  myLeaderboardRankAllTime: LeaderboardEntry
+
+  """
+  Get the authenticated user's leaderboard entry for the last month
+  """
+  myLeaderboardRankLastMonth: LeaderboardEntry
+
+  """
   Get paginated list of users for admin panel
   """
   adminGetUsers(
@@ -1166,7 +1176,9 @@ type Query {
   """
   Get paginated archived conversations for the current user, ordered by most recent message
   """
-  myArchivedConversations(pagination: PaginationInput): PaginatedConversationPreviews!
+  myArchivedConversations(
+    pagination: PaginationInput
+  ): PaginatedConversationPreviews!
 
   """
   Get total count of archived conversations for the current user

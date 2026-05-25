@@ -3,6 +3,7 @@ import 'package:injectable/injectable.dart';
 
 import '../../../../core/errors/failures.dart';
 import '../../../../core/exceptions/exceptions.dart';
+import '../../domain/entities/leaderboard_entry.dart';
 import '../../domain/entities/leaderboard_page_data.dart';
 import '../../domain/entities/leaderboard_period.dart';
 import '../../domain/repositories/leaderboard_repository.dart';
@@ -27,6 +28,22 @@ class LeaderboardRepositoryImpl implements LeaderboardRepository {
         limit: limit,
       );
       return Right(result.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, LeaderboardEntry?>> getCurrentUserLeaderboardEntry({
+    required LeaderboardPeriod period,
+  }) async {
+    try {
+      final result = await remoteDataSource.getCurrentUserLeaderboardEntry(
+        period: period,
+      );
+      return Right(result?.toEntity());
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {

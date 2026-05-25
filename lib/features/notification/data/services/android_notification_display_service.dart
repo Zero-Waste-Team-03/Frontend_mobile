@@ -118,9 +118,7 @@ class AndroidNotificationDisplayService {
     final imageUrl = isMessageNotification
         ? _resolveSenderAvatarUrl(message)
         : _resolveImageUrl(message);
-    final largeIcon = imageUrl == null
-        ? null
-        : await _downloadLargeIcon(imageUrl);
+    final largeIcon = imageUrl == null ? null : await _downloadBitmap(imageUrl);
 
     final androidDetails = AndroidNotificationDetails(
       _channel.id,
@@ -146,14 +144,93 @@ class AndroidNotificationDisplayService {
     );
   }
 
+  static Future<void> showBackgroundNotification(RemoteMessage message) async {
+    if (!Platform.isAndroid) {
+      return;
+    }
+
+    await initialize();
+    if (!_initialized) {
+      _logger.w(
+        '⚠️ AndroidNotificationDisplayService: cannot show background notification because initialization failed',
+      );
+      return;
+    }
+
+    final notification = message.notification;
+    final data = message.data;
+    final isMessageNotification = _isMessageNotification(data);
+    final hasVisibleContent =
+        (notification?.title?.isNotEmpty ?? false) ||
+        (notification?.body?.isNotEmpty ?? false) ||
+        data.isNotEmpty;
+
+    if (!hasVisibleContent) {
+      _logger.w(
+        '⚠️ AndroidNotificationDisplayService: skipping background notification with no visible content',
+      );
+      return;
+    }
+
+    if (!isMessageNotification) {
+      await _showStandardNotification(message);
+      return;
+    }
+
+    final title =
+        notification?.title ?? data['title']?.toString() ?? 'Notification';
+    final body = notification?.body ?? data['body']?.toString() ?? '';
+
+    final avatarUrl = _resolveAvatarUrl(message);
+    final imageUrl = _resolveImageUrl(message);
+
+    final avatarBitmap = avatarUrl == null
+        ? null
+        : await _downloadBitmap(avatarUrl);
+    final bigPictureBitmap = imageUrl == null
+        ? null
+        : await _downloadBitmap(imageUrl);
+
+    final androidDetails = AndroidNotificationDetails(
+      _channel.id,
+      _channel.name,
+      channelDescription: _channel.description,
+      importance: Importance.high,
+      priority: Priority.high,
+      icon: '@mipmap/ic_launcher',
+      largeIcon: avatarBitmap,
+      styleInformation: bigPictureBitmap == null
+          ? BigTextStyleInformation(
+              body,
+              contentTitle: title,
+              summaryText: body,
+            )
+          : BigPictureStyleInformation(
+              bigPictureBitmap,
+              largeIcon: avatarBitmap,
+              contentTitle: title,
+              summaryText: body,
+              hideExpandedLargeIcon: false,
+            ),
+    );
+
+    await _plugin.show(
+      id: _buildNotificationId(message),
+      title: title,
+      body: body,
+      notificationDetails: NotificationDetails(android: androidDetails),
+      payload: _safeJsonEncode(data),
+    );
+  }
+
   static String _safeJsonEncode(Object? data) {
     try {
       return jsonEncode(data);
     } catch (e, st) {
       _logger.w(
         'AndroidNotificationDisplayService: failed to encode payload',
-        error: e,        stackTrace:
-        st,
+        error: e,
+        stackTrace: st,
       );
       try {
         if (data is Map) return jsonEncode(Map.from(data));
@@ -199,7 +276,8 @@ class AndroidNotificationDisplayService {
 
     final meta = _extractMeta(data);
     final metaTypeValue = meta['type']?.toString().trim().toUpperCase();
-    final isMessageType = metaTypeValue == 'MESSAGE' || metaTypeValue == 'CHAT_MESSAGE';
+    final isMessageType =
+        metaTypeValue == 'MESSAGE' || metaTypeValue == 'CHAT_MESSAGE';
     if (isMessageType) {
       _logger.i(
         'AndroidNotificationDisplayService: identified message notification by meta field',
@@ -302,9 +380,7 @@ class AndroidNotificationDisplayService {
     return uri != null && (uri.scheme == 'http' || uri.scheme == 'https');
   }
 
-  static Future<AndroidBitmap<Object>?> _downloadLargeIcon(
-    String imageUrl,
-  ) async {
+  static Future<AndroidBitmap<Object>?> _downloadBitmap(String imageUrl) async {
     try {
       final response = await _dio.get<List<int>>(imageUrl);
       final bytes = response.data;
@@ -329,6 +405,36 @@ class AndroidNotificationDisplayService {
     }
   }
 
+  static Future<void> _showStandardNotification(RemoteMessage message) async {
+    final notification = message.notification;
+    final data = message.data;
+    final title =
+        notification?.title ?? data['title']?.toString() ?? 'Notification';
+    final body = notification?.body ?? data['body']?.toString() ?? '';
+
+    final androidDetails = AndroidNotificationDetails(
+      _channel.id,
+      _channel.name,
+      channelDescription: _channel.description,
+      importance: Importance.high,
+      priority: Priority.high,
+      icon: '@mipmap/ic_launcher',
+      styleInformation: BigTextStyleInformation(
+        body,
+        contentTitle: title,
+        summaryText: _summaryText(data),
+      ),
+    );
+
+    await _plugin.show(
+      id: _buildNotificationId(message),
+      title: title,
+      body: body,
+      notificationDetails: NotificationDetails(android: androidDetails),
+      payload: _safeJsonEncode(data),
+    );
+  }
+
   static int _buildNotificationId(RemoteMessage message) {
     final seed =
         message.messageId ??
@@ -349,5 +455,30 @@ class AndroidNotificationDisplayService {
     }
 
     return '';
+  }
+
+  static String? _resolveAvatarUrl(RemoteMessage message) {
+    final data = message.data;
+    final meta = _extractMeta(data);
+
+    final candidates = <dynamic>[
+      meta['avatarUrl'],
+      meta['senderAvatarUrl'],
+      meta['senderPhotoUrl'],
+      meta['senderImageUrl'],
+      data['avatarUrl'],
+      data['senderAvatarUrl'],
+      data['senderPhotoUrl'],
+      data['senderImageUrl'],
+    ];
+
+    for (final candidate in candidates) {
+      final url = candidate?.toString().trim();
+      if (_isHttpUrl(url)) {
+        return url;
+      }
+    }
+
+    return null;
   }
 }
