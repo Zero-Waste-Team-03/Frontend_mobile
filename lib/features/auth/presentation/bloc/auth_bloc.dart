@@ -34,7 +34,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthCheckRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(AuthLoading());
+    emit(AuthChecking());
     final result = await authRepository.getCurrentUser();
     result.fold(
       (failure) => emit(AuthUnauthenticated()),
