@@ -375,16 +375,13 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                                   SizedBox(width: 12.w),
                                   Expanded(
                                     child: GestureDetector(
-                                      onTap: state.updatingRequestId != null
-                                          ? null
-                                          : () {
-                                              context.read<VerificationBloc>().add(
-                                                    VerificationRequestStatusUpdateRequested(
-                                                      requestId: request.id,
-                                                      status: VerificationRequestStatus.rejected,
-                                                    ),
-                                                  );
-                                            },
+                                      onTap: () {
+                                        context.read<VerificationBloc>().add(
+                                              VerificationRequestDismissed(
+                                                requestId: request.id,
+                                              ),
+                                            );
+                                      },
                                       child: Container(
                                         height: 48.h,
                                         decoration: BoxDecoration(

@@ -17,7 +17,25 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState> {
     on<VerificationSearchRequested>(_onVerificationSearchRequested);
     on<VerificationSearchLoadMoreRequested>(_onVerificationSearchLoadMoreRequested);
     on<VerificationRequestCreationRequested>(_onVerificationRequestCreationRequested);
+    on<VerificationRequestDismissed>(_onVerificationRequestDismissed);
     on<VerificationMessageCleared>(_onVerificationMessageCleared);
+  }
+
+  void _onVerificationRequestDismissed(
+    VerificationRequestDismissed event,
+    Emitter<VerificationState> emit,
+  ) {
+    if (state is! VerificationLoaded) return;
+    final currentState = state as VerificationLoaded;
+
+    final updatedRequests = currentState.requests
+        .where((r) => r.id != event.requestId)
+        .toList();
+
+    emit(currentState.copyWith(
+      requests: List<VerificationRequest>.from(updatedRequests),
+      totalCount: currentState.totalCount > 0 ? currentState.totalCount - 1 : 0,
+    ));
   }
 
   void _onVerificationMessageCleared(
@@ -140,12 +158,13 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState> {
         errorMessage: failure.message,
       )),
       (updatedRequest) {
-        final updatedRequests = currentState.requests.map((r) {
-          return r.id == updatedRequest.id ? updatedRequest : r;
-        }).toList();
+        final updatedRequests = currentState.requests
+            .where((r) => r.id != updatedRequest.id)
+            .toList();
 
         emit(currentState.copyWith(
           requests: List<VerificationRequest>.from(updatedRequests),
+          totalCount: currentState.totalCount > 0 ? currentState.totalCount - 1 : 0,
           clearUpdatingRequestId: true,
           successMessage: event.status == VerificationRequestStatus.approved
               ? 'Member verified successfully!'
