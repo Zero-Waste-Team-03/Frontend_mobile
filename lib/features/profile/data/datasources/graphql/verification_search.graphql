@@ -1,0 +1,43 @@
+query GetUsersFromSameNeighborhood($pagination: PaginationInput!, $search: String) {
+  getUsersFromSameNeighborhood(pagination: $pagination, search: $search) {
+    items {
+      id
+      displayName
+      avatar {
+        id
+        url
+      }
+      phoneNumber
+      role
+      description
+      reputationScore
+      isVerified
+      isFoodSaver
+      locationId
+      location {
+        city
+        country
+        latitude
+        longitude
+        neighborhood
+        zipCode
+      }
+    }
+    totalCount
+    page
+    limit
+    hasNextPage
+    hasPreviousPage
+  }
+}
+
+mutation CreateVerificationRequest($targetFoodSaverId: String!) {
+  createVerificationRequest(targetFoodSaverId: $targetFoodSaverId) {
+    id
+    status
+    createdAt
+    updatedAt
+    targetFoodSaverId
+    requesterId
+  }
+}

@@ -4,6 +4,8 @@ import '../../../../core/errors/failures.dart';
 import '../../../auth/domain/entities/user.dart';
 import '../entities/profile_activities_page.dart';
 import '../entities/donations_state.dart';
+import '../entities/verification_request.dart';
+import '../entities/verification_requests_page.dart';
 
 abstract class ProfileRepository {
   /// Get cached user profile, fallback to remote if cache is empty
@@ -46,5 +48,36 @@ abstract class ProfileRepository {
     required bool isUrgentAlertsEnabled,
     required bool isSystemReports,
     required String appearance,
+  });
+
+  /// Get verification requests sent by the user
+  Future<Either<Failure, VerificationRequestsPage>> getSentVerificationRequests({
+    int page = 1,
+    int limit = 10,
+  });
+
+  /// Get verification requests received as a food saver
+  Future<Either<Failure, VerificationRequestsPage>> getVerificationRequestsForFoodSaver({
+    int page = 1,
+    int limit = 10,
+    String? search,
+  });
+
+  /// Update verification request status (approve/reject)
+  Future<Either<Failure, VerificationRequest>> updateVerificationRequestStatus({
+    required String id,
+    required VerificationRequestStatus status,
+  });
+
+  /// Search for users to request verification from
+  Future<Either<Failure, List<User>>> searchUsersToVerify({
+    int page = 1,
+    int limit = 10,
+    String? search,
+  });
+
+  /// Create a new verification request
+  Future<Either<Failure, VerificationRequest>> createVerificationRequest({
+    required String targetFoodSaverId,
   });
 }

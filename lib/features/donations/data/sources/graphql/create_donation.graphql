@@ -13,6 +13,7 @@ mutation CreateDonation($input: CreateDonationInput!) {
     status
     urgency
     isReservable
+    safetyChecklistCompleted
     mainAttachmentId
     mainAttachment {
       url
@@ -26,6 +27,8 @@ mutation CreateDonation($input: CreateDonationInput!) {
       id
       displayName
       email
+      isVerified
+      isFoodSaver
       avatar {
         id
         url

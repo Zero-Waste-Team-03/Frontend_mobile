@@ -81,6 +81,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       confirmPassword: event.confirmPassword,
       otp: event.otp,
       city: event.location,
+      zipCode: event.zipCode,
+      latitude: event.latitude,
+      longitude: event.longitude,
+      neighborhood: event.neighborhood,
     );
     await registerResult.fold(
       (failure) async => emit(AuthError(failure.message)),

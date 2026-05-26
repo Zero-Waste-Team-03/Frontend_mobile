@@ -33,6 +33,7 @@ class RegisterStep2Page extends StatefulWidget {
 
 class _RegisterStep2PageState extends State<RegisterStep2Page> {
   late final TextEditingController _locationController;
+  late final TextEditingController _zipCodeController;
   late final List<int> _years;
   late final FixedExtentScrollController _monthScrollController;
   late final FixedExtentScrollController _dayScrollController;
@@ -47,6 +48,9 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
     super.initState();
     _locationController = TextEditingController(
       text: widget.formData['location'] ?? '',
+    );
+    _zipCodeController = TextEditingController(
+      text: widget.formData['zipCode'] ?? '',
     );
     final currentYear = DateTime.now().year;
     _years = List<int>.generate(100, (index) => currentYear - 99 + index);
@@ -66,6 +70,7 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
     _dayScrollController.dispose();
     _yearScrollController.dispose();
     _locationController.dispose();
+    _zipCodeController.dispose();
     super.dispose();
   }
 
@@ -158,12 +163,19 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
       if (!mounted) return;
 
       String value;
+      String zipValue = '';
+      String neighborhoodValue = '';
       if (placemarks.isNotEmpty) {
         final place = placemarks.first;
         final city = (place.locality ?? '').trim();
         final subArea = (place.subAdministrativeArea ?? '').trim();
         final country = (place.country ?? '').trim();
         final zip = (place.postalCode ?? '').trim();
+        final neighborhood = (place.subLocality ?? place.name ?? '').trim();
+        
+        zipValue = zip;
+        neighborhoodValue = neighborhood;
+        
         if (city.isNotEmpty && zip.isNotEmpty) {
           value = '$city, $zip';
         } else if (city.isNotEmpty) {
@@ -184,6 +196,10 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
       }
 
       _locationController.text = value;
+      _zipCodeController.text = zipValue;
+      widget.formData['neighborhood'] = neighborhoodValue;
+      widget.formData['latitude'] = position.latitude.toString();
+      widget.formData['longitude'] = position.longitude.toString();
       FocusScope.of(context).unfocus();
       ScaffoldMessenger.of(
         context,
@@ -200,11 +216,13 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
 
   void _onSubmit() {
     final location = _locationController.text.trim();
+    final zipCode = _zipCodeController.text.trim();
     final birthday = DateFormat('yyyy-MM-dd').format(_selectedBirthDate());
 
     if (location.isNotEmpty) {
       widget.formData['birthday'] = birthday;
       widget.formData['location'] = location;
+      widget.formData['zipCode'] = zipCode;
 
       context.read<AuthBloc>().add(
         AuthSignUpRequested(
@@ -261,6 +279,10 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
                 _buildLabel('Location'),
                 SizedBox(height: AppDimensions.paddingSmall.h),
                 _buildLocationField(),
+                SizedBox(height: AppDimensions.paddingLarge.h),
+                _buildLabel('Zip Code'),
+                SizedBox(height: AppDimensions.paddingSmall.h),
+                _buildTextField(_zipCodeController, 'Enter your zip code'),
                 SizedBox(height: AppDimensions.paddingSmall.h),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 4.w),

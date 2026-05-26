@@ -1,9 +1,13 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../../../../core/permissions/permission_request_coordinator.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../bloc/profile_bloc.dart';
 import '../bloc/profile_event.dart';
@@ -21,8 +25,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
   late TextEditingController _fullNameController;
   late TextEditingController _phoneController;
   late TextEditingController _cityController;
+  late TextEditingController _neighborhoodController;
+  late TextEditingController _zipCodeController;
+  double? _latitude;
+  double? _longitude;
 
   bool _isInitialized = false;
+  bool _isFetchingLocation = false;
 
   @override
   void initState() {
@@ -30,12 +39,22 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _fullNameController = TextEditingController();
     _phoneController = TextEditingController();
     _cityController = TextEditingController();
+    _neighborhoodController = TextEditingController();
+    _zipCodeController = TextEditingController();
   }
 
   void _populateFields(dynamic user) {
     _fullNameController.text = user.name ?? '';
     _phoneController.text = user.phoneNumber ?? '';
     _cityController.text = user.location?['city'] ?? '';
+    _neighborhoodController.text = user.location?['neighborhood'] ?? '';
+    _zipCodeController.text = user.location?['zipCode'] ?? '';
+    _latitude = user.location?['latitude'] is num
+        ? (user.location?['latitude'] as num).toDouble()
+        : null;
+    _longitude = user.location?['longitude'] is num
+        ? (user.location?['longitude'] as num).toDouble()
+        : null;
   }
 
   @override
@@ -43,6 +62,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _fullNameController.dispose();
     _phoneController.dispose();
     _cityController.dispose();
+    _neighborhoodController.dispose();
+    _zipCodeController.dispose();
     super.dispose();
   }
 
@@ -54,15 +75,127 @@ class _EditProfilePageState extends State<EditProfilePage> {
         final fullName = _fullNameController.text.trim();
         final phone = _phoneController.text.trim();
         final city = _cityController.text.trim();
+        final neighborhood = _neighborhoodController.text.trim();
+        final zipCode = _zipCodeController.text.trim();
 
         profileBloc.add(
           ProfileUpdateRequested(
             displayName: fullName,
             phoneNumber: phone,
-            location: city.isNotEmpty ? {'city': city} : null,
+            location: {
+              if (city.isNotEmpty) 'city': city,
+              if (neighborhood.isNotEmpty) 'neighborhood': neighborhood,
+              if (zipCode.isNotEmpty) 'zipCode': zipCode,
+              if (_latitude != null) 'latitude': _latitude,
+              if (_longitude != null) 'longitude': _longitude,
+            },
           ),
         );
       }
+    }
+  }
+
+  Future<void> _fillCurrentLocation() async {
+    if (_isFetchingLocation) return;
+    setState(() => _isFetchingLocation = true);
+
+    try {
+      final isServiceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!isServiceEnabled) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please enable location services.'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await PermissionRequestCoordinator.runLocationRequest(
+          Geolocator.requestPermission,
+        );
+      }
+
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Location permission is required.'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
+
+      Position? position;
+      try {
+        position = await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.high,
+          ),
+        );
+      } on TimeoutException {
+        position = await Geolocator.getLastKnownPosition();
+      } catch (_) {
+        position = await Geolocator.getLastKnownPosition();
+      }
+
+      if (position == null) {
+        throw Exception('No location available');
+      }
+
+      List<Placemark> placemarks = const [];
+      try {
+        placemarks = await placemarkFromCoordinates(
+          position.latitude,
+          position.longitude,
+        );
+      } catch (_) {
+        placemarks = const [];
+      }
+
+      if (!mounted) return;
+
+      if (placemarks.isNotEmpty) {
+        final place = placemarks.first;
+        setState(() {
+          _cityController.text = (place.locality ?? '').trim();
+          _neighborhoodController.text = (place.subLocality ?? place.name ?? '').trim();
+          _zipCodeController.text = (place.postalCode ?? '').trim();
+          _latitude = position!.latitude;
+          _longitude = position.longitude;
+        });
+      } else {
+        setState(() {
+          _latitude = position!.latitude;
+          _longitude = position.longitude;
+        });
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Location updated'),
+          backgroundColor: AuthColors.primary,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Unable to fetch location: $e'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isFetchingLocation = false);
     }
   }
 
@@ -93,7 +226,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Profile updated successfully'),
-              backgroundColor: Colors.green,
+              backgroundColor: AuthColors.primary,
+              behavior: SnackBarBehavior.floating,
               duration: Duration(seconds: 2),
             ),
           );
@@ -105,6 +239,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             SnackBar(
               content: Text(state.message),
               backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
               duration: const Duration(seconds: 3),
             ),
           );
@@ -303,23 +438,74 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       SizedBox(height: AppDimensions.paddingLarge.h),
 
                       // Primary Location Header
-                      Text(
-                        'PRIMARY LOCATION',
-                        style: TextStyle(
-                          fontSize: AppDimensions.captionSize.sp,
-                          fontWeight: FontWeight.w600,
-                          color: AuthColors.labelText,
-                          letterSpacing: 0.5,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'PRIMARY LOCATION',
+                            style: TextStyle(
+                              fontSize: AppDimensions.captionSize.sp,
+                              fontWeight: FontWeight.w600,
+                              color: AuthColors.labelText,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          TextButton.icon(
+                            onPressed: _isFetchingLocation ? null : _fillCurrentLocation,
+                            icon: _isFetchingLocation
+                                ? SizedBox(
+                                    width: 14.w,
+                                    height: 14.w,
+                                    child: const CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: AuthColors.primary,
+                                    ),
+                                  )
+                                : Icon(Icons.my_location, size: 14.sp),
+                            label: Text(
+                              'Use Current',
+                              style: TextStyle(
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            style: TextButton.styleFrom(
+                              foregroundColor: AuthColors.primary,
+                              padding: EdgeInsets.symmetric(horizontal: 8.w),
+                            ),
+                          ),
+                        ],
                       ),
-                      SizedBox(height: AppDimensions.paddingMedium.h),
+                      SizedBox(height: AppDimensions.paddingSmall.h),
 
                       // City Field
-                      _buildLabel('City or Zip Code'),
+                      _buildLabel('City'),
                       SizedBox(height: AppDimensions.paddingSmall.h),
                       _buildFormField(
                         controller: _cityController,
                         hint: 'Enter your city',
+                        validator: _validateRequired,
+                        keyboardType: TextInputType.text,
+                      ),
+                      SizedBox(height: AppDimensions.paddingLarge.h),
+
+                      // Neighborhood Field
+                      _buildLabel('Neighborhood'),
+                      SizedBox(height: AppDimensions.paddingSmall.h),
+                      _buildFormField(
+                        controller: _neighborhoodController,
+                        hint: 'Enter your neighborhood',
+                        validator: (value) => null, // Optional
+                        keyboardType: TextInputType.text,
+                      ),
+                      SizedBox(height: AppDimensions.paddingLarge.h),
+
+                      // Zip Code Field
+                      _buildLabel('Zip Code'),
+                      SizedBox(height: AppDimensions.paddingSmall.h),
+                      _buildFormField(
+                        controller: _zipCodeController,
+                        hint: 'Enter your zip code',
                         validator: _validateRequired,
                         keyboardType: TextInputType.text,
                       ),
@@ -446,6 +632,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           SnackBar(
             content: Text('Error picking image: $e'),
             backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 3),
           ),
         );

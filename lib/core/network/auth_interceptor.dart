@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:ferry/ferry.dart';
 import 'package:gql_exec/gql_exec.dart' show Context;
@@ -148,30 +149,38 @@ class AuthInterceptor extends Interceptor {
       '[AuthInterceptor] _handleUnauthorizedResponse checking: ${response.requestOptions.path}',
     );
 
-    // Check if it's a GraphQL response with potential errors in the body
-    final bool isGraphQLResponse = response.data != null && response.data is Map;
+    // Attempt to parse data if it's a string (sometimes Dio doesn't auto-parse error bodies)
+    dynamic data = response.data;
+    if (data is String && data.trim().startsWith('{')) {
+      try {
+        data = jsonDecode(data);
+      } catch (_) {}
+    }
+
+    final bool isMap = data != null && data is Map;
     final bool hasExplicitUnauthorizedHeader = response.statusCode == 401;
 
-    if (!isGraphQLResponse && !hasExplicitUnauthorizedHeader) {
+    if (!isMap && !hasExplicitUnauthorizedHeader) {
       return false;
     }
 
     bool isUnauthorized = hasExplicitUnauthorizedHeader;
 
-    if (isGraphQLResponse) {
-      final dataMap = response.data as Map;
-      if (dataMap['errors'] != null) {
+    if (isMap) {
+      final dataMap = data as Map;
+      if (dataMap['errors'] != null && dataMap['errors'] is List) {
         final errors = dataMap['errors'] as List;
         _logger.d('[AuthInterceptor] Found ${errors.length} errors in body');
 
         for (var error in errors) {
           if (error is Map) {
             final extensions = error['extensions'] as Map?;
-            final code = extensions?['code'] ?? error['code'];
-            final statusCode = extensions?['status'] ??
-                extensions?['statusCode'] ??
-                error['statusCode'];
-            final message = error['message']?.toString() ?? '';
+            final code = (extensions?['code'] ?? error['code'])?.toString().toUpperCase();
+            final statusCode = (extensions?['status'] ??
+                    extensions?['statusCode'] ??
+                    error['statusCode'])
+                ?.toString();
+            final message = error['message']?.toString().toLowerCase() ?? '';
 
             _logger.d(
               '[AuthInterceptor] Checking error: code=$code, statusCode=$statusCode, message=$message',
@@ -179,9 +188,10 @@ class AuthInterceptor extends Interceptor {
 
             if (code == 'UNAUTHENTICATED' ||
                 code == 'AUTH_NOT_LOGGED_IN' ||
-                statusCode == 401 ||
-                message.contains('Unauthorized') ||
-                message.contains('Unauthenticated')) {
+                statusCode == '401' ||
+                message.contains('unauthorized') ||
+                message.contains('unauthenticated') ||
+                message.contains('token state version mismatch')) {
               isUnauthorized = true;
               _logger.i(
                 '[AuthInterceptor] Match found for Unauthorized error in GraphQL body',

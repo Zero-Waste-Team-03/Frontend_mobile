@@ -18,6 +18,7 @@ query GetDonations(
       status
       urgency
       isLikedByMe
+      safetyChecklistCompleted
       mainAttachmentId
       mainAttachment {
         url
@@ -31,6 +32,8 @@ query GetDonations(
         id
         displayName
         email
+        isVerified
+        isFoodSaver
         avatar {
           id
           url

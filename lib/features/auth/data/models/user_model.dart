@@ -14,6 +14,7 @@ class UserModel extends Equatable {
   final String? locationId;
   final Map<String, dynamic>? location;
   final String? avatarUrl;
+  final bool isFoodSaver;
   final UserSettingsModel? settings;
 
   const UserModel({
@@ -28,6 +29,7 @@ class UserModel extends Equatable {
     this.locationId,
     this.location,
     this.avatarUrl,
+    this.isFoodSaver = false,
     this.settings,
   });
 
@@ -68,6 +70,7 @@ class UserModel extends Equatable {
       locationId: json['locationId']?.toString(),
       location: json['location'] as Map<String, dynamic>?,
       avatarUrl: avatarUrl,
+      isFoodSaver: (json['isFoodSaver'] as bool?) ?? false,
       settings: json['settings'] != null
           ? UserSettingsModel.fromJson(json['settings'] as Map<String, dynamic>)
           : null,
@@ -87,6 +90,7 @@ class UserModel extends Equatable {
       'locationId': locationId,
       'location': location,
       'avatarUrl': avatarUrl,
+      'isFoodSaver': isFoodSaver,
       'settings': settings?.toJson(),
     };
   }
@@ -104,6 +108,7 @@ class UserModel extends Equatable {
       locationId: locationId,
       location: location,
       avatarUrl: avatarUrl,
+      isFoodSaver: isFoodSaver,
       settings: settings?.toEntity(),
     );
   }
@@ -121,6 +126,7 @@ class UserModel extends Equatable {
     locationId,
     location,
     avatarUrl,
+    isFoodSaver,
     settings,
   ];
 }

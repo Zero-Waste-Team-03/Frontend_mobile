@@ -1,0 +1,51 @@
+query GetSentVerificationRequests($pagination: PaginationInput!) {
+  getSentVerificationRequests(pagination: $pagination) {
+    items {
+      id
+      requesterId
+      targetFoodSaverId
+      status
+      createdAt
+      updatedAt
+      targetFoodSaver {
+        id
+        displayName
+        avatar {
+          url
+        }
+        isVerified
+      }
+    }
+    hasNextPage
+    hasPreviousPage
+    totalCount
+    limit
+    page
+  }
+}
+
+query GetVerificationRequestsForFoodSaver($pagination: PaginationInput!, $search: String) {
+  getVerificationRequestsForFoodSaver(pagination: $pagination, search: $search) {
+    items {
+      id
+      requesterId
+      targetFoodSaverId
+      status
+      createdAt
+      updatedAt
+      requester {
+        id
+        displayName
+        avatar {
+          url
+        }
+        isVerified
+      }
+    }
+    hasNextPage
+    hasPreviousPage
+    totalCount
+    limit
+    page
+  }
+}

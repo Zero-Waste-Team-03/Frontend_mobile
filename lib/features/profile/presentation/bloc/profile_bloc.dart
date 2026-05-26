@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 import 'dart:io';
 import 'package:logger/logger.dart';
+import '../../../donations/domain/entities/donation.dart';
 import '../../domain/repositories/profile_repository.dart';
 import '../../domain/entities/donations_state.dart';
 import 'profile_event.dart';
@@ -278,7 +279,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
           emit(
             ProfileActivitiesLoaded(
-              sortedActivities,
+              List<Donation>.from(sortedActivities),
               activeFilter: _currentActivitiesFilter,
               currentPage: activitiesPage.page,
               totalCount: activitiesPage.totalCount,
@@ -296,7 +297,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           existingById[donation.id] = donation;
         }
 
-        final mergedActivities = existingById.values.toList()
+        final mergedActivities = List<Donation>.from(existingById.values)
           ..sort(
             (a, b) => (b.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0))
                 .compareTo(

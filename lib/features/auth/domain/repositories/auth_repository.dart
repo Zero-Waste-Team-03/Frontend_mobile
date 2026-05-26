@@ -19,6 +19,7 @@ abstract class AuthRepository {
     double? latitude,
     double? longitude,
     String? neighborhood,
+    String? zipCode,
   });
   Future<Either<Failure, AuthResponse>> oAuthLogin(
     String provider,

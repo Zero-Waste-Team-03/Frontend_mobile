@@ -13,6 +13,7 @@ class User extends Equatable {
   final String? locationId;
   final Map<String, dynamic>? location;
   final String? avatarUrl;
+  final bool isFoodSaver;
   final UserSettings? settings;
 
   const User({
@@ -27,6 +28,7 @@ class User extends Equatable {
     this.locationId,
     this.location,
     this.avatarUrl,
+    this.isFoodSaver = false,
     this.settings,
   });
 
@@ -44,6 +46,7 @@ class User extends Equatable {
     String? locationId,
     Map<String, dynamic>? location,
     String? avatarUrl,
+    bool? isFoodSaver,
     UserSettings? settings,
   }) {
     return User(
@@ -58,6 +61,7 @@ class User extends Equatable {
       locationId: locationId ?? this.locationId,
       location: location ?? this.location,
       avatarUrl: avatarUrl ?? this.avatarUrl,
+      isFoodSaver: isFoodSaver ?? this.isFoodSaver,
       settings: settings ?? this.settings,
     );
   }
@@ -75,6 +79,7 @@ class User extends Equatable {
     locationId,
     location,
     avatarUrl,
+    isFoodSaver,
     settings,
   ];
 }

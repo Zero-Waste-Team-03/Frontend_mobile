@@ -50,6 +50,10 @@ class AuthVerifyOtpRequested extends AuthEvent {
   final String password;
   final String confirmPassword;
   final String location;
+  final String? zipCode;
+  final double? latitude;
+  final double? longitude;
+  final String? neighborhood;
   final String otp;
 
   const AuthVerifyOtpRequested({
@@ -60,6 +64,10 @@ class AuthVerifyOtpRequested extends AuthEvent {
     required this.password,
     required this.confirmPassword,
     required this.location,
+    this.zipCode,
+    this.latitude,
+    this.longitude,
+    this.neighborhood,
     required this.otp,
   });
 
@@ -71,6 +79,10 @@ class AuthVerifyOtpRequested extends AuthEvent {
     password,
     confirmPassword,
     location,
+    zipCode,
+    latitude,
+    longitude,
+    neighborhood,
     otp,
     phoneNumber,
   ];

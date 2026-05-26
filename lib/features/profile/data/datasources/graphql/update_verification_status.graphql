@@ -1,0 +1,24 @@
+mutation UpdateVerificationRequestStatus($input: UpdateVerificationStatusInput!) {
+  updateVerificationRequestStatus(updateVerificationRequest: $input) {
+    id
+    requesterId
+    requester {
+      id
+      displayName
+      avatar {
+        url
+      }
+    }
+    targetFoodSaverId
+    targetFoodSaver {
+      id
+      displayName
+      avatar {
+        url
+      }
+    }
+    status
+    createdAt
+    updatedAt
+  }
+}

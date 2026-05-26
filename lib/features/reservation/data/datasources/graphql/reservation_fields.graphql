@@ -21,6 +21,7 @@ fragment ReservationFields on Reservation {
     urgency
     isLikedByMe
     isReservable
+    safetyChecklistCompleted
     mainAttachmentId
     mainAttachment {
       url
@@ -34,6 +35,8 @@ fragment ReservationFields on Reservation {
       id
       displayName
       email
+      isVerified
+      isFoodSaver
       avatar {
         id
         url
@@ -48,6 +51,7 @@ fragment ReservationFields on Reservation {
     role
     description
     isVerified
+    isFoodSaver
     reputationScore
     locationId
     location {
