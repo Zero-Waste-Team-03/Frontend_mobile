@@ -11,16 +11,26 @@ abstract class LeaderboardState extends Equatable {
 }
 
 class LeaderboardInitial extends LeaderboardState {
-  const LeaderboardInitial();
+  final LeaderboardPeriod period;
+
+  const LeaderboardInitial({this.period = LeaderboardPeriod.monthly});
+
+  @override
+  List<Object?> get props => [period];
 }
 
 class LeaderboardLoading extends LeaderboardState {
-  const LeaderboardLoading();
+  final LeaderboardPeriod period;
+
+  const LeaderboardLoading({required this.period});
+
+  @override
+  List<Object?> get props => [period];
 }
 
 class LeaderboardLoaded extends LeaderboardState {
   final List<LeaderboardEntry> entries;
-  final String? currentUserId;
+  final LeaderboardEntry? currentUser;
   final LeaderboardPeriod period;
   final int currentPage;
   final int totalCount;
@@ -29,7 +39,7 @@ class LeaderboardLoaded extends LeaderboardState {
 
   const LeaderboardLoaded({
     required this.entries,
-    required this.currentUserId,
+    required this.currentUser,
     required this.period,
     required this.currentPage,
     required this.totalCount,
@@ -48,7 +58,7 @@ class LeaderboardLoaded extends LeaderboardState {
   @override
   List<Object?> get props => [
     entries,
-    currentUserId,
+    currentUser,
     period,
     currentPage,
     totalCount,
@@ -59,9 +69,10 @@ class LeaderboardLoaded extends LeaderboardState {
 
 class LeaderboardError extends LeaderboardState {
   final String message;
+  final LeaderboardPeriod period;
 
-  const LeaderboardError(this.message);
+  const LeaderboardError(this.message, {required this.period});
 
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [message, period];
 }

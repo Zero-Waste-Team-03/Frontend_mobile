@@ -1251,6 +1251,444 @@ type Query {
   Get user statistics for admin dashboard
   """
   adminGetUserStats: UserStats!
+
+  leaderboardAllTime(limit: Int = 10): [LeaderboardEntry!]!
+
+  leaderboardLastMonth(limit: Int = 10): [LeaderboardEntry!]!
+
+  """
+  Get the authenticated user's leaderboard entry for all time
+  """
+  myLeaderboardRankAllTime: LeaderboardEntry
+
+  """
+  Get the authenticated user's leaderboard entry for the last month
+  """
+  myLeaderboardRankLastMonth: LeaderboardEntry
+
+  """
+  Get paginated list of users for admin panel
+  """
+  adminGetUsers(
+    """
+    Items per page
+    """
+    limit: Int! = 10
+
+    """
+    Page number
+    """
+    page: Int! = 1
+
+    """
+    Filter by user role
+    """
+    role: UserRole
+
+    """
+    Search by name or email
+    """
+    search: String
+
+    """
+    Filter by user status
+    """
+    status: String
+  ): PaginatedUsers!
+
+  """
+  Admin growth chart for donations and users
+  """
+  adminGrowthStats(input: StatsGrowthInput!): StatsGrowth!
+
+  """
+  Admin: get total/open reports and report growth chart for selected period and status filter
+  """
+  adminReportStats(input: ReportStatsInput!): ReportStats!
+
+  """
+  Admin: list reports with filters
+  """
+  adminReports(
+    limit: Int! = 10
+    page: Int! = 1
+    status: ReportStatus
+    targetId: String
+    targetType: ReportTargetType
+  ): PaginatedReports!
+
+  """
+  Get active badge catalog
+  """
+  badgeCatalog: [Badge!]!
+
+  """
+  Retrieve a paginated list of all categories.
+  """
+  categories(pagination: PaginationInput): PaginatedCategories!
+
+  """
+  Retrieve a single category by its ID.
+  """
+  category(id: ID!): Category!
+
+  """
+  Get paginated messages of a conversation
+  """
+  conversationMessages(input: ConversationMessagesInput!): PaginatedMessages!
+
+  """
+  Get a conversation preview by conversation ID
+  """
+  conversationDetails(conversationId: ID!): ConversationPreview!
+
+  """
+  Get current authenticated user profile
+  """
+  currentUser: User!
+
+  """
+  Get a single donation listing by id
+  """
+  donation(id: ID!): Donation!
+
+  """
+  Get statistics for donations (total active, flagged, pending approvals)
+  """
+  donationStatistics: DonationStatistics!
+
+  """
+  Get all donation listings with optional filters and donor access
+  """
+  donations(
+    behaviorContext: DonationBehaviorContextInput
+    filter: DonationsFilterInput
+    pagination: PaginationInput
+  ): PaginatedDonations!
+
+  """
+  Get donation listings owned by the current authenticated user
+  """
+  myDonations(
+    filter: DonationsFilterInput
+    pagination: PaginationInput
+  ): PaginatedDonations!
+
+  """
+  Get viewport-based donation activity heatmap cells with normalized score
+  """
+  donationsHeatmap(input: DonationsHeatmapInput!): DonationsHeatmap!
+
+  """
+  Get donations within a radius from a center point for map visualization
+  """
+  donationsMap(input: DonationsMapInput!): [DonationMapMarker!]!
+  getNotifications(pagination: PaginationQueryInput): PaginatedNotifications!
+
+  """
+  Get unread notification stats for the authenticated user
+  """
+  getNotificationStats: NotificationStats!
+
+  """
+  Get liked donations for the authenticated user with the same standard filters and pagination
+  """
+  likedDonations(
+    filter: DonationsFilterInput
+    pagination: PaginationInput
+  ): PaginatedDonations!
+
+  """
+  Get current user achievements
+  """
+  myAchievements: [Achievement!]!
+
+  """
+  Get active conversations with minimal counterpart preview (name and image only)
+  """
+  myActiveConversations: [ConversationPreview!]!
+
+  """
+  Get badges earned by current user
+  """
+  myBadges: [Badge!]!
+
+  """
+  Get reports created by current user
+  """
+  myReports: [Report!]!
+
+  """
+  Get a single reservation by ID if current user is donor or beneficiary
+  """
+  myReservation(id: ID!): Reservation!
+
+  """
+  Get liked items counts and donations count
+  """
+  myDonationsStats: UsersDonationsStats!
+
+  """
+  Get reservations where the current user is donor or beneficiary
+  """
+  myReservations(
+    filter: ReservationsFilterInput
+    pagination: PaginationInput
+  ): PaginatedReservations!
+
+  """
+  Get a single conversation by id with counterpart preview (name and image)
+  """
+  conversationDetails(conversationId: ID!): ConversationPreview!
+
+  """
+  Get paginated archived conversations for the current user, ordered by most recent message
+  """
+  myArchivedConversations(
+    pagination: PaginationInput
+  ): PaginatedConversationPreviews!
+
+  """
+  Get total count of archived conversations for the current user
+  """
+  myArchivedConversationsCount: Int!
+}
+
+input RegisterInput {
+  """
+  Display name for the new user
+  """
+  displayName: String
+
+  """
+  Email address for the new user
+  """
+  email: String!
+
+  """
+  Location payload for user registration
+  """
+  location: RegisterLocationInput!
+
+  """
+  Password for the new user, must be strong and secure
+  """
+  password: String!
+
+  """
+  Phone number of the user, optional but if provided must be a valid string
+  """
+  phoneNumber: String
+}
+
+input RegisterLocationInput {
+  """
+  City for user location
+  """
+  city: String
+
+  """
+  Country for user location
+  """
+  country: String
+
+  """
+  Latitude for user location
+  """
+  latitude: Float
+
+  """
+  Longitude for user location
+  """
+  longitude: Float
+
+  """
+  Neighborhood for user location
+  """
+  neighborhood: String
+}
+
+type Report {
+  createdAt: DateTime!
+  description: String
+  id: ID!
+  reason: String!
+  reporterId: ID!
+  reviewedAt: DateTime
+  reviewedById: ID
+  status: ReportStatus!
+  targetId: ID!
+  targetType: ReportTargetType!
+  updatedAt: DateTime!
+}
+
+type ReportStats {
+  chart: [ReportStatsPoint!]!
+  openReports: Int!
+  openReportsIncrease: Float!
+  totalReports: Int!
+  totalReportsIncrease: Float!
+}
+
+input ReportStatsInput {
+  period: ReportStatsPeriod!
+  statusFilter: ReportStatsStatusFilter = ALL
+}
+
+"""
+Time period for reporting chart
+"""
+enum ReportStatsPeriod {
+  LAST_MONTH
+  LAST_WEEK
+  LAST_YEAR
+}
+
+type ReportStatsPoint {
+  period: String!
+  reportsCount: Int!
+}
+
+"""
+Status filter for reports chart (accepted is treated as resolved)
+"""
+enum ReportStatsStatusFilter {
+  ACCEPTED
+  ALL
+  OPEN
+  REJECTED
+  RESOLVED
+  UNDER_REVIEW
+}
+
+"""
+Moderation status of the report
+"""
+enum ReportStatus {
+  OPEN
+  REJECTED
+  RESOLVED
+  UNDER_REVIEW
+}
+
+"""
+The type of entity being reported
+"""
+enum ReportTargetType {
+  DONATION
+  MESSAGE
+  USER
+}
+
+type Reservation {
+  beneficiary: User
+  beneficiaryId: ID!
+  confirmedAt: DateTime
+  createdAt: DateTime!
+  donation: Donation
+  donationId: ID!
+  id: ID!
+  status: ReservationStatus!
+  updatedAt: DateTime!
+}
+
+input ReservationsFilterInput {
+  roleFilter: ReservationRoleFilter
+  status: ReservationStatus
+}
+
+enum ReservationRoleFilter {
+  BENEFICIARY
+  DONOR
+}
+
+"""
+The possible statuses of a reservation
+"""
+enum ReservationStatus {
+  CANCELLED
+  COMPLETED
+  CONFIRMED
+  PENDING
+}
+
+input ResetPasswordInput {
+  """
+  New password, must be strong and secure
+  """
+  password: String!
+
+  """
+  Password reset token from email
+  """
+  token: String!
+}
+
+input ReviewReportInput {
+  reportId: ID!
+  status: ReportStatus!
+}
+
+input SendMessageInput {
+  content: String!
+  conversationId: ID!
+}
+
+input SendNotificationInput {
+  body: String!
+  metaData: JSON
+  title: String!
+  type: String!
+}
+
+type SendNotificationResponse {
+  message: String!
+  success: Boolean!
+}
+
+type StatsGrowth {
+  points: [StatsGrowthPoint!]!
+}
+
+input StatsGrowthInput {
+  """
+  When true, donation growth counts only Published, Reserved, and Completed statuses
+  """
+  applyDonationStatusFilter: Boolean
+  period: StatsGrowthPeriod!
+}
+
+"""
+Time period for growth charts
+"""
+enum StatsGrowthPeriod {
+  LAST_MONTH
+  LAST_WEEK
+  LAST_YEAR
+}
+
+type StatsGrowthPoint {
+  donationsCount: Int!
+  period: String!
+  usersCount: Int!
+}
+
+input UpdateBadgeInput {
+  code: String
+  description: String
+  iconAttachmentId: String
+  isActive: Boolean
+  name: String
+  sortOrder: Int
+}
+
+input UpdateCategoryInput {
+  name: String
+  sensitivity: CategorySensitivity
+}
+
+input UpdateDonationInput {
+
   """
   Get paginated list of users for admin panel
   """

@@ -11,7 +11,10 @@ class SplashPage extends StatefulWidget {
 
 class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
+  
+  // ignore: unused_field
   late Animation<double> _fadeAnimation;
+  // ignore: unused_field
   late Animation<double> _scaleAnimation;
 
   @override

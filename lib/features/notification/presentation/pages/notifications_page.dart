@@ -32,6 +32,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
   // Filter state
   String _selectedFilter = 'All';
   static const String _filterAll = 'All';
+  // ignore: unused_field
   static final List<String> _filterOptions = [
     _filterAll,
     ...NotificationType.values.map((e) => e.displayName),

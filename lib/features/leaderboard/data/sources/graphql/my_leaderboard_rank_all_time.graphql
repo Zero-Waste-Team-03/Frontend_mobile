@@ -1,0 +1,9 @@
+query GetMyLeaderboardRankAllTime {
+  myLeaderboardRankAllTime {
+    avatarUrl
+    displayName
+    rank
+    score
+    userId
+  }
+}

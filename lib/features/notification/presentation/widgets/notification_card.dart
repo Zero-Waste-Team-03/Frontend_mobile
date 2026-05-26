@@ -131,7 +131,7 @@ class NotificationCard extends StatelessWidget {
   }
 
   String _resolveBodyText() {
-    if (!_isMessageNotification()) return notification.body ?? '';
+    if (!_isMessageNotification()) return notification.body;
 
     final meta = _extractMeta(notification.meta);
     final candidates = <String?>[
@@ -147,7 +147,7 @@ class NotificationCard extends StatelessWidget {
       if (value != null && value.isNotEmpty) return value;
     }
 
-    return notification.body ?? '';
+    return notification.body ;
   }
 
   Widget _buildLeadingIcon() {
