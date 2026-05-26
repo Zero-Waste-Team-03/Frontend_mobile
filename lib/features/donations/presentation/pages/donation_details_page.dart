@@ -803,15 +803,29 @@ class _OwnerCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  donation.author,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF131615),
-                  ),
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        donation.author,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF131615),
+                        ),
+                      ),
+                    ),
+                    if (donation.authorDetails?.isVerified ?? false) ...[
+                      SizedBox(width: 4.w),
+                      Icon(
+                        Icons.verified_rounded,
+                        color: Colors.blue,
+                        size: 14.sp,
+                      ),
+                    ],
+                  ],
                 ),
                 SizedBox(height: 2.h),
                 Text(

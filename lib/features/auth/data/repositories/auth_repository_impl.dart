@@ -113,6 +113,7 @@ class AuthRepositoryImpl implements AuthRepository {
     double? latitude,
     double? longitude,
     String? neighborhood,
+    String? zipCode,
   }) async {
     try {
       await remoteDataSource.register(
@@ -127,6 +128,7 @@ class AuthRepositoryImpl implements AuthRepository {
         latitude: latitude,
         longitude: longitude,
         neighborhood: neighborhood,
+        zipCode: zipCode,
       );
       return const Right(null);
     } on ServerException catch (e) {

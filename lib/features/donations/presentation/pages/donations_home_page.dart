@@ -415,14 +415,28 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
                     ),
                   ),
                   SizedBox(height: 3.h),
-                  Text(
-                    donation.author,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      color: AppColors.textSecondary,
-                    ),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          donation.author,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ),
+                      if (donation.authorDetails?.isVerified ?? false) ...[
+                        SizedBox(width: 4.w),
+                        Icon(
+                          Icons.verified_rounded,
+                          color: Colors.blue,
+                          size: 14.sp,
+                        ),
+                      ],
+                    ],
                   ),
                 ],
               ),

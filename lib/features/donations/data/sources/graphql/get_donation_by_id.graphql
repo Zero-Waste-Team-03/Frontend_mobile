@@ -14,6 +14,7 @@ query GetDonationById($id: ID!) {
     urgency
     isLikedByMe
     isReservable
+    safetyChecklistCompleted
     mainAttachmentId
     mainAttachment {
       url
@@ -27,6 +28,8 @@ query GetDonationById($id: ID!) {
       id
       displayName
       email
+      isVerified
+      isFoodSaver
       avatar {
         id
         url

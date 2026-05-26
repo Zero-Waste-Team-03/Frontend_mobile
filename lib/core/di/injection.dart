@@ -17,7 +17,9 @@ import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/profile/data/repositories/profile_repository_impl.dart';
 import '../../features/profile/data/datasources/profile_activities_remote_data_source.dart';
 import '../../features/profile/domain/repositories/profile_repository.dart';
+import '../../features/profile/data/datasources/verification_remote_data_source.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
+import '../../features/profile/presentation/bloc/verification/verification_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../features/chat/data/sources/chat_socket_service.dart';
@@ -155,10 +157,15 @@ Future<void> configureDependencies() async {
     () => ProfileActivitiesRemoteDataSourceImpl(getIt<Client>(), getIt()),
   );
 
+  getIt.registerLazySingleton<VerificationRemoteDataSource>(
+    () => VerificationRemoteDataSourceImpl(getIt<Client>(), getIt()),
+  );
+
   getIt.registerLazySingleton<ProfileRepository>(
     () => ProfileRepositoryImpl(
       authRepository: getIt(),
       profileActivitiesRemoteDataSource: getIt(),
+      verificationRemoteDataSource: getIt(),
     ),
   );
 
@@ -167,6 +174,9 @@ Future<void> configureDependencies() async {
 
   // ── Profile BLoC ──
   getIt.registerFactory(() => ProfileBloc(profileRepository: getIt()));
+
+  // ── Verification BLoC ──
+  getIt.registerFactory(() => VerificationBloc(profileRepository: getIt()));
 
   // ── Donations ──
   getIt.registerLazySingleton<DonationRemoteDataSource>(

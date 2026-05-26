@@ -32,6 +32,10 @@ import '../../features/profile/presentation/bloc/profile_bloc.dart';
 import '../../features/profile/presentation/bloc/profile_event.dart';
 import '../../features/profile/presentation/pages/edit_profile_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
+import '../../features/profile/presentation/pages/saver_analytics_page.dart';
+import '../../features/profile/presentation/pages/verification_requests_page.dart';
+import '../../features/profile/presentation/pages/find_verifier_page.dart';
+import '../../features/donations/presentation/pages/my_listings_page.dart';
 import '../../features/profile/presentation/pages/settings_page.dart';
 import '../../features/reservation/presentation/bloc/reservation_bloc.dart';
 import '../../features/reservation/presentation/pages/donation_details_full_page.dart';
@@ -224,6 +228,23 @@ final appRouter = GoRouter(
                       path: 'settings',
                       builder: (context, state) => const SettingsPage(),
                     ),
+                    GoRoute(
+                      path: 'my-listings',
+                      builder: (context, state) => const MyListingsPage(),
+                    ),
+                    GoRoute(
+                      path: 'saver-analytics',
+                      builder: (context, state) => const SaverAnalyticsPage(),
+                    ),
+                      GoRoute(
+                        path: 'verification-requests',
+                        builder: (context, state) => const VerificationRequestsPage(),
+                      ),
+                      GoRoute(
+                        path: 'find-verifier',
+                        builder: (context, state) => const FindVerifierPage(),
+                      ),
+
                   ],
                 ),
               ],

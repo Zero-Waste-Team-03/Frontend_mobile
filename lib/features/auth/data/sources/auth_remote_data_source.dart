@@ -46,6 +46,7 @@ abstract class AuthRemoteDataSource {
     double? latitude,
     double? longitude,
     String? neighborhood,
+    String? zipCode,
   });
   Future<AuthResponseModel> oAuthLogin(String provider, String accessToken);
   String getOAuthProviderEntryUrl(String provider);
@@ -152,6 +153,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     double? latitude,
     double? longitude,
     String? neighborhood,
+    String? zipCode,
   }) async {
     final registerInput = <String, dynamic>{
       'email': email.trim(),
@@ -163,6 +165,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         latitude: latitude,
         longitude: longitude,
         neighborhood: neighborhood,
+        zipCode: zipCode,
       ),
     };
 
@@ -465,6 +468,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     double? latitude,
     double? longitude,
     String? neighborhood,
+    String? zipCode,
   }) {
     final location = <String, dynamic>{};
     if (city != null && city.trim().isNotEmpty) location['city'] = city.trim();
@@ -475,6 +479,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     if (longitude != null) location['longitude'] = longitude;
     if (neighborhood != null && neighborhood.trim().isNotEmpty) {
       location['neighborhood'] = neighborhood.trim();
+    }
+    if (zipCode != null && zipCode.trim().isNotEmpty) {
+      location['zipCode'] = zipCode.trim();
     }
     return location;
   }

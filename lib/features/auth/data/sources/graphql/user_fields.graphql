@@ -5,6 +5,7 @@ fragment UserFields on User {
   role
   description
   isVerified
+  isFoodSaver
   phoneNumber
   reputationScore
   locationId

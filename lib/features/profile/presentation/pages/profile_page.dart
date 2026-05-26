@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:gaspzero/core/theme/app_colors.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -323,15 +322,30 @@ class _ProfilePageState extends State<ProfilePage> {
 
                                   // User Name
                                   Center(
-                                    child: Text(
-                                      user.name ?? 'N/A',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: AppDimensions.titleSize.sp,
-                                        fontWeight: FontWeight.w700,
-                                        color: AuthColors.headingText,
-                                        fontFamily: AppFonts.primaryFont,
-                                      ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          user.name ?? 'N/A',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontSize:
+                                                AppDimensions.titleSize.sp,
+                                            fontWeight: FontWeight.w700,
+                                            color: AuthColors.headingText,
+                                            fontFamily: AppFonts.primaryFont,
+                                          ),
+                                        ),
+                                        if (user.isVerified) ...[
+                                          SizedBox(width: 4.w),
+                                          Icon(
+                                            Icons.verified_rounded,
+                                            color: Colors.blue,
+                                            size: 20.sp,
+                                          ),
+                                        ],
+                                      ],
                                     ),
                                   ),
                                   SizedBox(
@@ -353,42 +367,81 @@ class _ProfilePageState extends State<ProfilePage> {
                                   ),
 
                                   // Status Badge with leaf icon
-                                  Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: AppDimensions.paddingSmall.w,
-                                      vertical: 5.h,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: AuthColors.primary,
-                                      borderRadius: BorderRadius.circular(
-                                        AppDimensions.borderRadiusExtraLarge.r,
+                                  if (user.isFoodSaver)
+                                    Container(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal:
+                                            AppDimensions.paddingSmall.w,
+                                        vertical: 5.h,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: AuthColors.primary,
+                                        borderRadius: BorderRadius.circular(
+                                          AppDimensions
+                                              .borderRadiusExtraLarge.r,
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.eco_outlined,
+                                            color: Colors.white,
+                                            size: 14.sp,
+                                          ),
+                                          SizedBox(width: 4.w),
+                                          Text(
+                                            'ACTIVE FOOD SAVER',
+                                            style: TextStyle(
+                                              fontSize: 11.sp,
+                                              fontWeight: FontWeight.w700,
+                                              color: Colors.white,
+                                              fontFamily: AppFonts.primaryFont,
+                                              letterSpacing: 0.5,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(
-                                          Icons.eco_outlined,
-                                          color: Colors.white,
-                                          size: 14.sp,
+                                  if (user.isFoodSaver)
+                                    SizedBox(
+                                      height: AppDimensions.paddingMedium.h,
+                                    ),
+
+                                  if (!user.isVerified) ...[
+                                    SizedBox(height: 8.h),
+                                    SizedBox(
+                                      width: 140.w,
+                                      height: 32.h,
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          context.push('/profile/find-verifier');
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: const Color(0xFF2D6C50),
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: AppDimensions.paddingSmall.w,
+                                            vertical: 6.h,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              AppDimensions.borderRadiusLarge.r,
+                                            ),
+                                          ),
+                                          elevation: 0,
                                         ),
-                                        SizedBox(width: 4.w),
-                                        Text(
-                                          'ACTIVE FOOD SAVER',
+                                        child: Text(
+                                          'Get Verified',
                                           style: TextStyle(
                                             fontSize: 11.sp,
                                             fontWeight: FontWeight.w700,
                                             color: Colors.white,
                                             fontFamily: AppFonts.primaryFont,
-                                            letterSpacing: 0.5,
                                           ),
                                         ),
-                                      ],
+                                      ),
                                     ),
-                                  ),
-                                  SizedBox(
-                                    height: AppDimensions.paddingMedium.h,
-                                  ),
+                                  ],
 
                                   SizedBox(
                                     width: 140.w,
@@ -493,164 +546,76 @@ class _ProfilePageState extends State<ProfilePage> {
                                   ),
                                 ),
 
-                                GestureDetector(
+                                _MenuTile(
+                                  icon: Icons.history_rounded,
+                                  iconColor: AuthColors.primary,
+                                  backgroundColor:
+                                      AuthColors.primary.withValues(alpha: 0.1),
+                                  title: 'Activity History',
+                                  subtitle: 'View your past donations',
                                   onTap: () {
                                     context.push('/my-activities');
                                   },
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: AppDimensions.paddingLarge.w,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.background,
-                                      borderRadius: BorderRadius.circular(
-                                        AppDimensions.borderRadiusLarge.r,
-                                      ),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          width: 40.w,
-                                          height: 40.w,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: AuthColors.primary
-                                                .withValues(alpha: 0.1),
-                                          ),
-                                          child: Center(
-                                            child: Icon(
-                                              Icons.history_rounded,
-                                              color: AuthColors.primary,
-                                              size: 20.sp,
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: AppDimensions.paddingMedium.w,
-                                        ),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Activity History',
-                                                style: TextStyle(
-                                                  fontSize:
-                                                      AppDimensions.bodySize.sp,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: AuthColors.headingText,
-                                                  fontFamily:
-                                                      AppFonts.primaryFont,
-                                                ),
-                                              ),
-                                              SizedBox(height: 4.h),
-                                              Text(
-                                                'View your past donations',
-                                                style: TextStyle(
-                                                  fontSize: AppDimensions
-                                                      .captionSize
-                                                      .sp,
-                                                  fontWeight: FontWeight.w400,
-                                                  color: AuthColors.subText,
-                                                  fontFamily:
-                                                      AppFonts.primaryFont,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        Icon(
-                                          Icons.chevron_right_rounded,
-                                          color: AuthColors.subText,
-                                          size: AppDimensions.iconSize.sp,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
                                 ),
                                 SizedBox(height: AppDimensions.paddingMedium.h),
 
-                                GestureDetector(
+                                _MenuTile(
+                                  icon: Icons.favorite_rounded,
+                                  iconColor: Colors.redAccent,
+                                  backgroundColor: Colors.red.withValues(
+                                    alpha: 0.12,
+                                  ),
+                                  title: 'Favorite Donations',
+                                  subtitle: 'Manage your liked donation list',
                                   onTap: () {
                                     context.push('/favorites');
                                   },
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: AppDimensions.paddingLarge.w,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.background,
-                                      borderRadius: BorderRadius.circular(
-                                        AppDimensions.borderRadiusLarge.r,
-                                      ),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          width: 40.w,
-                                          height: 40.w,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: Colors.red.withValues(
-                                              alpha: 0.12,
-                                            ),
-                                          ),
-                                          child: Center(
-                                            child: Icon(
-                                              Icons.favorite_rounded,
-                                              color: Colors.redAccent,
-                                              size: 20.sp,
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: AppDimensions.paddingMedium.w,
-                                        ),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Favorite Donations',
-                                                style: TextStyle(
-                                                  fontSize:
-                                                      AppDimensions.bodySize.sp,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: AuthColors.headingText,
-                                                  fontFamily:
-                                                      AppFonts.primaryFont,
-                                                ),
-                                              ),
-                                              SizedBox(height: 4.h),
-                                              Text(
-                                                'Manage your liked donation list',
-                                                style: TextStyle(
-                                                  fontSize: AppDimensions
-                                                      .captionSize
-                                                      .sp,
-                                                  fontWeight: FontWeight.w400,
-                                                  color: AuthColors.subText,
-                                                  fontFamily:
-                                                      AppFonts.primaryFont,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        Icon(
-                                          Icons.chevron_right_rounded,
-                                          color: AuthColors.subText,
-                                          size: AppDimensions.iconSize.sp,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
                                 ),
                                 SizedBox(height: AppDimensions.paddingMedium.h),
                               ],
                             ),
+
+                            // Food Saver Section (Conditional)
+                            if (user.isFoodSaver) ...[
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: AppDimensions.paddingLarge.w,
+                                      vertical: AppDimensions.paddingLarge.h,
+                                    ),
+                                    child: Text(
+                                      'FOOD SAVER',
+                                      style: TextStyle(
+                                        fontSize: AppDimensions.captionSize.sp,
+                                        fontWeight: FontWeight.w600,
+                                        color: AuthColors.labelText,
+                                        fontFamily: AppFonts.primaryFont,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                  ),
+
+                                  _MenuTile(
+                                    icon: Icons.assignment_ind_rounded,
+                                    iconColor: AuthColors.primary,
+                                    backgroundColor: AuthColors.primary
+                                        .withValues(alpha: 0.1),
+                                    title: 'Verification Requests',
+                                    subtitle: '',
+                                    onTap: () {
+                                      context.push(
+                                        '/profile/verification-requests',
+                                      );
+                                    },
+                                  ),
+                                  SizedBox(
+                                    height: AppDimensions.paddingMedium.h,
+                                  ),
+                                ],
+                              ),
+                            ],
 
                             SizedBox(height: AppDimensions.paddingLarge.h),
 
@@ -883,6 +848,78 @@ class _ProfilePageState extends State<ProfilePage> {
         );
       }
     }
+  }
+}
+
+class _MenuTile extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final Color backgroundColor;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _MenuTile({
+    required this.icon,
+    required this.iconColor,
+    required this.backgroundColor,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(16.w),
+        margin: EdgeInsets.symmetric(horizontal: 20.w),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24.r),
+          border: Border.all(color: const Color(0xFFF6F7F7)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40.w,
+              height: 40.w,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16.r),
+                color: const Color(0xFFF6F7F7),
+              ),
+              child: Center(
+                child: Icon(
+                  icon,
+                  color: iconColor,
+                  size: 20.sp,
+                ),
+              ),
+            ),
+            SizedBox(
+              width: 16.w,
+            ),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF131615),
+                  fontFamily: AppFonts.primaryFont,
+                ),
+              ),
+            ),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: const Color(0xFF131615),
+              size: 24.sp,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

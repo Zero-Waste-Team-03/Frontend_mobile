@@ -109,7 +109,7 @@ class StandardDonationCard extends StatelessWidget {
                         color: AppColors.textSecondary,
                       ),
                       SizedBox(width: 4.w),
-                      Expanded(
+                      Flexible(
                         child: Text(
                           donationAuthorLabel(context, donation),
                           maxLines: 1,
@@ -121,6 +121,14 @@ class StandardDonationCard extends StatelessWidget {
                           ),
                         ),
                       ),
+                      if (donation.authorDetails?.isVerified == true) ...[
+                        SizedBox(width: 4.w),
+                        Icon(
+                          Icons.verified_rounded,
+                          size: 12.sp,
+                          color: AppColors.primary,
+                        ),
+                      ],
                     ],
                   ),
                   SizedBox(height: 8.h),

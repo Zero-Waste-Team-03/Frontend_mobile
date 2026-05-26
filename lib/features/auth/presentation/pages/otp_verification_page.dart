@@ -100,6 +100,10 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
           password: widget.userData['password'] ?? '',
           confirmPassword: widget.userData['confirmPassword'] ?? '',
           location: widget.userData['location'] ?? '',
+          zipCode: widget.userData['zipCode'],
+          latitude: double.tryParse(widget.userData['latitude'] ?? ''),
+          longitude: double.tryParse(widget.userData['longitude'] ?? ''),
+          neighborhood: widget.userData['neighborhood'],
           otp: otp,
         ),
       );

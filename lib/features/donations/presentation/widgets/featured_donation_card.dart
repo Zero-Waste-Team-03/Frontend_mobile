@@ -141,14 +141,28 @@ class FeaturedDonationCard extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 4.h),
-                  Text(
-                    donationAuthorLabel(context, donation),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      color: AppColors.textSecondary,
-                    ),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          donationAuthorLabel(context, donation),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ),
+                      if (donation.authorDetails?.isVerified == true) ...[
+                        SizedBox(width: 4.w),
+                        Icon(
+                          Icons.verified_rounded,
+                          size: 12.sp,
+                          color: AppColors.primary,
+                        ),
+                      ],
+                    ],
                   ),
                   SizedBox(height: 8.h),
                   Row(
