@@ -90,6 +90,17 @@ class VerificationRequestCreationRequested extends VerificationEvent {
   List<Object?> get props => [targetFoodSaverId];
 }
 
+class VerificationRequestDismissed extends VerificationEvent {
+  final String requestId;
+
+  const VerificationRequestDismissed({
+    required this.requestId,
+  });
+
+  @override
+  List<Object?> get props => [requestId];
+}
+
 class VerificationMessageCleared extends VerificationEvent {
   const VerificationMessageCleared();
 }
