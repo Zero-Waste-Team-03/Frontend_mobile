@@ -27,6 +27,16 @@ class MarkNotificationsAsReadUseCase {
   }
 }
 
+class MarkAllNotificationsAsReadUseCase {
+  final NotificationRepository repository;
+
+  MarkAllNotificationsAsReadUseCase({required this.repository});
+
+  Future<Either<Failure, void>> call() {
+    return repository.markAllNotificationsAsRead();
+  }
+}
+
 class DeleteNotificationUseCase {
   final NotificationRepository repository;
 

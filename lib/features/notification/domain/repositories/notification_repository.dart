@@ -11,6 +11,8 @@ abstract class NotificationRepository {
 
   Future<Either<Failure, NotificationStats>> getNotificationStats();
 
+  Future<Either<Failure, void>> markAllNotificationsAsRead();
+
   Future<Either<Failure, void>> markNotificationsAsRead(
     List<String> notificationIds,
   );

@@ -97,6 +97,16 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
   }
 
   void _updatePinnedCardVisibility() {
+    
+    if (context.read<LeaderboardBloc>().state is LeaderboardLoaded) {
+      final state = context.read<LeaderboardBloc>().state as LeaderboardLoaded;
+      if (state.isUserInTop3()) {
+        setState(() {
+        _hidePinnedCurrentUserCard = false;
+        });
+        return;
+      }
+    }
 
     final listContext = _currentUserListCardKey.currentContext;
     final pinnedContext = _pinnedCurrentUserCardKey.currentContext;
@@ -113,6 +123,11 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
     final listBox = listContext.findRenderObject() as RenderBox?;
     final pinnedBox = pinnedContext.findRenderObject() as RenderBox?;
     if (listBox == null || pinnedBox == null) {
+      if (_hidePinnedCurrentUserCard) {
+        setState(() {
+          _hidePinnedCurrentUserCard = false;
+        });
+      }
       return;
     }
 

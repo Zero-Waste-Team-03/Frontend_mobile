@@ -165,42 +165,45 @@ class _TopRankAvatar extends StatelessWidget {
 
             SizedBox(height: 30),
 
-            // name: horizontally scrollable so the full name can be read without overflow
-            Transform.translate(
-              offset: Offset(0, 2*lift ),
-              child: SizedBox(
-                width: textWidth,
-                child: ClipRect(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    physics: const BouncingScrollPhysics(),
-                    child: Text(
-                      currentEntry.name.isNotEmpty
-                          ? currentEntry.name
-                          : 'Unknown user',
-                      maxLines: 1,
-                      softWrap: false,
-                      textAlign: TextAlign.center,
-                      overflow: TextOverflow.visible,
-                      style: AppTextStyles.headlineMedium.copyWith(
-                        fontSize:
-                            shared_theme.AppDimensions.leaderboardTopNameFontSize,
-                        color: AppColors.textPrimary,
+            
+            Align(
+              alignment: Alignment.center,
+              child: Transform.translate(
+                offset: Offset(0, 2*lift ),
+                child: SizedBox(
+                  width: textWidth,
+                  child: Text(
+                        currentEntry.name.isNotEmpty
+                            ? currentEntry.name.trim().split(RegExp(r'\s+')).length >= 2
+                              ? "${currentEntry.name.trim().split(RegExp(r'\s+')).first} ${currentEntry.name.trim().split(RegExp(r'\s+')).last[0].toUpperCase()}."
+                              : currentEntry.name.trim().split(RegExp(r'\s+')).first
+                            : 'Unknown user',
+                        maxLines: 1,
+                        softWrap: false,
+                        textAlign: TextAlign.center,
+                        overflow: TextOverflow.visible,
+                        style: AppTextStyles.headlineMedium.copyWith(
+                          fontSize:
+                              shared_theme.AppDimensions.leaderboardTopNameFontSize,
+                          color: AppColors.textPrimary,
+                        ),
                       ),
-                    ),
-                  ),
                 ),
               ),
             ),
 
             const SizedBox(height: 4),
 
-            Text(
-              '${_formatPoints(currentEntry.points)} points',
-              style: AppTextStyles.titleMedium.copyWith(
-                color: AppColors.primary,
-                fontWeight: FontWeight.w700,
-                fontSize: shared_theme.AppDimensions.bodySize,
+            Transform.translate(
+              offset: Offset(0, 2*lift),
+
+              child: Text(
+                '${_formatPoints(currentEntry.points)} points',
+                style: AppTextStyles.titleMedium.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w700,
+                  fontSize: shared_theme.AppDimensions.bodySize,
+                ),
               ),
             ),
           ],

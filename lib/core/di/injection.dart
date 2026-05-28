@@ -248,6 +248,9 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton<GetNotificationsUseCase>(
     () => GetNotificationsUseCase(repository: getIt()),
   );
+  getIt.registerLazySingleton<MarkAllNotificationsAsReadUseCase>(
+    () => MarkAllNotificationsAsReadUseCase(repository: getIt()),
+  );
   getIt.registerLazySingleton<MarkNotificationsAsReadUseCase>(
     () => MarkNotificationsAsReadUseCase(repository: getIt()),
   );
@@ -302,6 +305,7 @@ Future<void> configureDependencies() async {
 
     return NotificationBloc(
       getNotificationsUseCase: getIt(),
+      markAllNotificationsAsReadUseCase: getIt(),
       markNotificationsAsReadUseCase: getIt(),
       deleteNotificationUseCase: getIt(),
       registerFcmTokenUseCase: getIt(),

@@ -378,7 +378,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                         color: AuthColors.primary,
                                         borderRadius: BorderRadius.circular(
                                           AppDimensions
-                                              .borderRadiusExtraLarge.r,
+                                              .borderRadiusExtraLarge
+                                              .r,
                                         ),
                                       ),
                                       child: Row(
@@ -415,12 +416,17 @@ class _ProfilePageState extends State<ProfilePage> {
                                       height: 32.h,
                                       child: ElevatedButton(
                                         onPressed: () {
-                                          context.push('/profile/find-verifier');
+                                          context.push(
+                                            '/profile/find-verifier',
+                                          );
                                         },
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(0xFF2D6C50),
+                                          backgroundColor: const Color(
+                                            0xFF2D6C50,
+                                          ),
                                           padding: EdgeInsets.symmetric(
-                                            horizontal: AppDimensions.paddingSmall.w,
+                                            horizontal:
+                                                AppDimensions.paddingSmall.w,
                                             vertical: 6.h,
                                           ),
                                           shape: RoundedRectangleBorder(
@@ -549,8 +555,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                 _MenuTile(
                                   icon: Icons.history_rounded,
                                   iconColor: AuthColors.primary,
-                                  backgroundColor:
-                                      AuthColors.primary.withValues(alpha: 0.1),
+                                  backgroundColor: AuthColors.primary
+                                      .withValues(alpha: 0.1),
                                   title: 'Activity History',
                                   subtitle: 'View your past donations',
                                   onTap: () {
@@ -890,16 +896,10 @@ class _MenuTile extends StatelessWidget {
                 color: const Color(0xFFF6F7F7),
               ),
               child: Center(
-                child: Icon(
-                  icon,
-                  color: iconColor,
-                  size: 20.sp,
-                ),
+                child: Icon(icon, color: iconColor, size: 20.sp),
               ),
             ),
-            SizedBox(
-              width: 16.w,
-            ),
+            SizedBox(width: 16.w),
             Expanded(
               child: Text(
                 title,

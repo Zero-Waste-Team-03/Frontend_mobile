@@ -26,6 +26,13 @@ class MarkNotificationsAsReadEvent extends NotificationEvent {
   List<Object?> get props => [notificationIds];
 }
 
+class MarkAllNotificationsAsReadEvent extends NotificationEvent {
+  const MarkAllNotificationsAsReadEvent();
+
+  @override
+  List<Object?> get props => [];
+}
+
 class DeleteNotificationEvent extends NotificationEvent {
   final String notificationId;
 

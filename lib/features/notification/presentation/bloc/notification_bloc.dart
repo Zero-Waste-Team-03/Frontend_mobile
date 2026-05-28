@@ -12,6 +12,7 @@ import 'notification_state.dart';
 
 class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   final GetNotificationsUseCase getNotificationsUseCase;
+  final MarkAllNotificationsAsReadUseCase markAllNotificationsAsReadUseCase;
   final MarkNotificationsAsReadUseCase markNotificationsAsReadUseCase;
   final DeleteNotificationUseCase deleteNotificationUseCase;
   final RegisterFcmTokenUseCase registerFcmTokenUseCase;
@@ -35,6 +36,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
 
   NotificationBloc({
     required this.getNotificationsUseCase,
+    required this.markAllNotificationsAsReadUseCase,
     required this.markNotificationsAsReadUseCase,
     required this.deleteNotificationUseCase,
     required this.registerFcmTokenUseCase,
@@ -45,6 +47,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     this.fcmManager, // Optional parameter
   }) : super(const NotificationInitial()) {
     on<FetchNotificationsEvent>(_onFetchNotifications);
+    on<MarkAllNotificationsAsReadEvent>(_onMarkAllNotificationsAsRead);
     on<MarkNotificationsAsReadEvent>(_onMarkNotificationsAsRead);
     on<DeleteNotificationEvent>(_onDeleteNotification);
     on<RefreshNotificationsEvent>(_onRefreshNotifications);
@@ -162,36 +165,29 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     );
   }
 
-  Future<void> _onMarkNotificationsAsRead(
-    MarkNotificationsAsReadEvent event,
+  Future<void> _onMarkAllNotificationsAsRead(
+    MarkAllNotificationsAsReadEvent event,
     Emitter<NotificationState> emit,
   ) async {
-    _logger.i(
-      'NotificationBloc: _onMarkNotificationsAsRead - ${event.notificationIds.length} notifications',
-    );
+    _logger.i('NotificationBloc: _onMarkAllNotificationsAsRead');
 
     final currentState = state;
 
     if (currentState is NotificationsLoaded) {
-      final result = await markNotificationsAsReadUseCase(
-        event.notificationIds,
-      );
+      final result = await markAllNotificationsAsReadUseCase();
 
       result.fold(
         (failure) {
           _logger.e(
-            'NotificationBloc: Failed to mark as read: ${failure.message}',
+            'NotificationBloc: Failed to mark all as read: ${failure.message}',
           );
           emit(NotificationsError(failure.message));
         },
         (_) {
-          _logger.i('NotificationBloc: Successfully marked as read');
-          final updatedList = currentState.notifications.map((notif) {
-            if (event.notificationIds.contains(notif.id)) {
-              return notif.copyWith(isRead: true);
-            }
-            return notif;
-          }).toList();
+          _logger.i('NotificationBloc: Successfully marked all as read');
+          final updatedList = currentState.notifications
+              .map((notif) => notif.copyWith(isRead: true))
+              .toList();
 
           getIt<NotificationStatsBloc>().add(
             const FetchNotificationStatsEvent(),
@@ -210,6 +206,32 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
         },
       );
     }
+  }
+
+  Future<void> _onMarkNotificationsAsRead(
+    MarkNotificationsAsReadEvent event,
+    Emitter<NotificationState> emit,
+  ) async {
+    _logger.i(
+      'NotificationBloc: _onMarkNotificationsAsRead - ${event.notificationIds.length} notifications',
+    );
+
+    final result = await markNotificationsAsReadUseCase(event.notificationIds);
+
+    result.fold(
+      (failure) {
+        _logger.e(
+          'NotificationBloc: Failed to mark as read: ${failure.message}',
+        );
+        // Silently fail - don't emit error state
+      },
+      (_) {
+        _logger.i('NotificationBloc: Successfully marked as read');
+        // Update notification stats badge but don't emit new state
+        // Cards stay highlighted until page is reopened and data is refreshed
+        getIt<NotificationStatsBloc>().add(const FetchNotificationStatsEvent());
+      },
+    );
   }
 
   Future<void> _onDeleteNotification(

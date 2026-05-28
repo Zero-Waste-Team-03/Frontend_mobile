@@ -166,7 +166,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
         final place = placemarks.first;
         setState(() {
           _cityController.text = (place.locality ?? '').trim();
-          _neighborhoodController.text = (place.subLocality ?? place.name ?? '').trim();
+          _neighborhoodController.text = (place.subLocality ?? place.name ?? '')
+              .trim();
           _zipCodeController.text = (place.postalCode ?? '').trim();
           _latitude = position!.latitude;
           _longitude = position.longitude;
@@ -451,7 +452,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             ),
                           ),
                           TextButton.icon(
-                            onPressed: _isFetchingLocation ? null : _fillCurrentLocation,
+                            onPressed: _isFetchingLocation
+                                ? null
+                                : _fillCurrentLocation,
                             icon: _isFetchingLocation
                                 ? SizedBox(
                                     width: 14.w,
@@ -572,40 +575,62 @@ class _EditProfilePageState extends State<EditProfilePage> {
     required String? Function(String?) validator,
     required TextInputType keyboardType,
   }) {
-    return Container(
-      height: AppDimensions.inputHeight.h,
-      decoration: BoxDecoration(
-        color: AuthColors.inputBackground,
-        borderRadius: BorderRadius.circular(AppDimensions.borderRadiusLarge.r),
-        border: Border.all(color: AuthColors.inputBorder),
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      style: TextStyle(
+        color: AuthColors.headingText,
+        fontSize: 16.sp,
+        fontWeight: FontWeight.w400,
       ),
-      child: TextFormField(
-        controller: controller,
-        keyboardType: keyboardType,
-        style: TextStyle(
-          color: AuthColors.headingText,
+      validator: validator,
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: TextStyle(
+          color: AuthColors.inputText,
           fontSize: 16.sp,
           fontWeight: FontWeight.w400,
         ),
-        validator: validator,
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: TextStyle(
-            color: AuthColors.inputText,
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w400,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(
+            AppDimensions.borderRadiusLarge.r,
           ),
-          border: InputBorder.none,
-          isDense: true,
-          contentPadding: EdgeInsets.symmetric(
-            horizontal: AppDimensions.paddingMedium.w,
-            vertical: (AppDimensions.inputHeight.h - 20.sp) / 2,
+          borderSide: const BorderSide(color: AuthColors.inputBorder),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(
+            AppDimensions.borderRadiusLarge.r,
           ),
-          errorStyle: TextStyle(
-            fontSize: AppDimensions.captionSize.sp,
-            color: Colors.red,
-            height: 1.2,
+          borderSide: const BorderSide(color: AuthColors.inputBorder),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(
+            AppDimensions.borderRadiusLarge.r,
           ),
+          borderSide: const BorderSide(color: AuthColors.primary, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(
+            AppDimensions.borderRadiusLarge.r,
+          ),
+          borderSide: const BorderSide(color: Colors.red, width: 2),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(
+            AppDimensions.borderRadiusLarge.r,
+          ),
+          borderSide: const BorderSide(color: Colors.red, width: 2),
+        ),
+        filled: true,
+        fillColor: AuthColors.inputBackground,
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: AppDimensions.paddingMedium.w,
+          vertical: AppDimensions.paddingMedium.h,
+        ),
+        errorStyle: TextStyle(
+          fontSize: AppDimensions.captionSize.sp,
+          color: Colors.red,
+          height: 1.4,
         ),
       ),
     );

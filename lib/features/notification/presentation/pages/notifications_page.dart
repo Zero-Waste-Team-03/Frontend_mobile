@@ -153,11 +153,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
               if (unreadNotifications.isNotEmpty) {
                 return GestureDetector(
                   onTap: () {
-                    final ids = unreadNotifications
-                        .map((n) => n.id)
-                        .cast<String>()
-                        .toList();
-                    _notificationBloc!.add(MarkNotificationsAsReadEvent(ids));
+                    _notificationBloc!.add(
+                      const MarkAllNotificationsAsReadEvent(),
+                    );
                   },
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
@@ -201,12 +199,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
             });
           }
 
-          return Column(
-            children: [
-              
-              Expanded(child: _buildContent(state)),
-            ],
-          );
+          return Column(children: [Expanded(child: _buildContent(state))]);
         },
       ),
     );
@@ -509,10 +502,39 @@ class _NotificationsPageState extends State<NotificationsPage> {
       case 'notification':
         final notifIndex = slot['index'] as int;
         final notification = notifications[notifIndex];
+
+        // Mark as read when card is rendered AND visible on screen
+        if (!notification.isRead) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            try {
+              final RenderObject? renderObject = context.findRenderObject();
+              if (renderObject != null && renderObject.attached) {
+                final translation = renderObject
+                    .getTransformTo(null)
+                    .getTranslation();
+                final size = renderObject.semanticBounds.size;
+                final screenHeight = MediaQuery.of(context).size.height;
+                final appBarHeight = kToolbarHeight;
+
+                // Check if card bottom is within screen bounds
+                final cardTop = translation.y;
+                final cardBottom = translation.y + size.height;
+
+                if (cardBottom > appBarHeight && cardTop < screenHeight) {
+                  _notificationBloc!.add(
+                    MarkNotificationsAsReadEvent([notification.id]),
+                  );
+                }
+              }
+            } catch (e) {
+              // Silently fail if we can't determine visibility
+            }
+          });
+        }
+
         return NotificationCard(
           notification: notification,
           onTap: () async {
-            // mark read handled by NotificationCard caller
             // handle smart action routing
             try {
               await NotificationActionHandler.handle(context, notification);
@@ -520,11 +542,6 @@ class _NotificationsPageState extends State<NotificationsPage> {
               // fallback to notification details
               context.push('/notification-details', extra: notification);
             }
-          },
-          onMarkAsRead: () {
-            _notificationBloc!.add(
-              MarkNotificationsAsReadEvent([notification.id]),
-            );
           },
           onDelete: () {
             _notificationBloc!.add(DeleteNotificationEvent(notification.id));
