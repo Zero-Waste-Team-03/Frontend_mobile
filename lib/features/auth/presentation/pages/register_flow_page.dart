@@ -104,8 +104,9 @@ class _RegisterFlowPageState extends State<RegisterFlowPage>
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Scaffold(
-      backgroundColor: AuthColors.background,
+      backgroundColor: colors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -116,7 +117,7 @@ class _RegisterFlowPageState extends State<RegisterFlowPage>
             "Create Account",
             key: const ValueKey('create_account'),
             style: TextStyle(
-              color: AuthColors.headingText,
+              color: colors.headingText,
               fontSize: 18.sp,
               fontWeight: FontWeight.w500,
             ),
@@ -125,7 +126,7 @@ class _RegisterFlowPageState extends State<RegisterFlowPage>
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back,
-            color: AuthColors.headingText,
+            color: colors.headingText,
             size: AppDimensions.iconSize.sp,
           ),
           onPressed: () {
@@ -175,7 +176,7 @@ class _RegisterFlowPageState extends State<RegisterFlowPage>
                             _stepLabels[_currentStep],
                             key: ValueKey('label_$_currentStep'),
                             style: TextStyle(
-                              color: AuthColors.headingText,
+                              color: colors.headingText,
                               fontWeight: FontWeight.w600,
                               fontSize: 16.sp,
                             ),
@@ -199,7 +200,7 @@ class _RegisterFlowPageState extends State<RegisterFlowPage>
                             _stepCounters[_currentStep],
                             key: ValueKey('counter_$_currentStep'),
                             style: TextStyle(
-                              color: AuthColors.primary,
+                              color: colors.primary,
                               fontWeight: FontWeight.w700,
                               fontSize: 14.sp,
                             ),
@@ -217,10 +218,10 @@ class _RegisterFlowPageState extends State<RegisterFlowPage>
                           ),
                           child: LinearProgressIndicator(
                             value: _progressAnimation.value,
-                            backgroundColor: AuthColors.primary.withValues(
+                            backgroundColor: colors.primary.withValues(
                               alpha: 0.2,
                             ),
-                            color: AuthColors.primary,
+                            color: colors.primary,
                             minHeight: 10.h,
                           ),
                         );

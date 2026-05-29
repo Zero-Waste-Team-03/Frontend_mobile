@@ -60,15 +60,17 @@ String localizedStatusLabel(BuildContext context, String status) {
   }
 }
 
-Color statusBackgroundColor(String status) {
+Color statusBackgroundColor(String status, BuildContext context) {
+  final colors = context.themeColors;
   return AppColors.donationStatusBadgeBackground[status
           .toDonationStatusValue()] ??
-      AppColors.surface;
+      colors.surface;
 }
 
-Color statusTextColor(String status) {
+Color statusTextColor(String status, BuildContext context) {
+  final colors = context.themeColors;
   return AppColors.donationStatusBadgeText[status.toDonationStatusValue()] ??
-      AppColors.textSecondary;
+      colors.textSecondary;
 }
 
 String localizedExpiryLabel(BuildContext context, DateTime? expiryDate) {

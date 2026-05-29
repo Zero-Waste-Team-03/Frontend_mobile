@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
-import 'auth_colors.dart';
+import '../../../../core/theme/app_colors.dart';
 
 class CreateNewPasswordPage extends StatefulWidget {
   final Map<String, String> data;
@@ -43,8 +43,9 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Scaffold(
-      backgroundColor: AuthColors.background,
+      backgroundColor: colors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -52,7 +53,7 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
         title: Text(
           "Create New Password",
           style: TextStyle(
-            color: AuthColors.headingText,
+            color: colors.headingText,
             fontSize: 18.sp,
             fontWeight: FontWeight.w500,
           ),
@@ -60,7 +61,7 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back,
-            color: AuthColors.headingText,
+            color: colors.headingText,
             size: AppDimensions.iconSize.sp,
           ),
           onPressed: () => context.pop(),
@@ -100,7 +101,7 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
                         fontSize: AppDimensions.titleSize.sp,
                         fontWeight: FontWeight.w700,
                         letterSpacing: -0.025 * AppDimensions.titleSize.sp,
-                        color: AuthColors.headingText,
+                        color: colors.headingText,
                         height: 1.25,
                       ),
                     ),
@@ -111,14 +112,14 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
                       style: TextStyle(
                         fontSize: AppDimensions.buttonTextSize.sp,
                         fontWeight: FontWeight.w400,
-                        color: AuthColors.subText,
+                        color: colors.subText,
                         height: 1.5,
                       ),
                     ),
                     SizedBox(height: 48.h),
 
                     // New Password
-                    _buildLabel('New Password'),
+                    _buildLabel('New Password', context),
                     SizedBox(height: AppDimensions.paddingSmall.h),
                     _buildPasswordField(
                       _newPasswordController,
@@ -127,6 +128,7 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
                       () => setState(
                         () => _obscureNewPassword = !_obscureNewPassword,
                       ),
+                      context,
                       validator: (v) {
                         if (v == null || v.isEmpty) return 'Required';
                         if (!RegExp(
@@ -139,15 +141,12 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
                     SizedBox(height: AppDimensions.paddingSmall.h),
                     Text(
                       "Must be at least 8 characters with 1 uppercase, 1 lowercase, 1 number, and 1 symbol.",
-                      style: TextStyle(
-                        color: AuthColors.subText,
-                        fontSize: 11.sp,
-                      ),
+                      style: TextStyle(color: colors.subText, fontSize: 11.sp),
                     ),
                     SizedBox(height: AppDimensions.paddingLarge.h),
 
                     // Confirm New Password
-                    _buildLabel('Confirm New Password'),
+                    _buildLabel('Confirm New Password', context),
                     SizedBox(height: AppDimensions.paddingSmall.h),
                     _buildPasswordField(
                       _confirmPasswordController,
@@ -157,6 +156,7 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
                         () =>
                             _obscureConfirmPassword = !_obscureConfirmPassword,
                       ),
+                      context,
                       validator: (v) {
                         if (v == null || v.isEmpty) return 'Required';
                         if (v != _newPasswordController.text)
@@ -172,7 +172,7 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
                       onPressed: isLoading ? null : _onSubmit,
                       style: ElevatedButton.styleFrom(
                         minimumSize: Size(double.infinity, 56.h),
-                        backgroundColor: AuthColors.primary,
+                        backgroundColor: colors.primary,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
@@ -219,18 +219,19 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
     );
   }
 
-  Widget _buildLabel(String text) {
+  Widget _buildLabel(String text, BuildContext context) {
+    final colors = context.themeColors;
     return Text(
       text,
       style: TextStyle(
-        color: AuthColors.labelText,
+        color: colors.labelText,
         fontWeight: FontWeight.w500,
         fontSize: AppDimensions.bodySize.sp,
       ),
     );
   }
 
-  OutlineInputBorder _getBorder(Color color) {
+  OutlineInputBorder _getBorder(Color color, BuildContext context) {
     return OutlineInputBorder(
       borderRadius: BorderRadius.circular(AppDimensions.borderRadiusLarge.r),
       borderSide: BorderSide(color: color),
@@ -241,43 +242,45 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
     TextEditingController controller,
     String hint,
     bool obscure,
-    VoidCallback toggleVisibility, {
+    VoidCallback toggleVisibility,
+    BuildContext context, {
     String? Function(String?)? validator,
   }) {
+    final colors = context.themeColors;
     return TextFormField(
       controller: controller,
       obscureText: obscure,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       validator: validator,
       style: TextStyle(
-        color: AuthColors.headingText,
+        color: colors.headingText,
         fontSize: 16.sp,
         fontWeight: FontWeight.w400,
       ),
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: TextStyle(
-          color: AuthColors.inputText,
+          color: colors.inputText,
           fontSize: 16.sp,
           fontWeight: FontWeight.w400,
         ),
         filled: true,
-        fillColor: AuthColors.inputBackground,
+        fillColor: colors.inputBackground,
         isDense: false,
         contentPadding: EdgeInsets.symmetric(
           horizontal: AppDimensions.paddingMedium.w,
           vertical: (AppDimensions.inputHeight.h - 20.sp) / 2,
         ),
-        border: _getBorder(AuthColors.inputBorder),
-        enabledBorder: _getBorder(AuthColors.inputBorder),
-        focusedBorder: _getBorder(AuthColors.primary),
-        errorBorder: _getBorder(Colors.red),
-        focusedErrorBorder: _getBorder(Colors.red),
+        border: _getBorder(colors.inputBorder, context),
+        enabledBorder: _getBorder(colors.inputBorder, context),
+        focusedBorder: _getBorder(colors.primary, context),
+        errorBorder: _getBorder(Colors.red, context),
+        focusedErrorBorder: _getBorder(Colors.red, context),
         suffixIcon: IconButton(
           padding: EdgeInsets.zero,
           icon: Icon(
             obscure ? Icons.visibility_off : Icons.visibility,
-            color: AuthColors.inputText,
+            color: colors.inputText,
             size: AppDimensions.iconSize.sp,
           ),
           onPressed: toggleVisibility,

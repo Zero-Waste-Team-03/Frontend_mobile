@@ -35,8 +35,9 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Scaffold(
-      backgroundColor: AuthColors.background,
+      backgroundColor: colors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -44,7 +45,7 @@ class _LoginPageState extends State<LoginPage> {
         title: Text(
           "Sign In",
           style: TextStyle(
-            color: AuthColors.headingText,
+            color: colors.headingText,
             fontSize: 18.sp,
             fontWeight: FontWeight.w500,
           ),
@@ -52,7 +53,7 @@ class _LoginPageState extends State<LoginPage> {
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back,
-            color: AuthColors.headingText,
+            color: colors.headingText,
             size: AppDimensions.iconSize.sp,
           ),
           onPressed: () => context.pop(),
@@ -88,7 +89,7 @@ class _LoginPageState extends State<LoginPage> {
                         fontSize: AppDimensions.titleSize.sp,
                         fontWeight: FontWeight.w700,
                         letterSpacing: -0.025 * AppDimensions.titleSize.sp,
-                        color: AuthColors.headingText,
+                        color: colors.headingText,
                       ),
                     ),
                     SizedBox(height: AppDimensions.paddingSmall.h),
@@ -98,15 +99,16 @@ class _LoginPageState extends State<LoginPage> {
                       style: TextStyle(
                         fontSize: AppDimensions.buttonTextSize.sp,
                         fontWeight: FontWeight.w400,
-                        color: AuthColors.subText,
+                        color: colors.subText,
                       ),
                     ),
                     SizedBox(height: 48.h),
 
                     // Form
-                    _buildLabel('Email'),
+                    _buildLabel(context, 'Email'),
                     SizedBox(height: AppDimensions.paddingSmall.h),
                     _buildTextField(
+                      context,
                       _emailController,
                       'jane.doe@example.com',
                       false,
@@ -118,9 +120,10 @@ class _LoginPageState extends State<LoginPage> {
                       },
                     ),
                     SizedBox(height: AppDimensions.paddingLarge.h),
-                    _buildLabel('Password'),
+                    _buildLabel(context, 'Password'),
                     SizedBox(height: AppDimensions.paddingSmall.h),
                     _buildTextField(
+                      context,
                       _passwordController,
                       'Enter your password',
                       true,
@@ -137,7 +140,7 @@ class _LoginPageState extends State<LoginPage> {
                           child: Text(
                             "Must be at least 8 characters with 1 uppercase, 1 lowercase, 1 number, and 1 symbol.",
                             style: TextStyle(
-                              color: AuthColors.subText,
+                              color: colors.subText,
                               fontSize: 10.sp,
                             ),
                           ),
@@ -147,7 +150,7 @@ class _LoginPageState extends State<LoginPage> {
                           child: Text(
                             "Forget Password?",
                             style: TextStyle(
-                              color: AuthColors.primary,
+                              color: colors.primary,
                               fontWeight: FontWeight.w600,
                               fontSize: 11.sp,
                             ),
@@ -161,7 +164,7 @@ class _LoginPageState extends State<LoginPage> {
                       onPressed: isLoading ? null : _onLogin,
                       style: ElevatedButton.styleFrom(
                         minimumSize: Size(double.infinity, 56.h),
-                        backgroundColor: AuthColors.primary,
+                        backgroundColor: colors.primary,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
@@ -195,9 +198,7 @@ class _LoginPageState extends State<LoginPage> {
 
                     Row(
                       children: [
-                        const Expanded(
-                          child: Divider(color: AuthColors.inputBorder),
-                        ),
+                        Expanded(child: Divider(color: colors.inputBorder)),
                         Padding(
                           padding: EdgeInsets.symmetric(
                             horizontal: AppDimensions.paddingMedium.w,
@@ -205,16 +206,14 @@ class _LoginPageState extends State<LoginPage> {
                           child: Text(
                             "OR CONTINUE WITH",
                             style: TextStyle(
-                              color: AuthColors.subText,
+                              color: colors.subText,
                               fontSize: AppDimensions.captionSize.sp,
                               fontWeight: FontWeight.w500,
                               letterSpacing: 0.5,
                             ),
                           ),
                         ),
-                        const Expanded(
-                          child: Divider(color: AuthColors.inputBorder),
-                        ),
+                        Expanded(child: Divider(color: colors.inputBorder)),
                       ],
                     ),
                     SizedBox(height: AppDimensions.paddingLarge.h),
@@ -235,8 +234,8 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       style: OutlinedButton.styleFrom(
                         minimumSize: Size(double.infinity, 56.h),
-                        foregroundColor: AuthColors.headingText,
-                        side: const BorderSide(color: AuthColors.inputBorder),
+                        foregroundColor: colors.headingText,
+                        side: BorderSide(color: colors.inputBorder),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(22.r),
                         ),
@@ -250,7 +249,7 @@ class _LoginPageState extends State<LoginPage> {
                         Text(
                           "Don't have an account? ",
                           style: TextStyle(
-                            color: AuthColors.subText,
+                            color: colors.subText,
                             fontSize: AppDimensions.bodySize.sp,
                           ),
                         ),
@@ -259,7 +258,7 @@ class _LoginPageState extends State<LoginPage> {
                           child: Text(
                             "Sign Up",
                             style: TextStyle(
-                              color: AuthColors.primary,
+                              color: colors.primary,
                               fontWeight: FontWeight.bold,
                               fontSize: AppDimensions.bodySize.sp,
                             ),
@@ -277,11 +276,12 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _buildLabel(String text) {
+  Widget _buildLabel(BuildContext context, String text) {
+    final colors = context.themeColors;
     return Text(
       text,
       style: TextStyle(
-        color: AuthColors.labelText,
+        color: colors.labelText,
         fontWeight: FontWeight.w500,
         fontSize: AppDimensions.bodySize.sp,
       ),
@@ -296,11 +296,13 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _buildTextField(
+    BuildContext context,
     TextEditingController controller,
     String hint,
     bool isPassword, {
     String? Function(String?)? validator,
   }) {
+    final colors = context.themeColors;
     return TextFormField(
       controller: controller,
       obscureText: isPassword ? _obscurePassword : false,
@@ -310,27 +312,27 @@ class _LoginPageState extends State<LoginPage> {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       validator: validator,
       style: TextStyle(
-        color: AuthColors.headingText,
+        color: colors.headingText,
         fontSize: 16.sp,
         fontWeight: FontWeight.w400,
       ),
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: TextStyle(
-          color: AuthColors.inputText,
+          color: colors.inputText,
           fontSize: 16.sp,
           fontWeight: FontWeight.w400,
         ),
         filled: true,
-        fillColor: AuthColors.inputBackground,
+        fillColor: colors.inputBackground,
         isDense: false,
         contentPadding: EdgeInsets.symmetric(
           horizontal: AppDimensions.paddingMedium.w,
           vertical: (AppDimensions.inputHeight.h - 20.sp) / 2,
         ),
-        border: _getBorder(AuthColors.inputBorder),
-        enabledBorder: _getBorder(AuthColors.inputBorder),
-        focusedBorder: _getBorder(AuthColors.primary),
+        border: _getBorder(colors.inputBorder),
+        enabledBorder: _getBorder(colors.inputBorder),
+        focusedBorder: _getBorder(colors.primary),
         errorBorder: _getBorder(Colors.red),
         focusedErrorBorder: _getBorder(Colors.red),
         suffixIcon: isPassword
@@ -338,7 +340,7 @@ class _LoginPageState extends State<LoginPage> {
                 padding: EdgeInsets.zero,
                 icon: Icon(
                   _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                  color: AuthColors.inputText,
+                  color: colors.inputText,
                   size: AppDimensions.iconSize.sp,
                 ),
                 onPressed: () {

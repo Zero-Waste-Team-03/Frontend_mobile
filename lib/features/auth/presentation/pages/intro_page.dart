@@ -8,8 +8,9 @@ class IntroPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Scaffold(
-      backgroundColor: AuthColors.background,
+      backgroundColor: colors.background,
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(
@@ -26,13 +27,13 @@ class IntroPage extends StatelessWidget {
                   Container(
                     width: AppDimensions.logoIconSize.w,
                     height: AppDimensions.logoIconSize.h,
-                    decoration: const BoxDecoration(
-                      color: AuthColors.background,
+                    decoration: BoxDecoration(
+                      color: colors.background,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       Icons.eco,
-                      color: AuthColors.primary,
+                      color: colors.primary,
                       size: AppDimensions.logoIconSize.sp,
                     ),
                   ),
@@ -42,7 +43,7 @@ class IntroPage extends StatelessWidget {
                     style: TextStyle(
                       fontSize: AppDimensions.logoTextSize.sp,
                       fontWeight: FontWeight.bold,
-                      color: AuthColors.primary,
+                      color: colors.primary,
                     ),
                   ),
                 ],
@@ -55,7 +56,7 @@ class IntroPage extends StatelessWidget {
                   fontSize: AppDimensions.headingSize.sp,
                   fontWeight: FontWeight.w700,
                   letterSpacing: -0.025 * AppDimensions.headingSize.sp,
-                  color: AuthColors.headingText,
+                  color: colors.headingText,
                   height: 1.25,
                 ),
               ),
@@ -66,7 +67,7 @@ class IntroPage extends StatelessWidget {
                 style: TextStyle(
                   fontSize: AppDimensions.subtitleSize.sp,
                   fontWeight: FontWeight.w400,
-                  color: AuthColors.subText,
+                  color: colors.subText,
                   height: 1.625,
                 ),
               ),
@@ -77,7 +78,7 @@ class IntroPage extends StatelessWidget {
                 onPressed: () => context.push('/register'),
                 style: ElevatedButton.styleFrom(
                   minimumSize: Size(double.infinity, 56.h),
-                  backgroundColor: AuthColors.primary,
+                  backgroundColor: colors.primary,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(
@@ -101,8 +102,8 @@ class IntroPage extends StatelessWidget {
                 onPressed: () => context.push('/login'),
                 style: ElevatedButton.styleFrom(
                   minimumSize: Size(double.infinity, 56.h),
-                  backgroundColor: AuthColors.primary.withValues(alpha: 0.1),
-                  foregroundColor: AuthColors.primary,
+                  backgroundColor: colors.primary.withValues(alpha: 0.1),
+                  foregroundColor: colors.primary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(
                       AppDimensions.borderRadiusExtraLarge.r,
@@ -126,9 +127,13 @@ class IntroPage extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildFeature(Icons.energy_savings_leaf, 'Eco Friendly'),
-                  _buildFeature(Icons.people, 'Community'),
-                  _buildFeature(Icons.recycling, 'Zero Waste'),
+                  _buildFeature(
+                    context,
+                    Icons.energy_savings_leaf,
+                    'Eco Friendly',
+                  ),
+                  _buildFeature(context, Icons.people, 'Community'),
+                  _buildFeature(context, Icons.recycling, 'Zero Waste'),
                 ],
               ),
             ],
@@ -138,15 +143,16 @@ class IntroPage extends StatelessWidget {
     );
   }
 
-  Widget _buildFeature(IconData icon, String text) {
+  Widget _buildFeature(BuildContext context, IconData icon, String text) {
+    final colors = context.themeColors;
     return Column(
       children: [
-        Icon(icon, color: AuthColors.primary, size: AppDimensions.iconSize.sp),
+        Icon(icon, color: colors.primary, size: AppDimensions.iconSize.sp),
         SizedBox(height: AppDimensions.paddingSmall.h),
         Text(
           text,
           style: TextStyle(
-            color: AuthColors.subText,
+            color: colors.subText,
             fontSize: AppDimensions.captionSize.sp,
             fontWeight: FontWeight.w500,
           ),

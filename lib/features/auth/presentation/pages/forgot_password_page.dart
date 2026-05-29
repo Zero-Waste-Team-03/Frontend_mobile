@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
-import 'auth_colors.dart';
+import '../../../../core/theme/app_colors.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -33,8 +33,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Scaffold(
-      backgroundColor: AuthColors.background,
+      backgroundColor: colors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -42,7 +43,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         title: Text(
           "Forgot Password",
           style: TextStyle(
-            color: AuthColors.headingText,
+            color: colors.headingText,
             fontSize: 18.sp,
             fontWeight: FontWeight.w500,
           ),
@@ -50,7 +51,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back,
-            color: AuthColors.headingText,
+            color: colors.headingText,
             size: AppDimensions.iconSize.sp,
           ),
           onPressed: () => context.pop(),
@@ -81,13 +82,13 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       width: 80.w,
                       height: 80.w,
                       decoration: BoxDecoration(
-                        color: AuthColors.primary.withValues(alpha: 0.1),
+                        color: colors.primary.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         Icons.mark_email_read_rounded,
                         size: 40.sp,
-                        color: AuthColors.primary,
+                        color: colors.primary,
                       ),
                     ),
                     SizedBox(height: 32.h),
@@ -98,7 +99,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         fontSize: AppDimensions.titleSize.sp,
                         fontWeight: FontWeight.w700,
                         letterSpacing: -0.025 * AppDimensions.titleSize.sp,
-                        color: AuthColors.headingText,
+                        color: colors.headingText,
                       ),
                     ),
                     SizedBox(height: 12.h),
@@ -110,7 +111,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         style: TextStyle(
                           fontSize: AppDimensions.bodySize.sp,
                           fontWeight: FontWeight.w400,
-                          color: AuthColors.subText,
+                          color: colors.subText,
                           height: 1.6,
                         ),
                       ),
@@ -122,8 +123,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       onPressed: isLoading ? null : _onSendResetLink,
                       style: OutlinedButton.styleFrom(
                         minimumSize: Size(double.infinity, 56.h),
-                        foregroundColor: AuthColors.primary,
-                        side: const BorderSide(color: AuthColors.primary),
+                        foregroundColor: colors.primary,
+                        side: BorderSide(color: colors.primary),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
                             AppDimensions.borderRadiusLarge.r,
@@ -154,7 +155,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       onPressed: () => context.go('/login'),
                       style: ElevatedButton.styleFrom(
                         minimumSize: Size(double.infinity, 56.h),
-                        backgroundColor: AuthColors.primary,
+                        backgroundColor: colors.primary,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
@@ -196,7 +197,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         fontSize: AppDimensions.titleSize.sp,
                         fontWeight: FontWeight.w700,
                         letterSpacing: -0.025 * AppDimensions.titleSize.sp,
-                        color: AuthColors.headingText,
+                        color: colors.headingText,
                       ),
                     ),
                     SizedBox(height: AppDimensions.paddingSmall.h),
@@ -206,18 +207,19 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       style: TextStyle(
                         fontSize: AppDimensions.buttonTextSize.sp,
                         fontWeight: FontWeight.w400,
-                        color: AuthColors.subText,
+                        color: colors.subText,
                         height: 1.5,
                       ),
                     ),
                     SizedBox(height: 48.h),
 
                     // Email field
-                    _buildLabel('Email'),
+                    _buildLabel('Email', context),
                     SizedBox(height: AppDimensions.paddingSmall.h),
                     _buildTextField(
                       _emailController,
                       'jane.doe@example.com',
+                      context,
                       validator: (v) {
                         if (v == null || v.isEmpty) return 'Required';
                         if (!RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(v))
@@ -234,7 +236,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       onPressed: isLoading ? null : _onSendResetLink,
                       style: ElevatedButton.styleFrom(
                         minimumSize: Size(double.infinity, 56.h),
-                        backgroundColor: AuthColors.primary,
+                        backgroundColor: colors.primary,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
@@ -280,7 +282,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         Text(
                           "Remember your password? ",
                           style: TextStyle(
-                            color: AuthColors.subText,
+                            color: colors.subText,
                             fontSize: AppDimensions.bodySize.sp,
                           ),
                         ),
@@ -289,7 +291,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           child: Text(
                             "Log in",
                             style: TextStyle(
-                              color: AuthColors.primary,
+                              color: colors.primary,
                               fontWeight: FontWeight.bold,
                               fontSize: AppDimensions.bodySize.sp,
                             ),
@@ -307,18 +309,19 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     );
   }
 
-  Widget _buildLabel(String text) {
+  Widget _buildLabel(String text, BuildContext context) {
+    final colors = context.themeColors;
     return Text(
       text,
       style: TextStyle(
-        color: AuthColors.labelText,
+        color: colors.labelText,
         fontWeight: FontWeight.w500,
         fontSize: AppDimensions.bodySize.sp,
       ),
     );
   }
 
-  OutlineInputBorder _getBorder(Color color) {
+  OutlineInputBorder _getBorder(Color color, BuildContext context) {
     return OutlineInputBorder(
       borderRadius: BorderRadius.circular(AppDimensions.borderRadiusLarge.r),
       borderSide: BorderSide(color: color),
@@ -327,38 +330,40 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
   Widget _buildTextField(
     TextEditingController controller,
-    String hint, {
+    String hint,
+    BuildContext context, {
     String? Function(String?)? validator,
   }) {
+    final colors = context.themeColors;
     return TextFormField(
       controller: controller,
       keyboardType: TextInputType.emailAddress,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       validator: validator,
       style: TextStyle(
-        color: AuthColors.headingText,
+        color: colors.headingText,
         fontSize: 16.sp,
         fontWeight: FontWeight.w400,
       ),
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: TextStyle(
-          color: AuthColors.inputText,
+          color: colors.inputText,
           fontSize: 16.sp,
           fontWeight: FontWeight.w400,
         ),
         filled: true,
-        fillColor: AuthColors.inputBackground,
+        fillColor: colors.inputBackground,
         isDense: false,
         contentPadding: EdgeInsets.symmetric(
           horizontal: AppDimensions.paddingMedium.w,
           vertical: (AppDimensions.inputHeight.h - 20.sp) / 2,
         ),
-        border: _getBorder(AuthColors.inputBorder),
-        enabledBorder: _getBorder(AuthColors.inputBorder),
-        focusedBorder: _getBorder(AuthColors.primary),
-        errorBorder: _getBorder(Colors.red),
-        focusedErrorBorder: _getBorder(Colors.red),
+        border: _getBorder(colors.inputBorder, context),
+        enabledBorder: _getBorder(colors.inputBorder, context),
+        focusedBorder: _getBorder(colors.primary, context),
+        errorBorder: _getBorder(Colors.red, context),
+        focusedErrorBorder: _getBorder(Colors.red, context),
       ),
     );
   }

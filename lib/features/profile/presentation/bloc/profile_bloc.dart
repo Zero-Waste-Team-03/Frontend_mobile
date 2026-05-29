@@ -1,8 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
 import 'dart:io';
 import 'package:logger/logger.dart';
+import 'package:get_it/get_it.dart';
+import '../../../../core/theme/theme_cubit.dart';
 import '../../../donations/domain/entities/donation.dart';
 import '../../domain/repositories/profile_repository.dart';
 import '../../domain/entities/donations_state.dart';
@@ -377,6 +380,14 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         emit(ProfileUpdateSuccess(user));
         // Then emit loaded state with updated user (for displaying the data)
         emit(ProfileLoaded(user));
+        // If ThemeCubit is registered, update it with the new appearance
+        try {
+          final getIt = GetIt.I;
+          if (getIt.isRegistered<ThemeCubit>()) {
+            final themeCubit = getIt.get<ThemeCubit>();
+            themeCubit.setFromAppearance(user.settings?.appearance);
+          }
+        } catch (_) {}
       });
     }
   }

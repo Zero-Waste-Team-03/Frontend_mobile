@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../../../core/theme/app_colors.dart';
+
 class DonationCardSkeleton extends StatelessWidget {
   final bool featured;
 
@@ -9,14 +11,15 @@ class DonationCardSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Shimmer.fromColors(
-      baseColor: const Color(0xFFE5E7EB),
-      highlightColor: const Color(0xFFF3F4F6),
+      baseColor: colors.divider,
+      highlightColor: colors.background,
       child: Container(
         width: featured ? 300.w : double.infinity,
         margin: EdgeInsets.only(bottom: 12.h, right: featured ? 12.w : 0),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(18.r),
         ),
         child: featured
@@ -25,7 +28,7 @@ class DonationCardSkeleton extends StatelessWidget {
                   Container(
                     height: 112.h,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: colors.surface,
                       borderRadius: BorderRadius.vertical(
                         top: Radius.circular(18.r),
                       ),
@@ -35,9 +38,9 @@ class DonationCardSkeleton extends StatelessWidget {
                     padding: EdgeInsets.all(12.w),
                     child: Column(
                       children: [
-                        Container(height: 12.h, color: Colors.white),
+                        Container(height: 12.h, color: colors.surface),
                         SizedBox(height: 8.h),
-                        Container(height: 10.h, color: Colors.white),
+                        Container(height: 10.h, color: colors.surface),
                       ],
                     ),
                   ),
@@ -51,7 +54,7 @@ class DonationCardSkeleton extends StatelessWidget {
                       width: 84.w,
                       height: 84.w,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: colors.surface,
                         borderRadius: BorderRadius.circular(12.r),
                       ),
                     ),
@@ -60,14 +63,14 @@ class DonationCardSkeleton extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(height: 12.h, color: Colors.white),
+                          Container(height: 12.h, color: colors.surface),
                           SizedBox(height: 8.h),
-                          Container(height: 10.h, color: Colors.white),
+                          Container(height: 10.h, color: colors.surface),
                           SizedBox(height: 10.h),
                           Container(
                             height: 10.h,
                             width: 120.w,
-                            color: Colors.white,
+                            color: colors.surface,
                           ),
                         ],
                       ),

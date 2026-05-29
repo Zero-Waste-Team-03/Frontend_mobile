@@ -5,7 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
-import 'auth_colors.dart';
+import '../../../../shared/theme/app_colors.dart';
 
 class RegisterStep1Page extends StatefulWidget {
   final VoidCallback onNext;
@@ -77,6 +77,7 @@ class _RegisterStep1PageState extends State<RegisterStep1Page> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     final isLoading = context.watch<AuthBloc>().state is AuthLoading;
 
     return SingleChildScrollView(
@@ -93,7 +94,7 @@ class _RegisterStep1PageState extends State<RegisterStep1Page> {
                 fontSize: AppDimensions.titleSize.sp,
                 fontWeight: FontWeight.w700,
                 letterSpacing: -0.025 * AppDimensions.titleSize.sp,
-                color: AuthColors.headingText,
+                color: colors.headingText,
               ),
             ),
             SizedBox(height: AppDimensions.paddingLarge.h),
@@ -103,12 +104,13 @@ class _RegisterStep1PageState extends State<RegisterStep1Page> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildLabel('First Name'),
+                      _buildLabel('First Name', colors),
                       SizedBox(height: AppDimensions.paddingSmall.h),
                       _buildTextField(
                         _firstNameController,
                         'Enter first name',
                         false,
+                        colors,
                         validator: (v) =>
                             v == null || v.isEmpty ? 'Required' : null,
                       ),
@@ -120,12 +122,13 @@ class _RegisterStep1PageState extends State<RegisterStep1Page> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildLabel('Last Name'),
+                      _buildLabel('Last Name', colors),
                       SizedBox(height: AppDimensions.paddingSmall.h),
                       _buildTextField(
                         _lastNameController,
                         'Enter last name',
                         false,
+                        colors,
                         validator: (v) =>
                             v == null || v.isEmpty ? 'Required' : null,
                       ),
@@ -135,12 +138,13 @@ class _RegisterStep1PageState extends State<RegisterStep1Page> {
               ],
             ),
             SizedBox(height: AppDimensions.paddingLarge.h),
-            _buildLabel('Email'),
+            _buildLabel('Email', colors),
             SizedBox(height: AppDimensions.paddingSmall.h),
             _buildTextField(
               _emailController,
               'Enter your email',
               true,
+              colors,
               validator: (v) {
                 if (v == null || v.isEmpty) return 'Required';
                 if (!RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(v))
@@ -149,12 +153,13 @@ class _RegisterStep1PageState extends State<RegisterStep1Page> {
               },
             ),
             SizedBox(height: AppDimensions.paddingLarge.h),
-            _buildLabel('Password'),
+            _buildLabel('Password', colors),
             SizedBox(height: AppDimensions.paddingSmall.h),
             _buildPasswordField(
               _passwordController,
               'Enter your password',
               _obscurePassword,
+              colors,
               () => setState(() => _obscurePassword = !_obscurePassword),
               validator: (v) {
                 if (v == null || v.isEmpty) return 'Required';
@@ -168,15 +173,16 @@ class _RegisterStep1PageState extends State<RegisterStep1Page> {
             SizedBox(height: AppDimensions.paddingMedium.h),
             Text(
               "Must be at least 8 characters with 1 uppercase, 1 lowercase, 1 number, and 1 symbol.",
-              style: TextStyle(color: AuthColors.subText, fontSize: 11.sp),
+              style: TextStyle(color: colors.subText, fontSize: 11.sp),
             ),
             SizedBox(height: AppDimensions.paddingLarge.h),
-            _buildLabel('Confirm Password'),
+            _buildLabel('Confirm Password', colors),
             SizedBox(height: AppDimensions.paddingSmall.h),
             _buildPasswordField(
               _confirmPasswordController,
               'Confirm your password',
               _obscureConfirmPassword,
+              colors,
               () => setState(
                 () => _obscureConfirmPassword = !_obscureConfirmPassword,
               ),
@@ -192,7 +198,7 @@ class _RegisterStep1PageState extends State<RegisterStep1Page> {
               onPressed: isLoading ? null : _onNext,
               style: ElevatedButton.styleFrom(
                 minimumSize: Size(double.infinity, 56.h),
-                backgroundColor: AuthColors.primary,
+                backgroundColor: colors.primary,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(
@@ -212,7 +218,7 @@ class _RegisterStep1PageState extends State<RegisterStep1Page> {
             SizedBox(height: AppDimensions.paddingLarge.h),
             Row(
               children: [
-                const Expanded(child: Divider(color: AuthColors.inputBorder)),
+                Expanded(child: Divider(color: colors.inputBorder)),
                 Padding(
                   padding: EdgeInsets.symmetric(
                     horizontal: AppDimensions.paddingMedium.w,
@@ -220,14 +226,14 @@ class _RegisterStep1PageState extends State<RegisterStep1Page> {
                   child: Text(
                     'OR CONTINUE WITH',
                     style: TextStyle(
-                      color: AuthColors.subText,
+                      color: colors.subText,
                       fontSize: AppDimensions.captionSize.sp,
                       fontWeight: FontWeight.w500,
                       letterSpacing: 0.5,
                     ),
                   ),
                 ),
-                const Expanded(child: Divider(color: AuthColors.inputBorder)),
+                Expanded(child: Divider(color: colors.inputBorder)),
               ],
             ),
             SizedBox(height: AppDimensions.paddingLarge.h),
@@ -247,8 +253,8 @@ class _RegisterStep1PageState extends State<RegisterStep1Page> {
               ),
               style: OutlinedButton.styleFrom(
                 minimumSize: Size(double.infinity, 56.h),
-                foregroundColor: AuthColors.headingText,
-                side: const BorderSide(color: AuthColors.inputBorder),
+                foregroundColor: colors.headingText,
+                side: BorderSide(color: colors.inputBorder),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(22.r),
                 ),
@@ -260,11 +266,11 @@ class _RegisterStep1PageState extends State<RegisterStep1Page> {
     );
   }
 
-  Widget _buildLabel(String text) {
+  Widget _buildLabel(String text, ThemeColors colors) {
     return Text(
       text,
       style: TextStyle(
-        color: AuthColors.labelText,
+        color: colors.labelText,
         fontWeight: FontWeight.w500,
         fontSize: AppDimensions.bodySize.sp,
       ),
@@ -281,7 +287,8 @@ class _RegisterStep1PageState extends State<RegisterStep1Page> {
   Widget _buildTextField(
     TextEditingController controller,
     String hint,
-    bool isEmail, {
+    bool isEmail,
+    ThemeColors colors, {
     String? Function(String?)? validator,
   }) {
     return TextFormField(
@@ -290,27 +297,27 @@ class _RegisterStep1PageState extends State<RegisterStep1Page> {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       validator: validator,
       style: TextStyle(
-        color: AuthColors.headingText,
+        color: colors.headingText,
         fontSize: 16.sp,
         fontWeight: FontWeight.w400,
       ),
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: TextStyle(
-          color: AuthColors.inputText,
+          color: colors.inputText,
           fontSize: 16.sp,
           fontWeight: FontWeight.w400,
         ),
         filled: true,
-        fillColor: AuthColors.inputBackground,
+        fillColor: colors.inputBackground,
         isDense: false,
         contentPadding: EdgeInsets.symmetric(
           horizontal: AppDimensions.paddingMedium.w,
           vertical: (AppDimensions.inputHeight.h - 20.sp) / 2,
         ),
-        border: _getBorder(AuthColors.inputBorder),
-        enabledBorder: _getBorder(AuthColors.inputBorder),
-        focusedBorder: _getBorder(AuthColors.primary),
+        border: _getBorder(colors.inputBorder),
+        enabledBorder: _getBorder(colors.inputBorder),
+        focusedBorder: _getBorder(colors.primary),
         errorBorder: _getBorder(Colors.red),
         focusedErrorBorder: _getBorder(Colors.red),
       ),
@@ -321,6 +328,7 @@ class _RegisterStep1PageState extends State<RegisterStep1Page> {
     TextEditingController controller,
     String hint,
     bool obscure,
+    ThemeColors colors,
     VoidCallback toggleVisibility, {
     String? Function(String?)? validator,
   }) {
@@ -330,34 +338,34 @@ class _RegisterStep1PageState extends State<RegisterStep1Page> {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       validator: validator,
       style: TextStyle(
-        color: AuthColors.headingText,
+        color: colors.headingText,
         fontSize: 16.sp,
         fontWeight: FontWeight.w400,
       ),
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: TextStyle(
-          color: AuthColors.inputText,
+          color: colors.inputText,
           fontSize: 16.sp,
           fontWeight: FontWeight.w400,
         ),
         filled: true,
-        fillColor: AuthColors.inputBackground,
+        fillColor: colors.inputBackground,
         isDense: false,
         contentPadding: EdgeInsets.symmetric(
           horizontal: AppDimensions.paddingMedium.w,
           vertical: (AppDimensions.inputHeight.h - 20.sp) / 2,
         ),
-        border: _getBorder(AuthColors.inputBorder),
-        enabledBorder: _getBorder(AuthColors.inputBorder),
-        focusedBorder: _getBorder(AuthColors.primary),
+        border: _getBorder(colors.inputBorder),
+        enabledBorder: _getBorder(colors.inputBorder),
+        focusedBorder: _getBorder(colors.primary),
         errorBorder: _getBorder(Colors.red),
         focusedErrorBorder: _getBorder(Colors.red),
         suffixIcon: IconButton(
           padding: EdgeInsets.zero,
           icon: Icon(
             obscure ? Icons.visibility_off : Icons.visibility,
-            color: AuthColors.inputText,
+            color: colors.inputText,
             size: AppDimensions.iconSize.sp,
           ),
           onPressed: toggleVisibility,

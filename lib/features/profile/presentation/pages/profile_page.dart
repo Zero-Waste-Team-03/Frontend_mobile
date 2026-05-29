@@ -6,7 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../../../shared/theme/app_colors.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/notification_button.dart';
 import '../widgets/profile_loading_skeleton.dart';
 import '../bloc/profile_bloc.dart';
@@ -39,6 +39,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return BlocListener<ProfileBloc, ProfileState>(
       listener: (context, state) {
         if (state is ProfileUpdateSuccess) {
@@ -62,7 +63,7 @@ class _ProfilePageState extends State<ProfilePage> {
         }
       },
       child: Scaffold(
-        backgroundColor: AuthColors.background,
+        backgroundColor: colors.background,
         body: SafeArea(
           child: Column(
             children: [
@@ -80,13 +81,13 @@ class _ProfilePageState extends State<ProfilePage> {
                       style: TextStyle(
                         fontSize: AppDimensions.appBarTitleSize.sp,
                         fontWeight: FontWeight.bold,
-                        color: AuthColors.primary,
+                        color: colors.primary,
                         fontFamily: AppFonts.primaryFont,
                       ),
                     ),
                     NotificationButton(
-                      backgroundColor: AuthColors.lightGrayBackground,
-                      iconColor: AuthColors.primary,
+                      backgroundColor: colors.lightGrayBackground,
+                      iconColor: colors.primary,
                       iconSize: AppDimensions.iconSize.sp,
                     ),
                   ],
@@ -111,7 +112,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             Icon(
                               Icons.error_outline_rounded,
                               size: 64.sp,
-                              color: Colors.red,
+                              color: colors.error,
                             ),
                             SizedBox(height: 16.h),
                             Text(
@@ -119,7 +120,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               style: TextStyle(
                                 fontSize: AppDimensions.titleSize.sp,
                                 fontWeight: FontWeight.bold,
-                                color: AuthColors.headingText,
+                                color: colors.headingText,
                                 fontFamily: AppFonts.primaryFont,
                               ),
                             ),
@@ -129,19 +130,28 @@ class _ProfilePageState extends State<ProfilePage> {
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: AppDimensions.bodySize.sp,
-                                color: AuthColors.subText,
+                                color: colors.subText,
                                 fontFamily: AppFonts.primaryFont,
                               ),
                             ),
                             SizedBox(height: 24.h),
-                            ElevatedButton.icon(
+                            ElevatedButton(
                               onPressed: () {
                                 context.read<ProfileBloc>().add(
                                   const ProfileRefreshRequested(),
                                 );
                               },
-                              icon: const Icon(Icons.refresh_rounded),
-                              label: const Text('Retry'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: colors.primary,
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.refresh_rounded, size: 18.sp),
+                                  SizedBox(width: 8.w),
+                                  const Text('Retry'),
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -164,7 +174,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           'No user data available',
                           style: TextStyle(
                             fontSize: AppDimensions.bodySize.sp,
-                            color: AuthColors.subText,
+                            color: colors.subText,
                             fontFamily: AppFonts.primaryFont,
                           ),
                         ),
@@ -174,8 +184,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     // Main content (same UI as before, header removed)
                     return RefreshIndicator(
                       onRefresh: _onRefresh,
-                      color: AuthColors.primary,
-                      backgroundColor: AuthColors.background,
+                      color: colors.primary,
+                      backgroundColor: colors.background,
                       child: SingleChildScrollView(
                         child: Column(
                           children: [
@@ -194,7 +204,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                         height: 120.w,
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
-                                          color: AuthColors.primary.withValues(
+                                          color: colors.primary.withValues(
                                             alpha: 0.1,
                                           ),
                                         ),
@@ -210,8 +220,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                                     return Center(
                                                       child:
                                                           CircularProgressIndicator(
-                                                            color: AuthColors
-                                                                .primary,
+                                                            color:
+                                                                colors.primary,
                                                           ),
                                                     );
                                                   },
@@ -227,7 +237,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                               fontWeight:
                                                                   FontWeight
                                                                       .w700,
-                                                              color: AuthColors
+                                                              color: colors
                                                                   .primary,
                                                               fontFamily: AppFonts
                                                                   .primaryFont,
@@ -243,7 +253,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                   style: TextStyle(
                                                     fontSize: 48.sp,
                                                     fontWeight: FontWeight.w700,
-                                                    color: AuthColors.primary,
+                                                    color: colors.primary,
                                                     fontFamily:
                                                         AppFonts.primaryFont,
                                                   ),
@@ -260,15 +270,15 @@ class _ProfilePageState extends State<ProfilePage> {
                                             height: 28.w,
                                             decoration: BoxDecoration(
                                               shape: BoxShape.circle,
-                                              color: AuthColors.primary,
+                                              color: colors.primary,
                                               border: Border.all(
-                                                color: Colors.white,
+                                                color: colors.surface,
                                                 width: 2.w,
                                               ),
                                             ),
                                             child: Icon(
                                               Icons.check,
-                                              color: Colors.white,
+                                              color: colors.onPrimary,
                                               size: 16.sp,
                                             ),
                                           ),
@@ -288,9 +298,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                             height: 36.w,
                                             decoration: BoxDecoration(
                                               shape: BoxShape.circle,
-                                              color: AuthColors.primary,
+                                              color: colors.primary,
                                               border: Border.all(
-                                                color: Colors.white,
+                                                color: colors.surface,
                                                 width: 2.w,
                                               ),
                                             ),
@@ -298,17 +308,17 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 ? SizedBox(
                                                     width: 16.w,
                                                     height: 16.w,
-                                                    child: const CircularProgressIndicator(
+                                                    child: CircularProgressIndicator(
                                                       strokeWidth: 2,
                                                       valueColor:
                                                           AlwaysStoppedAnimation<
                                                             Color
-                                                          >(Colors.white),
+                                                          >(colors.onPrimary),
                                                     ),
                                                   )
                                                 : Icon(
                                                     Icons.edit_rounded,
-                                                    color: Colors.white,
+                                                    color: colors.onPrimary,
                                                     size: 20.sp,
                                                   ),
                                           ),
@@ -333,7 +343,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                             fontSize:
                                                 AppDimensions.titleSize.sp,
                                             fontWeight: FontWeight.w700,
-                                            color: AuthColors.headingText,
+                                            color: colors.headingText,
                                             fontFamily: AppFonts.primaryFont,
                                           ),
                                         ),
@@ -358,7 +368,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     style: TextStyle(
                                       fontSize: AppDimensions.bodySize.sp,
                                       fontWeight: FontWeight.w400,
-                                      color: AuthColors.primary,
+                                      color: colors.primary,
                                       fontFamily: AppFonts.primaryFont,
                                     ),
                                   ),
@@ -375,7 +385,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                         vertical: 5.h,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: AuthColors.primary,
+                                        color: colors.primary,
                                         borderRadius: BorderRadius.circular(
                                           AppDimensions
                                               .borderRadiusExtraLarge
@@ -387,7 +397,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                         children: [
                                           Icon(
                                             Icons.eco_outlined,
-                                            color: Colors.white,
+                                            color: colors.onPrimary,
                                             size: 14.sp,
                                           ),
                                           SizedBox(width: 4.w),
@@ -396,7 +406,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                             style: TextStyle(
                                               fontSize: 11.sp,
                                               fontWeight: FontWeight.w700,
-                                              color: Colors.white,
+                                              color: colors.onPrimary,
                                               fontFamily: AppFonts.primaryFont,
                                               letterSpacing: 0.5,
                                             ),
@@ -460,7 +470,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                             },
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor:
-                                            AuthColors.lightGreenBackground,
+                                            colors.lightGreenBackground,
                                         padding: EdgeInsets.symmetric(
                                           horizontal:
                                               AppDimensions.paddingSmall.w,
@@ -478,7 +488,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                         style: TextStyle(
                                           fontSize: 11.sp,
                                           fontWeight: FontWeight.w700,
-                                          color: AuthColors.primary,
+                                          color: colors.primary,
                                           fontFamily: AppFonts.primaryFont,
                                         ),
                                       ),
@@ -499,6 +509,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     MainAxisAlignment.spaceEvenly,
                                 children: [
                                   _StatCard(
+                                    context: context,
                                     value:
                                         state is ProfileLoaded &&
                                             state.donationsState != null
@@ -509,9 +520,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                   Container(
                                     width: 1.w,
                                     height: 60.h,
-                                    color: AuthColors.inputBorder,
+                                    color: colors.inputBorder,
                                   ),
                                   _StatCard(
+                                    context: context,
                                     value:
                                         state is ProfileLoaded &&
                                             state.donationsState != null
@@ -522,9 +534,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                   Container(
                                     width: 1.w,
                                     height: 60.h,
-                                    color: AuthColors.inputBorder,
+                                    color: colors.inputBorder,
                                   ),
                                   _StatCard(
+                                    context: context,
                                     value: '${user.reputationScore}',
                                     label: 'IMPACT PTS',
                                   ),
@@ -545,7 +558,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     style: TextStyle(
                                       fontSize: AppDimensions.captionSize.sp,
                                       fontWeight: FontWeight.w600,
-                                      color: AuthColors.labelText,
+                                      color: colors.labelText,
                                       fontFamily: AppFonts.primaryFont,
                                       letterSpacing: 0.5,
                                     ),
@@ -553,10 +566,12 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
 
                                 _MenuTile(
+                                  context: context,
                                   icon: Icons.history_rounded,
-                                  iconColor: AuthColors.primary,
-                                  backgroundColor: AuthColors.primary
-                                      .withValues(alpha: 0.1),
+                                  iconColor: colors.primary,
+                                  backgroundColor: colors.primary.withValues(
+                                    alpha: 0.1,
+                                  ),
                                   title: 'Activity History',
                                   subtitle: 'View your past donations',
                                   onTap: () {
@@ -566,9 +581,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                 SizedBox(height: AppDimensions.paddingMedium.h),
 
                                 _MenuTile(
+                                  context: context,
                                   icon: Icons.favorite_rounded,
-                                  iconColor: Colors.redAccent,
-                                  backgroundColor: Colors.red.withValues(
+                                  iconColor: colors.error,
+                                  backgroundColor: colors.error.withValues(
                                     alpha: 0.12,
                                   ),
                                   title: 'Favorite Donations',
@@ -596,7 +612,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       style: TextStyle(
                                         fontSize: AppDimensions.captionSize.sp,
                                         fontWeight: FontWeight.w600,
-                                        color: AuthColors.labelText,
+                                        color: colors.labelText,
                                         fontFamily: AppFonts.primaryFont,
                                         letterSpacing: 0.5,
                                       ),
@@ -604,10 +620,12 @@ class _ProfilePageState extends State<ProfilePage> {
                                   ),
 
                                   _MenuTile(
+                                    context: context,
                                     icon: Icons.assignment_ind_rounded,
-                                    iconColor: AuthColors.primary,
-                                    backgroundColor: AuthColors.primary
-                                        .withValues(alpha: 0.1),
+                                    iconColor: colors.primary,
+                                    backgroundColor: colors.primary.withValues(
+                                      alpha: 0.1,
+                                    ),
                                     title: 'Verification Requests',
                                     subtitle: '',
                                     onTap: () {
@@ -638,7 +656,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     style: TextStyle(
                                       fontSize: AppDimensions.captionSize.sp,
                                       fontWeight: FontWeight.w600,
-                                      color: AuthColors.labelText,
+                                      color: colors.labelText,
                                       letterSpacing: 0.5,
                                       fontFamily: AppFonts.primaryFont,
                                     ),
@@ -648,7 +666,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   ),
                                   Container(
                                     decoration: BoxDecoration(
-                                      color: Colors.white,
+                                      color: colors.surface,
                                       borderRadius: BorderRadius.circular(
                                         AppDimensions.borderRadiusLarge.r,
                                       ),
@@ -656,6 +674,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     child: Column(
                                       children: [
                                         _PreferenceTile(
+                                          context: context,
                                           icon: Icons.notifications_rounded,
                                           title: 'Notifications',
                                           trailing: Switch(
@@ -694,38 +713,39 @@ class _ProfilePageState extends State<ProfilePage> {
                                                       ),
                                                     );
                                                   },
-                                            activeThumbColor:
-                                                AuthColors.primary,
+                                            activeThumbColor: colors.primary,
                                           ),
                                         ),
                                         Divider(
                                           height: 1.h,
-                                          color: AuthColors.dividerColor,
+                                          color: colors.dividerColor,
                                         ),
                                         GestureDetector(
                                           onTap: () {
                                             context.push('/profile/settings');
                                           },
                                           child: _PreferenceTile(
+                                            context: context,
                                             icon: Icons.settings_rounded,
                                             title: 'Settings',
                                             trailing: Icon(
                                               Icons.chevron_right_rounded,
-                                              color: AuthColors.subText,
+                                              color: colors.subText,
                                               size: AppDimensions.iconSize.sp,
                                             ),
                                           ),
                                         ),
                                         Divider(
                                           height: 1.h,
-                                          color: AuthColors.dividerColor,
+                                          color: colors.dividerColor,
                                         ),
                                         _PreferenceTile(
+                                          context: context,
                                           icon: Icons.help_rounded,
                                           title: 'Help & Support',
                                           trailing: Icon(
                                             Icons.chevron_right_rounded,
-                                            color: AuthColors.subText,
+                                            color: colors.subText,
                                             size: AppDimensions.iconSize.sp,
                                           ),
                                         ),
@@ -748,7 +768,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       icon: Icon(
                                         Icons.logout_rounded,
                                         size: AppDimensions.iconSize.sp,
-                                        color: Colors.red,
+                                        color: colors.error,
                                       ),
                                       onPressed: () {
                                         context.read<AuthBloc>().add(
@@ -757,7 +777,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       },
 
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: AuthColors.background,
+                                        backgroundColor: colors.background,
                                         padding: EdgeInsets.symmetric(
                                           vertical: 12.h,
                                         ),
@@ -766,7 +786,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                             AppDimensions.borderRadiusLarge.r,
                                           ),
                                           side: BorderSide(
-                                            color: AuthColors.buttonBorder,
+                                            color: colors.buttonBorder,
                                             width: 1.5.w,
                                           ),
                                         ),
@@ -776,7 +796,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                         style: TextStyle(
                                           fontSize: AppDimensions.bodySize.sp,
                                           fontWeight: FontWeight.w600,
-                                          color: Colors.red,
+                                          color: colors.error,
                                           fontFamily: AppFonts.primaryFont,
                                         ),
                                       ),
@@ -793,7 +813,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       'GaspZero v2.4.0 • Eco-friendly Living',
                                       style: TextStyle(
                                         fontSize: AppDimensions.captionSize.sp,
-                                        color: AuthColors.subText,
+                                        color: colors.subText,
                                         fontFamily: AppFonts.primaryFont,
                                       ),
                                     ),
@@ -858,6 +878,7 @@ class _ProfilePageState extends State<ProfilePage> {
 }
 
 class _MenuTile extends StatelessWidget {
+  final BuildContext context;
   final IconData icon;
   final Color iconColor;
   final Color backgroundColor;
@@ -866,6 +887,7 @@ class _MenuTile extends StatelessWidget {
   final VoidCallback onTap;
 
   const _MenuTile({
+    required this.context,
     required this.icon,
     required this.iconColor,
     required this.backgroundColor,
@@ -876,15 +898,16 @@ class _MenuTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.all(16.w),
         margin: EdgeInsets.symmetric(horizontal: 20.w),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(24.r),
-          border: Border.all(color: const Color(0xFFF6F7F7)),
+          border: Border.all(color: colors.lightGrayBackground),
         ),
         child: Row(
           children: [
@@ -893,7 +916,7 @@ class _MenuTile extends StatelessWidget {
               height: 40.w,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16.r),
-                color: const Color(0xFFF6F7F7),
+                color: colors.lightGrayBackground,
               ),
               child: Center(
                 child: Icon(icon, color: iconColor, size: 20.sp),
@@ -906,14 +929,14 @@ class _MenuTile extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF131615),
+                  color: colors.textPrimary,
                   fontFamily: AppFonts.primaryFont,
                 ),
               ),
             ),
             Icon(
               Icons.chevron_right_rounded,
-              color: const Color(0xFF131615),
+              color: colors.textPrimary,
               size: 24.sp,
             ),
           ],
@@ -924,13 +947,19 @@ class _MenuTile extends StatelessWidget {
 }
 
 class _StatCard extends StatelessWidget {
+  final BuildContext context;
   final String value;
   final String label;
 
-  const _StatCard({required this.value, required this.label});
+  const _StatCard({
+    required this.context,
+    required this.value,
+    required this.label,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Expanded(
       child: Container(
         padding: EdgeInsets.symmetric(
@@ -938,7 +967,7 @@ class _StatCard extends StatelessWidget {
           vertical: AppDimensions.paddingMedium.h,
         ),
         decoration: BoxDecoration(
-          color: AuthColors.statBackground,
+          color: colors.statBackground,
           borderRadius: BorderRadius.circular(
             AppDimensions.borderRadiusMedium.r,
           ),
@@ -950,7 +979,7 @@ class _StatCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: AppDimensions.titleSize.sp,
                 fontWeight: FontWeight.w700,
-                color: AuthColors.primary,
+                color: colors.primary,
                 fontFamily: AppFonts.primaryFont,
               ),
             ),
@@ -961,7 +990,7 @@ class _StatCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: AppDimensions.captionSize.sp,
                 fontWeight: FontWeight.w600,
-                color: AuthColors.labelText,
+                color: colors.labelText,
                 height: 1.2,
                 fontFamily: AppFonts.primaryFont,
               ),
@@ -974,11 +1003,13 @@ class _StatCard extends StatelessWidget {
 }
 
 class _PreferenceTile extends StatelessWidget {
+  final BuildContext context;
   final IconData icon;
   final String title;
   final Widget trailing;
 
   const _PreferenceTile({
+    required this.context,
     required this.icon,
     required this.title,
     required this.trailing,
@@ -986,6 +1017,7 @@ class _PreferenceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return ListTile(
       contentPadding: EdgeInsets.symmetric(
         horizontal: AppDimensions.paddingMedium.w,
@@ -993,7 +1025,7 @@ class _PreferenceTile extends StatelessWidget {
       ),
       leading: Icon(
         icon,
-        color: AuthColors.primary,
+        color: colors.primary,
         size: AppDimensions.iconSize.sp,
       ),
       title: Text(
@@ -1001,7 +1033,7 @@ class _PreferenceTile extends StatelessWidget {
         style: TextStyle(
           fontSize: AppDimensions.buttonTextSize.sp,
           fontWeight: FontWeight.w500,
-          color: AuthColors.headingText,
+          color: colors.headingText,
           fontFamily: AppFonts.primaryFont,
         ),
       ),
@@ -1009,3 +1041,4 @@ class _PreferenceTile extends StatelessWidget {
     );
   }
 }
+

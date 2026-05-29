@@ -8,19 +8,20 @@ class MyListingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: colors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: colors.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+          icon: Icon(Icons.arrow_back, color: colors.textPrimary),
           onPressed: () => context.pop(),
         ),
         title: Text(
           'My Listings',
           style: TextStyle(
-            color: AppColors.textPrimary,
+            color: colors.textPrimary,
             fontSize: 18.sp,
             fontWeight: FontWeight.w700,
           ),
@@ -34,7 +35,7 @@ class MyListingsPage extends StatelessWidget {
             Icon(
               Icons.inventory_2_outlined,
               size: 64.sp,
-              color: AppColors.textSecondary.withValues(alpha: 0.5),
+              color: colors.textSecondary.withValues(alpha: 0.5),
             ),
             SizedBox(height: 16.h),
             Text(
@@ -42,16 +43,13 @@ class MyListingsPage extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                color: colors.textPrimary,
               ),
             ),
             SizedBox(height: 8.h),
             Text(
               'Items you donate will appear here',
-              style: TextStyle(
-                fontSize: 14.sp,
-                color: AppColors.textSecondary,
-              ),
+              style: TextStyle(fontSize: 14.sp, color: colors.textSecondary),
             ),
           ],
         ),

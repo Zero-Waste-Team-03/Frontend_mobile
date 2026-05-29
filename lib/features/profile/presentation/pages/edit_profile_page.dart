@@ -180,9 +180,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('Location updated'),
-          backgroundColor: AuthColors.primary,
+          backgroundColor: context.themeColors.primary,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -221,13 +221,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return BlocListener<ProfileBloc, ProfileState>(
       listener: (context, state) {
         if (state is ProfileUpdateSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+             SnackBar(
               content: Text('Profile updated successfully'),
-              backgroundColor: AuthColors.primary,
+              backgroundColor: colors.primary,
               behavior: SnackBarBehavior.floating,
               duration: Duration(seconds: 2),
             ),
@@ -247,7 +248,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         }
       },
       child: Scaffold(
-        backgroundColor: AuthColors.background,
+        backgroundColor: colors.background,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -255,7 +256,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           title: Text(
             'Edit Profile',
             style: TextStyle(
-              color: AuthColors.primary,
+              color: colors.primary,
               fontSize: AppDimensions.appBarTitleSize.sp,
               fontWeight: FontWeight.w600,
             ),
@@ -263,7 +264,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           leading: IconButton(
             icon: Icon(
               Icons.arrow_back,
-              color: AuthColors.primary,
+              color: colors.primary,
               size: AppDimensions.iconSize.sp,
             ),
             onPressed: () => context.pop(),
@@ -311,11 +312,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                               height: 100.w,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: AuthColors.primary.withValues(
-                                  alpha: 0.1,
-                                ),
+                                color: colors.primary.withValues(alpha: 0.1),
                                 border: Border.all(
-                                  color: AuthColors.primary,
+                                  color: colors.primary,
                                   width: 2.w,
                                 ),
                               ),
@@ -331,7 +330,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                         placeholder: (context, url) {
                                           return Center(
                                             child: CircularProgressIndicator(
-                                              color: AuthColors.primary,
+                                              color: colors.primary,
                                             ),
                                           );
                                         },
@@ -342,7 +341,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                               style: TextStyle(
                                                 fontSize: 40.sp,
                                                 fontWeight: FontWeight.w700,
-                                                color: AuthColors.primary,
+                                               
+                                                color: colors.primary,
                                               ),
                                             ),
                                           );
@@ -355,7 +355,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                         style: TextStyle(
                                           fontSize: 40.sp,
                                           fontWeight: FontWeight.w700,
-                                          color: AuthColors.primary,
+                                          color: colors.primary,
                                         ),
                                       ),
                                     ),
@@ -372,7 +372,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                   height: 32.w,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: AuthColors.primary,
+                                    color: colors.primary,
                                     border: Border.all(
                                       color: Colors.white,
                                       width: 2.w,
@@ -410,7 +410,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         style: TextStyle(
                           fontSize: AppDimensions.captionSize.sp,
                           fontWeight: FontWeight.w600,
-                          color: AuthColors.labelText,
+                          color: colors.labelText,
                           letterSpacing: 0.5,
                         ),
                       ),
@@ -447,7 +447,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             style: TextStyle(
                               fontSize: AppDimensions.captionSize.sp,
                               fontWeight: FontWeight.w600,
-                              color: AuthColors.labelText,
+                              color: colors.labelText,
                               letterSpacing: 0.5,
                             ),
                           ),
@@ -459,9 +459,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 ? SizedBox(
                                     width: 14.w,
                                     height: 14.w,
-                                    child: const CircularProgressIndicator(
+                                    child: CircularProgressIndicator(
                                       strokeWidth: 2,
-                                      color: AuthColors.primary,
+                                      color: colors.primary,
                                     ),
                                   )
                                 : Icon(Icons.my_location, size: 14.sp),
@@ -473,7 +473,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                               ),
                             ),
                             style: TextButton.styleFrom(
-                              foregroundColor: AuthColors.primary,
+                              foregroundColor: colors.primary,
                               padding: EdgeInsets.symmetric(horizontal: 8.w),
                             ),
                           ),
@@ -519,7 +519,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         onPressed: isUpdating ? null : _onSave,
                         style: ElevatedButton.styleFrom(
                           minimumSize: Size(double.infinity, 56.h),
-                          backgroundColor: AuthColors.primary,
+                          backgroundColor: colors.primary,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(
@@ -562,7 +562,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return Text(
       text,
       style: TextStyle(
-        color: AuthColors.labelText,
+        color: context.themeColors.labelText,
         fontWeight: FontWeight.w500,
         fontSize: AppDimensions.bodySize.sp,
       ),
@@ -575,11 +575,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
     required String? Function(String?) validator,
     required TextInputType keyboardType,
   }) {
+    final colors = context.themeColors;
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
       style: TextStyle(
-        color: AuthColors.headingText,
+        color: colors.headingText,
         fontSize: 16.sp,
         fontWeight: FontWeight.w400,
       ),
@@ -587,7 +588,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: TextStyle(
-          color: AuthColors.inputText,
+          color: colors.inputText,
           fontSize: 16.sp,
           fontWeight: FontWeight.w400,
         ),
@@ -595,34 +596,34 @@ class _EditProfilePageState extends State<EditProfilePage> {
           borderRadius: BorderRadius.circular(
             AppDimensions.borderRadiusLarge.r,
           ),
-          borderSide: const BorderSide(color: AuthColors.inputBorder),
+          borderSide: BorderSide(color: colors.inputBorder),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(
             AppDimensions.borderRadiusLarge.r,
           ),
-          borderSide: const BorderSide(color: AuthColors.inputBorder),
+          borderSide: BorderSide(color: colors.inputBorder),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(
             AppDimensions.borderRadiusLarge.r,
           ),
-          borderSide: const BorderSide(color: AuthColors.primary, width: 2),
+          borderSide: BorderSide(color: colors.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(
             AppDimensions.borderRadiusLarge.r,
           ),
-          borderSide: const BorderSide(color: Colors.red, width: 2),
+          borderSide: BorderSide(color: colors.error, width: 2),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(
             AppDimensions.borderRadiusLarge.r,
           ),
-          borderSide: const BorderSide(color: Colors.red, width: 2),
+          borderSide: BorderSide(color: colors.error, width: 2),
         ),
         filled: true,
-        fillColor: AuthColors.inputBackground,
+        fillColor: colors.inputBackground,
         contentPadding: EdgeInsets.symmetric(
           horizontal: AppDimensions.paddingMedium.w,
           vertical: AppDimensions.paddingMedium.h,
@@ -665,3 +666,5 @@ class _EditProfilePageState extends State<EditProfilePage> {
     }
   }
 }
+
+
