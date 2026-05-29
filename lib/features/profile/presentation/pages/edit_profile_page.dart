@@ -314,7 +314,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 shape: BoxShape.circle,
                                 color: colors.primary.withValues(alpha: 0.1),
                                 border: Border.all(
-                                  color: colors.primary,
+                                  color: colors.border,
                                   width: 2.w,
                                 ),
                               ),
@@ -408,9 +408,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       Text(
                         'PERSONAL INFORMATION',
                         style: TextStyle(
-                          fontSize: AppDimensions.captionSize.sp,
-                          fontWeight: FontWeight.w600,
-                          color: colors.labelText,
+                          fontSize: AppDimensions.subtitleSize.sp,
+                          fontWeight: FontWeight.w700,
+                          color: colors.headingText,
                           letterSpacing: 0.5,
                         ),
                       ),
@@ -445,9 +445,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           Text(
                             'PRIMARY LOCATION',
                             style: TextStyle(
-                              fontSize: AppDimensions.captionSize.sp,
-                              fontWeight: FontWeight.w600,
-                              color: colors.labelText,
+                              fontSize: AppDimensions.subtitleSize.sp,
+                              fontWeight: FontWeight.w700,
+                              color: colors.headingText,
                               letterSpacing: 0.5,
                             ),
                           ),
@@ -562,7 +562,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return Text(
       text,
       style: TextStyle(
-        color: context.themeColors.labelText,
+        color: context.themeColors.headingText,
         fontWeight: FontWeight.w500,
         fontSize: AppDimensions.bodySize.sp,
       ),
@@ -580,7 +580,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       controller: controller,
       keyboardType: keyboardType,
       style: TextStyle(
-        color: colors.headingText,
+        color: colors.textSecondary,
         fontSize: 16.sp,
         fontWeight: FontWeight.w400,
       ),
@@ -588,7 +588,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: TextStyle(
-          color: colors.inputText,
+          color: colors.textSecondary.withValues(alpha: 0.7),
           fontSize: 16.sp,
           fontWeight: FontWeight.w400,
         ),

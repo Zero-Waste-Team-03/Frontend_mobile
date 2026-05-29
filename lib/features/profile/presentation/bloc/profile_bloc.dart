@@ -4,7 +4,6 @@ import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
 import 'dart:io';
 import 'package:logger/logger.dart';
-import 'package:get_it/get_it.dart';
 import '../../../../core/theme/theme_cubit.dart';
 import '../../../donations/domain/entities/donation.dart';
 import '../../domain/repositories/profile_repository.dart';

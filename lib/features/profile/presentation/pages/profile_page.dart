@@ -368,7 +368,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     style: TextStyle(
                                       fontSize: AppDimensions.bodySize.sp,
                                       fontWeight: FontWeight.w400,
-                                      color: colors.primary,
+                                      color: colors.subText,
                                       fontFamily: AppFonts.primaryFont,
                                     ),
                                   ),
@@ -488,7 +488,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                         style: TextStyle(
                                           fontSize: 11.sp,
                                           fontWeight: FontWeight.w700,
-                                          color: colors.primary,
+                                          color: colors.textSecondary,
                                           fontFamily: AppFonts.primaryFont,
                                         ),
                                       ),
@@ -518,9 +518,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                     label: 'LIKED ITEMS',
                                   ),
                                   Container(
-                                    width: 1.w,
+                                    width: 10.w,
                                     height: 60.h,
-                                    color: colors.inputBorder,
+                                    color: colors.background,
                                   ),
                                   _StatCard(
                                     context: context,
@@ -532,9 +532,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                     label: 'DONATIONS',
                                   ),
                                   Container(
-                                    width: 1.w,
+                                    width: 10.w,
                                     height: 60.h,
-                                    color: colors.inputBorder,
+                                    color: colors.background,
                                   ),
                                   _StatCard(
                                     context: context,
@@ -558,7 +558,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     style: TextStyle(
                                       fontSize: AppDimensions.captionSize.sp,
                                       fontWeight: FontWeight.w600,
-                                      color: colors.labelText,
+                                      color: colors.headingText,
                                       fontFamily: AppFonts.primaryFont,
                                       letterSpacing: 0.5,
                                     ),
@@ -612,7 +612,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       style: TextStyle(
                                         fontSize: AppDimensions.captionSize.sp,
                                         fontWeight: FontWeight.w600,
-                                        color: colors.labelText,
+                                        color: colors.headingText,
                                         fontFamily: AppFonts.primaryFont,
                                         letterSpacing: 0.5,
                                       ),
@@ -656,7 +656,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     style: TextStyle(
                                       fontSize: AppDimensions.captionSize.sp,
                                       fontWeight: FontWeight.w600,
-                                      color: colors.labelText,
+                                      color: colors.headingText,
                                       letterSpacing: 0.5,
                                       fontFamily: AppFonts.primaryFont,
                                     ),
@@ -929,7 +929,7 @@ class _MenuTile extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w600,
-                  color: colors.textPrimary,
+                  color: colors.textSecondary,
                   fontFamily: AppFonts.primaryFont,
                 ),
               ),
@@ -967,7 +967,7 @@ class _StatCard extends StatelessWidget {
           vertical: AppDimensions.paddingMedium.h,
         ),
         decoration: BoxDecoration(
-          color: colors.statBackground,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(
             AppDimensions.borderRadiusMedium.r,
           ),
@@ -979,7 +979,7 @@ class _StatCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: AppDimensions.titleSize.sp,
                 fontWeight: FontWeight.w700,
-                color: colors.primary,
+                color: colors.statusActiveText,
                 fontFamily: AppFonts.primaryFont,
               ),
             ),
@@ -990,7 +990,7 @@ class _StatCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: AppDimensions.captionSize.sp,
                 fontWeight: FontWeight.w600,
-                color: colors.labelText,
+                color: colors.textSecondary,
                 height: 1.2,
                 fontFamily: AppFonts.primaryFont,
               ),
@@ -1033,7 +1033,7 @@ class _PreferenceTile extends StatelessWidget {
         style: TextStyle(
           fontSize: AppDimensions.buttonTextSize.sp,
           fontWeight: FontWeight.w500,
-          color: colors.headingText,
+          color: colors.textSecondary,
           fontFamily: AppFonts.primaryFont,
         ),
       ),
