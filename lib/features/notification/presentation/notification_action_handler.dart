@@ -20,6 +20,10 @@ class NotificationActionHandler {
     );
     print("Notification action: $action");
     print("Notification meta: $meta");
+
+    final routeState = GoRouterState.of(context);
+    final currentLocation = routeState.uri.path;
+
     switch (action) {
       case 'chat.open':
         print(
@@ -32,15 +36,18 @@ class NotificationActionHandler {
         print('Navigating to chat with conversation ID: $conversationID');
         final id = reservationID ?? conversationID;
         if (id != null && id.isNotEmpty) {
-          context.push(
-            '/chat',
-            extra: {
-              'reservationId': reservationID,
-              'conversationId': conversationID,
-            },
-          );
+          // Push chat details only if not already showing same chat
+          if (!currentLocation.startsWith('/chat')) {
+            context.push(
+              '/chat',
+              extra: {
+                'reservationId': reservationID,
+                'conversationId': conversationID,
+              },
+            );
+          }
         } else {
-          context.push('/chats');
+          if (currentLocation != '/chats') context.push('/chats');
         }
         return;
 
@@ -53,7 +60,9 @@ class NotificationActionHandler {
           try {
             final ds = getIt<DonationRemoteDataSource>();
             final donation = await ds.getDonationDetails(donationId);
-            context.push('/donation-details', extra: donation);
+            if (currentLocation != '/donation-details') {
+              context.push('/donation-details', extra: donation);
+            }
             return;
           } catch (_) {
             // ignore and fallthrough to notifications list
@@ -68,7 +77,9 @@ class NotificationActionHandler {
         );
         final reservationId = meta['reservationId'] as String?;
         if (reservationId != null && reservationId.isNotEmpty) {
-          context.push('/reservation-details', extra: reservationId);
+          if (currentLocation != '/reservation-details') {
+            context.push('/reservation-details', extra: reservationId);
+          }
           return;
         }
         print(
@@ -76,69 +87,41 @@ class NotificationActionHandler {
         );
         break;
 
-      case 'report.open':
-        print(
-          'Handling report.open action for notification id: ${notification.id}',
-        );
-        final reportId = meta['reportId'] as String?;
-        if (reportId != null && reportId.isNotEmpty) {
-          context.push('/reports/$reportId');
-          return;
-        }
-        print('No reportId found in notification meta for report.open action');
-        break;
-
       case 'account.open':
         print(
           'Handling account.open action for notification id: ${notification.id}',
         );
-        context.push('/profile/settings');
+        // Use `go` to switch to the profile tab instead of pushing duplicate pages
+        if (currentLocation != '/profile') context.go('/profile');
         return;
-
-      case 'achievement.open':
-        print(
-          'Handling achievement.open action for notification id: ${notification.id}',
-        );
-        final achievementId = meta['achievementId'] as String?;
-        if (achievementId != null && achievementId.isNotEmpty) {
-          context.push('/profile/achievements/$achievementId');
-          return;
-        }
-        print(
-          'No achievementId found in notification meta for achievement.open action',
-        );
-        break;
-
-      case 'post.open':
-        print(
-          'Handling post.open action for notification id: ${notification.id}',
-        );
-        final postId = meta['postId'] as String?;
-        if (postId != null && postId.isNotEmpty) {
-          context.push('/posts/$postId');
-          return;
-        }
-        print('No postId found in notification meta for post.open action');
-        break;
 
       case 'message.open':
         print(
           'Handling message.open action for notification id: ${notification.id}',
         );
-        // route to chats list or specific thread if supplied
-        final threadId =
-            meta['threadId'] as String? ?? meta['senderId'] as String?;
-        if (threadId != null && threadId.isNotEmpty) {
-          context.push('/chats');
-          return;
+        // Prefer reservationId, else open chats list
+        final reservationID = meta['reservationId'] as String?;
+        final conversationID = meta['conversationId'] as String?;
+        print('Navigating to chat with reservation ID: $reservationID');
+        print('Navigating to chat with conversation ID: $conversationID');
+        final id = reservationID ?? conversationID;
+        if (id != null && id.isNotEmpty) {
+          if (!currentLocation.startsWith('/chat')) {
+            context.push(
+              '/chat',
+              extra: {
+                'reservationId': reservationID,
+                'conversationId': conversationID,
+              },
+            );
+          }
+        } else {
+          if (currentLocation != '/chats') context.push('/chats');
         }
-        break;
+        return;
 
       default:
         break;
     }
-
-    // Default fallback: open notifications page
-    //context.push('/notifications');
   }
 }

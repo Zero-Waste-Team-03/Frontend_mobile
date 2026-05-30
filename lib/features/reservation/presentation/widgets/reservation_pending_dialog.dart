@@ -65,6 +65,7 @@ class _ReservationPendingDialogState extends State<ReservationPendingDialog>
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Dialog(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -75,7 +76,7 @@ class _ReservationPendingDialogState extends State<ReservationPendingDialog>
           child: Container(
             padding: EdgeInsets.all(AppDimensions.paddingLarge.w),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: colors.surface,
               borderRadius: BorderRadius.circular(
                 AppDimensions.borderRadiusExtraLarge.r,
               ),
@@ -88,14 +89,14 @@ class _ReservationPendingDialogState extends State<ReservationPendingDialog>
                   width: 80.w,
                   height: 80.w,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFA500).withAlpha(20),
+                    color: colors.primary.withValues(alpha: 0.08),
                     shape: BoxShape.circle,
                   ),
                   child: Center(
                     child: Icon(
                       Icons.schedule_rounded,
                       size: 40.sp,
-                      color: const Color(0xFFFFA500),
+                      color: colors.primary,
                     ),
                   ),
                 ),
@@ -107,7 +108,7 @@ class _ReservationPendingDialogState extends State<ReservationPendingDialog>
                   style: TextStyle(
                     fontSize: AppDimensions.titleSize.sp,
                     fontWeight: FontWeight.w700,
-                    color: AuthColors.headingText,
+                    color: colors.textPrimary,
                     fontFamily: AppFonts.primaryFont,
                   ),
                   textAlign: TextAlign.center,
@@ -121,7 +122,7 @@ class _ReservationPendingDialogState extends State<ReservationPendingDialog>
                     vertical: AppDimensions.paddingSmall.h,
                   ),
                   decoration: BoxDecoration(
-                    color: AuthColors.lightGrayBackground,
+                    color: colors.lightGrayBackground,
                     borderRadius: BorderRadius.circular(
                       AppDimensions.borderRadiusMedium.r,
                     ),
@@ -131,7 +132,7 @@ class _ReservationPendingDialogState extends State<ReservationPendingDialog>
                     style: TextStyle(
                       fontSize: AppDimensions.buttonTextSize.sp,
                       fontWeight: FontWeight.w600,
-                      color: AuthColors.primary,
+                      color: colors.primary,
                       fontFamily: AppFonts.primaryFont,
                     ),
                     textAlign: TextAlign.center,
@@ -146,7 +147,7 @@ class _ReservationPendingDialogState extends State<ReservationPendingDialog>
                   'Your reservation has been submitted successfully!',
                   style: TextStyle(
                     fontSize: AppDimensions.bodySize.sp,
-                    color: AuthColors.subText,
+                    color: colors.textSecondary,
                     fontFamily: AppFonts.primaryFont,
                     height: 1.5,
                   ),
@@ -158,12 +159,12 @@ class _ReservationPendingDialogState extends State<ReservationPendingDialog>
                 Container(
                   padding: EdgeInsets.all(AppDimensions.paddingMedium.w),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFA500).withAlpha(10),
+                    color: colors.primary.withValues(alpha: 0.06),
                     borderRadius: BorderRadius.circular(
                       AppDimensions.borderRadiusMedium.r,
                     ),
                     border: Border.all(
-                      color: const Color(0xFFFFA500).withAlpha(30),
+                      color: colors.primary.withValues(alpha: 0.15),
                       width: 1.5.w,
                     ),
                   ),
@@ -173,7 +174,7 @@ class _ReservationPendingDialogState extends State<ReservationPendingDialog>
                         children: [
                           Icon(
                             Icons.info_rounded,
-                            color: const Color(0xFFFFA500),
+                            color: colors.primary,
                             size: 20.sp,
                           ),
                           SizedBox(width: AppDimensions.paddingMedium.w),
@@ -183,7 +184,7 @@ class _ReservationPendingDialogState extends State<ReservationPendingDialog>
                               style: TextStyle(
                                 fontSize: AppDimensions.bodySize.sp,
                                 fontWeight: FontWeight.w600,
-                                color: AuthColors.headingText,
+                                color: colors.textPrimary,
                                 fontFamily: AppFonts.primaryFont,
                               ),
                             ),
@@ -195,7 +196,7 @@ class _ReservationPendingDialogState extends State<ReservationPendingDialog>
                         'The donor has 24 hours to confirm your reservation. You\'ll receive a notification once they respond.',
                         style: TextStyle(
                           fontSize: AppDimensions.captionSize.sp,
-                          color: AuthColors.subText,
+                          color: colors.textSecondary,
                           fontFamily: AppFonts.primaryFont,
                           height: 1.4,
                         ),
@@ -215,7 +216,7 @@ class _ReservationPendingDialogState extends State<ReservationPendingDialog>
                           widget.onDismiss();
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AuthColors.lightGreenBackground,
+                          backgroundColor: colors.lightGreenBackground,
                           padding: EdgeInsets.symmetric(
                             vertical: AppDimensions.paddingMedium.h,
                           ),
@@ -231,7 +232,7 @@ class _ReservationPendingDialogState extends State<ReservationPendingDialog>
                           style: TextStyle(
                             fontSize: AppDimensions.buttonTextSize.sp,
                             fontWeight: FontWeight.w600,
-                            color: AuthColors.primary,
+                            color: colors.primary,
                             fontFamily: AppFonts.primaryFont,
                           ),
                         ),

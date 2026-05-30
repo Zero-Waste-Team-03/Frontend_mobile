@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection.dart';
 import '../../../auth/data/sources/auth_local_data_source.dart';
-import '../../../auth/presentation/pages/auth_colors.dart';
+import '../../../../core/theme/app_colors.dart';
 
 class HomePlaceholderPage extends StatelessWidget {
   const HomePlaceholderPage({super.key});
@@ -21,7 +21,10 @@ class HomePlaceholderPage extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text('Cancel', style: TextStyle(color: AuthColors.subText)),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: context.themeColors.subText),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
@@ -47,10 +50,11 @@ class HomePlaceholderPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Scaffold(
-      backgroundColor: AuthColors.background,
+      backgroundColor: colors.background,
       appBar: AppBar(
-        backgroundColor: AuthColors.primary,
+        backgroundColor: colors.primary,
         elevation: 0,
         title: Text(
           "Gasp'Zero",
@@ -77,7 +81,7 @@ class HomePlaceholderPage extends StatelessWidget {
             Icon(
               Icons.eco_rounded,
               size: 80.sp,
-              color: AuthColors.primary.withValues(alpha: 0.4),
+              color: colors.primary.withValues(alpha: 0.4),
             ),
             SizedBox(height: 24.h),
             Text(
@@ -85,7 +89,7 @@ class HomePlaceholderPage extends StatelessWidget {
               style: TextStyle(
                 fontSize: 24.sp,
                 fontWeight: FontWeight.bold,
-                color: AuthColors.headingText,
+                color: colors.headingText,
               ),
             ),
             SizedBox(height: 12.h),
@@ -96,7 +100,7 @@ class HomePlaceholderPage extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: AppDimensions.bodySize.sp,
-                  color: AuthColors.subText,
+                  color: colors.subText,
                   height: 1.5,
                 ),
               ),

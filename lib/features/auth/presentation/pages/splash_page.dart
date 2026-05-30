@@ -9,9 +9,10 @@ class SplashPage extends StatefulWidget {
   State<SplashPage> createState() => _SplashPageState();
 }
 
-class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateMixin {
+class _SplashPageState extends State<SplashPage>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  
+
   // ignore: unused_field
   late Animation<double> _fadeAnimation;
   // ignore: unused_field
@@ -48,8 +49,9 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Scaffold(
-      backgroundColor: AuthColors.background,
+      backgroundColor: colors.background,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -63,7 +65,7 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      AuthColors.primary.withValues(alpha: 0.1),
+                      colors.primary.withValues(alpha: 0.1),
                     ),
                   ),
                 ),
@@ -76,19 +78,15 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
                       shape: BoxShape.circle,
                       gradient: SweepGradient(
                         colors: [
-                          AuthColors.primary.withValues(alpha: 0),
-                          AuthColors.primary,
+                          colors.primary.withValues(alpha: 0),
+                          colors.primary,
                         ],
                         stops: const [0.6, 1.0],
                       ),
                     ),
                   ),
                 ),
-                Icon(
-                  Icons.eco,
-                  color: AuthColors.primary,
-                  size: 32.sp,
-                ),
+                Icon(Icons.eco, color: colors.primary, size: 32.sp),
               ],
             ),
             SizedBox(height: 32.h),
@@ -96,13 +94,16 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
               animation: _controller,
               builder: (context, child) {
                 return Opacity(
-                  opacity: 0.6 + (0.4 * (1.0 - (0.5 - (0.5 - _controller.value)).abs() * 2)),
+                  opacity:
+                      0.6 +
+                      (0.4 *
+                          (1.0 - (0.5 - (0.5 - _controller.value)).abs() * 2)),
                   child: Text(
                     "Gasp'Zero",
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w800,
-                      color: AuthColors.primary,
+                      color: colors.primary,
                       letterSpacing: 8,
                     ),
                   ),

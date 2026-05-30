@@ -11,6 +11,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import '../../../../core/app_icons.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/app_location_picker.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../domain/entities/category.dart';
@@ -132,15 +133,20 @@ class _AddDonationPageState extends State<AddDonationPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     // Build the donation form UI with 3 steps
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: colors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: colors.surface,
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: Icon(AppIcons.back, color: AuthColors.primary, size: AppDimensions.iconSize.sp),
+          icon: Icon(
+            AppIcons.back,
+            color: colors.primary,
+            size: AppDimensions.iconSize.sp,
+          ),
           onPressed: _prevStep,
         ),
         title: Text(
@@ -148,12 +154,11 @@ class _AddDonationPageState extends State<AddDonationPage> {
           style: GoogleFonts.inter(
             fontSize: AppDimensions.appBarTitleSize.sp,
             fontWeight: FontWeight.w700,
-            color: AuthColors.primary,
+            color: colors.primary,
             letterSpacing: -0.5,
           ),
           textAlign: TextAlign.start,
         ),
-        
       ),
       body: Column(
         children: [
@@ -170,7 +175,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
                       style: GoogleFonts.inter(
                         fontSize: 24.sp,
                         fontWeight: FontWeight.w700,
-                        color: AuthColors.headingText,
+                        color: colors.headingText,
                       ),
                     ),
                     Text(
@@ -178,7 +183,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
                       style: GoogleFonts.inter(
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w700,
-                        color: AuthColors.primary,
+                        color: colors.primary,
                         letterSpacing: 0.5,
                       ),
                     ),
@@ -190,8 +195,8 @@ class _AddDonationPageState extends State<AddDonationPage> {
                   borderRadius: BorderRadius.circular(9999.r),
                   child: LinearProgressIndicator(
                     value: (_currentStep + 1) / 3,
-                    backgroundColor: const Color(0xFFE2E8F0),
-                    color: AuthColors.primary,
+                    backgroundColor: colors.divider,
+                    color: colors.primary,
                     minHeight: 8.h,
                     borderRadius: BorderRadius.circular(9999.r),
                   ),
@@ -231,7 +236,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('Photo upload failed: ${state.message}'),
-                backgroundColor: Colors.red,
+                backgroundColor: colors.error,
               ),
             );
           } else if (state is DonationAddSuccess) {
@@ -239,14 +244,14 @@ class _AddDonationPageState extends State<AddDonationPage> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: const Text('Donation published successfully!'),
-                backgroundColor: AuthColors.primary,
+                backgroundColor: colors.primary,
               ),
             );
           } else if (state is DonationAddError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('Error publishing: ${state.message}'),
-                backgroundColor: Colors.red,
+                backgroundColor: colors.error,
               ),
             );
           }
@@ -260,6 +265,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
 
   // ===================== STEP 1: BASICS =====================
   Widget _buildStep1() {
+    final colors = context.themeColors;
     return SingleChildScrollView(
       padding: EdgeInsets.all(24.w),
       child: Column(
@@ -276,10 +282,10 @@ class _AddDonationPageState extends State<AddDonationPage> {
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: 32.h),
               decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
+                color: colors.background,
                 borderRadius: BorderRadius.circular(12.r),
                 border: Border.all(
-                  color: const Color(0xFFCBD5E1),
+                  color: colors.border,
                   width: 2,
                   style: BorderStyle.none,
                 ),
@@ -309,7 +315,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
                     Container(
                       padding: EdgeInsets.all(12.w),
                       decoration: BoxDecoration(
-                        color: AuthColors.primary.withValues(
+                        color: colors.primary.withValues(
                           alpha: 0.1,
                         ), // 10% opacity
                         shape: BoxShape.circle,
@@ -319,7 +325,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
                         width: 26.sp,
                         height: 26.sp,
                         colorFilter: ColorFilter.mode(
-                          AuthColors.primary,
+                          colors.primary,
                           BlendMode.srcIn,
                         ),
                       ),
@@ -330,7 +336,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
                       style: TextStyle(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w700,
-                        color: AuthColors.headingText,
+                        color: colors.headingText,
                       ),
                     ),
                     SizedBox(height: 4.h),
@@ -340,7 +346,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
                           : 'Add a clear photo of the food item',
                       style: TextStyle(
                         fontSize: 14.sp,
-                        color: AuthColors.subText,
+                        color: colors.subText,
                       ),
                     ),
                     SizedBox(height: 16.h),
@@ -364,7 +370,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
           if (_categories.isEmpty)
             Padding(
               padding: EdgeInsets.symmetric(vertical: 8.h),
-              child: const LinearProgressIndicator(color: AuthColors.primary),
+              child: LinearProgressIndicator(color: colors.primary),
             )
           else
             GridView.builder(
@@ -387,12 +393,12 @@ class _AddDonationPageState extends State<AddDonationPage> {
                   child: Container(
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? AuthColors.primary.withValues(alpha: 0.1)
-                          : const Color(0xFFF1F5F9),
+                          ? colors.primary.withValues(alpha: 0.1)
+                          : colors.surface,
                       border: Border.all(
                         color: isSelected
-                            ? AuthColors.primary
-                            : Colors.transparent,
+                            ? colors.primary
+                            : colors.border,
                         width: 2,
                       ),
                       borderRadius: BorderRadius.circular(16.r),
@@ -406,7 +412,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
                           height: 40.sp,
                           colorFilter: ColorFilter.mode(
                             isSelected
-                                ? AuthColors.primary
+                                ? colors.primary
                                 : const Color(0xFF64748B),
                             BlendMode.srcIn,
                           ),
@@ -420,7 +426,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
                                 ? FontWeight.w700
                                 : FontWeight.w600,
                             color: isSelected
-                                ? AuthColors.primary
+                                ? colors.primary
                                 : const Color(0xFF334155),
                           ),
                           textAlign: TextAlign.center,
@@ -438,6 +444,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
 
   // ===================== STEP 2: DETAILS =====================
   Widget _buildStep2() {
+    final colors = context.themeColors;
     return SingleChildScrollView(
       padding: EdgeInsets.all(24.w),
       child: Column(
@@ -484,8 +491,8 @@ class _AddDonationPageState extends State<AddDonationPage> {
                   return Theme(
                     data: Theme.of(context).copyWith(
                       colorScheme: ColorScheme.light(
-                        primary: AuthColors.primary,
-                        onPrimary: Colors.white,
+                        primary: colors.primary,
+                        onPrimary: colors.onPrimary,
                       ),
                     ),
                     child: child!,
@@ -500,13 +507,13 @@ class _AddDonationPageState extends State<AddDonationPage> {
               height: AppDimensions.inputHeight.h,
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
+                color: colors.inputBackground,
                 borderRadius: BorderRadius.circular(12.r),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
+                border: Border.all(color: colors.inputBorder),
               ),
               child: Row(
                 children: [
-                  Icon(AppIcons.expiry, color: AuthColors.subText, size: 20.sp),
+                  Icon(AppIcons.expiry, color: colors.subText, size: 20.sp),
                   SizedBox(width: 12.w),
                   Text(
                     _expirationDate == null
@@ -515,8 +522,8 @@ class _AddDonationPageState extends State<AddDonationPage> {
                     style: TextStyle(
                       fontSize: 14.sp,
                       color: _expirationDate == null
-                          ? AuthColors.inputText
-                          : AuthColors.headingText,
+                          ? colors.inputText
+                          : colors.headingText,
                     ),
                   ),
                 ],
@@ -526,7 +533,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
           SizedBox(height: 8.h),
           Text(
             '* We cannot accept items that have already expired.',
-            style: TextStyle(fontSize: 12.sp, color: const Color(0xFF64748B)),
+            style: TextStyle(fontSize: 12.sp, color: colors.textTertiary),
           ),
           SizedBox(height: 24.h),
 
@@ -534,7 +541,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
           Container(
             padding: EdgeInsets.all(4.w),
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
+              color: colors.lightGrayBackground,
               borderRadius: BorderRadius.circular(12.r),
             ),
             child: Row(
@@ -546,7 +553,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
                       padding: EdgeInsets.symmetric(vertical: 12.h),
                       decoration: BoxDecoration(
                         color: _pickupPreference == 'Home'
-                            ? AuthColors.primary
+                            ? colors.primary
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(8.r),
                       ),
@@ -556,8 +563,8 @@ class _AddDonationPageState extends State<AddDonationPage> {
                           Icon(
                             AppIcons.home,
                             color: _pickupPreference == 'Home'
-                                ? Colors.white
-                                : AuthColors.subText,
+                                ? colors.onPrimary
+                                : colors.subText,
                             size: 18.sp,
                           ),
                           SizedBox(width: 8.w),
@@ -569,8 +576,8 @@ class _AddDonationPageState extends State<AddDonationPage> {
                                   ? FontWeight.w700
                                   : FontWeight.w500,
                               color: _pickupPreference == 'Home'
-                                  ? Colors.white
-                                  : AuthColors.subText,
+                                  ? colors.onPrimary
+                                  : colors.subText,
                             ),
                           ),
                         ],
@@ -586,7 +593,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
                       padding: EdgeInsets.symmetric(vertical: 12.h),
                       decoration: BoxDecoration(
                         color: _pickupPreference == 'Public Spot'
-                            ? AuthColors.primary
+                            ? colors.primary
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(8.r),
                       ),
@@ -596,8 +603,8 @@ class _AddDonationPageState extends State<AddDonationPage> {
                           Icon(
                             AppIcons.locationPin,
                             color: _pickupPreference == 'Public Spot'
-                                ? Colors.white
-                                : AuthColors.subText,
+                                ? colors.onPrimary
+                                : colors.subText,
                             size: 18.sp,
                           ),
                           SizedBox(width: 8.w),
@@ -609,8 +616,8 @@ class _AddDonationPageState extends State<AddDonationPage> {
                                   ? FontWeight.w700
                                   : FontWeight.w500,
                               color: _pickupPreference == 'Public Spot'
-                                  ? Colors.white
-                                  : AuthColors.subText,
+                                  ? colors.onPrimary
+                                  : colors.subText,
                             ),
                           ),
                         ],
@@ -635,7 +642,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
                 style: GoogleFonts.inter(
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w600,
-                  color: AuthColors.primary,
+                  color: colors.primary,
                 ),
               ),
             ],
@@ -658,6 +665,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
 
   // ===================== STEP 3: SAFETY & PUBLISH =====================
   Widget _buildStep3() {
+    final colors = context.themeColors;
     return SingleChildScrollView(
       padding: EdgeInsets.all(24.w),
       child: Column(
@@ -667,7 +675,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
             'Please confirm the following safety protocols for your cooked food donation.',
             style: GoogleFonts.openSans(
               fontSize: 14.sp,
-              color: const Color(0xFF6C7F76),
+              color: colors.textSecondary,
               height: 1.4,
             ),
           ),
@@ -702,7 +710,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
           Container(
             padding: EdgeInsets.all(20.w),
             decoration: BoxDecoration(
-              color: const Color(0xFFF59E0B),
+              color: colors.primary,
               borderRadius: BorderRadius.circular(24.r),
             ),
             child: Column(
@@ -713,7 +721,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
                   style: GoogleFonts.inter(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: colors.onPrimary,
                   ),
                 ),
                 SizedBox(height: 8.h),
@@ -721,7 +729,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
                   'Once published, your donation will be visible to local community centers and individuals in need.',
                   style: GoogleFonts.inter(
                     fontSize: 14.sp,
-                    color: Colors.white.withValues(alpha: 0.9),
+                    color: colors.onPrimary.withValues(alpha: 0.9),
                     height: 1.4,
                   ),
                 ),
@@ -735,14 +743,15 @@ class _AddDonationPageState extends State<AddDonationPage> {
 
   // ===================== BOTTOM ACTIONS =====================
   Widget _buildBottomActions(BuildContext context, DonationsState state) {
+    final colors = context.themeColors;
     return SafeArea(
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colors.surface,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: colors.surface.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, -4),
             ),
@@ -758,10 +767,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
                   child: OutlinedButton(
                     onPressed: _prevStep,
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(
-                        color: Color(0xFFE2E8F0),
-                        width: 2,
-                      ),
+                      side: BorderSide(color: colors.divider, width: 2),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12.r),
                       ),
@@ -771,7 +777,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
                       style: TextStyle(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.bold,
-                        color: AuthColors.headingText,
+                        color: colors.headingText,
                       ),
                     ),
                   ),
@@ -906,7 +912,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
                           }
                         },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AuthColors.primary,
+                    backgroundColor: colors.primary,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12.r),
@@ -915,11 +921,11 @@ class _AddDonationPageState extends State<AddDonationPage> {
                   child:
                       state is DonationAddLoading ||
                           state is DonationImageUploadLoading
-                      ? const SizedBox(
+                      ?  SizedBox(
                           width: 24,
                           height: 24,
                           child: CircularProgressIndicator(
-                            color: Colors.white,
+                            color: colors.onPrimary,
                             strokeWidth: 2,
                           ),
                         )
@@ -932,7 +938,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
                           style: TextStyle(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: colors.onPrimary,
                           ),
                         ),
                 ),
@@ -946,6 +952,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
 
   // ===================== HELPERS =====================
   Widget _buildLabel(String text) {
+    final colors = context.themeColors;
     return Padding(
       padding: EdgeInsets.only(bottom: 8.h),
       child: Text(
@@ -953,7 +960,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
         style: TextStyle(
           fontSize: 14.sp,
           fontWeight: FontWeight.w600,
-          color: AuthColors.labelText,
+          color: colors.textSecondary,
         ),
       ),
     );
@@ -966,11 +973,12 @@ class _AddDonationPageState extends State<AddDonationPage> {
     int maxLines = 1,
     TextInputType keyboardType = TextInputType.text,
   }) {
+    final colors = context.themeColors;
     return TextField(
       controller: controller,
       maxLines: maxLines,
       keyboardType: keyboardType,
-      style: GoogleFonts.inter(fontSize: 14.sp, color: AuthColors.headingText),
+      style: GoogleFonts.inter(fontSize: 14.sp, color: colors.headingText),
       decoration: InputDecoration(
         label: label != null
             ? Text(
@@ -978,32 +986,29 @@ class _AddDonationPageState extends State<AddDonationPage> {
                 style: GoogleFonts.inter(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w600,
-                  color: AuthColors.labelText,
+                  color: colors.labelText,
                 ),
               )
             : null,
         hintText: hintText,
-        hintStyle: GoogleFonts.inter(
-          fontSize: 14.sp,
-          color: AuthColors.inputText,
-        ),
+        hintStyle: GoogleFonts.inter(fontSize: 14.sp, color: colors.inputText),
         filled: true,
-        fillColor: const Color(0xFFF8FAFC),
+        fillColor: colors.inputBackground,
         contentPadding: EdgeInsets.symmetric(
           horizontal: 16.w,
           vertical: maxLines > 1 ? 16.h : 14.h,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+          borderSide: BorderSide(color: colors.inputBorder),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+          borderSide: BorderSide(color: colors.inputBorder),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(color: AuthColors.primary, width: 1.5),
+          borderSide: BorderSide(color: colors.primary, width: 1.5),
         ),
       ),
     );
@@ -1014,6 +1019,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
     required bool value,
     required ValueChanged<bool?> onChanged,
   }) {
+    final colors = context.themeColors;
     return Padding(
       padding: EdgeInsets.only(bottom: 12.h),
       child: GestureDetector(
@@ -1024,15 +1030,15 @@ class _AddDonationPageState extends State<AddDonationPage> {
               width: 24.w,
               height: 24.h,
               decoration: BoxDecoration(
-                color: value ? AuthColors.primary : Colors.white,
+                color: value ? colors.primary : colors.surface,
                 borderRadius: BorderRadius.circular(6.r),
                 border: Border.all(
-                  color: value ? AuthColors.primary : const Color(0xFFCBD5E1),
+                  color: value ? colors.primary : colors.divider,
                   width: 1.5,
                 ),
               ),
               child: value
-                  ? Icon(AppIcons.check, color: Colors.white, size: 16.sp)
+                  ? Icon(AppIcons.check, color: colors.onPrimary, size: 16.sp)
                   : null,
             ),
             SizedBox(width: 12.w),
@@ -1041,7 +1047,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
                 title,
                 style: GoogleFonts.openSans(
                   fontSize: 14.sp,
-                  color: AuthColors.headingText,
+                  color: colors.headingText,
                   fontWeight: FontWeight.w500,
                 ),
               ),

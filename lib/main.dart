@@ -5,6 +5,9 @@ import 'package:logger/logger.dart';
 import 'core/router/app_router.dart';
 import 'core/di/injection.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/theme_cubit.dart';
+import 'package:get_it/get_it.dart';
+import 'features/auth/data/sources/auth_local_data_source.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/bloc/auth_event.dart';
 import 'features/auth/presentation/bloc/auth_state.dart';
@@ -82,23 +85,45 @@ class _GaspZeroAppState extends State<GaspZeroApp> {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenUtilInit(
-      designSize: const Size(393, 852), // iPhone 14 Pro typical Figma size
-      minTextAdapt: true,
-      splitScreenMode: true,
-      builder: (context, child) {
-        return BlocProvider(
+    // Create ThemeCubit and register it so other blocs can access it via GetIt
+    final themeCubit = ThemeCubit(GetIt.I<AuthLocalDataSource>());
+    if (!GetIt.I.isRegistered<ThemeCubit>()) {
+      GetIt.I.registerSingleton<ThemeCubit>(themeCubit);
+    }
+
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
           create: (_) => getIt<AuthBloc>()..add(AuthCheckRequested()),
-          child: MaterialApp.router(
+        ),
+        BlocProvider<ThemeCubit>(create: (_) => themeCubit),
+      ],
+      child: ScreenUtilInit(
+        designSize: const Size(393, 852), // iPhone 14 Pro typical Figma size
+        minTextAdapt: true,
+        splitScreenMode: true,
+        builder: (context, child) {
+          return MaterialApp.router(
             title: "Gasp'Zero",
             debugShowCheckedModeBanner: false,
             theme: AppTheme.light,
+            darkTheme: AppTheme.dark,
+            themeMode: context.select((ThemeCubit c) => c.state),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             builder: (context, child) {
               return BlocListener<AuthBloc, AuthState>(
                 listener: (context, state) {
                   if (state is AuthSuccess) {
+                    // On login, update theme from returned user settings if available
+                    try {
+                      final appearance = state.user?.settings?.appearance;
+                      if (appearance != null) {
+                        context.read<ThemeCubit>().setFromAppearance(
+                          appearance,
+                        );
+                      }
+                    } catch (_) {}
                     appRouter.go('/home');
                   } else if (state is AuthUnauthenticated) {
                     appRouter.go('/');
@@ -110,9 +135,9 @@ class _GaspZeroAppState extends State<GaspZeroApp> {
               );
             },
             routerConfig: appRouter,
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }

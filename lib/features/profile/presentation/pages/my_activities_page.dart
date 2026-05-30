@@ -62,13 +62,14 @@ class _MyActivitiesPageState extends State<MyActivitiesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Scaffold(
-      backgroundColor: AuthColors.background,
+      backgroundColor: colors.background,
       appBar: AppBar(
-        backgroundColor: AuthColors.background,
+        backgroundColor: colors.background,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AuthColors.primary),
+          icon: Icon(Icons.arrow_back, color: colors.primary),
           onPressed: () => context.pop(),
         ),
         title: Text(
@@ -76,7 +77,7 @@ class _MyActivitiesPageState extends State<MyActivitiesPage> {
           style: TextStyle(
             fontSize: AppDimensions.appBarTitleSize.sp,
             fontWeight: FontWeight.bold,
-            color: AuthColors.primary,
+            color: colors.primary,
             fontFamily: AppFonts.primaryFont,
           ),
         ),
@@ -207,7 +208,7 @@ class _MyActivitiesPageState extends State<MyActivitiesPage> {
                               'Error loading donations',
                               style: TextStyle(
                                 fontSize: AppDimensions.bodySize.sp,
-                                color: AuthColors.headingText,
+                                color: colors.headingText,
                                 fontFamily: AppFonts.primaryFont,
                               ),
                             ),
@@ -217,7 +218,7 @@ class _MyActivitiesPageState extends State<MyActivitiesPage> {
                               icon: Icon(Icons.refresh_rounded, size: 18.sp),
                               label: const Text('Retry'),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: AuthColors.primary,
+                                backgroundColor: colors.primary,
                                 foregroundColor: Colors.white,
                               ),
                             ),
@@ -230,8 +231,8 @@ class _MyActivitiesPageState extends State<MyActivitiesPage> {
                       if (state.activities.isEmpty) {
                         return RefreshIndicator(
                           onRefresh: _onRefresh,
-                          color: AuthColors.primary,
-                          backgroundColor: AuthColors.background,
+                          color: colors.primary,
+                          backgroundColor: colors.background,
                           child: ListView(
                             physics: const AlwaysScrollableScrollPhysics(),
                             children: [
@@ -243,7 +244,7 @@ class _MyActivitiesPageState extends State<MyActivitiesPage> {
                                     Icon(
                                       Icons.inventory_2_outlined,
                                       size: 48.sp,
-                                      color: AuthColors.inputText,
+                                      color: colors.inputText,
                                     ),
                                     SizedBox(
                                       height: AppDimensions.paddingMedium.h,
@@ -252,7 +253,7 @@ class _MyActivitiesPageState extends State<MyActivitiesPage> {
                                       'No donations found',
                                       style: TextStyle(
                                         fontSize: AppDimensions.bodySize.sp,
-                                        color: AuthColors.subText,
+                                        color: colors.subText,
                                         fontFamily: AppFonts.primaryFont,
                                       ),
                                     ),
@@ -266,8 +267,8 @@ class _MyActivitiesPageState extends State<MyActivitiesPage> {
 
                       return RefreshIndicator(
                         onRefresh: _onRefresh,
-                        color: AuthColors.primary,
-                        backgroundColor: AuthColors.background,
+                        color: colors.primary,
+                        backgroundColor: colors.background,
                         child: ListView.builder(
                           controller: _scrollController,
                           physics: const AlwaysScrollableScrollPhysics(),
@@ -285,7 +286,7 @@ class _MyActivitiesPageState extends State<MyActivitiesPage> {
                                 ),
                                 child: Center(
                                   child: CircularProgressIndicator(
-                                    color: AuthColors.primary,
+                                    color: colors.primary,
                                   ),
                                 ),
                               );
@@ -323,3 +324,5 @@ class _MyActivitiesPageState extends State<MyActivitiesPage> {
     super.dispose();
   }
 }
+
+

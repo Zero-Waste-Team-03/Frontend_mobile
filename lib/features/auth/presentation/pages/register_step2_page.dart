@@ -10,10 +10,10 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/permissions/permission_request_coordinator.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
-import 'auth_colors.dart';
 
 class RegisterStep2Page extends StatefulWidget {
   final Map<String, String> formData;
@@ -172,10 +172,10 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
         final country = (place.country ?? '').trim();
         final zip = (place.postalCode ?? '').trim();
         final neighborhood = (place.subLocality ?? place.name ?? '').trim();
-        
+
         zipValue = zip;
         neighborhoodValue = neighborhood;
-        
+
         if (city.isNotEmpty && zip.isNotEmpty) {
           value = '$city, $zip';
         } else if (city.isNotEmpty) {
@@ -242,6 +242,7 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthOtpSentSuccess) {
@@ -268,21 +269,25 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
                     fontSize: AppDimensions.titleSize.sp,
                     fontWeight: FontWeight.w700,
                     letterSpacing: -0.025 * AppDimensions.titleSize.sp,
-                    color: AuthColors.headingText,
+                    color: colors.headingText,
                   ),
                 ),
                 SizedBox(height: AppDimensions.paddingLarge.h),
-                _buildLabel('Date of Birth'),
+                _buildLabel('Date of Birth', context),
                 SizedBox(height: AppDimensions.paddingSmall.h),
                 _buildDateOfBirthPicker(),
                 SizedBox(height: AppDimensions.paddingLarge.h),
-                _buildLabel('Location'),
+                _buildLabel('Location', context),
                 SizedBox(height: AppDimensions.paddingSmall.h),
-                _buildLocationField(),
+                _buildLocationField(context),
                 SizedBox(height: AppDimensions.paddingLarge.h),
-                _buildLabel('Zip Code'),
+                _buildLabel('Zip Code', context),
                 SizedBox(height: AppDimensions.paddingSmall.h),
-                _buildTextField(_zipCodeController, 'Enter your zip code'),
+                _buildTextField(
+                  _zipCodeController,
+                  'Enter your zip code',
+                  context,
+                ),
                 SizedBox(height: AppDimensions.paddingSmall.h),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 4.w),
@@ -290,7 +295,7 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
                     'Used to find local community challenges and initiatives.',
                     style: TextStyle(
                       fontSize: AppDimensions.captionSize.sp,
-                      color: AuthColors.inputText,
+                      color: colors.inputText,
                       height: 1.33,
                     ),
                   ),
@@ -300,7 +305,7 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
                   onPressed: isLoading ? null : _onSubmit,
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size(double.infinity, 56.h),
-                    backgroundColor: AuthColors.primary,
+                    backgroundColor: colors.primary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(
@@ -445,35 +450,41 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
     ];
   }
 
-  Widget _buildLabel(String text) {
+  Widget _buildLabel(String text, BuildContext context) {
+    final colors = context.themeColors;
     return Text(
       text,
       style: TextStyle(
-        color: AuthColors.labelText,
+        color: colors.labelText,
         fontWeight: FontWeight.w500,
         fontSize: AppDimensions.bodySize.sp,
       ),
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String hint) {
+  Widget _buildTextField(
+    TextEditingController controller,
+    String hint,
+    BuildContext context,
+  ) {
+    final colors = context.themeColors;
     return Container(
       height: 56.h,
       decoration: BoxDecoration(
-        color: AuthColors.primary.withValues(alpha: 0.05),
+        color: colors.primary.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(AppDimensions.borderRadiusLarge.r),
       ),
       child: TextField(
         controller: controller,
         style: TextStyle(
-          color: AuthColors.headingText,
+          color: colors.headingText,
           fontSize: 16.sp,
           fontWeight: FontWeight.w400,
         ),
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: TextStyle(
-            color: AuthColors.inputText,
+            color: colors.inputText,
             fontSize: 16.sp,
             fontWeight: FontWeight.w400,
           ),
@@ -488,10 +499,15 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
     );
   }
 
-  Widget _buildLocationField() {
+  Widget _buildLocationField(BuildContext context) {
+    final colors = context.themeColors;
     return Stack(
       children: [
-        _buildTextField(_locationController, 'Enter your city or zip code'),
+        _buildTextField(
+          _locationController,
+          'Enter your city or zip code',
+          context,
+        ),
         Positioned(
           right: 8.w,
           top: 8.h,
@@ -499,8 +515,8 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
             width: 40.w,
             height: 40.h,
             child: DecoratedBox(
-              decoration: const BoxDecoration(
-                color: AuthColors.primary,
+              decoration: BoxDecoration(
+                color: colors.primary,
                 shape: BoxShape.circle,
               ),
               child: IconButton(
@@ -527,6 +543,7 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
   }
 
   Widget _buildDateOfBirthPicker() {
+    final colors = context.themeColors;
     final locale = Localizations.localeOf(context).toLanguageTag();
     final formatted = DateFormat.yMMMd(locale).format(_selectedBirthDate());
 
@@ -536,7 +553,7 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
       child: Container(
         height: 56.h,
         decoration: BoxDecoration(
-          color: AuthColors.primary.withValues(alpha: 0.05),
+          color: colors.primary.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(
             AppDimensions.borderRadiusLarge.r,
           ),
@@ -550,7 +567,7 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
               child: Text(
                 formatted,
                 style: TextStyle(
-                  color: AuthColors.headingText,
+                  color: colors.headingText,
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w400,
                 ),
@@ -558,7 +575,7 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
             ),
             Icon(
               Icons.keyboard_arrow_down_rounded,
-              color: AuthColors.inputText,
+              color: colors.inputText,
               size: AppDimensions.iconSize.sp,
             ),
           ],
@@ -574,11 +591,12 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
     required int selectedIndex,
     required ValueChanged<int> onSelected,
   }) {
+    final colors = context.themeColors;
     final effectiveIndex = selectedIndex.clamp(0, values.length - 1);
 
     return Container(
       decoration: BoxDecoration(
-        color: AuthColors.primary.withValues(alpha: 0.05),
+        color: colors.primary.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(AppDimensions.borderRadiusLarge.r),
       ),
       child: Column(
@@ -590,7 +608,7 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
               style: TextStyle(
                 fontSize: 10.sp,
                 fontWeight: FontWeight.w700,
-                color: AuthColors.inputText,
+                color: colors.inputText,
                 letterSpacing: 0.5,
               ),
             ),

@@ -18,19 +18,24 @@ class LeaderboardUserCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = highlighted ? AppColors.primary : AppColors.background;
-    final nameColor = highlighted ? AppColors.onPrimary : AppColors.textPrimary;
+    final colors = context.themeColors;
+    final bgColor = highlighted ? colors.primary : colors.background;
+    final nameColor = highlighted ? colors.onPrimary : colors.textPrimary;
     final subColor = highlighted
-        ? AppColors.onPrimary.withValues(alpha: 0.85)
-        : AppColors.textTertiary;
-    final pointsColor = highlighted ? AppColors.onPrimary : AppColors.primary;
+        ? colors.onPrimary.withValues(alpha: 0.85)
+        : colors.textTertiary;
+    final pointsColor = highlighted ? colors.onPrimary : colors.primary;
     final hasAvatar = _hasValidAvatarUrl(entry.avatarUrl);
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final maxW = constraints.maxWidth;
+        // Calculate dynamic width for rank based on number of digits
+        final rankDigits = entry.rank.toString().length;
+        final rankWidth = _calculateRankWidth(rankDigits);
+
         // reserve space for rank and points columns
-        final rankArea = shared_theme.AppDimensions.leaderboardRankWidth + 8.0;
+        final rankArea = rankWidth + 8.0;
         final pointsArea = 72.0; // approx width for points column
         final avatarDefault =
             shared_theme.AppDimensions.leaderboardAvatarRadius * 2;
@@ -55,7 +60,7 @@ class LeaderboardUserCard extends StatelessWidget {
             boxShadow: highlighted
                 ? [
                     BoxShadow(
-                      color: AppColors.textPrimary.withValues(alpha: 0.14),
+                      color: colors.textPrimary.withValues(alpha: 0.14),
                       blurRadius: 16,
                       offset: const Offset(0, 8),
                     ),
@@ -65,17 +70,16 @@ class LeaderboardUserCard extends StatelessWidget {
           child: Row(
             children: [
               SizedBox(
-                width: shared_theme.AppDimensions.leaderboardRankWidth,
+                width: rankWidth,
                 child: Text(
                   '#${entry.rank}',
                   maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  overflow: TextOverflow.clip,
                   style: AppTextStyles.headlineMedium.copyWith(
-                    fontSize:
-                        shared_theme.AppDimensions.leaderboardCardNameFontSize,
+                    fontSize: _calculateRankFontSize(rankDigits),
                     color: highlighted
-                        ? AppColors.onPrimary.withValues(alpha: 0.95)
-                        : AppColors.textMuted,
+                        ? colors.onPrimary.withValues(alpha: 0.95)
+                        : colors.textMuted,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -87,7 +91,7 @@ class LeaderboardUserCard extends StatelessWidget {
                 height: avatarSize,
                 child: CircleAvatar(
                   radius: avatarSize / 2,
-                  backgroundColor: AppColors.surface,
+                  backgroundColor: colors.surface,
                   backgroundImage: hasAvatar
                       ? NetworkImage(entry.avatarUrl)
                       : null,
@@ -95,7 +99,7 @@ class LeaderboardUserCard extends StatelessWidget {
                       ? null
                       : Icon(
                           Icons.person_rounded,
-                          color: AppColors.textMuted,
+                          color: colors.textMuted,
                           size: (avatarSize * 0.6).clamp(12.0, 28.0),
                         ),
                 ),
@@ -122,7 +126,6 @@ class LeaderboardUserCard extends StatelessWidget {
                       children: [
                         Icon(Icons.eco_outlined, size: 14, color: subColor),
                         const SizedBox(width: 4),
-                        
                       ],
                     ),
                   ],
@@ -171,6 +174,31 @@ class LeaderboardUserCard extends StatelessWidget {
     final uri = Uri.tryParse(value);
     return uri != null && (uri.scheme == 'http' || uri.scheme == 'https');
   }
+
+  /// Calculate dynamic width for rank column based on number of digits
+  /// Ensures all digits are visible without ellipsis
+  double _calculateRankWidth(int rankDigits) {
+    // Base width for '#' symbol + padding
+    const baseWidth = 16.0;
+    // Approximate width per digit in the font used
+    const perDigitWidth = 11.0;
+
+    return baseWidth + (rankDigits * perDigitWidth);
+  }
+
+  /// Calculate font size that scales down for larger rank numbers
+  /// Keeps text readable while accommodating 3-4 digit ranks
+  double _calculateRankFontSize(int rankDigits) {
+    final baseSize = shared_theme.AppDimensions.leaderboardCardNameFontSize;
+
+    if (rankDigits <= 2) {
+      return baseSize; // Normal size for #1-99
+    } else if (rankDigits == 3) {
+      return baseSize * 0.85; // Slightly smaller for #100-999
+    } else {
+      return baseSize * 0.70; // More reduction for #1000+
+    }
+  }
 }
 
 class LeaderboardUserCardSkeleton extends StatelessWidget {
@@ -178,10 +206,11 @@ class LeaderboardUserCardSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     final avatarRadius = shared_theme.AppDimensions.leaderboardAvatarRadius;
 
-    final shimmerBase = const Color(0xFFDDE2E8);
-    final shimmerHighlight = const Color(0xFFF4F6F8);
+    final shimmerBase = colors.surface.withValues(alpha: 0.72);
+    final shimmerHighlight = colors.surface.withValues(alpha: 1.0);
 
     return Shimmer.fromColors(
       baseColor: shimmerBase,
@@ -194,7 +223,7 @@ class LeaderboardUserCardSkeleton extends StatelessWidget {
           vertical: shared_theme.AppDimensions.leaderboardCardVerticalPadding,
         ),
         decoration: BoxDecoration(
-          color: AppColors.background,
+          color: colors.background,
           borderRadius: BorderRadius.circular(
             shared_theme.AppDimensions.leaderboardCardRadius,
           ),
@@ -205,7 +234,7 @@ class LeaderboardUserCardSkeleton extends StatelessWidget {
               width: shared_theme.AppDimensions.leaderboardRankWidth,
               child: Container(
                 height: 16,
-                color: AppColors.surface.withValues(alpha: 0.8),
+                color: colors.surface.withValues(alpha: 0.8),
               ),
             ),
             const SizedBox(width: 8),
@@ -213,7 +242,7 @@ class LeaderboardUserCardSkeleton extends StatelessWidget {
               width: avatarRadius * 2,
               height: avatarRadius * 2,
               decoration: BoxDecoration(
-                color: AppColors.surface.withValues(alpha: 0.8),
+                color: colors.surface.withValues(alpha: 0.8),
                 shape: BoxShape.circle,
               ),
             ),
@@ -225,13 +254,13 @@ class LeaderboardUserCardSkeleton extends StatelessWidget {
                   Container(
                     height: 14,
                     width: double.infinity,
-                    color: AppColors.surface.withValues(alpha: 0.8),
+                    color: colors.surface.withValues(alpha: 0.8),
                   ),
                   const SizedBox(height: 8),
                   Container(
                     height: 12,
                     width: 120,
-                    color: AppColors.surface.withValues(alpha: 0.75),
+                    color: colors.surface.withValues(alpha: 0.75),
                   ),
                 ],
               ),
@@ -243,13 +272,13 @@ class LeaderboardUserCardSkeleton extends StatelessWidget {
                 Container(
                   height: 18,
                   width: 48,
-                  color: AppColors.surface.withValues(alpha: 0.8),
+                  color: colors.surface.withValues(alpha: 0.8),
                 ),
                 const SizedBox(height: 6),
                 Container(
                   height: 10,
                   width: 36,
-                  color: AppColors.surface.withValues(alpha: 0.75),
+                  color: colors.surface.withValues(alpha: 0.75),
                 ),
               ],
             ),

@@ -22,10 +22,11 @@ class NotificationCard extends StatelessWidget {
     this.onDelete,
   }) : super(key: key);
 
-  Color _getTypeColor() {
+  Color _getTypeColor(BuildContext context) {
+    final colors = context.themeColors;
     switch (notification.type) {
       case NotificationType.accountStatusAlert:
-        return AppColors.notificationAlertBackground;
+        return Colors.red;
       case NotificationType.chatMessage:
       case NotificationType.message:
       case NotificationType.newAchievement:
@@ -33,25 +34,26 @@ class NotificationCard extends StatelessWidget {
       case NotificationType.reportAlert:
       case NotificationType.reservationAlert:
       case NotificationType.test:
-        return AppColors.statusCompletedText;
+        return colors.primary;
     }
   }
 
-  Color _getTypeBackgroundColor() {
+  Color _getTypeBackgroundColor(BuildContext context) {
+    final colors = context.themeColors;
     switch (notification.type) {
       case NotificationType.accountStatusAlert:
-        return AppColors.notificationAlertLight;
+        return colors.lightGrayBackground;
       case NotificationType.chatMessage:
       case NotificationType.message:
-        return AppColors.notificationConfirmationBackground;
+        return colors.background;
       case NotificationType.newAchievement:
       case NotificationType.newPost:
-        return AppColors.notificationImpactBackground;
+        return colors.background;
       case NotificationType.reportAlert:
       case NotificationType.reservationAlert:
-        return AppColors.notificationDonationBackground;
+        return colors.background;
       case NotificationType.test:
-        return AppColors.notificationDonationBackground;
+        return colors.background;
     }
   }
 
@@ -77,9 +79,9 @@ class NotificationCard extends StatelessWidget {
   }
 
   bool _isMessageNotification() {
-    final isMessage = notification.type == NotificationType.message
-    || notification.type == NotificationType.chatMessage
-    ;
+    final isMessage =
+        notification.type == NotificationType.message ||
+        notification.type == NotificationType.chatMessage;
     return isMessage;
   }
 
@@ -147,10 +149,10 @@ class NotificationCard extends StatelessWidget {
       if (value != null && value.isNotEmpty) return value;
     }
 
-    return notification.body ;
+    return notification.body;
   }
 
-  Widget _buildLeadingIcon() {
+  Widget _buildLeadingIcon(BuildContext context) {
     final avatarUrl = _resolveSenderAvatarUrl();
 
     if (avatarUrl != null) {
@@ -159,7 +161,7 @@ class NotificationCard extends StatelessWidget {
         width: 48.0,
         height: 48.0,
         decoration: BoxDecoration(
-          color: _getTypeBackgroundColor(),
+          color: _getTypeBackgroundColor(context),
           shape: BoxShape.circle,
         ),
         clipBehavior: Clip.antiAlias,
@@ -169,14 +171,14 @@ class NotificationCard extends StatelessWidget {
           placeholder: (context, url) => Center(
             child: Icon(
               Icons.person_rounded,
-              color: _getTypeColor(),
+              color: _getTypeColor(context),
               size: 22.0,
             ),
           ),
           errorWidget: (context, url, error) => Center(
             child: Icon(
               Icons.person_rounded,
-              color: _getTypeColor(),
+              color: _getTypeColor(context),
               size: 22.0,
             ),
           ),
@@ -189,17 +191,18 @@ class NotificationCard extends StatelessWidget {
       width: 48.0,
       height: 48.0,
       decoration: BoxDecoration(
-        color: _getTypeBackgroundColor(),
+        color: _getTypeBackgroundColor(context),
         borderRadius: BorderRadius.circular(AppRadius.lg),
       ),
       child: Center(
-        child: Icon(_getTypeIcon(), color: _getTypeColor(), size: 24.0),
+        child: Icon(_getTypeIcon(), color: _getTypeColor(context), size: 24.0),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     final timeAgo = _getTimeAgo(notification.createdAt);
 
     return GestureDetector(
@@ -212,25 +215,18 @@ class NotificationCard extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 12.0),
         decoration: BoxDecoration(
-          color: !notification.isRead
-              ? AppColors.surface
-              : AppColors.notificationCardUnreadBackground,
+          color: !notification.isRead ? colors.surface : colors.background,
           borderRadius: BorderRadius.circular(AppRadius.md),
-          border: Border.all(
-            color: !notification.isRead
-                ? Colors.grey.shade300
-                : AppColors.notificationCardBorder,
-            width: 1.0,
-          ),
+          border: Border.all(color: colors.divider, width: 1.0),
           boxShadow: !notification.isRead
               ? [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.06),
+                    color: colors.textPrimary.withValues(alpha: 0.06),
                     blurRadius: 16,
                     offset: const Offset(0, 4),
                   ),
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.02),
+                    color: colors.textPrimary.withValues(alpha: 0.02),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
@@ -244,7 +240,7 @@ class NotificationCard extends StatelessWidget {
             Container(
               width: 4.0,
               decoration: BoxDecoration(
-                color: AppColors.primary,
+                color: colors.primary,
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(AppRadius.md),
                   bottomLeft: Radius.circular(AppRadius.md),
@@ -252,7 +248,7 @@ class NotificationCard extends StatelessWidget {
               ),
             ),
             // Icon / avatar
-            _buildLeadingIcon(),
+            _buildLeadingIcon(context),
             // Content
             Expanded(
               child: Padding(
@@ -270,7 +266,7 @@ class NotificationCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             notification.title,
-                            style: AppTextStyles.titleMedium,
+                            style: AppTextStyles.labelLarge.copyWith(color: colors.headingText),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -279,7 +275,7 @@ class NotificationCard extends StatelessWidget {
                         Text(
                           timeAgo,
                           style: AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.textMuted,
+                            color: colors.textMuted,
                           ),
                         ),
                       ],
@@ -288,7 +284,7 @@ class NotificationCard extends StatelessWidget {
                     Text(
                       _resolveBodyText(),
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textTertiary,
+                        color: colors.textTertiary,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -301,8 +297,8 @@ class NotificationCard extends StatelessWidget {
                             Container(
                               width: 6.0,
                               height: 6.0,
-                              decoration: const BoxDecoration(
-                                color: AppColors.notificationUnreadIndicator,
+                              decoration: BoxDecoration(
+                                color: colors.primary,
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -310,7 +306,7 @@ class NotificationCard extends StatelessWidget {
                             Text(
                               'Unread',
                               style: AppTextStyles.labelMedium.copyWith(
-                                color: AppColors.primary,
+                                color: colors.primary,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -331,7 +327,7 @@ class NotificationCard extends StatelessWidget {
                 ),
                 child: Icon(
                   Icons.close_rounded,
-                  color: AppColors.textMuted,
+                  color: colors.textMuted,
                   size: 20.0,
                 ),
               ),

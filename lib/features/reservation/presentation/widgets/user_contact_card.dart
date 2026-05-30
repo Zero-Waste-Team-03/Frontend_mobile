@@ -19,12 +19,13 @@ class UserContactCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Container(
       padding: EdgeInsets.all(AppDimensions.paddingMedium.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(AppDimensions.borderRadiusMedium),
-        border: Border.all(color: AuthColors.dividerColor, width: 1),
+        border: Border.all(color: colors.divider, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -34,7 +35,7 @@ class UserContactCard extends StatelessWidget {
             style: TextStyle(
               fontSize: AppDimensions.bodySize.sp,
               fontWeight: FontWeight.w600,
-              color: AuthColors.labelText,
+              color: colors.textPrimary,
               fontFamily: AppFonts.primaryFont,
             ),
           ),
@@ -49,7 +50,7 @@ class UserContactCard extends StatelessWidget {
                 height: 48.w,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AuthColors.lightGrayBackground,
+                  color: colors.lightGrayBackground,
                   image: user.avatarUrl != null && user.avatarUrl!.isNotEmpty
                       ? DecorationImage(
                           image: NetworkImage(user.avatarUrl!),
@@ -58,11 +59,7 @@ class UserContactCard extends StatelessWidget {
                       : null,
                 ),
                 child: user.avatarUrl == null || user.avatarUrl!.isEmpty
-                    ? Icon(
-                        Icons.person,
-                        color: AuthColors.inputText,
-                        size: 24.sp,
-                      )
+                    ? Icon(Icons.person, color: colors.textMuted, size: 24.sp)
                     : null,
               ),
               SizedBox(width: AppDimensions.paddingMedium.w),
@@ -77,7 +74,7 @@ class UserContactCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: AppDimensions.bodySize.sp,
                         fontWeight: FontWeight.w600,
-                        color: AuthColors.headingText,
+                        color: colors.textPrimary,
                         fontFamily: AppFonts.primaryFont,
                       ),
                     ),
@@ -86,7 +83,7 @@ class UserContactCard extends StatelessWidget {
                       user.phoneNumber ?? 'No phone number',
                       style: TextStyle(
                         fontSize: AppDimensions.captionSize.sp,
-                        color: AuthColors.subText,
+                        color: colors.textSecondary,
                         fontFamily: AppFonts.primaryFont,
                       ),
                     ),
@@ -110,8 +107,8 @@ class UserContactCard extends StatelessWidget {
                       style: TextStyle(fontSize: AppDimensions.bodySize.sp),
                     ),
                     style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: AuthColors.primary, width: 1.5),
-                      foregroundColor: AuthColors.primary,
+                      side: BorderSide(color: colors.primary, width: 1.5),
+                      foregroundColor: colors.primary,
                     ),
                   ),
                 ),
@@ -127,8 +124,8 @@ class UserContactCard extends StatelessWidget {
                       style: TextStyle(fontSize: AppDimensions.bodySize.sp),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AuthColors.primary,
-                      foregroundColor: Colors.white,
+                      backgroundColor: colors.primary,
+                      foregroundColor: colors.onPrimary,
                     ),
                   ),
                 ),

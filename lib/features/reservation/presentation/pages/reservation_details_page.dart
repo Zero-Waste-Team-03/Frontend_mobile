@@ -36,13 +36,14 @@ class _ReservationDetailsPageState extends State<ReservationDetailsPage> {
   }
 
   void _showErrorDialog(BuildContext context, String errorMessage) {
+    final colors = context.themeColors;
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          backgroundColor: Colors.white,
-          surfaceTintColor: Colors.white,
+          backgroundColor: colors.surface,
+          surfaceTintColor: colors.surface,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(
               AppDimensions.borderRadiusLarge,
@@ -50,7 +51,7 @@ class _ReservationDetailsPageState extends State<ReservationDetailsPage> {
           ),
           icon: Icon(
             Icons.error_outline_rounded,
-            color: Colors.red,
+            color: colors.error,
             size: 48.sp,
           ),
           title: Text(
@@ -58,7 +59,7 @@ class _ReservationDetailsPageState extends State<ReservationDetailsPage> {
             style: TextStyle(
               fontSize: AppDimensions.headingSize.sp,
               fontWeight: FontWeight.w600,
-              color: AuthColors.headingText,
+              color: colors.textPrimary,
               fontFamily: AppFonts.primaryFont,
             ),
           ),
@@ -66,7 +67,7 @@ class _ReservationDetailsPageState extends State<ReservationDetailsPage> {
             errorMessage,
             style: TextStyle(
               fontSize: AppDimensions.bodySize.sp,
-              color: AuthColors.subText,
+              color: colors.textSecondary,
               fontFamily: AppFonts.primaryFont,
               height: 1.5,
             ),
@@ -78,7 +79,7 @@ class _ReservationDetailsPageState extends State<ReservationDetailsPage> {
                 Navigator.of(dialogContext).pop();
                 context.pop(); // Pop the reservation details page
               },
-              style: TextButton.styleFrom(foregroundColor: AuthColors.primary),
+              style: TextButton.styleFrom(foregroundColor: colors.primary),
               child: Text(
                 'Back',
                 style: TextStyle(
@@ -98,8 +99,8 @@ class _ReservationDetailsPageState extends State<ReservationDetailsPage> {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: AuthColors.primary,
-                foregroundColor: Colors.white,
+                backgroundColor: colors.primary,
+                foregroundColor: colors.onPrimary,
               ),
               child: Text(
                 'Retry',
@@ -118,13 +119,14 @@ class _ReservationDetailsPageState extends State<ReservationDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Scaffold(
-      backgroundColor: AuthColors.background,
+      backgroundColor: colors.background,
       appBar: AppBar(
-        backgroundColor: AuthColors.background,
+        backgroundColor: colors.background,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AuthColors.headingText),
+          icon: Icon(Icons.arrow_back, color: colors.textPrimary),
           onPressed: () => context.pop(),
         ),
         title: Text(
@@ -132,7 +134,7 @@ class _ReservationDetailsPageState extends State<ReservationDetailsPage> {
           style: TextStyle(
             fontSize: AppDimensions.appBarTitleSize.sp,
             fontWeight: FontWeight.bold,
-            color: AuthColors.headingText,
+            color: colors.textPrimary,
             fontFamily: AppFonts.primaryFont,
           ),
         ),
@@ -148,7 +150,7 @@ class _ReservationDetailsPageState extends State<ReservationDetailsPage> {
             builder: (context, state) {
               if (state is ReservationDetailsLoading) {
                 return Center(
-                  child: CircularProgressIndicator(color: AuthColors.primary),
+                  child: CircularProgressIndicator(color: colors.primary),
                 );
               }
 
@@ -166,11 +168,11 @@ class _ReservationDetailsPageState extends State<ReservationDetailsPage> {
                             AppDimensions.paddingMedium.w,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: colors.surface,
                             borderRadius: BorderRadius.circular(
                               AppDimensions.borderRadiusMedium,
                             ),
-                            border: Border.all(color: AuthColors.dividerColor),
+                            border: Border.all(color: colors.divider),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -180,7 +182,7 @@ class _ReservationDetailsPageState extends State<ReservationDetailsPage> {
                                 style: TextStyle(
                                   fontSize: AppDimensions.bodySize.sp,
                                   fontWeight: FontWeight.w600,
-                                  color: AuthColors.labelText,
+                                  color: colors.textPrimary,
                                   fontFamily: AppFonts.primaryFont,
                                 ),
                               ),
@@ -192,7 +194,7 @@ class _ReservationDetailsPageState extends State<ReservationDetailsPage> {
                                 style: TextStyle(
                                   fontSize: AppDimensions.bodySize.sp,
                                   fontWeight: FontWeight.w600,
-                                  color: AuthColors.headingText,
+                                  color: colors.textPrimary,
                                   fontFamily: AppFonts.primaryFont,
                                 ),
                               ),
@@ -203,7 +205,7 @@ class _ReservationDetailsPageState extends State<ReservationDetailsPage> {
                                   'Lat ${reservation.donation!.latitude!.toStringAsFixed(3)}, Lng ${reservation.donation!.longitude!.toStringAsFixed(3)}',
                                   style: TextStyle(
                                     fontSize: AppDimensions.captionSize.sp,
-                                    color: AuthColors.subText,
+                                    color: colors.textSecondary,
                                     fontFamily: AppFonts.primaryFont,
                                   ),
                                 ),
@@ -226,10 +228,10 @@ class _ReservationDetailsPageState extends State<ReservationDetailsPage> {
                                       ),
                                       style: OutlinedButton.styleFrom(
                                         side: BorderSide(
-                                          color: AuthColors.primary,
+                                          color: colors.primary,
                                           width: 1.5,
                                         ),
-                                        foregroundColor: AuthColors.primary,
+                                        foregroundColor: colors.primary,
                                       ),
                                     ),
                                   ),
@@ -256,10 +258,10 @@ class _ReservationDetailsPageState extends State<ReservationDetailsPage> {
                                       ),
                                       style: OutlinedButton.styleFrom(
                                         side: BorderSide(
-                                          color: AuthColors.primary,
+                                          color: colors.primary,
                                           width: 1.5,
                                         ),
-                                        foregroundColor: AuthColors.primary,
+                                        foregroundColor: colors.primary,
                                       ),
                                     ),
                                   ),
@@ -293,7 +295,7 @@ class _ReservationDetailsPageState extends State<ReservationDetailsPage> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: const Text('Call feature coming soon'),
-                                backgroundColor: AuthColors.primary,
+                                backgroundColor: colors.primary,
                               ),
                             );
                           },
@@ -327,8 +329,8 @@ class _ReservationDetailsPageState extends State<ReservationDetailsPage> {
                               ),
                             ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AuthColors.primary,
-                              foregroundColor: Colors.white,
+                              backgroundColor: colors.primary,
+                              foregroundColor: colors.onPrimary,
                               padding: EdgeInsets.symmetric(
                                 vertical: AppDimensions.paddingMedium.h,
                               ),

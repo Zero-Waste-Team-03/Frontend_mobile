@@ -29,7 +29,6 @@ class DonationDetailsPage extends StatefulWidget {
 }
 
 class _DonationDetailsPageState extends State<DonationDetailsPage> {
-  late Color tagBgColor;
   late Color tagTextColor;
   late bool _isLiked;
   bool _isLikeUpdating = false;
@@ -48,14 +47,11 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
     super.initState();
     _isLiked = widget.donation.isLikedByMe ?? false;
     if (widget.donation.condition.toUpperCase() == 'DRY') {
-      tagBgColor = const Color(0xFFFFF0E6);
       tagTextColor = const Color(0xFFE87C3E);
     } else if (widget.donation.condition.toUpperCase() == 'FRESH' ||
         widget.donation.condition.toUpperCase() == 'FRESH PRODUCE') {
-      tagBgColor = const Color(0xFFE6F7ED);
       tagTextColor = const Color(0xFF2D6C50);
     } else {
-      tagBgColor = const Color(0xFFE6F0FF);
       tagTextColor = const Color(0xFF3B82F6);
     }
   }
@@ -126,7 +122,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to update favorite: $e'),
-          backgroundColor: Colors.red,
+          backgroundColor: context.themeColors.error,
         ),
       );
     } finally {
@@ -138,6 +134,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     if (_chatPos == const Offset(300, 500)) {
       final size = MediaQuery.sizeOf(context);
       _chatPos = _clampChatPosition(
@@ -169,9 +166,10 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
           }
         },
         child: Scaffold(
-          backgroundColor: const Color(0xFFF8F9FA),
+          backgroundColor: colors.background,
           body: Stack(
             key: _stackKey,
+            
             children: [
               CustomScrollView(
                 paintOrder: SliverPaintOrder.lastIsTop,
@@ -181,7 +179,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                     child: Container(
                       clipBehavior: Clip.antiAlias,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: colors.background,
                         borderRadius: BorderRadius.vertical(
                           top: Radius.circular(24.r),
                         ),
@@ -213,9 +211,9 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                     vertical: 16.h,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: colors.background,
                     border: Border(
-                      top: BorderSide(color: Colors.grey.shade200, width: 1),
+                      top: BorderSide(color: colors.border, width: 1),
                     ),
                   ),
                   child: SafeArea(
@@ -247,7 +245,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                                         );
                                       },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: AuthColors.primary,
+                                  backgroundColor: colors.primary,
                                   padding: EdgeInsets.symmetric(vertical: 16.h),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(16.r),
@@ -257,10 +255,10 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                                     ? SizedBox(
                                         height: 20.h,
                                         width: 20.w,
-                                        child: const CircularProgressIndicator(
+                                        child:  CircularProgressIndicator(
                                           valueColor:
                                               AlwaysStoppedAnimation<Color>(
-                                                Colors.white,
+                                                colors.onPrimary,
                                               ),
                                           strokeWidth: 2,
                                         ),
@@ -268,7 +266,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                                     : Text(
                                         'Reserve Now',
                                         style: TextStyle(
-                                          color: Colors.white,
+                                          color: colors.onPrimary,
                                           fontSize: 16.sp,
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -356,6 +354,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
   }
 
   Widget _buildReserveQuantitySection() {
+    final colors = context.themeColors;
     return Padding(
       padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 0),
       child: Column(
@@ -366,7 +365,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
             style: TextStyle(
               fontSize: 14.sp,
               fontWeight: FontWeight.w600,
-              color: AuthColors.labelText,
+              color: colors.headingText,
             ),
           ),
           SizedBox(height: 8.h),
@@ -381,34 +380,35 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                 _validateReserveQuantity();
               }
             },
-            style: TextStyle(fontSize: 14.sp, color: AuthColors.headingText),
+            style: TextStyle(fontSize: 14.sp, color: colors.headingText),
             decoration: InputDecoration(
               hintText: 'Quantity',
+              hintStyle: TextStyle(fontSize: 14.sp, color: colors.headingText),
               errorText: _reserveQuantityError,
               filled: true,
-              fillColor: const Color(0xFFF8FAFC),
+              fillColor: colors.inputBackground,
               contentPadding: EdgeInsets.symmetric(
                 horizontal: 16.w,
                 vertical: 14.h,
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
-                borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                borderSide:  BorderSide(color: colors.background),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
-                borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                borderSide:  BorderSide(color: colors.background),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
-                borderSide: BorderSide(color: AuthColors.primary, width: 1.5),
+                borderSide: BorderSide(color: colors.primary, width: 1.5),
               ),
             ),
           ),
           SizedBox(height: 8.h),
           Text(
             'Available quantity: ${widget.donation.quantity} items',
-            style: TextStyle(fontSize: 12.sp, color: const Color(0xFF64748B)),
+            style: TextStyle(fontSize: 12.sp, color: colors.subText),
           ),
         ],
       ),
@@ -416,6 +416,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
   }
 
   Widget _buildChatButtonUI({required bool isDragging}) {
+    final colors = context.themeColors;
     return GestureDetector(
       onTap: () {
         context.push('/chats');
@@ -428,11 +429,11 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
           width: 56.w,
           height: 56.w,
           decoration: BoxDecoration(
-            color: AuthColors.primary,
+            color: colors.primary,
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: AuthColors.primary.withValues(alpha: 0.3),
+                color: colors.primary.withValues(alpha: 0.3),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -441,7 +442,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
           child: Center(
             child: Icon(
               Icons.chat_bubble_rounded,
-              color: Colors.white,
+              color: colors.onPrimary,
               size: 26.sp,
             ),
           ),
@@ -459,10 +460,11 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
   }
 
   Widget _buildSliverAppBar() {
+    final colors = context.themeColors;
     return SliverAppBar(
       expandedHeight: 300.h,
       pinned: true,
-      backgroundColor: AuthColors.primary,
+      backgroundColor: colors.primary,
       automaticallyImplyLeading: false,
       flexibleSpace: FlexibleSpaceBar(
         background: Stack(
@@ -474,10 +476,10 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                 imageUrl: widget.donation.imageUrl,
                 fit: BoxFit.cover,
                 placeholder: (context, url) =>
-                    Container(color: Colors.grey[200]),
+                    Container(color: colors.border),
                 errorWidget: (context, url, error) => Container(
-                  color: Colors.grey[200],
-                  child: const Icon(Icons.error, color: Colors.grey),
+                  color: colors.border,
+                  child: Icon(Icons.error, color: colors.border),
                 ),
               ),
             ),
@@ -490,10 +492,10 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
           onTap: () => context.pop(),
           child: Container(
             decoration: BoxDecoration(
-              color: const Color(0xFF131615).withValues(alpha: 0.4),
+              color: colors.background,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.arrow_back, color: Colors.white),
+            child:  Icon(Icons.arrow_back, color: colors.onPrimary),
           ),
         ),
       ),
@@ -505,12 +507,12 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: const Color(0xFF131615).withValues(alpha: 0.4),
+                color: colors.background,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child:  Icon(
                 Icons.share_rounded,
-                color: Colors.white,
+                color: colors.onPrimary,
                 size: 20,
               ),
             ),
@@ -523,15 +525,15 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: const Color(0xFF131615).withValues(alpha: 0.4),
+                color: colors.background,
                 shape: BoxShape.circle,
               ),
               child: _isLikeUpdating
                   ? SizedBox(
                       width: 20.w,
                       height: 20.w,
-                      child: const CircularProgressIndicator(
-                        color: Colors.white,
+                      child:  CircularProgressIndicator(
+                        color: colors.onPrimary,
                         strokeWidth: 2,
                       ),
                     )
@@ -539,7 +541,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                       _isLiked
                           ? Icons.favorite_rounded
                           : Icons.favorite_border_rounded,
-                      color: _isLiked ? const Color(0xFFFF6B6B) : Colors.white,
+                      color: _isLiked ? const Color(0xFFFF6B6B) : colors.onPrimary,
                       size: 20,
                     ),
             ),
@@ -550,6 +552,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
   }
 
   Widget _buildMainInfoCard() {
+    final colors = context.themeColors;
     return Padding(
       padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 0),
       child: Column(
@@ -560,7 +563,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
             style: TextStyle(
               fontSize: 24.sp,
               fontWeight: FontWeight.w800,
-              color: const Color(0xFF131615),
+              color: colors.headingText,
               height: 1.2,
             ),
           ),
@@ -570,7 +573,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
               Icon(
                 Icons.location_on_outlined,
                 size: 16.sp,
-                color: const Color(0xFF64748B),
+                color: colors.textTertiary,
               ),
               SizedBox(width: 4.w),
               Text(
@@ -580,7 +583,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                     : 'Location unavailable',
                 style: TextStyle(
                   fontSize: 13.sp,
-                  color: const Color(0xFF64748B),
+                  color: colors.subText,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -592,6 +595,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
   }
 
   Widget _buildKeyMetricsRow() {
+    final colors = context.themeColors;
     return Padding(
       padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 0),
       child: Row(
@@ -600,7 +604,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
             child: Container(
               padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
               decoration: BoxDecoration(
-                color: const Color(0xFFF0FDF4),
+                color: colors.statBackground,
                 borderRadius: BorderRadius.circular(16.r),
               ),
               child: Column(
@@ -610,7 +614,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                     'Quantity',
                     style: TextStyle(
                       fontSize: 12.sp,
-                      color: const Color(0xFF15803D),
+                      color: colors.headingText,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -632,7 +636,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
             child: Container(
               padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFF7ED),
+                color: colors.statBackground,
                 borderRadius: BorderRadius.circular(16.r),
               ),
               child: Column(
@@ -643,14 +647,14 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                       Icon(
                         Icons.access_time_rounded,
                         size: 14.sp,
-                        color: const Color(0xFFEA580C),
+                        color: tagTextColor,
                       ),
                       SizedBox(width: 4.w),
                       Text(
                         'Status',
                         style: TextStyle(
                           fontSize: 12.sp,
-                          color: const Color(0xFFEA580C),
+                          color: tagTextColor,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -661,7 +665,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                     widget.donation.status,
                     style: TextStyle(
                       fontSize: 16.sp,
-                      color: const Color(0xFFEA580C),
+                      color: tagTextColor,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -675,6 +679,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
   }
 
   Widget _buildDescriptionSection() {
+    final colors = context.themeColors;
     return Padding(
       padding: EdgeInsets.fromLTRB(20.w, 24.h, 20.w, 0),
       child: Column(
@@ -685,7 +690,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF131615),
+              color: colors.headingText,
             ),
           ),
           SizedBox(height: 8.h),
@@ -695,7 +700,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                 : widget.donation.description,
             style: TextStyle(
               fontSize: 14.sp,
-              color: const Color(0xFF4A5550),
+              color: colors.subText,
               height: 1.5,
             ),
           ),
@@ -705,6 +710,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
   }
 
   Widget _buildPostedBySection() {
+    final colors = context.themeColors;
     return Padding(
       padding: EdgeInsets.fromLTRB(20.w, 24.h, 20.w, 0),
       child: Column(
@@ -715,7 +721,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF131615),
+              color: colors.headingText,
             ),
           ),
           SizedBox(height: 12.h),
@@ -726,6 +732,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
   }
 
   Widget _buildPickupLocationSection() {
+    final colors = context.themeColors;
     return Padding(
       padding: EdgeInsets.fromLTRB(20.w, 24.h, 20.w, 0),
       child: Column(
@@ -739,7 +746,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF131615),
+                  color: colors.headingText,
                 ),
               ),
               Text(
@@ -749,7 +756,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                     : 'Coordinates unavailable',
                 style: TextStyle(
                   fontSize: 12.sp,
-                  color: const Color(0xFF64748B),
+                  color: colors.subText,
                 ),
               ),
             ],
@@ -769,13 +776,14 @@ class _OwnerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(14.w),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: colors.background,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: colors.border),
       ),
       child: Row(
         children: [
@@ -784,17 +792,17 @@ class _OwnerCard extends StatelessWidget {
                   donation.authorDetails!.avatarUrl!.isNotEmpty
               ? CircleAvatar(
                   radius: 20.r,
-                  backgroundColor: AuthColors.primary.withValues(alpha: 0.15),
+                  backgroundColor: colors.primary.withValues(alpha: 0.15),
                   backgroundImage: NetworkImage(
                     donation.authorDetails!.avatarUrl!,
                   ),
                 )
               : CircleAvatar(
                   radius: 20.r,
-                  backgroundColor: AuthColors.primary.withValues(alpha: 0.15),
+                  backgroundColor: colors.primary.withValues(alpha: 0.15),
                   child: Icon(
                     Icons.person_rounded,
-                    color: AuthColors.primary,
+                    color: colors.primary,
                     size: 20.sp,
                   ),
                 ),
@@ -813,7 +821,7 @@ class _OwnerCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFF131615),
+                          color: colors.headingText,
                         ),
                       ),
                     ),
@@ -832,7 +840,7 @@ class _OwnerCard extends StatelessWidget {
                   'Posted on ${donation.createdAt.toString().split(' ')[0]}',
                   style: TextStyle(
                     fontSize: 12.sp,
-                    color: const Color(0xFF64748B),
+                    color: colors.subText,
                   ),
                 ),
               ],
@@ -851,6 +859,7 @@ class _LocationMapCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     final hasLocation = donation.latitude != null && donation.longitude != null;
     final target = hasLocation
         ? LatLng(donation.latitude!, donation.longitude!)
@@ -881,7 +890,7 @@ class _LocationMapCard extends StatelessWidget {
               width: 32.w,
               height: 32.w,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: colors.onPrimary,
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
@@ -893,7 +902,7 @@ class _LocationMapCard extends StatelessWidget {
               ),
               child: Icon(
                 Icons.location_on,
-                color: AuthColors.primary,
+                color: colors.primary,
                 size: 18.sp,
               ),
             ),

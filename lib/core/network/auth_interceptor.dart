@@ -167,7 +167,7 @@ class AuthInterceptor extends Interceptor {
     bool isUnauthorized = hasExplicitUnauthorizedHeader;
 
     if (isMap) {
-      final dataMap = data as Map;
+      final dataMap = data ;
       if (dataMap['errors'] != null && dataMap['errors'] is List) {
         final errors = dataMap['errors'] as List;
         _logger.d('[AuthInterceptor] Found ${errors.length} errors in body');

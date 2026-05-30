@@ -188,10 +188,11 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return BlocProvider.value(
       value: _donationsBloc,
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: colors.background,
         body: BlocBuilder<DonationsBloc, DonationsState>(
           builder: (context, state) {
             final donations = state is DonationsLoaded
@@ -256,7 +257,7 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
                   bottom: _fabBottomOffset(context),
                   child: FloatingActionButton(
                     mini: true,
-                    backgroundColor: Colors.white,
+                    backgroundColor: colors.surface,
                     onPressed: _loadingCurrentLocation
                         ? null
                         : _determinePosition,
@@ -270,7 +271,7 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
                           )
                         : Icon(
                             AppIcons.currentLocation,
-                            color: AppColors.primary,
+                            color: colors.primary,
                             size: 18.sp,
                           ),
                   ),
@@ -299,13 +300,14 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
   }
 
   Widget _buildSearchBar() {
+    final colors = context.themeColors;
     final l10n = AppLocalizations.of(context);
 
     return Hero(
       tag: 'search_bar',
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(20.r),
           boxShadow: [
             BoxShadow(
@@ -332,10 +334,11 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
   }
 
   Widget _buildBottomCard() {
+    final colors = context.themeColors;
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(14.r),
         boxShadow: [
           BoxShadow(
@@ -347,7 +350,7 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
       ),
       child: Row(
         children: [
-          Icon(AppIcons.explore, color: AppColors.primary, size: 20.sp),
+          Icon(AppIcons.explore, color: colors.primary, size: 20.sp),
           SizedBox(width: 8.w),
           Expanded(
             child: Text(
@@ -355,7 +358,7 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
               style: TextStyle(
                 fontSize: 13.sp,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                color: colors.textPrimary,
               ),
             ),
           ),
@@ -365,6 +368,7 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
   }
 
   Widget _buildSelectedDonationCard(Donation donation) {
+    final colors = context.themeColors;
     return GestureDetector(
       onTap: () {
         context.push(AppRoutes.donationDetails, extra: donation);
@@ -372,7 +376,7 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
       child: Container(
         padding: EdgeInsets.all(10.w),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(14.r),
           boxShadow: [
             BoxShadow(
@@ -391,11 +395,8 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
                 width: 58.w,
                 height: 58.w,
                 fit: BoxFit.cover,
-                errorWidget: (_, __, ___) => Container(
-                  width: 58.w,
-                  height: 58.w,
-                  color: const Color(0xFFE2E8F0),
-                ),
+                errorWidget: (_, __, ___) =>
+                    Container(width: 58.w, height: 58.w, color: colors.divider),
               ),
             ),
             SizedBox(width: 10.w),
@@ -411,7 +412,7 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
+                      color: colors.textPrimary,
                     ),
                   ),
                   SizedBox(height: 3.h),
@@ -424,7 +425,7 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 12.sp,
-                            color: AppColors.textSecondary,
+                            color: colors.textSecondary,
                           ),
                         ),
                       ),
@@ -432,7 +433,7 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
                         SizedBox(width: 4.w),
                         Icon(
                           Icons.verified_rounded,
-                          color: Colors.blue,
+                          color: colors.primary,
                           size: 14.sp,
                         ),
                       ],

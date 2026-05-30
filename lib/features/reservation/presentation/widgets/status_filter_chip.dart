@@ -16,6 +16,7 @@ class StatusFilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -24,9 +25,9 @@ class StatusFilterChip extends StatelessWidget {
           vertical: AppDimensions.paddingSmall.h,
         ),
         decoration: BoxDecoration(
-          color: isSelected ? AuthColors.primary : Colors.white,
+          color: isSelected ? colors.primary : colors.surface,
           border: Border.all(
-            color: isSelected ? AuthColors.primary : AuthColors.dividerColor,
+            color: isSelected ? colors.primary : colors.divider,
             width: 1,
           ),
           borderRadius: BorderRadius.circular(20.r),
@@ -36,7 +37,7 @@ class StatusFilterChip extends StatelessWidget {
           style: TextStyle(
             fontSize: AppDimensions.bodySize.sp,
             fontWeight: FontWeight.w600,
-            color: isSelected ? Colors.white : AuthColors.labelText,
+            color: isSelected ? colors.onPrimary : colors.textPrimary,
             fontFamily: AppFonts.primaryFont,
           ),
         ),

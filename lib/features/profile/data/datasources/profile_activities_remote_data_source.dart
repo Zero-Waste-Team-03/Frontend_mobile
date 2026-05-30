@@ -121,8 +121,8 @@ class ProfileActivitiesRemoteDataSourceImpl
 
       final stats = data.myDonationsStats;
 
-      final liked = stats.likedDonations ?? 0;
-      final total = stats.totalDonations ?? 0;
+      final liked = stats.likedDonations ;
+      final total = stats.totalDonations ;
       return DonationsStateDto(
         likedDonations: liked.toDouble(),
         totalDonations: total.toDouble(),

@@ -58,13 +58,14 @@ class _FavoritesPageState extends State<FavoritesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Scaffold(
-      backgroundColor: AuthColors.background,
+      backgroundColor: colors.background,
       appBar: AppBar(
-        backgroundColor: AuthColors.background,
+        backgroundColor: colors.surface,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AuthColors.primary),
+          icon: Icon(Icons.arrow_back, color: colors.primary),
           onPressed: () => context.pop(),
         ),
         title: Text(
@@ -72,7 +73,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
           style: TextStyle(
             fontSize: AppDimensions.appBarTitleSize.sp,
             fontWeight: FontWeight.bold,
-            color: AuthColors.primary,
+            color: colors.primary,
             fontFamily: AppFonts.primaryFont,
           ),
         ),
@@ -103,7 +104,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
           }
 
           if (state is FavoritesLoading) {
-            return const LoadingSkeleton(itemCount: 6);
+            return LoadingSkeleton(itemCount: 6);
           }
 
           if (state is FavoritesError) {
@@ -114,7 +115,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                   Icon(
                     Icons.error_outline_rounded,
                     size: 48.sp,
-                    color: Colors.red,
+                    color: colors.error,
                   ),
                   SizedBox(height: AppDimensions.paddingMedium.h),
                   Text(
@@ -122,7 +123,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                     style: TextStyle(
                       fontSize: AppDimensions.bodySize.sp,
                       fontWeight: FontWeight.w600,
-                      color: AuthColors.headingText,
+                      color: colors.textPrimary,
                       fontFamily: AppFonts.primaryFont,
                     ),
                   ),
@@ -136,8 +137,8 @@ class _FavoritesPageState extends State<FavoritesPage> {
                     icon: Icon(Icons.refresh_rounded, size: 18.sp),
                     label: const Text('Retry'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AuthColors.primary,
-                      foregroundColor: Colors.white,
+                      backgroundColor: colors.primary,
+                      foregroundColor: colors.onPrimary,
                     ),
                   ),
                 ],
@@ -149,8 +150,8 @@ class _FavoritesPageState extends State<FavoritesPage> {
             if (state.donations.isEmpty) {
               return RefreshIndicator(
                 onRefresh: _onRefresh,
-                color: AuthColors.primary,
-                backgroundColor: AuthColors.background,
+                color: colors.primary,
+                backgroundColor: colors.background,
                 child: ListView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   children: [
@@ -161,14 +162,14 @@ class _FavoritesPageState extends State<FavoritesPage> {
                           Icon(
                             Icons.favorite_border_rounded,
                             size: 52.sp,
-                            color: AuthColors.inputText,
+                            color: colors.textTertiary,
                           ),
                           SizedBox(height: AppDimensions.paddingMedium.h),
                           Text(
                             'No favorite donations yet',
                             style: TextStyle(
                               fontSize: AppDimensions.bodySize.sp,
-                              color: AuthColors.subText,
+                              color: colors.textSecondary,
                               fontFamily: AppFonts.primaryFont,
                             ),
                           ),
@@ -182,8 +183,8 @@ class _FavoritesPageState extends State<FavoritesPage> {
 
             return RefreshIndicator(
               onRefresh: _onRefresh,
-              color: AuthColors.primary,
-              backgroundColor: AuthColors.background,
+              color: colors.primary,
+              backgroundColor: colors.background,
               child: ListView.builder(
                 controller: _scrollController,
                 physics: const AlwaysScrollableScrollPhysics(),
@@ -198,9 +199,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                     return Padding(
                       padding: EdgeInsets.symmetric(vertical: 16.h),
                       child: Center(
-                        child: CircularProgressIndicator(
-                          color: AuthColors.primary,
-                        ),
+                        child: CircularProgressIndicator(color: colors.primary),
                       ),
                     );
                   }
@@ -239,7 +238,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
 }
 
 class _FavoriteDonationTile extends StatelessWidget {
-  const _FavoriteDonationTile({
+  _FavoriteDonationTile({
     required this.donation,
     required this.onTap,
     required this.onToggleFavorite,
@@ -251,6 +250,7 @@ class _FavoriteDonationTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(AppDimensions.borderRadiusMedium.r),
@@ -258,11 +258,11 @@ class _FavoriteDonationTile extends StatelessWidget {
         margin: EdgeInsets.only(bottom: AppDimensions.paddingMedium.h),
         padding: EdgeInsets.all(AppDimensions.paddingMedium.w),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(
             AppDimensions.borderRadiusMedium.r,
           ),
-          border: Border.all(color: AuthColors.dividerColor),
+          border: Border.all(color: colors.divider),
         ),
         child: Row(
           children: [
@@ -278,10 +278,10 @@ class _FavoriteDonationTile extends StatelessWidget {
                 errorWidget: (context, url, error) => Container(
                   width: 72.w,
                   height: 72.w,
-                  color: AuthColors.lightGrayBackground,
+                  color: colors.lightGrayBackground,
                   child: Icon(
                     Icons.image_not_supported,
-                    color: AuthColors.inputText,
+                    color: colors.textTertiary,
                   ),
                 ),
               ),
@@ -298,7 +298,7 @@ class _FavoriteDonationTile extends StatelessWidget {
                     style: TextStyle(
                       fontSize: AppDimensions.bodySize.sp,
                       fontWeight: FontWeight.w700,
-                      color: AuthColors.headingText,
+                      color: colors.textPrimary,
                       fontFamily: AppFonts.primaryFont,
                     ),
                   ),
@@ -309,7 +309,7 @@ class _FavoriteDonationTile extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: AppDimensions.captionSize.sp,
-                      color: AuthColors.subText,
+                      color: colors.textSecondary,
                       fontFamily: AppFonts.primaryFont,
                     ),
                   ),
@@ -320,7 +320,7 @@ class _FavoriteDonationTile extends StatelessWidget {
               onPressed: onToggleFavorite,
               icon: Icon(
                 Icons.favorite_rounded,
-                color: Colors.redAccent,
+                color: colors.error,
                 size: 22.sp,
               ),
             ),

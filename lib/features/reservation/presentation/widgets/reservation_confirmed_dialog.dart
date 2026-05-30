@@ -22,13 +22,14 @@ class ReservationConfirmedDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 28.w, vertical: 30.h),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(28.r),
           boxShadow: [
             BoxShadow(
@@ -46,13 +47,13 @@ class ReservationConfirmedDialog extends StatelessWidget {
               width: 70.w,
               height: 70.w,
               decoration: BoxDecoration(
-                color: const Color(0xFFE7EFEC),
+                color: colors.lightGreenBackground,
                 shape: BoxShape.circle,
               ),
               child: Center(
                 child: Icon(
                   Icons.check_circle_outline,
-                  color: AppColors.primary,
+                  color: colors.primary,
                   size: 60.sp,
                 ),
               ),
@@ -66,7 +67,7 @@ class ReservationConfirmedDialog extends StatelessWidget {
               style: TextStyle(
                 fontSize: AppDimensions.headingSize,
                 fontWeight: FontWeight.w800,
-                color: AuthColors.headingText,
+                color: colors.textPrimary,
                 fontFamily: AppFonts.primaryFont,
                 height: 1.15,
               ),
@@ -79,7 +80,7 @@ class ReservationConfirmedDialog extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: AppDimensions.subtitleSize,
-                color: AuthColors.subText,
+                color: colors.textSecondary,
                 fontFamily: AppFonts.primaryFont,
                 height: 1.45,
               ),
@@ -90,23 +91,19 @@ class ReservationConfirmedDialog extends StatelessWidget {
             Container(
               padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 11.h),
               decoration: BoxDecoration(
-                color: const Color(0xFFF8F1DF),
+                color: colors.lightGreenBackground,
                 borderRadius: BorderRadius.circular(40.r),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.access_time,
-                    color: const Color(0xFFC4680F),
-                    size: 20.sp,
-                  ),
+                  Icon(Icons.access_time, color: colors.primary, size: 20.sp),
                   SizedBox(width: 10.w),
                   Text(
                     'Expiring at $expiryAt',
                     style: TextStyle(
                       fontSize: 16.sp,
-                      color: const Color(0xFFC4680F),
+                      color: colors.primary,
                       fontFamily: AppFonts.primaryFont,
                       fontWeight: FontWeight.w700,
                     ),
@@ -123,14 +120,18 @@ class ReservationConfirmedDialog extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () {
                   onDismiss();
-                  print('View Pickup Details button pressed with reservation ID: $reservation_id');
+                  print(
+                    'View Pickup Details button pressed with reservation ID: $reservation_id',
+                  );
                   if (reservation_id.isNotEmpty) {
-                    print('Navigating to reservation details with ID: $reservation_id');
+                    print(
+                      'Navigating to reservation details with ID: $reservation_id',
+                    );
                     context.push('/reservation-details', extra: reservation_id);
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AuthColors.primary,
+                  backgroundColor: colors.primary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(26.r),
                   ),
@@ -141,7 +142,7 @@ class ReservationConfirmedDialog extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 22.sp * 0.88,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: colors.onPrimary,
                     fontFamily: AppFonts.primaryFont,
                   ),
                 ),
@@ -159,7 +160,7 @@ class ReservationConfirmedDialog extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 20.sp * 0.88,
                     fontWeight: FontWeight.w600,
-                    color: const Color(0xFF707986),
+                    color: colors.textTertiary,
                     fontFamily: AppFonts.primaryFont,
                   ),
                 ),

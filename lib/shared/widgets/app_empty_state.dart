@@ -16,6 +16,7 @@ class AppEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Center(
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 28.w),
@@ -26,12 +27,12 @@ class AppEmptyState extends StatelessWidget {
               width: 64.w,
               height: 64.w,
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: colors.surface,
                 borderRadius: BorderRadius.circular(20.r),
               ),
               child: Icon(
                 AppIcons.search,
-                color: AppColors.textSecondary,
+                color: colors.textSecondary,
                 size: 28.sp,
               ),
             ),
@@ -42,14 +43,14 @@ class AppEmptyState extends StatelessWidget {
               style: TextStyle(
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+                color: colors.textPrimary,
               ),
             ),
             SizedBox(height: 8.h),
             Text(
               description,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13.sp, color: AppColors.textSecondary),
+              style: TextStyle(fontSize: 13.sp, color: colors.textSecondary),
             ),
           ],
         ),

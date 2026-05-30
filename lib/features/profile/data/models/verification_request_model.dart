@@ -1,4 +1,3 @@
-import '../../../auth/domain/entities/user.dart';
 import '../../../auth/data/models/user_model.dart';
 import '../../domain/entities/verification_request.dart';
 

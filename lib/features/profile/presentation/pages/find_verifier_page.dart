@@ -7,6 +7,7 @@ import '../../../../core/di/injection.dart';
 import '../bloc/verification/verification_bloc.dart';
 import '../bloc/verification/verification_event.dart';
 import '../bloc/verification/verification_state.dart';
+import '../../../../shared/theme/app_colors.dart';
 
 class FindVerifierPage extends StatelessWidget {
   const FindVerifierPage({super.key});
@@ -51,10 +52,8 @@ class _FindVerifierViewState extends State<FindVerifierView> {
   void _onScroll() {
     if (_isBottom) {
       context.read<VerificationBloc>().add(
-            VerificationSearchLoadMoreRequested(
-              search: _searchController.text,
-            ),
-          );
+        VerificationSearchLoadMoreRequested(search: _searchController.text),
+      );
     }
   }
 
@@ -67,12 +66,13 @@ class _FindVerifierViewState extends State<FindVerifierView> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F7F7),
+      backgroundColor: colors.background,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(72.h),
         child: Container(
-          color: const Color(0xFFF6F7F7),
+          color: colors.background,
           child: SafeArea(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
@@ -89,7 +89,7 @@ class _FindVerifierViewState extends State<FindVerifierView> {
                       ),
                       child: Icon(
                         Icons.arrow_back,
-                        color: const Color(0xFF131615),
+                        color: colors.textPrimary,
                         size: 20.sp,
                       ),
                     ),
@@ -101,7 +101,7 @@ class _FindVerifierViewState extends State<FindVerifierView> {
                         child: Text(
                           'Verification',
                           style: GoogleFonts.inter(
-                            color: const Color(0xFF2D6C50),
+                            color: colors.primary,
                             fontSize: 18.sp,
                             fontWeight: FontWeight.w700,
                           ),
@@ -122,20 +122,24 @@ class _FindVerifierViewState extends State<FindVerifierView> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(state.successMessage!),
-                  backgroundColor: const Color(0xFF2D6C50),
+                  backgroundColor: colors.primary,
                   behavior: SnackBarBehavior.floating,
                 ),
               );
-              context.read<VerificationBloc>().add(const VerificationMessageCleared());
+              context.read<VerificationBloc>().add(
+                const VerificationMessageCleared(),
+              );
             } else if (state.errorMessage != null) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(state.errorMessage!),
-                  backgroundColor: const Color(0xFFEF4444),
+                  backgroundColor: colors.error,
                   behavior: SnackBarBehavior.floating,
                 ),
               );
-              context.read<VerificationBloc>().add(const VerificationMessageCleared());
+              context.read<VerificationBloc>().add(
+                const VerificationMessageCleared(),
+              );
             }
           }
         },
@@ -154,27 +158,27 @@ class _FindVerifierViewState extends State<FindVerifierView> {
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 16.sp,
                           fontWeight: FontWeight.w400,
-                          color: const Color(0xFF191C1D),
+                          color: colors.textPrimary,
                         ),
                       ),
                     ),
                     SizedBox(height: 16.h),
                     Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF3F4F5),
+                        color: colors.background,
                         borderRadius: BorderRadius.circular(16.r),
                       ),
                       child: TextField(
                         controller: _searchController,
                         onChanged: (value) {
                           context.read<VerificationBloc>().add(
-                                VerificationSearchRequested(search: value),
-                              );
+                            VerificationSearchRequested(search: value),
+                          );
                         },
                         decoration: InputDecoration(
                           hintText: 'Search by name or badge ID...',
                           hintStyle: GoogleFonts.plusJakartaSans(
-                            color: const Color(0xFFBBCABF),
+                            color: colors.inputBorder,
                             fontSize: 16.sp,
                             fontWeight: FontWeight.w400,
                           ),
@@ -182,17 +186,13 @@ class _FindVerifierViewState extends State<FindVerifierView> {
                             padding: EdgeInsets.only(left: 16.w, right: 12.w),
                             child: Icon(
                               Icons.search,
-                              color: const Color(0xFF6C7A71),
+                              color: colors.inputText,
                               size: 18.sp,
                             ),
                           ),
-                          prefixIconConstraints: BoxConstraints(
-                            minWidth: 46.w,
-                          ),
+                          prefixIconConstraints: BoxConstraints(minWidth: 46.w),
                           border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(
-                            vertical: 17.h,
-                          ),
+                          contentPadding: EdgeInsets.symmetric(vertical: 17.h),
                         ),
                       ),
                     ),
@@ -200,9 +200,7 @@ class _FindVerifierViewState extends State<FindVerifierView> {
                 ),
               ),
               SizedBox(height: 8.h),
-              Expanded(
-                child: _buildContent(state),
-              ),
+              Expanded(child: _buildContent(state)),
             ],
           );
         },
@@ -211,6 +209,7 @@ class _FindVerifierViewState extends State<FindVerifierView> {
   }
 
   Widget _buildContent(VerificationState state) {
+    final colors = context.themeColors;
     if (state is VerificationLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -242,11 +241,11 @@ class _FindVerifierViewState extends State<FindVerifierView> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(24.r),
               border: Border.all(
-                color: const Color(0xFFBBCABF).withValues(alpha: 0.3),
+                color: colors.inputBorder.withValues(alpha: 0.3),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF006C49).withValues(alpha: 0.05),
+                  color: colors.primary.withValues(alpha: 0.05),
                   blurRadius: 20,
                   offset: const Offset(0, 4),
                   spreadRadius: -2,
@@ -262,7 +261,7 @@ class _FindVerifierViewState extends State<FindVerifierView> {
                       height: 56.w,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: const Color(0xFFE7E8E9),
+                        color: colors.background,
                         image: user.avatarUrl != null
                             ? DecorationImage(
                                 image: NetworkImage(user.avatarUrl!),
@@ -274,7 +273,7 @@ class _FindVerifierViewState extends State<FindVerifierView> {
                           ? Center(
                               child: Icon(
                                 Icons.person,
-                                color: const Color(0xFFBBCABF),
+                                color: colors.inputBorder,
                                 size: 28.sp,
                               ),
                             )
@@ -290,7 +289,7 @@ class _FindVerifierViewState extends State<FindVerifierView> {
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 16.sp,
                               fontWeight: FontWeight.w700,
-                              color: const Color(0xFF191C1D),
+                              color: colors.textPrimary,
                             ),
                           ),
                           SizedBox(height: 4.h),
@@ -299,7 +298,7 @@ class _FindVerifierViewState extends State<FindVerifierView> {
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 12.sp,
                               fontWeight: FontWeight.w700,
-                              color: const Color(0xFF006C49),
+                              color: colors.primary,
                               letterSpacing: 0.6.w,
                             ),
                           ),
@@ -314,16 +313,16 @@ class _FindVerifierViewState extends State<FindVerifierView> {
                       ? null
                       : () {
                           context.read<VerificationBloc>().add(
-                                VerificationRequestCreationRequested(
-                                  targetFoodSaverId: user.id,
-                                ),
-                              );
+                            VerificationRequestCreationRequested(
+                              targetFoodSaverId: user.id,
+                            ),
+                          );
                         },
                   child: Container(
                     width: double.infinity,
                     padding: EdgeInsets.symmetric(vertical: 10.h),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF2D6C50),
+                      color: colors.primary,
                       borderRadius: BorderRadius.circular(16.r),
                     ),
                     child: Center(
@@ -358,6 +357,7 @@ class _FindVerifierViewState extends State<FindVerifierView> {
   }
 
   Widget _buildEmptyState() {
+    final colors = context.themeColors;
     return Center(
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 48.w),
@@ -369,13 +369,13 @@ class _FindVerifierViewState extends State<FindVerifierView> {
               height: 80.w,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color(0xFFC3ECD7).withValues(alpha: 0.3),
+                color: colors.lightGreenBackground.withValues(alpha: 0.3),
               ),
               child: Center(
                 child: Icon(
                   Icons.search_off,
                   size: 40.sp,
-                  color: const Color(0xFF006C49),
+                  color: colors.primary,
                 ),
               ),
             ),
@@ -385,7 +385,7 @@ class _FindVerifierViewState extends State<FindVerifierView> {
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w400,
-                color: const Color(0xFF3C4A42),
+                color: colors.textSecondary,
               ),
             ),
             SizedBox(height: 8.h),
@@ -395,7 +395,7 @@ class _FindVerifierViewState extends State<FindVerifierView> {
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w400,
-                color: const Color(0xFF3C4A42),
+                color: colors.textSecondary,
               ),
             ),
           ],

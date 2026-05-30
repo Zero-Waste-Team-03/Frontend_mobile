@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:gaspzero/features/auth/presentation/pages/auth_colors.dart';
+
+import '../../core/theme/app_colors.dart';
 
 class NavItem extends StatelessWidget {
   final IconData icon;
@@ -17,15 +18,14 @@ class NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12.r),
-          color: Theme.of(
-            context,
-          ).colorScheme.primary.withValues(alpha: isSelected ? 0.1 : 0),
+          color: colors.primary.withValues(alpha: isSelected ? 0.1 : 0),
         ),
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
         child: AnimatedContainer(
@@ -35,18 +35,14 @@ class NavItem extends StatelessWidget {
             children: [
               Icon(
                 icon,
-                color: isSelected
-                    ? AuthColors.primary
-                    : const Color(0xFF94A3B8),
+                color: isSelected ? colors.primary : colors.textMuted,
                 size: 24.sp,
               ),
               SizedBox(height: 4.h),
               Text(
                 label,
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: isSelected
-                      ? AuthColors.primary
-                      : const Color(0xFF94A3B8),
+                  color: isSelected ? colors.primary : colors.textMuted,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                 ),
                 maxLines: 1,

@@ -24,9 +24,7 @@ import '../../features/donations/presentation/pages/donations_home_page.dart';
 import '../../features/donations/presentation/pages/donations_list_page.dart';
 import '../../features/favorites/presentation/bloc/favorites_bloc.dart';
 import '../../features/favorites/presentation/pages/favorites_page.dart';
-import '../../features/notification/domain/entities/notification.dart';
 import '../../features/notification/presentation/bloc/notification_bloc.dart';
-import '../../features/notification/presentation/pages/notification_details_page.dart';
 import '../../features/notification/presentation/pages/notifications_page.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
 import '../../features/profile/presentation/bloc/profile_event.dart';
@@ -131,13 +129,6 @@ final appRouter = GoRouter(
           create: (context) => getIt<NotificationBloc>(),
           child: const NotificationsPage(),
         );
-      },
-    ),
-    GoRoute(
-      path: '/notification-details',
-      builder: (context, state) {
-        final notification = state.extra as Notification;
-        return NotificationDetailsPage(notification: notification);
       },
     ),
 

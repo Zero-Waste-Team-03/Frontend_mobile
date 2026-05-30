@@ -102,6 +102,7 @@ class _AppLocationPickerState extends State<AppLocationPicker> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     final l10n = AppLocalizations.of(context);
 
     return Column(
@@ -109,7 +110,7 @@ class _AppLocationPickerState extends State<AppLocationPicker> {
       children: [
         Text(
           l10n.addDonationLocationSubtitle,
-          style: TextStyle(fontSize: 13.sp, color: AppColors.textSecondary),
+          style: TextStyle(fontSize: 13.sp, color: colors.textSecondary),
         ),
         SizedBox(height: 10.h),
         ClipRRect(
@@ -147,7 +148,7 @@ class _AppLocationPickerState extends State<AppLocationPicker> {
                     width: 44.w,
                     height: 44.w,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: colors.surface,
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
@@ -160,7 +161,7 @@ class _AppLocationPickerState extends State<AppLocationPicker> {
                     child: Icon(
                       AppIcons.locationPin,
                       size: 24.sp,
-                      color: AppColors.primary,
+                      color: colors.primary,
                     ),
                   ),
                 ),
@@ -169,15 +170,16 @@ class _AppLocationPickerState extends State<AppLocationPicker> {
                   bottom: 10.h,
                   child: FloatingActionButton.small(
                     heroTag: null,
-                    backgroundColor: Colors.white,
-                    foregroundColor: AppColors.primary,
+                    backgroundColor: colors.surface,
+                    foregroundColor: colors.primary,
                     onPressed: _locating ? null : _goToUserLocation,
                     child: _locating
                         ? SizedBox(
                             width: 16.w,
                             height: 16.w,
-                            child: const CircularProgressIndicator(
+                            child: CircularProgressIndicator(
                               strokeWidth: 2,
+                              color: colors.primary,
                             ),
                           )
                         : Icon(AppIcons.currentLocation, size: 18.sp),
@@ -190,15 +192,15 @@ class _AppLocationPickerState extends State<AppLocationPicker> {
         SizedBox(height: 10.h),
         Text(
           l10n.addDonationLocationInstruction,
-          style: TextStyle(fontSize: 12.sp, color: AppColors.textTertiary),
+          style: TextStyle(fontSize: 12.sp, color: colors.textTertiary),
         ),
         SizedBox(height: 12.h),
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
+              backgroundColor: colors.primary,
+              foregroundColor: colors.onPrimary,
               padding: EdgeInsets.symmetric(vertical: 12.h),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12.r),

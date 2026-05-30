@@ -61,6 +61,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return BlocListener<ProfileBloc, ProfileState>(
       listener: (context, state) {
         if (state is ProfileUpdateSuccess) {
@@ -83,14 +84,14 @@ class _SettingsPageState extends State<SettingsPage> {
         }
       },
       child: Scaffold(
-        backgroundColor: AuthColors.background,
+        backgroundColor: colors.background,
         appBar: AppBar(
-          backgroundColor: AuthColors.background,
+          backgroundColor: colors.background,
           elevation: 0,
           leading: IconButton(
             icon: Icon(
               Icons.arrow_back_ios_rounded,
-              color: AuthColors.primary,
+              color: colors.primary,
               size: AppDimensions.iconSize.sp,
             ),
             onPressed: () => context.pop(),
@@ -100,11 +101,10 @@ class _SettingsPageState extends State<SettingsPage> {
             style: TextStyle(
               fontSize: AppDimensions.appBarTitleSize.sp,
               fontWeight: FontWeight.bold,
-              color: AuthColors.primary,
+              color: colors.primary,
               fontFamily: AppFonts.primaryFont,
             ),
           ),
-          centerTitle: true,
         ),
         body: SafeArea(
           child: BlocBuilder<ProfileBloc, ProfileState>(
@@ -190,8 +190,8 @@ class _SettingsPageState extends State<SettingsPage> {
                       child: ElevatedButton(
                         onPressed: isUpdating ? null : _saveSettings,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AuthColors.primary,
-                          disabledBackgroundColor: AuthColors.primary
+                          backgroundColor: colors.primary,
+                          disabledBackgroundColor: colors.primary
                               .withValues(alpha: 0.5),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(
@@ -241,12 +241,13 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Text(
       title,
       style: TextStyle(
         fontSize: AppDimensions.captionSize.sp,
         fontWeight: FontWeight.w600,
-        color: AuthColors.labelText,
+        color: colors.headingText,
         letterSpacing: 0.5,
         fontFamily: AppFonts.primaryFont,
       ),
@@ -273,15 +274,16 @@ class _SettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: AppDimensions.paddingMedium.w,
         vertical: AppDimensions.paddingMedium.h,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.background,
         borderRadius: BorderRadius.circular(AppDimensions.borderRadiusLarge.r),
-        border: Border.all(color: AuthColors.inputBorder, width: 1.w),
+        border: Border.all(color: colors.inputBorder, width: 1.w),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -292,12 +294,12 @@ class _SettingsTile extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.all(8.w),
                   decoration: BoxDecoration(
-                    color: AuthColors.lightGreenBackground,
+                    color: colors.surface,
                     borderRadius: BorderRadius.circular(
                       AppDimensions.borderRadiusMedium.r,
                     ),
                   ),
-                  child: Icon(icon, color: AuthColors.primary, size: 20.sp),
+                  child: Icon(icon, color: colors.primary, size: 20.sp),
                 ),
                 SizedBox(width: AppDimensions.paddingMedium.w),
                 Expanded(
@@ -309,7 +311,7 @@ class _SettingsTile extends StatelessWidget {
                         style: TextStyle(
                           fontSize: AppDimensions.buttonTextSize.sp,
                           fontWeight: FontWeight.w600,
-                          color: AuthColors.headingText,
+                          color: colors.headingText,
                           fontFamily: AppFonts.primaryFont,
                         ),
                       ),
@@ -319,7 +321,7 @@ class _SettingsTile extends StatelessWidget {
                         style: TextStyle(
                           fontSize: AppDimensions.captionSize.sp,
                           fontWeight: FontWeight.w400,
-                          color: AuthColors.subText,
+                          color: colors.subText,
                           fontFamily: AppFonts.primaryFont,
                         ),
                         maxLines: 2,
@@ -335,8 +337,8 @@ class _SettingsTile extends StatelessWidget {
           Switch(
             value: value,
             onChanged: enabled ? onChanged : null,
-            activeTrackColor: AuthColors.primary.withValues(alpha: 0.3),
-            activeThumbColor: AuthColors.primary,
+            activeTrackColor: colors.primary.withValues(alpha: 0.3),
+            activeThumbColor: colors.onPrimary.withValues(alpha: 0.9),
             inactiveThumbColor: Colors.grey,
           ),
         ],
@@ -405,6 +407,7 @@ class _ThemeOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return GestureDetector(
       onTap: onSelected,
       child: Container(
@@ -413,12 +416,12 @@ class _ThemeOption extends StatelessWidget {
           vertical: AppDimensions.paddingMedium.h,
         ),
         decoration: BoxDecoration(
-          color: isSelected ? AuthColors.lightGreenBackground : Colors.white,
+          color: !isSelected ? colors.background : colors.surface,
           borderRadius: BorderRadius.circular(
             AppDimensions.borderRadiusLarge.r,
           ),
           border: Border.all(
-            color: isSelected ? AuthColors.primary : AuthColors.inputBorder,
+            color: isSelected ? colors.primary : colors.inputBorder,
             width: isSelected ? 2.w : 1.w,
           ),
         ),
@@ -426,7 +429,7 @@ class _ThemeOption extends StatelessWidget {
           children: [
             Icon(
               icon,
-              color: isSelected ? AuthColors.primary : AuthColors.subText,
+              color:  colors.subText,
               size: 24.sp,
             ),
             SizedBox(width: AppDimensions.paddingMedium.w),
@@ -435,16 +438,18 @@ class _ThemeOption extends StatelessWidget {
               style: TextStyle(
                 fontSize: AppDimensions.buttonTextSize.sp,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                color: isSelected ? AuthColors.primary : AuthColors.headingText,
+                color: colors.headingText,
                 fontFamily: AppFonts.primaryFont,
               ),
             ),
             const Spacer(),
             if (isSelected)
-              Icon(Icons.check_rounded, color: AuthColors.primary, size: 20.sp),
+              Icon(Icons.check_rounded, color: colors.primary, size: 20.sp),
           ],
         ),
       ),
     );
   }
 }
+
+

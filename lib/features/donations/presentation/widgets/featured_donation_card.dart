@@ -25,6 +25,7 @@ class FeaturedDonationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final colors = context.themeColors;
 
     return GestureDetector(
       onTap: onTap,
@@ -32,7 +33,7 @@ class FeaturedDonationCard extends StatelessWidget {
         width: 300.w,
         margin: EdgeInsets.only(right: 12.w),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(18.r),
           boxShadow: [
             BoxShadow(
@@ -59,7 +60,7 @@ class FeaturedDonationCard extends StatelessWidget {
                     errorWidget: (_, __, ___) => Container(
                       width: 300.w,
                       height: 128.h,
-                      color: const Color(0xFFE2E8F0),
+                      color: colors.divider,
                     ),
                   ),
                 ),
@@ -72,7 +73,7 @@ class FeaturedDonationCard extends StatelessWidget {
                       vertical: 5.h,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF131615).withValues(alpha: 0.72),
+                      color: colors.textPrimary.withValues(alpha: 0.72),
                       borderRadius: BorderRadius.circular(999.r),
                     ),
                     child: Row(
@@ -81,7 +82,7 @@ class FeaturedDonationCard extends StatelessWidget {
                         Icon(
                           AppIcons.distance,
                           size: 12.sp,
-                          color: Colors.white,
+                          color: colors.onPrimary,
                         ),
                         SizedBox(width: 4.w),
                         Text(
@@ -93,7 +94,7 @@ class FeaturedDonationCard extends StatelessWidget {
                           ),
                           style: TextStyle(
                             fontSize: 10.sp,
-                            color: Colors.white,
+                            color: colors.onPrimary,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -110,14 +111,14 @@ class FeaturedDonationCard extends StatelessWidget {
                       vertical: 5.h,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.primary,
+                      color: colors.primary,
                       borderRadius: BorderRadius.circular(999.r),
                     ),
                     child: Text(
                       l10n.featuredBadge,
                       style: TextStyle(
                         fontSize: 10.sp,
-                        color: Colors.white,
+                        color: colors.onPrimary,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -137,7 +138,7 @@ class FeaturedDonationCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
+                      color: colors.textPrimary,
                     ),
                   ),
                   SizedBox(height: 4.h),
@@ -150,7 +151,7 @@ class FeaturedDonationCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 12.sp,
-                            color: AppColors.textSecondary,
+                            color: colors.textSecondary,
                           ),
                         ),
                       ),
@@ -159,7 +160,7 @@ class FeaturedDonationCard extends StatelessWidget {
                         Icon(
                           Icons.verified_rounded,
                           size: 12.sp,
-                          color: AppColors.primary,
+                          color: colors.primary,
                         ),
                       ],
                     ],
@@ -170,14 +171,14 @@ class FeaturedDonationCard extends StatelessWidget {
                       Icon(
                         AppIcons.quantity,
                         size: 14.sp,
-                        color: AppColors.textSecondary,
+                        color: colors.textSecondary,
                       ),
                       SizedBox(width: 4.w),
                       Text(
                         l10n.donationCardQuantity(donation.quantity),
                         style: TextStyle(
                           fontSize: 11.sp,
-                          color: AppColors.textSecondary,
+                          color: colors.textSecondary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -185,7 +186,7 @@ class FeaturedDonationCard extends StatelessWidget {
                       Icon(
                         AppIcons.expiry,
                         size: 14.sp,
-                        color: AppColors.textSecondary,
+                        color: colors.textSecondary,
                       ),
                       SizedBox(width: 4.w),
                       Expanded(
@@ -195,7 +196,7 @@ class FeaturedDonationCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 11.sp,
-                            color: AppColors.textSecondary,
+                            color: colors.textSecondary,
                             fontWeight: FontWeight.w600,
                           ),
                         ),

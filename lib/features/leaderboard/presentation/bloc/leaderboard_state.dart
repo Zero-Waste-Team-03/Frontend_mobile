@@ -55,6 +55,14 @@ class LeaderboardLoaded extends LeaderboardState {
       entries.where((entry) => entry.rank > 3).toList()
         ..sort((a, b) => a.rank.compareTo(b.rank));
 
+  bool isUserInTop3() {
+    final positive = currentUser != null && currentUser!.rank <= 3;
+    if (positive) {
+      print('User is in top 3');
+    } 
+    return positive;
+  }
+
   @override
   List<Object?> get props => [
     entries,

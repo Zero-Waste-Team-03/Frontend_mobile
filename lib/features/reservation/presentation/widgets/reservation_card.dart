@@ -18,7 +18,7 @@ class ReservationCard extends StatelessWidget {
     return status.displayName;
   }
 
-  Color _getReservationStatusBackground(ReservationStatus status) {
+  Color _getReservationStatusBackground(ThemeColors colors,ReservationStatus status) {
     switch (status) {
       case ReservationStatus.pending:
         return const Color(0xFFFFF3CD); // Light yellow
@@ -31,7 +31,7 @@ class ReservationCard extends StatelessWidget {
     }
   }
 
-  Color _getReservationStatusText(ReservationStatus status) {
+  Color _getReservationStatusText(ThemeColors colors,ReservationStatus status) {
     switch (status) {
       case ReservationStatus.pending:
         return const Color(0xFF856404); // Dark yellow
@@ -72,11 +72,10 @@ class ReservationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     final donation = reservation.donation;
     final donationTitle = donation?.title ?? 'Donation';
     final imageUrl = donation?.imageUrl ?? '';
-
-   
 
     return GestureDetector(
       onTap: onTap,
@@ -87,9 +86,9 @@ class ReservationCard extends StatelessWidget {
         ),
         padding: EdgeInsets.all(AppDimensions.paddingMedium.w),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(AppDimensions.borderRadiusMedium),
-          border: Border.all(color: AuthColors.dividerColor, width: 1),
+          border: Border.all(color: colors.divider, width: 1),
         ),
         child: Row(
           children: [
@@ -101,32 +100,26 @@ class ReservationCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(
                   AppDimensions.borderRadiusMedium,
                 ),
-                color: AuthColors.lightGrayBackground,
+                color: colors.lightGrayBackground,
               ),
               child: _isValidUrl(imageUrl)
                   ? CachedNetworkImage(
                       imageUrl: imageUrl,
                       fit: BoxFit.cover,
                       placeholder: (context, url) => Center(
-                        child: CircularProgressIndicator(
-                          color: AuthColors.primary,
-                        ),
+                        child: CircularProgressIndicator(color: colors.primary),
                       ),
                       errorWidget: (context, url, error) {
-                        
                         return Container(
-                          color: AuthColors.lightGrayBackground,
+                          color: colors.lightGrayBackground,
                           child: Icon(
                             Icons.image_not_supported,
-                            color: AuthColors.inputText,
+                            color: colors.textMuted,
                           ),
                         );
                       },
                     )
-                  : Icon(
-                      Icons.image_not_supported,
-                      color: AuthColors.inputText,
-                    ),
+                  : Icon(Icons.image_not_supported, color: colors.textMuted),
             ),
             SizedBox(width: AppDimensions.paddingMedium.w),
 
@@ -143,7 +136,7 @@ class ReservationCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: AppDimensions.subtitleSize.sp,
                       fontWeight: FontWeight.bold,
-                      color: AuthColors.headingText,
+                      color: colors.textPrimary,
                       fontFamily: AppFonts.primaryFont,
                     ),
                   ),
@@ -155,14 +148,14 @@ class ReservationCard extends StatelessWidget {
                       Icon(
                         Icons.calendar_today,
                         size: 14.sp,
-                        color: AuthColors.subText,
+                        color: colors.textSecondary,
                       ),
                       SizedBox(width: 4.w),
                       Text(
                         _formatDate(reservation.createdAt),
                         style: TextStyle(
                           fontSize: AppDimensions.bodySize.sp,
-                          color: AuthColors.subText,
+                          color: colors.textSecondary,
                           fontFamily: AppFonts.primaryFont,
                         ),
                       ),
@@ -180,7 +173,10 @@ class ReservationCard extends StatelessWidget {
                 vertical: AppDimensions.paddingSmall.h,
               ),
               decoration: BoxDecoration(
-                color: _getReservationStatusBackground(reservation.status),
+                color: _getReservationStatusBackground(
+                  colors,
+                  reservation.status,
+                ),
                 borderRadius: BorderRadius.circular(
                   AppDimensions.borderRadiusMedium,
                 ),
@@ -190,7 +186,7 @@ class ReservationCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: AppDimensions.bodySize.sp,
                   fontWeight: FontWeight.w600,
-                  color: _getReservationStatusText(reservation.status),
+                  color: _getReservationStatusText(colors, reservation.status),
                   fontFamily: AppFonts.primaryFont,
                 ),
               ),

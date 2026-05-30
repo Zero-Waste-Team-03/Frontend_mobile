@@ -25,6 +25,7 @@ class StandardDonationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final colors = context.themeColors;
 
     return GestureDetector(
       onTap: onTap,
@@ -32,9 +33,9 @@ class StandardDonationCard extends StatelessWidget {
         margin: EdgeInsets.only(bottom: 12.h),
         padding: EdgeInsets.all(12.w),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
+          border: Border.all(color: colors.divider),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.03),
@@ -53,11 +54,8 @@ class StandardDonationCard extends StatelessWidget {
                 width: 84.w,
                 height: 84.w,
                 fit: BoxFit.cover,
-                errorWidget: (_, __, ___) => Container(
-                  width: 84.w,
-                  height: 84.w,
-                  color: const Color(0xFFE2E8F0),
-                ),
+                errorWidget: (_, __, ___) =>
+                    Container(width: 84.w, height: 84.w, color: colors.divider),
               ),
             ),
             SizedBox(width: 12.w),
@@ -75,7 +73,7 @@ class StandardDonationCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary,
+                            color: colors.textPrimary,
                           ),
                         ),
                       ),
@@ -86,7 +84,10 @@ class StandardDonationCard extends StatelessWidget {
                           vertical: 4.h,
                         ),
                         decoration: BoxDecoration(
-                          color: statusBackgroundColor(donation.status),
+                          color: statusBackgroundColor(
+                            donation.status,
+                            context,
+                          ),
                           borderRadius: BorderRadius.circular(999.r),
                         ),
                         child: Text(
@@ -94,7 +95,7 @@ class StandardDonationCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 10.sp,
                             fontWeight: FontWeight.w700,
-                            color: statusTextColor(donation.status),
+                            color: statusTextColor(donation.status, context),
                           ),
                         ),
                       ),
@@ -106,7 +107,7 @@ class StandardDonationCard extends StatelessWidget {
                       Icon(
                         AppIcons.user,
                         size: 13.sp,
-                        color: AppColors.textSecondary,
+                        color: colors.textSecondary,
                       ),
                       SizedBox(width: 4.w),
                       Flexible(
@@ -116,7 +117,7 @@ class StandardDonationCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 12.sp,
-                            color: AppColors.textSecondary,
+                            color: colors.textSecondary,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -126,7 +127,7 @@ class StandardDonationCard extends StatelessWidget {
                         Icon(
                           Icons.verified_rounded,
                           size: 12.sp,
-                          color: AppColors.primary,
+                          color: colors.primary,
                         ),
                       ],
                     ],
@@ -137,7 +138,7 @@ class StandardDonationCard extends StatelessWidget {
                       Icon(
                         AppIcons.distance,
                         size: 14.sp,
-                        color: AppColors.textSecondary,
+                        color: colors.textSecondary,
                       ),
                       SizedBox(width: 4.w),
                       Text(
@@ -149,7 +150,7 @@ class StandardDonationCard extends StatelessWidget {
                         ),
                         style: TextStyle(
                           fontSize: 11.sp,
-                          color: AppColors.textSecondary,
+                          color: colors.textSecondary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -157,14 +158,14 @@ class StandardDonationCard extends StatelessWidget {
                       Icon(
                         AppIcons.quantity,
                         size: 14.sp,
-                        color: AppColors.textSecondary,
+                        color: colors.textSecondary,
                       ),
                       SizedBox(width: 4.w),
                       Text(
                         l10n.donationCardQuantity(donation.quantity),
                         style: TextStyle(
                           fontSize: 11.sp,
-                          color: AppColors.textSecondary,
+                          color: colors.textSecondary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -176,7 +177,7 @@ class StandardDonationCard extends StatelessWidget {
                       Icon(
                         AppIcons.expiry,
                         size: 14.sp,
-                        color: AppColors.textSecondary,
+                        color: colors.textSecondary,
                       ),
                       SizedBox(width: 4.w),
                       Expanded(
@@ -186,7 +187,7 @@ class StandardDonationCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 11.sp,
-                            color: AppColors.textSecondary,
+                            color: colors.textSecondary,
                             fontWeight: FontWeight.w600,
                           ),
                         ),

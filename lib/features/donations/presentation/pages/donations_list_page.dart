@@ -8,7 +8,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../../core/app_icons.dart';
 import '../../../../core/permissions/permission_request_coordinator.dart';
-import '../../../../shared/theme/app_colors.dart';
+import '../../../../core/theme/app_colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../shared/widgets/notification_button.dart';
@@ -30,7 +30,7 @@ class _DonationsListPageState extends State<DonationsListPage> {
   String _selectedCategory = 'All';
   String? _selectedCategoryId;
   LatLng? _currentPosition;
-  
+
   final FocusNode _searchFocusNode = FocusNode();
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
@@ -56,7 +56,9 @@ class _DonationsListPageState extends State<DonationsListPage> {
   void _onScroll() {
     if (_isBottom && mounted) {
       final state = context.read<DonationsBloc>().state;
-      if (state is DonationsLoaded && state.hasNextPage && !state.isLoadingMore) {
+      if (state is DonationsLoaded &&
+          state.hasNextPage &&
+          !state.isLoadingMore) {
         context.read<DonationsBloc>().add(
           LoadDonationsEvent(
             categoryId: _selectedCategoryId,
@@ -102,6 +104,7 @@ class _DonationsListPageState extends State<DonationsListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     try {
       final routerState = GoRouterState.of(context);
       final currentFocusQuery = routerState.uri.queryParameters['focus'];
@@ -123,7 +126,7 @@ class _DonationsListPageState extends State<DonationsListPage> {
       child: Builder(
         builder: (context) {
           return Scaffold(
-            backgroundColor: const Color(0xFFF8F9FA),
+            backgroundColor: colors.background,
             body: SafeArea(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,7 +153,9 @@ class _DonationsListPageState extends State<DonationsListPage> {
                         } else if (state is DonationsLoaded) {
                           _donations = state.donations;
                           if (_donations.isEmpty) {
-                            return const Center(child: Text('No donations found.'));
+                            return const Center(
+                              child: Text('No donations found.'),
+                            );
                           }
                           return _buildDonationsList();
                         } else if (state is DonationsError) {
@@ -164,12 +169,13 @@ class _DonationsListPageState extends State<DonationsListPage> {
               ),
             ),
           );
-        }
+        },
       ),
     );
   }
 
   Widget _buildHeader() {
+    final colors = context.themeColors;
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
       child: Row(
@@ -180,7 +186,7 @@ class _DonationsListPageState extends State<DonationsListPage> {
             style: TextStyle(
               fontSize: AppDimensions.appBarTitleSize.sp,
               fontWeight: FontWeight.w700,
-              color: AuthColors.primary,
+              color: colors.primary,
             ),
           ),
           Row(
@@ -188,11 +194,11 @@ class _DonationsListPageState extends State<DonationsListPage> {
               IconButton(
                 icon: Icon(
                   Icons.volunteer_activism_outlined,
-                  color: AuthColors.primary,
+                  color: colors.primary,
                   size: AppDimensions.iconSize.sp,
                 ),
                 style: IconButton.styleFrom(
-                  backgroundColor: AuthColors.lightGrayBackground,
+                  backgroundColor: colors.lightGrayBackground,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8.r),
                   ),
@@ -202,8 +208,8 @@ class _DonationsListPageState extends State<DonationsListPage> {
                 },
               ),
               NotificationButton(
-                backgroundColor: AuthColors.lightGrayBackground,
-                iconColor: AuthColors.primary,
+                backgroundColor: colors.lightGrayBackground,
+                iconColor: colors.primary,
                 iconSize: AppDimensions.iconSize.sp,
               ),
             ],
@@ -214,13 +220,14 @@ class _DonationsListPageState extends State<DonationsListPage> {
   }
 
   Widget _buildSearchBar(BuildContext context) {
+    final colors = context.themeColors;
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: Hero(
         tag: 'search_bar',
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: colors.surface,
             borderRadius: BorderRadius.circular(20.r),
             boxShadow: [
               BoxShadow(
@@ -267,7 +274,11 @@ class _DonationsListPageState extends State<DonationsListPage> {
     );
   }
 
-  Widget _buildCategoryFilters(BuildContext context, List<Category> categories) {
+  Widget _buildCategoryFilters(
+    BuildContext context,
+    List<Category> categories,
+  ) {
+    final colors = context.themeColors;
     final labels = ['All', ...categories.map((c) => c.name)];
     return SizedBox(
       height: 36.h,
@@ -303,19 +314,17 @@ class _DonationsListPageState extends State<DonationsListPage> {
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: isSelected ? AuthColors.primary : Colors.white,
+                  color: isSelected ? colors.primary : colors.surface,
                   borderRadius: BorderRadius.circular(20.r),
                   border: Border.all(
-                    color: isSelected
-                        ? AuthColors.primary
-                        : Colors.grey.shade300,
+                    color: isSelected ? colors.primary : colors.divider,
                     width: 1,
                   ),
                 ),
                 child: Text(
                   category,
                   style: TextStyle(
-                    color: isSelected ? Colors.white : const Color(0xFF4A5550),
+                    color: isSelected ? colors.onPrimary : colors.textSecondary,
                     fontSize: 13.sp,
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                   ),
@@ -329,6 +338,7 @@ class _DonationsListPageState extends State<DonationsListPage> {
   }
 
   Widget _buildListMetadata() {
+    final colors = context.themeColors;
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
       child: Row(
@@ -338,7 +348,7 @@ class _DonationsListPageState extends State<DonationsListPage> {
             '${_donations.length} donations nearby',
             style: TextStyle(
               fontSize: 13.sp,
-              color: const Color(0xFF64748B),
+              color: colors.textTertiary,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -362,10 +372,13 @@ class _DonationsListPageState extends State<DonationsListPage> {
   }
 
   Widget _buildDonationsList() {
+    final colors = context.themeColors;
     return BlocBuilder<DonationsBloc, DonationsState>(
       builder: (context, state) {
-        final hasNextPage = state is DonationsLoaded ? state.hasNextPage : false;
-        
+        final hasNextPage = state is DonationsLoaded
+            ? state.hasNextPage
+            : false;
+
         return RefreshIndicator(
           onRefresh: () async {
             if (!mounted) return;
@@ -379,8 +392,8 @@ class _DonationsListPageState extends State<DonationsListPage> {
             );
             await Future.delayed(const Duration(milliseconds: 500));
           },
-          color: AuthColors.primary,
-          backgroundColor: Colors.white,
+          color: colors.primary,
+          backgroundColor: colors.surface,
           child: ListView.builder(
             controller: _scrollController,
             padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 80.h),
@@ -399,15 +412,16 @@ class _DonationsListPageState extends State<DonationsListPage> {
   }
 
   Widget _buildPaginationLoadingIndicator() {
+    final colors = context.themeColors;
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 16.h),
       child: Center(
         child: SizedBox(
           width: 24.w,
           height: 24.w,
-          child: const CircularProgressIndicator(
+          child: CircularProgressIndicator(
             strokeWidth: 2,
-            valueColor: AlwaysStoppedAnimation<Color>(AuthColors.primary),
+            valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
           ),
         ),
       ),
@@ -415,6 +429,7 @@ class _DonationsListPageState extends State<DonationsListPage> {
   }
 
   Widget _buildDonationCard(Donation donation, int index) {
+    final colors = context.themeColors;
     String distanceStr = 'Distance unknown';
     if (_currentPosition != null &&
         donation.latitude != null &&
@@ -435,14 +450,14 @@ class _DonationsListPageState extends State<DonationsListPage> {
     Color tagBgColor;
     Color tagTextColor;
     if (donation.condition.toUpperCase() == 'DRY') {
-      tagBgColor = const Color(0xFFFFF0E6);
-      tagTextColor = const Color(0xFFE87C3E);
+      tagBgColor = colors.lightGrayBackground;
+      tagTextColor = colors.textTertiary;
     } else if (donation.condition.toUpperCase() == 'FRESH') {
-      tagBgColor = const Color(0xFFE6F7ED);
-      tagTextColor = const Color(0xFF2D6C50);
+      tagBgColor = colors.lightGreenBackground;
+      tagTextColor = colors.primary;
     } else {
-      tagBgColor = const Color(0xFFE6F0FF);
-      tagTextColor = const Color(0xFF3B82F6);
+      tagBgColor = colors.surface;
+      tagTextColor = colors.primary;
     }
 
     return GestureDetector(
@@ -452,7 +467,7 @@ class _DonationsListPageState extends State<DonationsListPage> {
       child: Container(
         margin: EdgeInsets.only(bottom: 16.h),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(16.r),
           boxShadow: [
             BoxShadow(
@@ -477,10 +492,10 @@ class _DonationsListPageState extends State<DonationsListPage> {
                     height: 76.w,
                     fit: BoxFit.cover,
                     placeholder: (context, url) =>
-                        Container(color: Colors.grey[200]),
+                        Container(color: colors.divider),
                     errorWidget: (context, url, error) => Container(
-                      color: Colors.grey[200],
-                      child: const Icon(Icons.error, color: Colors.grey),
+                      color: colors.divider,
+                      child: Icon(Icons.error, color: colors.textSecondary),
                     ),
                   ),
                 ),
@@ -500,7 +515,7 @@ class _DonationsListPageState extends State<DonationsListPage> {
                             style: TextStyle(
                               fontSize: 15.sp,
                               fontWeight: FontWeight.bold,
-                              color: const Color(0xFF131615),
+                              color: colors.textPrimary,
                               height: 1.2,
                             ),
                             maxLines: 2,
@@ -535,14 +550,14 @@ class _DonationsListPageState extends State<DonationsListPage> {
                         Icon(
                           Icons.location_on_outlined,
                           size: 14.sp,
-                          color: const Color(0xFF64748B),
+                          color: colors.textTertiary,
                         ),
                         SizedBox(width: 4.w),
                         Text(
                           distanceStr,
                           style: TextStyle(
                             fontSize: 12.sp,
-                            color: const Color(0xFF64748B),
+                            color: colors.textTertiary,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -559,18 +574,19 @@ class _DonationsListPageState extends State<DonationsListPage> {
   }
 
   Widget _buildLoadingSkeleton() {
+    final colors = context.themeColors;
     return ListView.builder(
       padding: EdgeInsets.fromLTRB(20.w, 4.h, 20.w, 80.h),
       itemCount: 5,
       itemBuilder: (context, index) {
         return Shimmer.fromColors(
-          baseColor: Colors.grey[300]!,
-          highlightColor: Colors.grey[100]!,
+          baseColor: colors.divider,
+          highlightColor: colors.background,
           child: Container(
             margin: EdgeInsets.only(bottom: 12.h),
             height: 100.h,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: colors.surface,
               borderRadius: BorderRadius.circular(16.r),
             ),
           ),

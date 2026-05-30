@@ -8,19 +8,20 @@ class SaverAnalyticsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: colors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: colors.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+          icon: Icon(Icons.arrow_back, color: colors.textPrimary),
           onPressed: () => context.pop(),
         ),
         title: Text(
           'Saver Analytics',
           style: TextStyle(
-            color: AppColors.textPrimary,
+            color: colors.textPrimary,
             fontSize: 18.sp,
             fontWeight: FontWeight.w700,
           ),
@@ -37,6 +38,7 @@ class SaverAnalyticsPage extends StatelessWidget {
               '0.0 kg',
               Icons.eco_outlined,
               Colors.green,
+              context,
             ),
             SizedBox(height: 16.h),
             _buildStatCard(
@@ -44,6 +46,7 @@ class SaverAnalyticsPage extends StatelessWidget {
               '0',
               Icons.restaurant_outlined,
               Colors.orange,
+              context,
             ),
             SizedBox(height: 16.h),
             _buildStatCard(
@@ -51,6 +54,7 @@ class SaverAnalyticsPage extends StatelessWidget {
               '\$0.00',
               Icons.savings_outlined,
               Colors.blue,
+              context,
             ),
             SizedBox(height: 32.h),
             Text(
@@ -58,23 +62,23 @@ class SaverAnalyticsPage extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+                color: colors.textPrimary,
               ),
             ),
             SizedBox(height: 16.h),
             Container(
               height: 200.h,
-              width: double.infinity,
+              color: colors.surface,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16.r),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
+                border: Border.all(color: colors.divider),
               ),
               child: Center(
                 child: Text(
                   'Chart Placeholder',
                   style: TextStyle(
-                    color: AppColors.textSecondary,
+                    color: colors.textSecondary,
                     fontSize: 14.sp,
                   ),
                 ),
@@ -86,13 +90,21 @@ class SaverAnalyticsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+  Widget _buildStatCard(
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+    BuildContext context,
+  ) {
+    final colors =
+        context.themeColors; // Use light theme colors for card icons/text
     return Container(
-      padding: EdgeInsets.all(16.w),
+      color: colors.surface,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: colors.divider),
       ),
       child: Row(
         children: [
@@ -112,7 +124,7 @@ class SaverAnalyticsPage extends StatelessWidget {
                 title,
                 style: TextStyle(
                   fontSize: 14.sp,
-                  color: AppColors.textSecondary,
+                  color: colors.textSecondary,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -121,7 +133,7 @@ class SaverAnalyticsPage extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 20.sp,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: colors.textPrimary,
                 ),
               ),
             ],

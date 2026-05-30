@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gaspzero/core/theme/app_colors.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/di/injection.dart';
@@ -21,9 +22,9 @@ class VerificationRequestsPage extends StatelessWidget {
         final profileBloc = context.read<ProfileBloc>();
         final user = (profileBloc.state as ProfileLoaded).user;
         final bloc = getIt<VerificationBloc>();
-        bloc.add(VerificationRequestsLoadRequested(
-          isFoodSaver: user.isFoodSaver,
-        ));
+        bloc.add(
+          VerificationRequestsLoadRequested(isFoodSaver: user.isFoodSaver),
+        );
         return bloc;
       },
       child: const VerificationRequestsView(),
@@ -59,8 +60,8 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
       final profileBloc = context.read<ProfileBloc>();
       final user = (profileBloc.state as ProfileLoaded).user;
       context.read<VerificationBloc>().add(
-            VerificationRequestsLoadMoreRequested(isFoodSaver: user.isFoodSaver),
-          );
+        VerificationRequestsLoadMoreRequested(isFoodSaver: user.isFoodSaver),
+      );
     }
   }
 
@@ -73,13 +74,14 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F7F7),
+      backgroundColor: colors.background,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(72.h),
         child: Container(
           decoration: BoxDecoration(
-            color: const Color(0xFFF8FAF9).withValues(alpha: 0.8),
+            color: colors.background.withValues(alpha: 0.8),
           ),
           child: SafeArea(
             child: Padding(
@@ -91,25 +93,24 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                     child: Container(
                       width: 40.w,
                       height: 40.w,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
+                      decoration:  BoxDecoration(
+                        color: colors.background,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         Icons.arrow_back,
-                        color: const Color(0xFF131615),
+                        color: colors.primary,
                         size: 20.sp,
                       ),
                     ),
                   ),
                   Expanded(
-                    child: Center(
-                      child: Padding(
+                    child: Padding(
                         padding: EdgeInsets.only(right: 40.w),
                         child: Text(
                           'Verification Requests',
                           style: TextStyle(
-                            color: const Color(0xFF131615),
+                            color: colors.primary,
                             fontSize: 18.sp,
                             fontWeight: FontWeight.w700,
                             fontFamily: 'Inter',
@@ -117,7 +118,6 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                         ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -131,20 +131,24 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(state.successMessage!),
-                  backgroundColor: const Color(0xFF2D6C50),
+                  backgroundColor: colors.primary,
                   behavior: SnackBarBehavior.floating,
                 ),
               );
-              context.read<VerificationBloc>().add(const VerificationMessageCleared());
+              context.read<VerificationBloc>().add(
+                const VerificationMessageCleared(),
+              );
             } else if (state.errorMessage != null) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(state.errorMessage!),
-                  backgroundColor: const Color(0xFFEF4444),
+                  backgroundColor: colors.error,
                   behavior: SnackBarBehavior.floating,
                 ),
               );
-              context.read<VerificationBloc>().add(const VerificationMessageCleared());
+              context.read<VerificationBloc>().add(
+                const VerificationMessageCleared(),
+              );
             }
           }
         },
@@ -163,10 +167,10 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                 final profileBloc = context.read<ProfileBloc>();
                 final user = (profileBloc.state as ProfileLoaded).user;
                 context.read<VerificationBloc>().add(
-                      VerificationRequestsLoadRequested(
-                        isFoodSaver: user.isFoodSaver,
-                      ),
-                    );
+                  VerificationRequestsLoadRequested(
+                    isFoodSaver: user.isFoodSaver,
+                  ),
+                );
               },
               child: ListView(
                 controller: _scrollController,
@@ -176,10 +180,10 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                   Container(
                     padding: EdgeInsets.all(24.w),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                      color: colors.surface,
                       borderRadius: BorderRadius.circular(32.r),
                       border: Border.all(
-                        color: const Color(0xFF10B981).withValues(alpha: 0.2),
+                        color: colors.inputBorder,
                       ),
                       boxShadow: [
                         BoxShadow(
@@ -197,7 +201,7 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                             Icon(
                               Icons.verified_user,
                               size: 16.sp,
-                              color: const Color(0xFF006C49),
+                              color: colors.onSurface,
                             ),
                             SizedBox(width: 8.w),
                             Text(
@@ -205,7 +209,7 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 13.sp,
                                 fontWeight: FontWeight.w600,
-                                color: const Color(0xFF006C49),
+                                color: colors.textPrimary,
                                 letterSpacing: 0.5.w,
                               ),
                             ),
@@ -217,7 +221,7 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.w400,
-                            color: const Color(0xFF00422B),
+                            color: colors.textSecondary,
                           ),
                         ),
                         SizedBox(height: 8.h),
@@ -226,7 +230,7 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.w400,
-                            color: const Color(0xFF3C4A42),
+                            color: colors.textSecondary,
                             height: 1.6,
                           ),
                         ),
@@ -239,7 +243,7 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 13.sp,
                       fontWeight: FontWeight.w600,
-                      color: const Color(0xFF6C7A71),
+                      color: colors.textPrimary,
                       letterSpacing: 1.3.w,
                     ),
                   ),
@@ -251,7 +255,7 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                         child: Text(
                           'No pending requests',
                           style: GoogleFonts.plusJakartaSans(
-                            color: const Color(0xFF6C7A71),
+                            color: colors.inputText,
                           ),
                         ),
                       ),
@@ -273,7 +277,7 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(32.r),
                           border: Border.all(
-                            color: const Color(0xFFBBCABF).withValues(alpha: 0.3),
+                            color: colors.inputBorder.withValues(alpha: 0.3),
                           ),
                           boxShadow: [
                             BoxShadow(
@@ -292,7 +296,7 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                                   height: 56.w,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(20.r),
-                                    color: const Color(0xFFF0F1F2),
+                                    color: colors.lightGrayBackground,
                                     image: displayUser?.avatarUrl != null
                                         ? DecorationImage(
                                             image: NetworkImage(
@@ -306,7 +310,7 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                                       ? Center(
                                           child: Icon(
                                             Icons.person,
-                                            color: const Color(0xFFBBCABF),
+                                            color: colors.inputBorder,
                                             size: 24.sp,
                                           ),
                                         )
@@ -319,7 +323,7 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                                     style: GoogleFonts.plusJakartaSans(
                                       fontSize: 18.sp,
                                       fontWeight: FontWeight.w400,
-                                      color: const Color(0xFF191C1D),
+                                      color: colors.textPrimary,
                                     ),
                                   ),
                                 ),
@@ -335,38 +339,45 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                                           ? null
                                           : () {
                                               context.read<VerificationBloc>().add(
-                                                    VerificationRequestStatusUpdateRequested(
-                                                      requestId: request.id,
-                                                      status: VerificationRequestStatus.approved,
-                                                    ),
-                                                  );
+                                                VerificationRequestStatusUpdateRequested(
+                                                  requestId: request.id,
+                                                  status:
+                                                      VerificationRequestStatus
+                                                          .approved,
+                                                ),
+                                              );
                                             },
                                       child: Container(
                                         height: 48.h,
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFF2D6C50),
-                                          borderRadius:
-                                              BorderRadius.circular(9999.r),
+                                          color: colors.primary,
+                                          borderRadius: BorderRadius.circular(
+                                            9999.r,
+                                          ),
                                         ),
                                         child: Center(
-                                          child: state.updatingRequestId ==
+                                          child:
+                                              state.updatingRequestId ==
                                                   request.id
                                               ? SizedBox(
                                                   width: 20.w,
                                                   height: 20.w,
-                                                  child: const CircularProgressIndicator(
-                                                    strokeWidth: 2,
-                                                    color: Colors.white,
-                                                  ),
+                                                  child:
+                                                      const CircularProgressIndicator(
+                                                        strokeWidth: 2,
+                                                        color: Colors.white,
+                                                      ),
                                                 )
                                               : Text(
                                                   'Verify Member',
-                                                  style: GoogleFonts.plusJakartaSans(
-                                                    fontSize: 13.sp,
-                                                    fontWeight: FontWeight.w600,
-                                                    color: Colors.white,
-                                                    letterSpacing: 0.65.w,
-                                                  ),
+                                                  style:
+                                                      GoogleFonts.plusJakartaSans(
+                                                        fontSize: 13.sp,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        color: Colors.white,
+                                                        letterSpacing: 0.65.w,
+                                                      ),
                                                 ),
                                         ),
                                       ),
@@ -377,18 +388,19 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                                     child: GestureDetector(
                                       onTap: () {
                                         context.read<VerificationBloc>().add(
-                                              VerificationRequestDismissed(
-                                                requestId: request.id,
-                                              ),
-                                            );
+                                          VerificationRequestDismissed(
+                                            requestId: request.id,
+                                          ),
+                                        );
                                       },
                                       child: Container(
                                         height: 48.h,
                                         decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(9999.r),
+                                          borderRadius: BorderRadius.circular(
+                                            9999.r,
+                                          ),
                                           border: Border.all(
-                                            color: const Color(0xFFBBCABF),
+                                            color: colors.inputBorder,
                                           ),
                                         ),
                                         child: Center(
@@ -397,7 +409,7 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                                             style: GoogleFonts.plusJakartaSans(
                                               fontSize: 13.sp,
                                               fontWeight: FontWeight.w600,
-                                              color: const Color(0xFF3C4A42),
+                                              color: colors.textSecondary,
                                               letterSpacing: 0.65.w,
                                             ),
                                           ),
@@ -413,10 +425,14 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                                 alignment: Alignment.centerLeft,
                                 child: Container(
                                   padding: EdgeInsets.symmetric(
-                                      horizontal: 12.w, vertical: 6.h),
+                                    horizontal: 12.w,
+                                    vertical: 6.h,
+                                  ),
                                   decoration: BoxDecoration(
-                                    color: _getStatusColor(request.status)
-                                        .withValues(alpha: 0.1),
+                                    color: _getStatusColor(
+                                      request.status,
+                                      colors,
+                                    ).withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(99.r),
                                   ),
                                   child: Text(
@@ -424,7 +440,10 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                                     style: GoogleFonts.plusJakartaSans(
                                       fontSize: 12.sp,
                                       fontWeight: FontWeight.w600,
-                                      color: _getStatusColor(request.status),
+                                      color: _getStatusColor(
+                                        request.status,
+                                        colors,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -451,12 +470,12 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
     );
   }
 
-  Color _getStatusColor(VerificationRequestStatus status) {
+  Color _getStatusColor(VerificationRequestStatus status, ThemeColors colors) {
     switch (status) {
       case VerificationRequestStatus.approved:
-        return const Color(0xFF10B981);
+        return colors.primary;
       case VerificationRequestStatus.rejected:
-        return const Color(0xFFEF4444);
+        return colors.error;
       case VerificationRequestStatus.pending:
         return const Color(0xFFF59E0B);
     }

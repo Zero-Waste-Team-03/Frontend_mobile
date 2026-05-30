@@ -29,6 +29,7 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     if (_chatPos == const Offset(300, 500)) {
       final size = MediaQuery.sizeOf(context);
       _chatPos = _clampChatPosition(
@@ -62,18 +63,16 @@ class _MainShellState extends State<MainShell> {
                 filter: ui.ImageFilter.blur(sigmaX: 24.0, sigmaY: 24.0),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.8),
+                    color: colors.background,
                     border: Border(
                       top: BorderSide(
-                        color: const Color(
-                          0xFFF1F5F9,
-                        ), // Light border from Figma
+                        color: colors.border, // Light border from Figma
                         width: 1,
                       ),
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
+                        color: colors.onPrimary,
                         blurRadius: 20,
                         offset: const Offset(0, -4),
                       ),
@@ -89,6 +88,7 @@ class _MainShellState extends State<MainShell> {
                             child: _NavItem(
                               icon: AppIcons.home,
                               label: 'Home',
+                              
                               isSelected:
                                   widget.navigationShell.currentIndex == 0,
                               onTap: () => widget.navigationShell.goBranch(0),
@@ -168,22 +168,22 @@ class _MainShellState extends State<MainShell> {
   }
 
   Widget _buildChatButtonUI({required bool isDragging}) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final colors = context.themeColors;
     return GestureDetector(
       onTap: () => context.push('/chats'),
       child: Material(
-        color: colorScheme.surface.withValues(alpha: 0),
+        color: colors.surface.withValues(alpha: 0),
         elevation: isDragging ? 10 : 6,
         shape: const CircleBorder(),
         child: Container(
           width: 56.w,
           height: 56.w,
           decoration: BoxDecoration(
-            color: AppColors.primary,
+            color:colors.primary,
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.3),
+                color:colors.primary.withValues(alpha: 0.3),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -192,7 +192,7 @@ class _MainShellState extends State<MainShell> {
           child: Center(
             child: Icon(
               AppIcons.chat,
-              color: colorScheme.onPrimary,
+              color: colors.onPrimary,
               size: 26.sp,
             ),
           ),
@@ -225,6 +225,7 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
@@ -233,7 +234,7 @@ class _NavItem extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.primary.withValues(alpha: 0.1)
+              ?colors.primary.withValues(alpha: 0.2)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(8.r),
         ),
@@ -244,8 +245,8 @@ class _NavItem extends StatelessWidget {
             Icon(
               icon,
               color: isSelected
-                  ? AppColors.primary
-                  : AppColors.onSurface.withValues(alpha: 0.7),
+                  ?colors.primary
+                  :colors.onSurface,
               size: 24.sp,
             ),
             SizedBox(height: 4.h),
@@ -259,8 +260,8 @@ class _NavItem extends StatelessWidget {
                 fontSize: 10.sp,
                 letterSpacing: 0.25,
                 color: isSelected
-                    ? AppColors.primary
-                    : AppColors.onSurface.withValues(alpha: 0.7),
+                    ?colors.primary
+                    :colors.onSurface.withValues(alpha: 0.7),
               ),
             ),
           ],

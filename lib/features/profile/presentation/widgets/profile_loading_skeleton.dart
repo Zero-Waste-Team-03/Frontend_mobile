@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
+import '../../../../shared/theme/app_colors.dart';
 
 class ProfileLoadingSkeleton extends StatelessWidget {
   const ProfileLoadingSkeleton({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      child: Shimmer.fromColors(
-        baseColor: const Color(0xFFE6E9EE),
-        highlightColor: const Color(0xFFF7F8FA),
+       final colors = context.themeColors;
+       return SingleChildScrollView(
+         physics: const AlwaysScrollableScrollPhysics(),
+         child: Shimmer.fromColors(
+           baseColor: colors.inputBackground,
+           highlightColor: colors.background,
         child: Column(
           children: [
             // Avatar and Name Section
@@ -24,7 +26,7 @@ class ProfileLoadingSkeleton extends StatelessWidget {
                     width: 120.w,
                     height: 120.w,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF0F3F8),
+                      color: colors.inputBackground,
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -35,7 +37,7 @@ class ProfileLoadingSkeleton extends StatelessWidget {
                     width: 150.w,
                     height: 18.h,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF0F3F8),
+                      color: colors.inputBackground,
                       borderRadius: BorderRadius.circular(6.r),
                     ),
                   ),
@@ -46,7 +48,7 @@ class ProfileLoadingSkeleton extends StatelessWidget {
                     width: 180.w,
                     height: 14.h,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF0F3F8),
+                      color: colors.inputBackground,
                       borderRadius: BorderRadius.circular(6.r),
                     ),
                   ),
@@ -57,7 +59,7 @@ class ProfileLoadingSkeleton extends StatelessWidget {
                     width: 120.w,
                     height: 24.h,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF0F3F8),
+                      color: colors.inputBackground,
                       borderRadius: BorderRadius.circular(20.r),
                     ),
                   ),
@@ -68,7 +70,7 @@ class ProfileLoadingSkeleton extends StatelessWidget {
                     width: 140.w,
                     height: 32.h,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF0F3F8),
+                      color: colors.inputBackground,
                       borderRadius: BorderRadius.circular(8.r),
                     ),
                   ),
@@ -90,7 +92,7 @@ class ProfileLoadingSkeleton extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12.r),
-                        border: Border.all(color: const Color(0xFFEAEFF4)),
+                        border: Border.all(color: colors.inputBorder),
                       ),
                       child: Column(
                         children: [
@@ -98,7 +100,7 @@ class ProfileLoadingSkeleton extends StatelessWidget {
                             width: 40.w,
                             height: 16.h,
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF0F3F8),
+                              color: colors.inputBackground,
                               borderRadius: BorderRadius.circular(6.r),
                             ),
                           ),
@@ -107,7 +109,7 @@ class ProfileLoadingSkeleton extends StatelessWidget {
                             width: 60.w,
                             height: 12.h,
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF0F3F8),
+                              color: colors.inputBackground,
                               borderRadius: BorderRadius.circular(6.r),
                             ),
                           ),
@@ -130,7 +132,7 @@ class ProfileLoadingSkeleton extends StatelessWidget {
                     width: 80.w,
                     height: 14.h,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF0F3F8),
+                      color: colors.inputBackground,
                       borderRadius: BorderRadius.circular(6.r),
                     ),
                   ),
@@ -149,7 +151,7 @@ class ProfileLoadingSkeleton extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(12.r),
-                          border: Border.all(color: const Color(0xFFEAEFF4)),
+                          border: Border.all(color: colors.inputBorder),
                         ),
                         child: Row(
                           children: [
@@ -157,7 +159,7 @@ class ProfileLoadingSkeleton extends StatelessWidget {
                               width: 40.w,
                               height: 40.w,
                               decoration: BoxDecoration(
-                                color: const Color(0xFFF0F3F8),
+                                color: colors.inputBackground,
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -170,7 +172,7 @@ class ProfileLoadingSkeleton extends StatelessWidget {
                                     width: double.infinity,
                                     height: 12.h,
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFF0F3F8),
+                                      color: colors.inputBackground,
                                       borderRadius: BorderRadius.circular(6.r),
                                     ),
                                   ),
@@ -180,7 +182,7 @@ class ProfileLoadingSkeleton extends StatelessWidget {
                                         MediaQuery.of(context).size.width * 0.4,
                                     height: 10.h,
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFF0F3F8),
+                                      color: colors.inputBackground,
                                       borderRadius: BorderRadius.circular(6.r),
                                     ),
                                   ),
@@ -192,7 +194,7 @@ class ProfileLoadingSkeleton extends StatelessWidget {
                               width: 20.w,
                               height: 20.w,
                               decoration: BoxDecoration(
-                                color: const Color(0xFFF0F3F8),
+                                color: colors.inputBackground,
                                 borderRadius: BorderRadius.circular(6.r),
                               ),
                             ),
@@ -217,7 +219,7 @@ class ProfileLoadingSkeleton extends StatelessWidget {
                     width: 100.w,
                     height: 14.h,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF0F3F8),
+                      color: colors.inputBackground,
                       borderRadius: BorderRadius.circular(6.r),
                     ),
                   ),
@@ -227,7 +229,7 @@ class ProfileLoadingSkeleton extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12.r),
-                      border: Border.all(color: const Color(0xFFEAEFF4)),
+                      border: Border.all(color: colors.inputBorder),
                     ),
                     child: Column(
                       children: List.generate(
@@ -245,7 +247,7 @@ class ProfileLoadingSkeleton extends StatelessWidget {
                                     width: 24.w,
                                     height: 24.w,
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFF0F3F8),
+                                      color: colors.inputBackground,
                                       borderRadius: BorderRadius.circular(4.r),
                                     ),
                                   ),
@@ -254,7 +256,7 @@ class ProfileLoadingSkeleton extends StatelessWidget {
                                     child: Container(
                                       height: 12.h,
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFFF0F3F8),
+                                        color: colors.inputBackground,
                                         borderRadius: BorderRadius.circular(
                                           6.r,
                                         ),
@@ -266,7 +268,7 @@ class ProfileLoadingSkeleton extends StatelessWidget {
                                     width: 20.w,
                                     height: 20.w,
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFF0F3F8),
+                                      color: colors.inputBackground,
                                       borderRadius: BorderRadius.circular(4.r),
                                     ),
                                   ),
@@ -276,7 +278,7 @@ class ProfileLoadingSkeleton extends StatelessWidget {
                             if (index < 2)
                               Divider(
                                 height: 1.h,
-                                color: const Color(0xFFEAEFF4),
+                                color: colors.inputBorder,
                               ),
                           ],
                         ),
@@ -296,7 +298,7 @@ class ProfileLoadingSkeleton extends StatelessWidget {
                 width: double.infinity,
                 height: 44.h,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF0F3F8),
+                  color: colors.inputBackground,
                   borderRadius: BorderRadius.circular(8.r),
                 ),
               ),
@@ -310,7 +312,7 @@ class ProfileLoadingSkeleton extends StatelessWidget {
               height: 12.h,
               margin: EdgeInsets.only(bottom: 24.h),
               decoration: BoxDecoration(
-                color: const Color(0xFFF0F3F8),
+                color: colors.inputBackground,
                 borderRadius: BorderRadius.circular(6.r),
               ),
             ),
@@ -320,3 +322,5 @@ class ProfileLoadingSkeleton extends StatelessWidget {
     );
   }
 }
+
+

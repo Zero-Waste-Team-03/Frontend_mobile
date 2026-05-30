@@ -35,6 +35,7 @@ class DonationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     final imageToUse = donation.imageUrl;
     final createdAtLabel = donation.createdAt != null
         ? donation.createdAt!.toLocal().toString().split(' ')[0]
@@ -49,9 +50,9 @@ class DonationCard extends StatelessWidget {
         ),
         padding: EdgeInsets.all(AppDimensions.paddingMedium.w),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(AppDimensions.borderRadiusMedium),
-          border: Border.all(color: AuthColors.dividerColor, width: 1),
+          border: Border.all(color: colors.divider, width: 1),
         ),
         child: Row(
           children: [
@@ -73,10 +74,10 @@ class DonationCard extends StatelessWidget {
               ),
               child: imageToUse.isEmpty
                   ? Container(
-                      color: AuthColors.lightGrayBackground,
+                      color: colors.lightGrayBackground,
                       child: Icon(
                         Icons.image_not_supported,
-                        color: AuthColors.inputText,
+                        color: colors.textMuted,
                       ),
                     )
                   : null,
@@ -96,7 +97,7 @@ class DonationCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: AppDimensions.subtitleSize.sp,
                       fontWeight: FontWeight.bold,
-                      color: AuthColors.headingText,
+                      color: colors.textPrimary,
                       fontFamily: AppFonts.primaryFont,
                     ),
                   ),
@@ -108,14 +109,14 @@ class DonationCard extends StatelessWidget {
                       Icon(
                         Icons.calendar_today,
                         size: 14.sp,
-                        color: AuthColors.subText,
+                        color: colors.textSecondary,
                       ),
                       SizedBox(width: 4.w),
                       Text(
                         createdAtLabel,
                         style: TextStyle(
                           fontSize: AppDimensions.bodySize.sp,
-                          color: AuthColors.subText,
+                          color: colors.textSecondary,
                           fontFamily: AppFonts.primaryFont,
                         ),
                       ),

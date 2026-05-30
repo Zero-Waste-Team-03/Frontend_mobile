@@ -75,6 +75,28 @@ class NotificationRepositoryImpl implements NotificationRepository {
   }
 
   @override
+  Future<Either<Failure, void>> markAllNotificationsAsRead() async {
+    try {
+      _logger.i('NotificationRepository: markAllNotificationsAsRead called');
+
+      await remoteDataSource.markAllNotificationsAsRead();
+
+      _logger.i(
+        'NotificationRepository: Successfully marked all notifications as read',
+      );
+
+      return const Right(null);
+    } on ServerException catch (e) {
+      _logger.e(
+        'NotificationRepository: ServerException in markAllNotificationsAsRead: $e',
+      );
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, void>> markNotificationsAsRead(
     List<String> notificationIds,
   ) async {

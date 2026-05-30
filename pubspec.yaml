@@ -104,3 +104,4 @@ flutter:
     - assets/icons/donations/category_fresh.svg
     - assets/icons/donations/upload_photo.svg
     - assets/images/default_avatar.png
+    - assets/images/default_avatar_dark.png

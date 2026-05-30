@@ -6,7 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
-import 'auth_colors.dart';
+import '../../../../core/theme/app_colors.dart';
 
 class OtpVerificationPage extends StatefulWidget {
   final Map<String, String> userData;
@@ -116,6 +116,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthSuccess) {
@@ -145,7 +146,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                   fontSize: AppDimensions.headingSize.sp,
                   fontWeight: FontWeight.w700,
                   letterSpacing: -0.025 * AppDimensions.headingSize.sp,
-                  color: AuthColors.headingText,
+                  color: colors.headingText,
                 ),
               ),
               SizedBox(height: AppDimensions.paddingSmall.h),
@@ -155,7 +156,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w400,
-                  color: AuthColors.primary.withValues(alpha: 0.7),
+                  color: colors.primary.withValues(alpha: 0.7),
                   height: 1.625,
                 ),
               ),
@@ -190,7 +191,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                         style: TextStyle(
                           fontSize: 24.sp,
                           fontWeight: FontWeight.bold,
-                          color: AuthColors.headingText,
+                          color: colors.headingText,
                         ),
                         inputFormatters: [
                           FilteringTextInputFormatter.digitsOnly,
@@ -204,8 +205,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                           counterText: "",
                           filled: true,
                           fillColor: isFilled
-                              ? AuthColors.primary.withValues(alpha: 0.08)
-                              : AuthColors.primary.withValues(alpha: 0.03),
+                              ? colors.primary.withValues(alpha: 0.08)
+                              : colors.primary.withValues(alpha: 0.03),
                           contentPadding: EdgeInsets.zero,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(
@@ -213,8 +214,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                             ),
                             borderSide: BorderSide(
                               color: isFilled
-                                  ? AuthColors.primary
-                                  : AuthColors.primary.withValues(alpha: 0.2),
+                                  ? colors.primary
+                                  : colors.primary.withValues(alpha: 0.2),
                             ),
                           ),
                           enabledBorder: OutlineInputBorder(
@@ -223,8 +224,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                             ),
                             borderSide: BorderSide(
                               color: isFilled
-                                  ? AuthColors.primary.withValues(alpha: 0.6)
-                                  : AuthColors.primary.withValues(alpha: 0.2),
+                                  ? colors.primary.withValues(alpha: 0.6)
+                                  : colors.primary.withValues(alpha: 0.2),
                               width: isFilled ? 1.5 : 1,
                             ),
                           ),
@@ -232,8 +233,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                             borderRadius: BorderRadius.circular(
                               AppDimensions.borderRadiusLarge.r,
                             ),
-                            borderSide: const BorderSide(
-                              color: AuthColors.primary,
+                            borderSide: BorderSide(
+                              color: colors.primary,
                               width: 2,
                             ),
                           ),
@@ -256,16 +257,12 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                   ? Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.timer,
-                          color: AuthColors.primary,
-                          size: 20.sp,
-                        ),
+                        Icon(Icons.timer, color: colors.primary, size: 20.sp),
                         SizedBox(width: AppDimensions.paddingSmall.w),
                         Text(
                           "Resend code in 0:${_timeLeft.toString().padLeft(2, '0')}",
                           style: TextStyle(
-                            color: AuthColors.primary,
+                            color: colors.primary,
                             fontWeight: FontWeight.bold,
                             fontSize: AppDimensions.bodySize.sp,
                           ),
@@ -278,7 +275,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                         Text(
                           "Didn't receive the code?",
                           style: TextStyle(
-                            color: AuthColors.subText,
+                            color: colors.subText,
                             fontSize: AppDimensions.bodySize.sp,
                           ),
                         ),
@@ -310,7 +307,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                           child: Text(
                             "Resend code",
                             style: TextStyle(
-                              color: AuthColors.primary,
+                              color: colors.primary,
                               decoration: TextDecoration.underline,
                               fontSize: AppDimensions.bodySize.sp,
                             ),
@@ -324,7 +321,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                 onPressed: isLoading ? null : _onVerify,
                 style: ElevatedButton.styleFrom(
                   minimumSize: Size(double.infinity, 56.h),
-                  backgroundColor: AuthColors.primary,
+                  backgroundColor: colors.primary,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(
@@ -355,7 +352,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                 child: Text(
                   "By continuing, you agree to Gasp'Zero's Terms of\nService and Privacy Policy.",
                   style: TextStyle(
-                    color: AuthColors.primary.withValues(alpha: 0.6),
+                    color: colors.primary.withValues(alpha: 0.6),
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w400,
                     height: 1.33,

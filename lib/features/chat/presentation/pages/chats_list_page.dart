@@ -95,26 +95,28 @@ class _ChatsListPageState extends State<ChatsListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Scaffold(
-      backgroundColor: AuthColors.background,
+      backgroundColor: colors.background  ,
       appBar: AppBar(
         title: Text(
           'Chats',
           style: TextStyle(
             fontSize: AppDimensions.appBarTitleSize.sp,
-            color: AuthColors.headingText,
+            color: colors.primary,
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: colors.background,
         elevation: 1,
-        iconTheme: const IconThemeData(color: AuthColors.headingText),
+        iconTheme: IconThemeData(color: colors.primary),
       ),
-      body: _buildContent(),
+      body: _buildContent(context),
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(BuildContext context) {
+    final colors = context.themeColors;
     if (_error != null) {
       return Center(
         child: Column(
@@ -122,58 +124,51 @@ class _ChatsListPageState extends State<ChatsListPage> {
           children: [
             Text(
               'Failed to load chats',
-              style: TextStyle(color: Colors.red, fontSize: 16.sp),
+              style: TextStyle(color: colors.error, fontSize: 16.sp),
             ),
             SizedBox(height: 8.h),
-            Text(_error!, style: const TextStyle(color: Colors.red)),
+            Text(_error!, style: TextStyle(color: colors.error)),
             SizedBox(height: 16.h),
-            ElevatedButton(
-              onPressed: _loadConversations,
-              child: const Text('Retry'),
-            ),
+            ElevatedButton(onPressed: _loadConversations, child: Text('Retry')),
           ],
         ),
       );
     }
 
     if (_loading || _activeConversations == null) {
-      return const Center(
-        child: CircularProgressIndicator(color: AuthColors.primary),
-      );
+      return Center(child: CircularProgressIndicator(color: colors.primary));
     }
 
     return RefreshIndicator(
       onRefresh: _loadConversations,
-      color: AuthColors.primary,
+      color: colors.primary,
       child: ListView.builder(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: EdgeInsets.symmetric(vertical: 8.h),
-        itemCount: _activeConversations!.length + 1, // +1 for Archived Chats item
+        itemCount:
+            _activeConversations!.length + 1, // +1 for Archived Chats item
         itemBuilder: (context, index) {
           if (index == 0) {
-            return _buildArchivedChatsItem();
+            return _buildArchivedChatsItem(context);
           }
           final conversation = _activeConversations![index - 1];
-          return _buildChatTile(conversation);
+          return _buildChatTile(conversation, context);
         },
       ),
     );
   }
 
-  Widget _buildArchivedChatsItem() {
+  Widget _buildArchivedChatsItem(BuildContext context) {
+    final colors = context.themeColors;
     return ListTile(
       leading: Container(
         width: 48.w,
         height: 48.w,
         decoration: BoxDecoration(
-          color: AuthColors.primary.withValues(alpha: 0.1),
+          color: colors.primary.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10.r),
         ),
-        child: Icon(
-          Icons.archive_outlined,
-          color: AuthColors.primary,
-          size: 24.sp,
-        ),
+        child: Icon(Icons.archive_outlined, color: colors.primary, size: 24.sp),
       ),
       title: Text(
         'Archived Chats',
@@ -181,26 +176,23 @@ class _ChatsListPageState extends State<ChatsListPage> {
       ),
       subtitle: Text(
         'View your archived conversations',
-        style: TextStyle(color: AuthColors.subText, fontSize: 13.sp),
+        style: TextStyle(color: colors.textSecondary, fontSize: 13.sp),
       ),
-      trailing: Icon(
-        Icons.chevron_right,
-        color: AuthColors.inputText,
-        size: 20.sp,
-      ),
+      trailing: Icon(Icons.chevron_right, color: colors.textMuted, size: 20.sp),
       onTap: () {
         context.push('/archived-chats');
       },
     );
   }
 
-  Widget _buildChatTile(ConversationEntity conversation) {
+  Widget _buildChatTile(ConversationEntity conversation, BuildContext context) {
+    final colors = context.themeColors;
     return ListTile(
       leading: Container(
         width: 48.w,
         height: 48.w,
         decoration: BoxDecoration(
-          color: AuthColors.primary.withValues(alpha: 0.1),
+          color: colors.primary.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10.r),
           image: conversation.donationImageUrl != null
               ? DecorationImage(
@@ -208,43 +200,42 @@ class _ChatsListPageState extends State<ChatsListPage> {
                   fit: BoxFit.cover,
                 )
               : conversation.counterpartAvatarUrl != null
-                  ? DecorationImage(
-                      image: NetworkImage(
-                        conversation.counterpartAvatarUrl!,
-                      ),
-                      fit: BoxFit.cover,
-                    )
-                  : null,
+              ? DecorationImage(
+                  image: NetworkImage(conversation.counterpartAvatarUrl!),
+                  fit: BoxFit.cover,
+                )
+              : null,
         ),
-        child: (conversation.donationImageUrl == null &&
+        child:
+            (conversation.donationImageUrl == null &&
                 conversation.counterpartAvatarUrl == null)
             ? Icon(
                 Icons.shopping_basket_outlined,
-                color: AuthColors.primary,
+                color: colors.primary,
                 size: 24.sp,
               )
             : (conversation.isOnline
-                ? Stack(
-                    children: [
-                      Positioned(
-                        right: 0,
-                        bottom: 0,
-                        child: Container(
-                          width: 12.r,
-                          height: 12.r,
-                          decoration: BoxDecoration(
-                            color: Colors.green,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.white,
-                              width: 2.w,
+                  ? Stack(
+                      children: [
+                        Positioned(
+                          right: 0,
+                          bottom: 0,
+                          child: Container(
+                            width: 12.r,
+                            height: 12.r,
+                            decoration: BoxDecoration(
+                              color: Colors.green,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 2.w,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  )
-                : null),
+                      ],
+                    )
+                  : null),
       ),
       title: Text(
         conversation.counterpartName ?? 'User',
@@ -258,13 +249,9 @@ class _ChatsListPageState extends State<ChatsListPage> {
             'No messages yet',
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: TextStyle(color: AuthColors.subText, fontSize: 13.sp),
+        style: TextStyle(color: colors.textSecondary, fontSize: 13.sp),
       ),
-      trailing: Icon(
-        Icons.chevron_right,
-        color: AuthColors.inputText,
-        size: 20.sp,
-      ),
+      trailing: Icon(Icons.chevron_right, color: colors.textMuted, size: 20.sp),
       onTap: () {
         context.push('/chat', extra: conversation.reservationId);
       },

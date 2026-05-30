@@ -11,6 +11,8 @@ import 'graphql/__generated__/get_notification_stats.req.gql.dart';
 import 'graphql/__generated__/get_notification_stats.var.gql.dart';
 import 'graphql/__generated__/get_notifications.req.gql.dart';
 import 'graphql/__generated__/get_notifications.var.gql.dart';
+import 'graphql/__generated__/mark_all_notifications_as_read.req.gql.dart';
+import 'graphql/__generated__/mark_all_notifications_as_read.var.gql.dart';
 import 'graphql/__generated__/mark_notifications_as_read.req.gql.dart';
 import 'graphql/__generated__/mark_notifications_as_read.var.gql.dart';
 import '../../domain/entities/notification_stats.dart';
@@ -22,6 +24,8 @@ abstract class NotificationRemoteDataSource {
   });
 
   Future<NotificationStats> getNotificationStats();
+
+  Future<void> markAllNotificationsAsRead();
 
   Future<void> markNotificationsAsRead(List<String> notificationIds);
 
@@ -151,6 +155,35 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
       );
     } catch (e) {
       _logger.e('getNotificationStats error: $e', error: e);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> markAllNotificationsAsRead() async {
+    _logger.i('markAllNotificationsAsRead called');
+
+    try {
+      final vars = GMarkAllNotificationsAsReadVars.fromJson(const {});
+      if (vars == null) {
+        throw ServerException(
+          'Failed to build markAllNotificationsAsRead request',
+        );
+      }
+
+      await _graphqlRequestExecutor.execute(
+        client: _ferryClient,
+        request: GMarkAllNotificationsAsReadReq(
+          (b) => b
+            ..vars = vars.toBuilder()
+            ..fetchPolicy = FetchPolicy.NetworkOnly,
+        ),
+        operationName: 'markAllNotificationsAsRead',
+      );
+
+      _logger.i('Successfully marked all notifications as read');
+    } catch (e) {
+      _logger.e('markAllNotificationsAsRead error: $e', error: e);
       rethrow;
     }
   }
