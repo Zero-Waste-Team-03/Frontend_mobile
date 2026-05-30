@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gaspzero/core/app_icons.dart';
 import 'package:gaspzero/core/di/injection.dart';
+import 'package:gaspzero/core/theme/app_colors.dart';
 import 'package:gaspzero/features/notification/presentation/bloc/notification_stats_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -40,6 +41,7 @@ class _NotificationButtonState extends State<NotificationButton> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     final effectiveOnPressed =
         widget.onPressed ?? () => context.push('/notifications');
 
@@ -65,14 +67,14 @@ class _NotificationButtonState extends State<NotificationButton> {
                       vertical: 1.h,
                     ),
                     decoration: const BoxDecoration(
-                      color: Color(0xFFE53935),
+                      color: AppColors.error,
                       shape: BoxShape.circle,
                     ),
                     child: Center(
                       child: Text(
                         unreadCount > 9 ? '9+' : unreadCount.toString(),
                         style: TextStyle(
-                          color: Colors.white,
+                          color: colors.onPrimary,
                           fontSize: 9.sp,
                           fontWeight: FontWeight.w700,
                           height: 1,
@@ -85,7 +87,7 @@ class _NotificationButtonState extends State<NotificationButton> {
 
           final icon = Icon(
             AppIcons.notifications,
-            color: widget.iconColor ?? Theme.of(context).colorScheme.primary,
+            color: widget.iconColor ?? colors.primary,
             size: widget.iconSize ?? 24.sp,
           );
 
@@ -102,9 +104,7 @@ class _NotificationButtonState extends State<NotificationButton> {
             icon: content,
             onPressed: effectiveOnPressed,
             style: IconButton.styleFrom(
-              backgroundColor:
-                  widget.backgroundColor ??
-                  Theme.of(context).colorScheme.surfaceContainerHighest,
+              backgroundColor: widget.backgroundColor ?? colors.surface,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.r),
               ),

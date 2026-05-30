@@ -11,20 +11,21 @@ class LeaderboardTopThreeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     final rankMap = {for (final entry in topThree) entry.rank: entry};
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(14, 10, 14, 14),
-      color: AppColors.background,
+      color: colors.background,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Expanded(
             child: _TopRankAvatar(
               entry: rankMap[2],
-              borderColor: const Color(0xFFB8C0D0),
-              badgeColor: const Color(0xFF98A2B2),
+              borderColor: Color(0xFFC0C0C0),
+              badgeColor: Color(0xFFC0C0C0),
               avatarSize:
                   shared_theme.AppDimensions.leaderboardTopAvatarSecondarySize,
               lift: -8,
@@ -33,8 +34,8 @@ class LeaderboardTopThreeCard extends StatelessWidget {
           Expanded(
             child: _TopRankAvatar(
               entry: rankMap[1],
-              borderColor: const Color(0xFFE8B90A),
-              badgeColor: const Color(0xFFE8B90A),
+              borderColor: Color(0xFFFFD700),
+              badgeColor: Color(0xFFFFD700),
               avatarSize:
                   shared_theme.AppDimensions.leaderboardTopAvatarPrimarySize *
                   1.08,
@@ -45,8 +46,8 @@ class LeaderboardTopThreeCard extends StatelessWidget {
           Expanded(
             child: _TopRankAvatar(
               entry: rankMap[3],
-              borderColor: const Color(0xFFF0B26E),
-              badgeColor: const Color(0xFFF29B44),
+              borderColor: Color(0xFFCD7F32), // bronze
+              badgeColor: Color(0xFFCD7F32),
               avatarSize:
                   shared_theme.AppDimensions.leaderboardTopAvatarSecondarySize,
               lift: -8,
@@ -77,6 +78,7 @@ class _TopRankAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     final currentEntry = entry;
     if (currentEntry == null) {
       return const SizedBox.shrink();
@@ -111,7 +113,7 @@ class _TopRankAvatar extends StatelessWidget {
                   height: avatarLimit,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppColors.surface,
+                    color: colors.surface,
                     border: Border.all(
                       color: borderColor,
                       width: crowned ? 4.5 : 3,
@@ -127,14 +129,14 @@ class _TopRankAvatar extends StatelessWidget {
                   clipBehavior: Clip.antiAlias,
                   child: hasAvatar
                       ? CircleAvatar(
-                          backgroundImage: NetworkImage( currentEntry.avatarUrl),
+                          backgroundImage: NetworkImage(currentEntry.avatarUrl),
                           foregroundColor: Colors.white,
                           onBackgroundImageError: (_, __) {},
                           child: currentEntry.avatarUrl.isEmpty
-                          ? _buildFallbackAvatar()
-                          : null,
+                              ? _buildFallbackAvatar(context)
+                              : null,
                         )
-                      : _buildFallbackAvatar(),
+                      : _buildFallbackAvatar(context),
                 ),
               ),
             ),
@@ -149,12 +151,12 @@ class _TopRankAvatar extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: badgeColor,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.surface, width: 2),
+                  border: Border.all(color: colors.surface, width: 2),
                 ),
                 child: Text(
                   currentEntry.rank.toString(),
                   style: AppTextStyles.titleMedium.copyWith(
-                    color: AppColors.onPrimary,
+                    color: colors.onPrimary,
                     fontWeight: FontWeight.w700,
                     fontSize:
                         shared_theme.AppDimensions.leaderboardTopBadgeFontSize,
@@ -165,29 +167,35 @@ class _TopRankAvatar extends StatelessWidget {
 
             SizedBox(height: 30),
 
-            
             Align(
               alignment: Alignment.center,
               child: Transform.translate(
-                offset: Offset(0, 2*lift ),
+                offset: Offset(0, 2 * lift),
                 child: SizedBox(
                   width: textWidth,
                   child: Text(
-                        currentEntry.name.isNotEmpty
-                            ? currentEntry.name.trim().split(RegExp(r'\s+')).length >= 2
+                    currentEntry.name.isNotEmpty
+                        ? currentEntry.name
+                                      .trim()
+                                      .split(RegExp(r'\s+'))
+                                      .length >=
+                                  2
                               ? "${currentEntry.name.trim().split(RegExp(r'\s+')).first} ${currentEntry.name.trim().split(RegExp(r'\s+')).last[0].toUpperCase()}."
-                              : currentEntry.name.trim().split(RegExp(r'\s+')).first
-                            : 'Unknown user',
-                        maxLines: 1,
-                        softWrap: false,
-                        textAlign: TextAlign.center,
-                        overflow: TextOverflow.visible,
-                        style: AppTextStyles.headlineMedium.copyWith(
-                          fontSize:
-                              shared_theme.AppDimensions.leaderboardTopNameFontSize,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
+                              : currentEntry.name
+                                    .trim()
+                                    .split(RegExp(r'\s+'))
+                                    .first
+                        : 'Unknown user',
+                    maxLines: 1,
+                    softWrap: false,
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.visible,
+                    style: AppTextStyles.headlineMedium.copyWith(
+                      fontSize:
+                          shared_theme.AppDimensions.leaderboardTopNameFontSize,
+                      color: colors.textPrimary,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -195,12 +203,12 @@ class _TopRankAvatar extends StatelessWidget {
             const SizedBox(height: 4),
 
             Transform.translate(
-              offset: Offset(0, 2*lift),
+              offset: Offset(0, 2 * lift),
 
               child: Text(
                 '${_formatPoints(currentEntry.points)} points',
                 style: AppTextStyles.titleMedium.copyWith(
-                  color: AppColors.primary,
+                  color: colors.primary,
                   fontWeight: FontWeight.w700,
                   fontSize: shared_theme.AppDimensions.bodySize,
                 ),
@@ -212,10 +220,16 @@ class _TopRankAvatar extends StatelessWidget {
     );
   }
 
-  Widget _buildFallbackAvatar() {
+  Widget _buildFallbackAvatar(BuildContext context) {
+    final colors = context.themeColors;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return CircleAvatar(
-      backgroundImage: const AssetImage('assets/images/default_avatar.png'),
-      backgroundColor: AppColors.surface,
+      backgroundImage: AssetImage(
+        isDark
+            ? 'assets/images/default_avatar_dark.png'
+            : 'assets/images/default_avatar.png',
+      ),
+      backgroundColor: colors.surface,
     );
   }
 
@@ -239,6 +253,7 @@ class LeaderboardTopThreeSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     final double avatarPrimary =
         shared_theme.AppDimensions.leaderboardTopAvatarPrimarySize;
     final double avatarSecondary =
@@ -249,7 +264,7 @@ class LeaderboardTopThreeSkeleton extends StatelessWidget {
         width: size,
         height: size,
         decoration: BoxDecoration(
-          color: AppColors.surface.withValues(alpha: 0.8),
+          color: colors.surface.withValues(alpha: 0.8),
           shape: BoxShape.circle,
         ),
       );
@@ -259,14 +274,14 @@ class LeaderboardTopThreeSkeleton extends StatelessWidget {
       return Container(
         width: width,
         height: height,
-        color: AppColors.surface.withValues(alpha: 0.75),
+        color: colors.surface.withValues(alpha: 0.75),
       );
     }
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(14, 10, 14, 14),
-      color: AppColors.background,
+      color: colors.background,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.end,

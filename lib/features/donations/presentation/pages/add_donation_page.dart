@@ -282,10 +282,10 @@ class _AddDonationPageState extends State<AddDonationPage> {
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: 32.h),
               decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
+                color: colors.background,
                 borderRadius: BorderRadius.circular(12.r),
                 border: Border.all(
-                  color: const Color(0xFFCBD5E1),
+                  color: colors.border,
                   width: 2,
                   style: BorderStyle.none,
                 ),
@@ -394,11 +394,11 @@ class _AddDonationPageState extends State<AddDonationPage> {
                     decoration: BoxDecoration(
                       color: isSelected
                           ? colors.primary.withValues(alpha: 0.1)
-                          : const Color(0xFFF1F5F9),
+                          : colors.surface,
                       border: Border.all(
                         color: isSelected
                             ? colors.primary
-                            : Colors.transparent,
+                            : colors.border,
                         width: 2,
                       ),
                       borderRadius: BorderRadius.circular(16.r),
@@ -960,7 +960,7 @@ class _AddDonationPageState extends State<AddDonationPage> {
         style: TextStyle(
           fontSize: 14.sp,
           fontWeight: FontWeight.w600,
-          color: colors.labelText,
+          color: colors.textSecondary,
         ),
       ),
     );

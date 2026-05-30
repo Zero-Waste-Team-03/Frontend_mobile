@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../shared/theme/app_colors.dart' as shared_theme;
+import '../../../../shared/theme/app_colors.dart' as shared_theme hide AppColors;
 import '../../../../shared/widgets/notification_button.dart';
 import '../../domain/entities/leaderboard_period.dart';
 import '../bloc/leaderboard_bloc.dart';
@@ -97,12 +95,11 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
   }
 
   void _updatePinnedCardVisibility() {
-    
     if (context.read<LeaderboardBloc>().state is LeaderboardLoaded) {
       final state = context.read<LeaderboardBloc>().state as LeaderboardLoaded;
       if (state.isUserInTop3()) {
         setState(() {
-        _hidePinnedCurrentUserCard = false;
+          _hidePinnedCurrentUserCard = false;
         });
         return;
       }
@@ -140,11 +137,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
     final size = MediaQuery.of(context).size;
 
     final shouldHidePinned =
-        listRect.top <= pinnedRect.top
-        &&
-        listRect.bottom >= size.height * 0.2
-        ;
-         
+        listRect.top <= pinnedRect.top && listRect.bottom >= size.height * 0.2;
 
     if (shouldHidePinned != _hidePinnedCurrentUserCard) {
       setState(() {
@@ -161,8 +154,9 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: colors.background,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -216,15 +210,13 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                                     fontSize: shared_theme
                                         .AppDimensions
                                         .appBarTitleSize,
-                                    color: AppColors.primary,
+                                    color: colors.primary,
                                   ),
                                 ),
                               ),
-                              NotificationButton(
-                                backgroundColor: AppColors.divider.withValues(
-                                  alpha: 0.45,
-                                ),
-                                iconColor: AppColors.primary,
+                                NotificationButton(
+                                backgroundColor: colors.surface,
+                                iconColor: colors.primary,
                                 iconSize: shared_theme.AppDimensions.iconSize,
                               ),
                             ],
@@ -289,6 +281,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
   }
 
   Widget _buildBody(LeaderboardState state) {
+    final colors = context.themeColors;
     if (state is LeaderboardLoading) {
       // show skeleton: one top-3 skeleton + several row skeletons
       return RefreshIndicator(
@@ -316,11 +309,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
           padding: const EdgeInsets.fromLTRB(16, 80, 16, 170),
           children: [
             const SizedBox(height: 96),
-            const Icon(
-              Icons.error_outline,
-              size: 42,
-              color: AppColors.textMuted,
-            ),
+            Icon(Icons.error_outline, size: 42, color: colors.textMuted),
             const SizedBox(height: 10),
             Center(child: Text(state.message, style: AppTextStyles.bodyLarge)),
           ],
@@ -341,11 +330,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
           padding: const EdgeInsets.fromLTRB(16, 80, 16, 170),
           children: [
             const SizedBox(height: 96),
-            const Icon(
-              Icons.leaderboard_outlined,
-              size: 64,
-              color: AppColors.textMuted,
-            ),
+            Icon(Icons.leaderboard_outlined, size: 64, color: colors.textMuted),
             const SizedBox(height: 12),
             Center(
               child: Text(
@@ -431,6 +416,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
   }
 
   Widget _buildFloatingChatButton({required bool isDragging}) {
+    final colors = context.themeColors;
     return GestureDetector(
       onTap: () => context.push('/chats'),
       child: Material(
@@ -441,20 +427,20 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
           width: _chatButtonSize,
           height: _chatButtonSize,
           decoration: BoxDecoration(
-            color: AppColors.primary,
+            color: colors.primary,
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.3),
+                color: colors.primary.withValues(alpha: 0.3),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
             ],
           ),
-          child: const Center(
+          child: Center(
             child: Icon(
               Icons.chat_bubble_rounded,
-              color: Colors.white,
+              color: colors.onPrimary,
               size: 26,
             ),
           ),
@@ -511,6 +497,7 @@ class _PeriodToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     final monthlySelected = period == LeaderboardPeriod.monthly;
 
     return Container(
@@ -518,7 +505,7 @@ class _PeriodToggle extends StatelessWidget {
         shared_theme.AppDimensions.leaderboardTogglePadding,
       ),
       decoration: BoxDecoration(
-        color: const Color(0xFFDCE3E0),
+        color: colors.divider,
         borderRadius: BorderRadius.circular(
           shared_theme.AppDimensions.leaderboardToggleRadius,
         ),
@@ -558,12 +545,13 @@ class _SegmentButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         height: shared_theme.AppDimensions.leaderboardToggleHeight,
         decoration: BoxDecoration(
-          color: selected ? AppColors.primary : Colors.transparent,
+          color: selected ? colors.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(
             shared_theme.AppDimensions.leaderboardToggleSegmentRadius,
           ),
@@ -573,7 +561,7 @@ class _SegmentButton extends StatelessWidget {
             label,
             style: AppTextStyles.headlineMedium.copyWith(
               fontSize: shared_theme.AppDimensions.leaderboardToggleFontSize,
-              color: selected ? AppColors.onPrimary : AppColors.primary,
+              color: selected ? colors.onPrimary : colors.primary,
             ),
           ),
         ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../presentation/bloc/notification_bloc.dart';
 import '../../presentation/bloc/notification_state.dart';
 
@@ -15,6 +16,7 @@ class NotificationBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return BlocBuilder<NotificationBloc, NotificationState>(
       bloc: notificationBloc,
       builder: (context, state) {
@@ -28,7 +30,11 @@ class NotificationBadge extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: onTap,
-              child: const Icon(Icons.notifications_outlined, size: 24.0),
+              child: Icon(
+                Icons.notifications_outlined,
+                size: 24.0,
+                color: colors.textPrimary,
+              ),
             ),
             if (unreadCount > 0)
               Positioned(
@@ -39,14 +45,14 @@ class NotificationBadge extends StatelessWidget {
                     horizontal: 6.0,
                     vertical: 2.0,
                   ),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFFFA500),
+                  decoration: BoxDecoration(
+                    color: colors.primary,
                     borderRadius: BorderRadius.all(Radius.circular(10.0)),
                   ),
                   child: Text(
                     unreadCount > 99 ? '99+' : unreadCount.toString(),
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: colors.onPrimary,
                       fontSize: 10.0,
                       fontWeight: FontWeight.w700,
                     ),

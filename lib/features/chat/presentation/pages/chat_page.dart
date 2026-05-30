@@ -5,7 +5,7 @@ import 'package:gaspzero/core/di/injection.dart';
 
 import 'package:gaspzero/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gaspzero/features/auth/presentation/bloc/auth_state.dart';
-import '../../../../shared/theme/app_colors.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../bloc/chat_bloc.dart';
 import '../bloc/chat_event.dart';
 import '../bloc/chat_state.dart';
@@ -131,19 +131,20 @@ class _ChatScreenState extends State<ChatScreen> {
         }
       },
       builder: (context, state) {
+        final colors = context.themeColors;
         final bool isActive =
             state is ChatLoaded &&
             (state.conversation.status == 'Active' ||
                 state.conversation.status == 'ACTIVE');
 
         return Scaffold(
-          backgroundColor: AuthColors.background,
-          appBar: _buildAppBar(context, state),
+          backgroundColor: colors.background,
+          appBar: _buildAppBar(context, state, colors),
           body: Column(
             children: [
-              _buildStatusBanner(state),
-              Expanded(child: _buildMessageList(context, state)),
-              _buildInputArea(context, isActive),
+              _buildStatusBanner(state, colors),
+              Expanded(child: _buildMessageList(context, state, colors)),
+              _buildInputArea(context, isActive, colors),
             ],
           ),
         );
@@ -151,17 +152,21 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  PreferredSizeWidget _buildAppBar(BuildContext context, ChatState state) {
-    final String? donationTitle = state is ChatLoaded ? state.conversation.donationTitle : null;
+  PreferredSizeWidget _buildAppBar(BuildContext context, ChatState state, ThemeColors colors) {
+    final String? donationTitle = state is ChatLoaded
+        ? state.conversation.donationTitle
+        : null;
 
     return AppBar(
-      backgroundColor: AuthColors.background,
+      backgroundColor: colors.background,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       centerTitle: false,
       title: Row(
         children: [
-          if (state is ChatLoaded && (state.conversation.donationImageUrl != null || state.conversation.counterpartAvatarUrl != null))
+          if (state is ChatLoaded &&
+              (state.conversation.donationImageUrl != null ||
+                  state.conversation.counterpartAvatarUrl != null))
             Stack(
               children: [
                 if (state.conversation.donationImageUrl != null)
@@ -171,7 +176,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8.r),
                       image: DecorationImage(
-                        image: NetworkImage(state.conversation.donationImageUrl!),
+                        image: NetworkImage(
+                          state.conversation.donationImageUrl!,
+                        ),
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -179,7 +186,9 @@ class _ChatScreenState extends State<ChatScreen> {
                 else
                   CircleAvatar(
                     radius: 18.r,
-                    backgroundImage: NetworkImage(state.conversation.counterpartAvatarUrl!),
+                    backgroundImage: NetworkImage(
+                      state.conversation.counterpartAvatarUrl!,
+                    ),
                   ),
                 if (state.conversation.isOnline)
                   Positioned(
@@ -198,13 +207,12 @@ class _ChatScreenState extends State<ChatScreen> {
               ],
             )
           else if (state is ChatLoaded)
-
             Stack(
               children: [
                 CircleAvatar(
                   radius: 18.r,
-                  backgroundColor: AuthColors.primary.withValues(alpha: 0.1),
-                  child: Icon(Icons.person, size: 20.sp, color: AuthColors.primary),
+                  backgroundColor: colors.primary.withValues(alpha: 0.1),
+                  child: Icon(Icons.person, size: 20.sp, color: colors.primary),
                 ),
                 if (state.conversation.isOnline)
                   Positioned(
@@ -228,10 +236,12 @@ class _ChatScreenState extends State<ChatScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  state is ChatLoaded ? (state.conversation.counterpartName ?? 'User') : 'Loading...',
+                  state is ChatLoaded
+                      ? (state.conversation.counterpartName ?? 'User')
+                      : 'Loading...',
                   style: TextStyle(
                     fontSize: 18.sp,
-                    color: AuthColors.headingText,
+                    color: colors.textPrimary,
                     fontWeight: FontWeight.bold,
                     fontFamily: AppFonts.primaryFont,
                   ),
@@ -242,7 +252,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     donationTitle,
                     style: TextStyle(
                       fontSize: 12.sp,
-                      color: AuthColors.subText,
+                      color: colors.textSecondary,
                       fontFamily: AppFonts.primaryFont,
                     ),
                     maxLines: 1,
@@ -255,17 +265,19 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       bottom: PreferredSize(
         preferredSize: Size.fromHeight(1.h),
-        child: Divider(height: 1.h, color: AuthColors.dividerColor),
+        child: Divider(height: 1.h, color: colors.divider),
       ),
       actions: [
         if (state is ChatLoaded)
           IconButton(
-            icon: Icon(Icons.info_outline, size: 24.sp, color: AuthColors.primary),
+            icon: Icon(Icons.info_outline, size: 24.sp, color: colors.onPrimary),
             onPressed: () {
               _showUserReportDialog(context, state.conversation);
             },
           ),
-        if (state is ChatLoaded && (state.conversation.status == 'Active' || state.conversation.status == 'ACTIVE'))
+        if (state is ChatLoaded &&
+            (state.conversation.status == 'Active' ||
+                state.conversation.status == 'ACTIVE'))
           Padding(
             padding: EdgeInsets.only(right: 8.w),
             child: TextButton.icon(
@@ -276,19 +288,19 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 );
               },
-              icon: Icon(Icons.check_circle_outline, size: 20.sp),
+              icon: Icon(Icons.check_circle_outline, size: 20.sp, color: colors.onPrimary),
               label: Text(
                 'Finish',
                 style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600),
               ),
-              style: TextButton.styleFrom(foregroundColor: AuthColors.primary),
+              style: TextButton.styleFrom(foregroundColor: colors.headingText),
             ),
           ),
       ],
     );
   }
 
-  Widget _buildStatusBanner(ChatState state) {
+  Widget _buildStatusBanner(ChatState state,ThemeColors colors) {
     if (state is ChatLoaded &&
         state.conversation.status != 'Active' &&
         state.conversation.status != 'ACTIVE') {
@@ -296,22 +308,20 @@ class _ChatScreenState extends State<ChatScreen> {
         width: double.infinity,
         padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
         decoration: BoxDecoration(
-          color: AuthColors.lightGrayBackground,
-          border: Border(
-            bottom: BorderSide(color: AuthColors.dividerColor, width: 0.5),
-          ),
+          color: colors.lightGrayBackground,
+          border: Border(bottom: BorderSide(color: colors.divider, width: 0.5)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.info_outline, size: 16.sp, color: AuthColors.subText),
+            Icon(Icons.info_outline, size: 16.sp, color: colors.textSecondary),
             SizedBox(width: 8.w),
             Flexible(
               child: Text(
                 'This conversation is ${state.conversation.status.toLowerCase()}. You cannot send messages.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: AuthColors.subText,
+                  color: colors.textSecondary,
                   fontWeight: FontWeight.w500,
                   fontSize: 13.sp,
                   fontFamily: AppFonts.primaryFont,
@@ -325,10 +335,10 @@ class _ChatScreenState extends State<ChatScreen> {
     return const SizedBox.shrink();
   }
 
-  Widget _buildMessageList(BuildContext context, ChatState state) {
+  Widget _buildMessageList(BuildContext context, ChatState state, ThemeColors colors) {
     if (state is ChatLoading) {
-      return const Center(
-        child: CircularProgressIndicator(color: AuthColors.primary),
+      return  Center(
+        child: CircularProgressIndicator(color: colors.primary),
       );
     }
 
@@ -342,13 +352,13 @@ class _ChatScreenState extends State<ChatScreen> {
               Icon(
                 Icons.chat_bubble_outline,
                 size: 48.sp,
-                color: AuthColors.subText.withValues(alpha: 0.3),
+                color: colors.textSecondary.withValues(alpha: 0.3),
               ),
               SizedBox(height: 16.h),
               Text(
                 'No messages yet',
                 style: TextStyle(
-                  color: AuthColors.subText,
+                  color: colors.textSecondary,
                   fontSize: 16.sp,
                   fontFamily: AppFonts.primaryFont,
                 ),
@@ -357,7 +367,7 @@ class _ChatScreenState extends State<ChatScreen> {
               Text(
                 'Say hello to start the conversation!',
                 style: TextStyle(
-                  color: AuthColors.subText.withValues(alpha: 0.7),
+                  color: colors.textSecondary.withValues(alpha: 0.7),
                   fontSize: 14.sp,
                   fontFamily: AppFonts.primaryFont,
                 ),
@@ -418,10 +428,7 @@ class _ChatScreenState extends State<ChatScreen> {
               Text(
                 state.message,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: AuthColors.headingText,
-                  fontSize: 14.sp,
-                ),
+                style: TextStyle(color: colors.textPrimary, fontSize: 14.sp),
               ),
               SizedBox(height: 16.h),
               ElevatedButton(
@@ -439,7 +446,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return const SizedBox.shrink();
   }
 
-  Widget _buildInputArea(BuildContext context, bool isActive) {
+  Widget _buildInputArea(BuildContext context, bool isActive, ThemeColors colors) {
     // Input area implementation...
     return Container(
       // existing container code...
@@ -450,7 +457,7 @@ class _ChatScreenState extends State<ChatScreen> {
         bottom: MediaQuery.of(context).padding.bottom + 12.h,
       ),
       decoration: BoxDecoration(
-        color: AuthColors.inputBackground,
+        color: colors.surface,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -464,7 +471,7 @@ class _ChatScreenState extends State<ChatScreen> {
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                color: AuthColors.lightGrayBackground,
+                color: colors.lightGrayBackground,
                 borderRadius: BorderRadius.circular(24.r),
               ),
               child: TextField(
@@ -472,13 +479,13 @@ class _ChatScreenState extends State<ChatScreen> {
                 enabled: isActive,
                 style: TextStyle(
                   fontSize: 15.sp,
-                  color: AuthColors.headingText,
+                  color: colors.textPrimary,
                   fontFamily: AppFonts.primaryFont,
                 ),
                 decoration: InputDecoration(
                   hintText: 'Type a message...',
                   hintStyle: TextStyle(
-                    color: AuthColors.subText,
+                    color: colors.textSecondary,
                     fontSize: 15.sp,
                   ),
                   border: InputBorder.none,
@@ -501,13 +508,13 @@ class _ChatScreenState extends State<ChatScreen> {
               padding: EdgeInsets.all(12.w),
               decoration: BoxDecoration(
                 color: isActive
-                    ? AuthColors.primary
-                    : AuthColors.subText.withValues(alpha: 0.3),
+                    ? colors.primary
+                    : colors.textSecondary.withValues(alpha: 0.3),
                 shape: BoxShape.circle,
                 boxShadow: isActive
                     ? [
                         BoxShadow(
-                          color: AuthColors.primary.withValues(alpha: 0.3),
+                          color: colors.primary.withValues(alpha: 0.3),
                           blurRadius: 8,
                           offset: const Offset(0, 4),
                         ),
@@ -523,6 +530,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _showUserReportDialog(BuildContext context, dynamic conversation) {
+    final colors = context.themeColors;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -530,7 +538,7 @@ class _ChatScreenState extends State<ChatScreen> {
       builder: (innerContext) => Container(
         height: MediaQuery.of(innerContext).size.height * 0.7,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colors.background,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
         ),
         padding: EdgeInsets.all(20.w),
@@ -553,7 +561,7 @@ class _ChatScreenState extends State<ChatScreen> {
               style: TextStyle(
                 fontSize: 18.sp,
                 fontWeight: FontWeight.bold,
-                color: AuthColors.headingText,
+                color: colors.textPrimary,
               ),
             ),
             SizedBox(height: 20.h),
@@ -585,7 +593,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           'Interested in: ${conversation.donationTitle}',
                           style: TextStyle(
                             fontSize: 14.sp,
-                            color: AuthColors.subText,
+                            color: colors.textSecondary,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -598,15 +606,18 @@ class _ChatScreenState extends State<ChatScreen> {
             SizedBox(height: 30.h),
             Text(
               'Actions',
-              style: TextStyle(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 10.h),
             ListTile(
-              leading: const Icon(Icons.report_problem_outlined, color: Colors.red),
-              title: const Text('Report User', style: TextStyle(color: Colors.red)),
+              leading: const Icon(
+                Icons.report_problem_outlined,
+                color: Colors.red,
+              ),
+              title: const Text(
+                'Report User',
+                style: TextStyle(color: Colors.red),
+              ),
               subtitle: const Text('Notify admins about suspicious behavior'),
               onTap: () {
                 Navigator.pop(innerContext);
@@ -619,7 +630,7 @@ class _ChatScreenState extends State<ChatScreen> {
               onTap: () {
                 Navigator.pop(innerContext);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Blocking feature coming soon')),
+                  SnackBar(content: Text('Blocking feature coming soon',style: TextStyle(color: colors.background)),backgroundColor: colors.onBackground,),
                 );
               },
             ),
@@ -641,7 +652,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     // Capture the bloc before showing the modal
     final chatBloc = context.read<ChatBloc>();
-
+    final colors = context.themeColors;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -649,7 +660,7 @@ class _ChatScreenState extends State<ChatScreen> {
       builder: (innerContext) => Container(
         height: MediaQuery.of(innerContext).size.height * 0.6,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colors.background,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
         ),
         padding: EdgeInsets.all(20.w),
@@ -672,20 +683,26 @@ class _ChatScreenState extends State<ChatScreen> {
               style: TextStyle(
                 fontSize: 18.sp,
                 fontWeight: FontWeight.bold,
-                color: AuthColors.headingText,
+                color: colors.textPrimary,
               ),
             ),
             SizedBox(height: 10.h),
             Expanded(
               child: ListView.separated(
                 itemCount: reasons.length,
-                separatorBuilder: (context, index) => Divider(height: 1.h, color: AuthColors.dividerColor),
+                separatorBuilder: (context, index) =>
+                    Divider(height: 1.h, color: colors.divider),
                 itemBuilder: (context, index) {
                   return ListTile(
                     title: Text(reasons[index]),
                     onTap: () {
                       Navigator.pop(innerContext);
-                      _submitReport(context, chatBloc, conversation, reasons[index]);
+                      _submitReport(
+                        context,
+                        chatBloc,
+                        conversation,
+                        reasons[index],
+                      );
                     },
                   );
                 },
@@ -697,30 +714,34 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  void _submitReport(BuildContext context, ChatBloc chatBloc, dynamic conversation, String reason) {
+  void _submitReport(
+    BuildContext context,
+    ChatBloc chatBloc,
+    dynamic conversation,
+    String reason,
+  ) {
     final state = chatBloc.state;
-
+    final colors = context.themeColors;
     if (state is ChatLoaded) {
       final targetUserId = state.conversation.counterpartId;
 
       if (targetUserId != null) {
         chatBloc.add(
-          ChatUserReportRequested(
-            userId: targetUserId,
-            reason: reason,
-          ),
+          ChatUserReportRequested(userId: targetUserId, reason: reason),
         );
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Report submitted for ${state.conversation.counterpartName}'),
-            backgroundColor: AuthColors.primary,
+            content: Text(
+              'Report submitted for ${state.conversation.counterpartName}',
+            ),
+            backgroundColor: colors.primary,
           ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text('Could not identify user to report'),
-            backgroundColor: Colors.red,
+            backgroundColor: colors.error,
           ),
         );
       }

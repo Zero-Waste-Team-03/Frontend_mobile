@@ -105,7 +105,6 @@ class _SettingsPageState extends State<SettingsPage> {
               fontFamily: AppFonts.primaryFont,
             ),
           ),
-          centerTitle: true,
         ),
         body: SafeArea(
           child: BlocBuilder<ProfileBloc, ProfileState>(
@@ -248,7 +247,7 @@ class _SectionHeader extends StatelessWidget {
       style: TextStyle(
         fontSize: AppDimensions.captionSize.sp,
         fontWeight: FontWeight.w600,
-        color: colors.labelText,
+        color: colors.headingText,
         letterSpacing: 0.5,
         fontFamily: AppFonts.primaryFont,
       ),
@@ -282,7 +281,7 @@ class _SettingsTile extends StatelessWidget {
         vertical: AppDimensions.paddingMedium.h,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.background,
         borderRadius: BorderRadius.circular(AppDimensions.borderRadiusLarge.r),
         border: Border.all(color: colors.inputBorder, width: 1.w),
       ),
@@ -295,7 +294,7 @@ class _SettingsTile extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.all(8.w),
                   decoration: BoxDecoration(
-                    color: colors.lightGreenBackground,
+                    color: colors.surface,
                     borderRadius: BorderRadius.circular(
                       AppDimensions.borderRadiusMedium.r,
                     ),
@@ -339,7 +338,7 @@ class _SettingsTile extends StatelessWidget {
             value: value,
             onChanged: enabled ? onChanged : null,
             activeTrackColor: colors.primary.withValues(alpha: 0.3),
-            activeThumbColor: colors.primary,
+            activeThumbColor: colors.onPrimary.withValues(alpha: 0.9),
             inactiveThumbColor: Colors.grey,
           ),
         ],
@@ -417,7 +416,7 @@ class _ThemeOption extends StatelessWidget {
           vertical: AppDimensions.paddingMedium.h,
         ),
         decoration: BoxDecoration(
-          color: isSelected ? colors.lightGreenBackground : Colors.white,
+          color: !isSelected ? colors.background : colors.surface,
           borderRadius: BorderRadius.circular(
             AppDimensions.borderRadiusLarge.r,
           ),
@@ -430,7 +429,7 @@ class _ThemeOption extends StatelessWidget {
           children: [
             Icon(
               icon,
-              color: isSelected ? colors.primary : colors.subText,
+              color:  colors.subText,
               size: 24.sp,
             ),
             SizedBox(width: AppDimensions.paddingMedium.w),
@@ -439,7 +438,7 @@ class _ThemeOption extends StatelessWidget {
               style: TextStyle(
                 fontSize: AppDimensions.buttonTextSize.sp,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                color: isSelected ? colors.primary : colors.headingText,
+                color: colors.headingText,
                 fontFamily: AppFonts.primaryFont,
               ),
             ),

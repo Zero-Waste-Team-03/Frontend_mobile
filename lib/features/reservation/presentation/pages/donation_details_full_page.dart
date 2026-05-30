@@ -29,6 +29,7 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     if (_chatPos == const Offset(300, 500)) {
       final size = MediaQuery.sizeOf(context);
       _chatPos = _clampChatPosition(
@@ -38,7 +39,7 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: colors.background,
       body: Stack(
         key: _stackKey,
         children: [
@@ -50,7 +51,7 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
                 child: Container(
                   clipBehavior: Clip.antiAlias,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: colors.surface,
                     borderRadius: BorderRadius.vertical(
                       top: Radius.circular(24.r),
                     ),

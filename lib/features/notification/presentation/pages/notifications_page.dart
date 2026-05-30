@@ -118,10 +118,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: colors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
+        backgroundColor: colors.background,
         elevation: 0,
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
@@ -130,16 +131,13 @@ class _NotificationsPageState extends State<NotificationsPage> {
               horizontal: AppSpacing.sm,
               vertical: AppSpacing.sm,
             ),
-            child: const Icon(
-              Icons.arrow_back_rounded,
-              color: AppColors.primary,
-            ),
+            child: Icon(Icons.arrow_back_rounded, color: colors.primary),
           ),
         ),
         title: Text(
           'Notifications',
           textAlign: TextAlign.start,
-          style: AppTextStyles.titleLarge.copyWith(color: AppColors.primary),
+          style: AppTextStyles.titleLarge.copyWith(color: colors.primary),
         ),
         centerTitle: false,
         actions: [
@@ -164,7 +162,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     ),
                     child: Icon(
                       Icons.done_all_rounded,
-                      color: AppColors.textPrimary,
+                      color: colors.textPrimary,
                     ),
                   ),
                 );
@@ -206,6 +204,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
   }
 
   Widget _buildContent(NotificationState state) {
+    final colors = context.themeColors;
     if (state is NotificationsLoading) {
       return _buildLoadingSkeleton();
     }
@@ -215,17 +214,19 @@ class _NotificationsPageState extends State<NotificationsPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 48.0, color: AppColors.textMuted),
+            Icon(Icons.error_outline, size: 48.0, color: colors.textMuted),
             const SizedBox(height: 16.0),
             Text(
               'Failed to load notifications',
-              style: AppTextStyles.bodyLarge,
+              style: AppTextStyles.bodyLarge.copyWith(
+                color: colors.textPrimary,
+              ),
             ),
             const SizedBox(height: 8.0),
             Text(
               state.message,
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textTertiary,
+                color: colors.textTertiary,
               ),
               textAlign: TextAlign.center,
             ),
@@ -254,12 +255,13 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     Icon(
                       Icons.notifications_off_outlined,
                       size: 48.0,
-                      color: AppColors.textMuted,
+                      color: colors.textMuted,
                     ),
                     const SizedBox(height: 16.0),
                     Text(
                       'No notifications',
                       style: AppTextStyles.bodyLarge.copyWith(
+                        color: colors.textPrimary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -267,7 +269,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     Text(
                       'You\'re all caught up!',
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textTertiary,
+                        color: colors.textTertiary,
                       ),
                     ),
                   ],
@@ -294,12 +296,13 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     Icon(
                       Icons.notifications_off_outlined,
                       size: 48.0,
-                      color: AppColors.textMuted,
+                      color: colors.textMuted,
                     ),
                     const SizedBox(height: 16.0),
                     Text(
                       'No notifications',
                       style: AppTextStyles.bodyLarge.copyWith(
+                        color: colors.textPrimary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -307,7 +310,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     Text(
                       'You\'re all caught up!',
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textTertiary,
+                        color: colors.textTertiary,
                       ),
                     ),
                   ],
@@ -379,18 +382,19 @@ class _NotificationsPageState extends State<NotificationsPage> {
   }
 
   Widget _buildSkeletonNotificationCard(BuildContext context) {
+    final colors = context.themeColors;
     final screenWidth = MediaQuery.of(context).size.width;
 
     return ExcludeSemantics(
       child: Shimmer.fromColors(
-        baseColor: Colors.grey[300]!,
-        highlightColor: Colors.grey[100]!,
+        baseColor: colors.surface.withValues(alpha: 0.72),
+        highlightColor: colors.surface.withValues(alpha: 0.92),
         child: Container(
           padding: const EdgeInsets.all(AppSpacing.md),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: colors.surface,
             borderRadius: BorderRadius.circular(AppRadius.lg),
-            border: Border.all(color: Colors.grey[300]!),
+            border: Border.all(color: colors.divider),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -445,11 +449,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
     required double height,
     required BorderRadius borderRadius,
   }) {
+    final colors = context.themeColors;
     return Container(
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.surface,
         borderRadius: borderRadius,
       ),
     );
@@ -615,11 +620,14 @@ class _NotificationsPageState extends State<NotificationsPage> {
   }
 
   Widget _buildAlertBanner(BuildContext context) {
+    final colors = context.themeColors;
+    final accentBackground = colors.primary;
+    final accentForeground = colors.onPrimary;
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.lg, top: AppSpacing.md),
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: AppColors.notificationAlertBackground,
+        color: Color(0xFFFFA500), // bright orange,
         borderRadius: BorderRadius.circular(AppRadius.xl),
       ),
       child: Column(
@@ -627,7 +635,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
         children: [
           Row(
             children: [
-              Icon(Icons.warning_rounded, color: AppColors.surface, size: 24.0),
+              Icon(Icons.warning_rounded, color: accentForeground, size: 24.0),
               const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: Column(
@@ -636,7 +644,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     Text(
                       'URGENT ALERT',
                       style: AppTextStyles.titleMedium.copyWith(
-                        color: AppColors.surface,
+                        color: Colors.white,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 0.5,
                       ),
@@ -645,7 +653,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     Text(
                       '3 items expiring soon!',
                       style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.surface,
+                        color: Colors.white.withOpacity(0.8),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -658,7 +666,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
           Text(
             'Save food in your area before it goes to waste.',
             style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.surface,
+              color: Colors.white.withOpacity(0.9),
               height: 1.5,
             ),
           ),
@@ -669,8 +677,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
             child: ElevatedButton(
               onPressed: () {},
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.surface,
-                foregroundColor: AppColors.notificationAlertBackground,
+                backgroundColor: colors.statBackground,
+                foregroundColor: accentBackground,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppRadius.xl),
@@ -679,7 +687,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
               child: Text(
                 'View Now',
                 style: AppTextStyles.titleMedium.copyWith(
-                  color: AppColors.notificationAlertBackground,
+                  color: colors.textSecondary,
                 ),
               ),
             ),

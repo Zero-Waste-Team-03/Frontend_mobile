@@ -20,14 +20,16 @@ class ChatBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     if (debugInfo != null) {
       debugPrint('[ChatBubble] $debugInfo');
     }
     // Detect sensitive message placeholder
     // Marker [SENSITIVE:LOCATION] or similar
     final bool hasSensitiveMarker = message.content.contains('[SENSITIVE:');
-    final bool isSensitivePlaceholder = !isMe && message.isModerated && hasSensitiveMarker;
-    
+    final bool isSensitivePlaceholder =
+        !isMe && message.isModerated && hasSensitiveMarker;
+
     // Marker stripping for the sender and for recipients after moderation is cleared
     String displayContent = message.content;
     if (isMe || !message.isModerated) {
@@ -37,42 +39,50 @@ class ChatBubble extends StatelessWidget {
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Column(
-        crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        crossAxisAlignment: isMe
+            ? CrossAxisAlignment.end
+            : CrossAxisAlignment.start,
         children: [
           Container(
             margin: EdgeInsets.only(bottom: 4.h, top: 8.h),
             constraints: BoxConstraints(maxWidth: 0.75.sw),
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
             decoration: BoxDecoration(
-              color: isMe ? AuthColors.primary : const Color(0xFFE5E7EB),
+              color: isMe ? colors.primary : colors.surface,
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(16.r),
                 topRight: Radius.circular(16.r),
                 bottomLeft: isMe ? Radius.circular(16.r) : Radius.zero,
                 bottomRight: isMe ? Radius.zero : Radius.circular(16.r),
               ),
-              boxShadow: isMe ? [
-                BoxShadow(
-                  color: AuthColors.primary.withValues(alpha: 0.1),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                )
-              ] : null,
+              boxShadow: isMe
+                  ? [
+                      BoxShadow(
+                        color: colors.primary.withValues(alpha: 0.1),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ]
+                  : null,
             ),
 
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (isSensitivePlaceholder) ...[
-                   Row(
+                  Row(
                     children: [
-                      Icon(Icons.lock_outline, size: 14.sp, color: AuthColors.headingText),
+                      Icon(
+                        Icons.lock_outline,
+                        size: 14.sp,
+                        color: colors.textPrimary,
+                      ),
                       SizedBox(width: 8.w),
                       Expanded(
                         child: Text(
                           'Sensitive information hidden',
                           style: TextStyle(
-                            color: AuthColors.headingText,
+                            color: colors.textPrimary,
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w600,
                             fontFamily: AppFonts.primaryFont,
@@ -85,7 +95,7 @@ class ChatBubble extends StatelessWidget {
                   Text(
                     'This message contains sensitive details like location or contact info.',
                     style: TextStyle(
-                      color: AuthColors.subText,
+                      color: colors.textSecondary,
                       fontSize: 12.sp,
                       fontFamily: AppFonts.primaryFont,
                     ),
@@ -94,8 +104,8 @@ class ChatBubble extends StatelessWidget {
                   ElevatedButton(
                     onPressed: onApproveReveal,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AuthColors.primary,
-                      foregroundColor: Colors.white,
+                      backgroundColor: colors.primary,
+                      foregroundColor: colors.onPrimary,
                       elevation: 0,
                       minimumSize: Size(double.infinity, 36.h),
                       shape: RoundedRectangleBorder(
@@ -104,14 +114,17 @@ class ChatBubble extends StatelessWidget {
                     ),
                     child: Text(
                       'Approve & reveal',
-                      style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ] else ...[
                   Text(
                     displayContent,
                     style: TextStyle(
-                      color: isMe ? Colors.white : const Color(0xFF131615),
+                      color: isMe ? colors.onPrimary : colors.textPrimary,
                       fontSize: 14.sp,
                       fontFamily: AppFonts.primaryFont,
                       height: 1.5,
@@ -129,15 +142,12 @@ class ChatBubble extends StatelessWidget {
                 Text(
                   DateFormat('h:mm a').format(message.createdAt),
                   style: TextStyle(
-                    color: const Color(0xFF9CA3AF),
+                    color: colors.textMuted,
                     fontSize: 10.sp,
                     fontFamily: AppFonts.primaryFont,
                   ),
                 ),
-                if (isMe) ...[
-                  SizedBox(width: 4.w),
-                  _buildStatusIcon(),
-                ],
+                if (isMe) ...[SizedBox(width: 4.w), _buildStatusIcon(colors)],
               ],
             ),
           ),
@@ -146,7 +156,7 @@ class ChatBubble extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusIcon() {
+  Widget _buildStatusIcon(ThemeColors colors) {
     switch (message.status) {
       case MessageStatus.sending:
         return SizedBox(
@@ -154,11 +164,13 @@ class ChatBubble extends StatelessWidget {
           height: 10.w,
           child: CircularProgressIndicator(
             strokeWidth: 1,
-            valueColor: AlwaysStoppedAnimation<Color>(AuthColors.subText.withValues(alpha: 0.5)),
+            valueColor: AlwaysStoppedAnimation<Color>(
+              colors.textSecondary.withValues(alpha: 0.5),
+            ),
           ),
         );
       case MessageStatus.sent:
-        return Icon(Icons.done_all, size: 12.sp, color: AuthColors.primary);
+        return Icon(Icons.done_all, size: 12.sp, color: colors.primary);
       case MessageStatus.error:
         return Icon(Icons.error_outline, size: 12.sp, color: Colors.red);
     }
@@ -170,4 +182,3 @@ class ChatBubble extends StatelessWidget {
     return content.replaceAll(regex, '').trim();
   }
 }
-

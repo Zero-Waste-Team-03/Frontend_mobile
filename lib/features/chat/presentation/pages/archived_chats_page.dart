@@ -95,26 +95,28 @@ class _ArchivedChatsPageState extends State<ArchivedChatsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Scaffold(
-      backgroundColor: AuthColors.background,
+      backgroundColor: colors.background,
       appBar: AppBar(
         title: Text(
           'Archived Chats',
           style: TextStyle(
             fontSize: AppDimensions.appBarTitleSize.sp,
-            color: AuthColors.headingText,
+            color: colors.primary,
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: colors.background,
         elevation: 1,
-        iconTheme: const IconThemeData(color: AuthColors.headingText),
+        iconTheme: IconThemeData(color: colors.primary),
       ),
-      body: _buildContent(),
+      body: _buildContent(context),
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(BuildContext context) {
+    final colors = context.themeColors;
     if (_archivedError != null) {
       return Center(
         child: Column(
@@ -122,14 +124,14 @@ class _ArchivedChatsPageState extends State<ArchivedChatsPage> {
           children: [
             Text(
               'Failed to load archived chats',
-              style: TextStyle(color: Colors.red, fontSize: 16.sp),
+              style: TextStyle(color: colors.error, fontSize: 16.sp),
             ),
             SizedBox(height: 8.h),
-            Text(_archivedError!, style: const TextStyle(color: Colors.red)),
+            Text(_archivedError!, style: TextStyle(color: colors.error)),
             SizedBox(height: 16.h),
             ElevatedButton(
               onPressed: _loadArchivedConversations,
-              child: const Text('Retry'),
+              child: Text('Retry'),
             ),
           ],
         ),
@@ -137,9 +139,7 @@ class _ArchivedChatsPageState extends State<ArchivedChatsPage> {
     }
 
     if (_loadingArchived || _archivedConversations == null) {
-      return const Center(
-        child: CircularProgressIndicator(color: AuthColors.primary),
-      );
+      return Center(child: CircularProgressIndicator(color: colors.primary));
     }
 
     if (_archivedConversations!.isEmpty) {
@@ -147,24 +147,20 @@ class _ArchivedChatsPageState extends State<ArchivedChatsPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.archive_outlined,
-              size: 64.sp,
-              color: AuthColors.inputText,
-            ),
+            Icon(Icons.archive_outlined, size: 64.sp, color: colors.textMuted),
             SizedBox(height: 16.h),
             Text(
               'No archived chats',
               style: TextStyle(
                 fontSize: 18.sp,
                 fontWeight: FontWeight.bold,
-                color: AuthColors.headingText,
+                color: colors.textPrimary,
               ),
             ),
             SizedBox(height: 8.h),
             Text(
               'Your archived conversations will appear here.',
-              style: TextStyle(color: AuthColors.subText, fontSize: 14.sp),
+              style: TextStyle(color: colors.textSecondary, fontSize: 14.sp),
             ),
           ],
         ),
@@ -173,7 +169,7 @@ class _ArchivedChatsPageState extends State<ArchivedChatsPage> {
 
     return RefreshIndicator(
       onRefresh: _loadArchivedConversations,
-      color: AuthColors.primary,
+      color: colors.primary,
       child: ListView.builder(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: EdgeInsets.symmetric(vertical: 8.h),
@@ -185,7 +181,7 @@ class _ArchivedChatsPageState extends State<ArchivedChatsPage> {
               width: 48.w,
               height: 48.w,
               decoration: BoxDecoration(
-                color: AuthColors.primary.withValues(alpha: 0.1),
+                color: colors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10.r),
                 image: conversation.donationImageUrl != null
                     ? DecorationImage(
@@ -193,19 +189,18 @@ class _ArchivedChatsPageState extends State<ArchivedChatsPage> {
                         fit: BoxFit.cover,
                       )
                     : conversation.counterpartAvatarUrl != null
-                        ? DecorationImage(
-                            image: NetworkImage(
-                              conversation.counterpartAvatarUrl!,
-                            ),
-                            fit: BoxFit.cover,
-                          )
-                        : null,
+                    ? DecorationImage(
+                        image: NetworkImage(conversation.counterpartAvatarUrl!),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
               ),
-              child: (conversation.donationImageUrl == null &&
+              child:
+                  (conversation.donationImageUrl == null &&
                       conversation.counterpartAvatarUrl == null)
                   ? Icon(
                       Icons.shopping_basket_outlined,
-                      color: AuthColors.primary,
+                      color: colors.primary,
                       size: 24.sp,
                     )
                   : null,
@@ -222,11 +217,11 @@ class _ArchivedChatsPageState extends State<ArchivedChatsPage> {
                   'No messages yet',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: AuthColors.subText, fontSize: 13.sp),
+              style: TextStyle(color: colors.textSecondary, fontSize: 13.sp),
             ),
             trailing: Icon(
               Icons.chevron_right,
-              color: AuthColors.inputText,
+              color: colors.textMuted,
               size: 20.sp,
             ),
             onTap: () {

@@ -97,13 +97,14 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Scaffold(
-      backgroundColor: AuthColors.background,
+      backgroundColor: colors.background,
       appBar: AppBar(
-        backgroundColor: AuthColors.background,
+        backgroundColor: colors.background,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AuthColors.primary),
+          icon: Icon(Icons.arrow_back, color: colors.primary),
           onPressed: () => context.pop(),
         ),
         title: Text(
@@ -111,7 +112,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
           style: TextStyle(
             fontSize: AppDimensions.appBarTitleSize.sp,
             fontWeight: FontWeight.bold,
-            color: AuthColors.primary,
+            color: colors.primary,
             fontFamily: AppFonts.primaryFont,
           ),
         ),
@@ -148,7 +149,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                 child: _buildStatusTabs(),
               ),
 
-              Divider(height: 1.h, color: AuthColors.inputBorder),
+              Divider(height: 1.h, color: colors.divider),
 
               // Reservations List
               Expanded(
@@ -189,7 +190,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                             Icon(
                               Icons.error_outline_rounded,
                               size: 48.sp,
-                              color: Colors.red,
+                              color: colors.error,
                             ),
                             SizedBox(height: AppDimensions.paddingMedium.h),
                             Text(
@@ -197,7 +198,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                               style: TextStyle(
                                 fontSize: AppDimensions.bodySize.sp,
                                 fontWeight: FontWeight.w600,
-                                color: AuthColors.headingText,
+                                color: colors.textPrimary,
                                 fontFamily: AppFonts.primaryFont,
                               ),
                             ),
@@ -211,7 +212,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: AppDimensions.captionSize.sp,
-                                  color: AuthColors.subText,
+                                  color: colors.textSecondary,
                                   fontFamily: AppFonts.primaryFont,
                                 ),
                               ),
@@ -228,7 +229,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                                 ),
                               ),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: AuthColors.primary,
+                                backgroundColor: colors.primary,
                                 padding: EdgeInsets.symmetric(
                                   horizontal: AppDimensions.paddingLarge.w,
                                   vertical: 10.h,
@@ -248,8 +249,8 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                       if (filteredReservations.isEmpty) {
                         return RefreshIndicator(
                           onRefresh: _onRefresh,
-                          color: AuthColors.primary,
-                          backgroundColor: AuthColors.background,
+                          color: colors.primary,
+                          backgroundColor: colors.background,
                           child: ListView(
                             children: [
                               SizedBox(height: 100.h),
@@ -260,7 +261,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                                     Icon(
                                       Icons.shopping_basket_outlined,
                                       size: 48.sp,
-                                      color: AuthColors.inputText,
+                                      color: colors.textMuted,
                                     ),
                                     SizedBox(
                                       height: AppDimensions.paddingMedium.h,
@@ -269,7 +270,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                                       'No reservations found',
                                       style: TextStyle(
                                         fontSize: AppDimensions.bodySize.sp,
-                                        color: AuthColors.subText,
+                                        color: colors.textSecondary,
                                         fontFamily: AppFonts.primaryFont,
                                       ),
                                     ),
@@ -283,8 +284,8 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
 
                       return RefreshIndicator(
                         onRefresh: _onRefresh,
-                        color: AuthColors.primary,
-                        backgroundColor: AuthColors.background,
+                        color: colors.primary,
+                        backgroundColor: colors.background,
                         child: ListView.builder(
                           controller: _scrollController,
                           itemCount:
@@ -299,7 +300,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                                 padding: EdgeInsets.symmetric(vertical: 16.h),
                                 child: Center(
                                   child: CircularProgressIndicator(
-                                    color: AuthColors.primary,
+                                    color: colors.primary,
                                   ),
                                 ),
                               );
@@ -355,9 +356,10 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
   }
 
   Widget _buildRoleSwitch() {
+    final colors = context.themeColors;
     return Container(
       decoration: BoxDecoration(
-        color: AuthColors.lightGrayBackground,
+        color: colors.lightGrayBackground,
         borderRadius: BorderRadius.circular(32.r),
       ),
       padding: EdgeInsets.all(4.w),
@@ -371,6 +373,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
   }
 
   Widget _buildRoleOption({required String title, required String value}) {
+    final colors = context.themeColors;
     final isSelected = _selectedRoleFilter == value;
     return Expanded(
       child: GestureDetector(
@@ -389,12 +392,12 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
           duration: const Duration(milliseconds: 0),
           padding: EdgeInsets.symmetric(vertical: 12.h),
           decoration: BoxDecoration(
-            color: isSelected ? Colors.white : Colors.transparent,
+            color: isSelected ? colors.surface : Colors.transparent,
             borderRadius: BorderRadius.circular(28.r),
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.06),
+                      color: colors.textMuted.withValues(alpha: 0.08),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -407,7 +410,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
               style: TextStyle(
                 fontSize: AppDimensions.bodySize.sp,
                 fontWeight: FontWeight.w700,
-                color: isSelected ? AuthColors.primary : AuthColors.subText,
+                color: isSelected ? colors.primary : colors.textSecondary,
                 fontFamily: AppFonts.primaryFont,
               ),
             ),
@@ -437,6 +440,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
   }
 
   Widget _buildStatusTab(String title, String value) {
+    final colors = context.themeColors;
     final isSelected = _selectedStatusGroup == value;
 
     return Padding(
@@ -461,11 +465,11 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
           padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
           decoration: BoxDecoration(
             color: isSelected
-                ? AuthColors.primary.withValues(alpha: 0.08)
+                ? colors.primary.withValues(alpha: 0.08)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(18.r),
             border: Border.all(
-              color: isSelected ? AuthColors.primary : AuthColors.inputBorder,
+              color: isSelected ? colors.primary : colors.divider,
               width: 1,
             ),
           ),
@@ -475,7 +479,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
               style: TextStyle(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w600,
-                color: isSelected ? AuthColors.primary : AuthColors.subText,
+                color: isSelected ? colors.primary : colors.textSecondary,
                 fontFamily: AppFonts.primaryFont,
               ),
             ),

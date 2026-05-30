@@ -33,13 +33,13 @@ class AppBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final colors = context.themeColors;
 
     return SafeArea(
       top: false,
       child: Container(
         decoration: BoxDecoration(
-          color: colorScheme.surface,
+          color: colors.surface,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
@@ -50,7 +50,7 @@ class AppBottomSheet extends StatelessWidget {
               width: 48,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.divider,
+                color: colors.divider,
                 borderRadius: BorderRadius.circular(9999),
               ),
             ),

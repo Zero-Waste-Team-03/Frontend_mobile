@@ -17,6 +17,7 @@ class AppErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Center(
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 24.w),
@@ -26,13 +27,13 @@ class AppErrorState extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14.sp, color: AppColors.textSecondary),
+              style: TextStyle(fontSize: 14.sp, color: colors.textSecondary),
             ),
             SizedBox(height: 12.h),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
+                backgroundColor: colors.primary,
+                foregroundColor: colors.onPrimary,
               ),
               onPressed: onRetry,
               child: Text(retryLabel),
