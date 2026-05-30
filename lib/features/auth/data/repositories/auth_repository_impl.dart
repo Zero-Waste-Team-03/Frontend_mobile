@@ -271,15 +271,6 @@ class AuthRepositoryImpl implements AuthRepository {
       // and other preferences are available immediately after login.
       await localDataSource.cacheUserProfile(userModel);
 
-      if (user.isAdmin) {
-        await localDataSource.clearTokens();
-        return Left(
-          ServerFailure(
-            'Admin accounts cannot access the mobile app. Please use the web dashboard.',
-          ),
-        );
-      }
-
       _logger.i('âœ… [OAuth] Returning success to AuthBloc for navigation');
       return Right(
         AuthResponse(

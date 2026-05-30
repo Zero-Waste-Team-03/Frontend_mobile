@@ -46,7 +46,12 @@ class MapMarkerUtils {
   }) async {
     final withCoordinates = donations.where(hasCoordinates).toList();
 
-    await controller.clearSymbols();
+    try {
+      await controller.clearSymbols();
+    } catch (_) {
+      // Controller may not be fully initialized yet
+      return;
+    }
 
     if (withCoordinates.isEmpty) {
       return;

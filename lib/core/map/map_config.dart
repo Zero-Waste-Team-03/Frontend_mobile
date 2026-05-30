@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 
 import '../env.dart';
@@ -8,6 +9,11 @@ class MapConfig {
   static const String _fallbackStyleUrl =
       'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
 
+  static const String _mapTilerStyleDarkUrl =
+      'https://api.maptiler.com/maps/streets-v2-dark/style.json';
+  static const String _fallbackStyleDarkUrl =
+      'https://basemaps.cartocdn.com/gl/brunner-gl-style/style.json';
+
   static String get mapTilerApiKey =>
       (Env.get('MAPTILER_API_KEY') ?? '').trim();
 
@@ -17,6 +23,18 @@ class MapConfig {
       return _fallbackStyleUrl;
     }
     return '$_mapTilerStyleBaseUrl?key=${Uri.encodeQueryComponent(key)}';
+  }
+
+  static String getStyleUrl(Brightness brightness) {
+    final key = mapTilerApiKey;
+
+    if (brightness == Brightness.dark) {
+      if (key.isEmpty) return _fallbackStyleDarkUrl;
+      return '$_mapTilerStyleDarkUrl?key=${Uri.encodeQueryComponent(key)}';
+    } else {
+      if (key.isEmpty) return _fallbackStyleUrl;
+      return '$_mapTilerStyleBaseUrl?key=${Uri.encodeQueryComponent(key)}';
+    }
   }
 
   static double get defaultLatitude =>

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -10,6 +11,7 @@ import 'package:maplibre_gl/maplibre_gl.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/map/map_config.dart';
+import '../../../../core/theme/theme_cubit.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../favorites/domain/repositories/favorites_repository.dart';
 import '../../../reservation/presentation/bloc/reservation_bloc.dart';
@@ -42,9 +44,13 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
   static const double _chatTopLimit = 116;
   static const double _chatBottomLimit = 118;
 
+  late String _currentStyleUrl;
+  late StreamSubscription<ThemeMode> _themeSubscription;
+
   @override
   void initState() {
     super.initState();
+    _currentStyleUrl = MapConfig.styleUrl; // Default light style
     _isLiked = widget.donation.isLikedByMe ?? false;
     if (widget.donation.condition.toUpperCase() == 'DRY') {
       tagTextColor = const Color(0xFFE87C3E);
@@ -57,8 +63,32 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _currentStyleUrl = _getStyleUrl(context);
+    _themeSubscription = context.read<ThemeCubit>().stream.listen((_) {
+      _updateMapStyle();
+    });
+  }
+
+  String _getStyleUrl(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    return MapConfig.getStyleUrl(brightness);
+  }
+
+  Future<void> _updateMapStyle() async {
+    final newUrl = _getStyleUrl(context);
+    if (newUrl != _currentStyleUrl) {
+      setState(() {
+        _currentStyleUrl = newUrl;
+      });
+    }
+  }
+
+  @override
   void dispose() {
     _reserveQuantityController.dispose();
+    _themeSubscription.cancel();
     super.dispose();
   }
 
@@ -169,7 +199,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
           backgroundColor: colors.background,
           body: Stack(
             key: _stackKey,
-            
+
             children: [
               CustomScrollView(
                 paintOrder: SliverPaintOrder.lastIsTop,
@@ -255,7 +285,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                                     ? SizedBox(
                                         height: 20.h,
                                         width: 20.w,
-                                        child:  CircularProgressIndicator(
+                                        child: CircularProgressIndicator(
                                           valueColor:
                                               AlwaysStoppedAnimation<Color>(
                                                 colors.onPrimary,
@@ -393,11 +423,11 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
-                borderSide:  BorderSide(color: colors.background),
+                borderSide: BorderSide(color: colors.background),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
-                borderSide:  BorderSide(color: colors.background),
+                borderSide: BorderSide(color: colors.background),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
@@ -475,8 +505,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
               child: CachedNetworkImage(
                 imageUrl: widget.donation.imageUrl,
                 fit: BoxFit.cover,
-                placeholder: (context, url) =>
-                    Container(color: colors.border),
+                placeholder: (context, url) => Container(color: colors.border),
                 errorWidget: (context, url, error) => Container(
                   color: colors.border,
                   child: Icon(Icons.error, color: colors.border),
@@ -495,7 +524,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
               color: colors.background,
               shape: BoxShape.circle,
             ),
-            child:  Icon(Icons.arrow_back, color: colors.onPrimary),
+            child: Icon(Icons.arrow_back, color: colors.onPrimary),
           ),
         ),
       ),
@@ -510,7 +539,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                 color: colors.background,
                 shape: BoxShape.circle,
               ),
-              child:  Icon(
+              child: Icon(
                 Icons.share_rounded,
                 color: colors.onPrimary,
                 size: 20,
@@ -532,7 +561,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                   ? SizedBox(
                       width: 20.w,
                       height: 20.w,
-                      child:  CircularProgressIndicator(
+                      child: CircularProgressIndicator(
                         color: colors.onPrimary,
                         strokeWidth: 2,
                       ),
@@ -541,7 +570,9 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                       _isLiked
                           ? Icons.favorite_rounded
                           : Icons.favorite_border_rounded,
-                      color: _isLiked ? const Color(0xFFFF6B6B) : colors.onPrimary,
+                      color: _isLiked
+                          ? const Color(0xFFFF6B6B)
+                          : colors.onPrimary,
                       size: 20,
                     ),
             ),
@@ -754,10 +785,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                         widget.donation.longitude != null
                     ? 'Lat ${widget.donation.latitude!.toStringAsFixed(3)}, Lng ${widget.donation.longitude!.toStringAsFixed(3)}'
                     : 'Coordinates unavailable',
-                style: TextStyle(
-                  fontSize: 12.sp,
-                  color: colors.subText,
-                ),
+                style: TextStyle(fontSize: 12.sp, color: colors.subText),
               ),
             ],
           ),
@@ -793,7 +821,7 @@ class _OwnerCard extends StatelessWidget {
               ? CircleAvatar(
                   radius: 20.r,
                   backgroundColor: colors.primary.withValues(alpha: 0.15),
-                  backgroundImage: NetworkImage(
+                  backgroundImage: CachedNetworkImageProvider(
                     donation.authorDetails!.avatarUrl!,
                   ),
                 )
@@ -838,10 +866,7 @@ class _OwnerCard extends StatelessWidget {
                 SizedBox(height: 2.h),
                 Text(
                   'Posted on ${donation.createdAt.toString().split(' ')[0]}',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: colors.subText,
-                  ),
+                  style: TextStyle(fontSize: 12.sp, color: colors.subText),
                 ),
               ],
             ),
@@ -852,17 +877,61 @@ class _OwnerCard extends StatelessWidget {
   }
 }
 
-class _LocationMapCard extends StatelessWidget {
+class _LocationMapCard extends StatefulWidget {
   final Donation donation;
 
   const _LocationMapCard({required this.donation});
 
   @override
+  State<_LocationMapCard> createState() => _LocationMapCardState();
+}
+
+class _LocationMapCardState extends State<_LocationMapCard> {
+  late String _currentStyleUrl;
+  late StreamSubscription<ThemeMode> _themeSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentStyleUrl = MapConfig.styleUrl; // Default light style
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _currentStyleUrl = _getStyleUrl(context);
+    _themeSubscription = context.read<ThemeCubit>().stream.listen((_) {
+      _updateMapStyle();
+    });
+  }
+
+  String _getStyleUrl(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    return MapConfig.getStyleUrl(brightness);
+  }
+
+  void _updateMapStyle() {
+    final newUrl = _getStyleUrl(context);
+    if (newUrl != _currentStyleUrl) {
+      setState(() {
+        _currentStyleUrl = newUrl;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _themeSubscription.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colors = context.themeColors;
-    final hasLocation = donation.latitude != null && donation.longitude != null;
+    final hasLocation =
+        widget.donation.latitude != null && widget.donation.longitude != null;
     final target = hasLocation
-        ? LatLng(donation.latitude!, donation.longitude!)
+        ? LatLng(widget.donation.latitude!, widget.donation.longitude!)
         : MapConfig.defaultTarget;
 
     return ClipRRect(
@@ -874,7 +943,7 @@ class _LocationMapCard extends StatelessWidget {
           alignment: Alignment.center,
           children: [
             MapLibreMap(
-              styleString: MapConfig.styleUrl,
+              styleString: _currentStyleUrl,
               initialCameraPosition: MapConfig.cameraPosition(
                 target: target,
                 zoom: hasLocation ? 14 : MapConfig.defaultZoom,

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -93,7 +94,7 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                     child: Container(
                       width: 40.w,
                       height: 40.w,
-                      decoration:  BoxDecoration(
+                      decoration: BoxDecoration(
                         color: colors.background,
                         shape: BoxShape.circle,
                       ),
@@ -106,18 +107,18 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                   ),
                   Expanded(
                     child: Padding(
-                        padding: EdgeInsets.only(right: 40.w),
-                        child: Text(
-                          'Verification Requests',
-                          style: TextStyle(
-                            color: colors.primary,
-                            fontSize: 18.sp,
-                            fontWeight: FontWeight.w700,
-                            fontFamily: 'Inter',
-                          ),
+                      padding: EdgeInsets.only(right: 40.w),
+                      child: Text(
+                        'Verification Requests',
+                        style: TextStyle(
+                          color: colors.primary,
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.w700,
+                          fontFamily: 'Inter',
                         ),
                       ),
                     ),
+                  ),
                 ],
               ),
             ),
@@ -182,9 +183,7 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                     decoration: BoxDecoration(
                       color: colors.surface,
                       borderRadius: BorderRadius.circular(32.r),
-                      border: Border.all(
-                        color: colors.inputBorder,
-                      ),
+                      border: Border.all(color: colors.inputBorder),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withValues(alpha: 0.04),
@@ -299,7 +298,7 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                                     color: colors.lightGrayBackground,
                                     image: displayUser?.avatarUrl != null
                                         ? DecorationImage(
-                                            image: NetworkImage(
+                                            image: CachedNetworkImageProvider(
                                               displayUser!.avatarUrl!,
                                             ),
                                             fit: BoxFit.cover,

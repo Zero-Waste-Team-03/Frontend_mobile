@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -7,6 +8,7 @@ import 'package:gaspzero/features/auth/data/models/user_model.dart';
 import 'package:go_router/go_router.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import '../../../../core/map/map_config.dart';
+import '../../../../core/theme/theme_cubit.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../donations/domain/entities/donation.dart';
 import '../../domain/entities/reservation.dart';
@@ -26,13 +28,46 @@ class ReservationDetailsPage extends StatefulWidget {
 }
 
 class _ReservationDetailsPageState extends State<ReservationDetailsPage> {
+  late String _currentStyleUrl;
+  late StreamSubscription<ThemeMode> _themeSubscription;
+
   @override
   void initState() {
     super.initState();
+    _currentStyleUrl = MapConfig.styleUrl; // Default light style
     // Fetch reservation details
     context.read<ReservationBloc>().add(
       FetchReservationDetailsEvent(widget.reservationId),
     );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _currentStyleUrl = _getStyleUrl(context);
+    _themeSubscription = context.read<ThemeCubit>().stream.listen((_) {
+      _updateMapStyle();
+    });
+  }
+
+  String _getStyleUrl(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    return MapConfig.getStyleUrl(brightness);
+  }
+
+  Future<void> _updateMapStyle() async {
+    final newUrl = _getStyleUrl(context);
+    if (newUrl != _currentStyleUrl) {
+      setState(() {
+        _currentStyleUrl = newUrl;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _themeSubscription.cancel();
+    super.dispose();
   }
 
   void _showErrorDialog(BuildContext context, String errorMessage) {
@@ -356,16 +391,60 @@ class _ReservationDetailsPageState extends State<ReservationDetailsPage> {
   }
 }
 
-class _LocationMapCard extends StatelessWidget {
+class _LocationMapCard extends StatefulWidget {
   final Donation donation;
 
   const _LocationMapCard({required this.donation});
 
   @override
+  State<_LocationMapCard> createState() => _LocationMapCardState();
+}
+
+class _LocationMapCardState extends State<_LocationMapCard> {
+  late String _currentStyleUrl;
+  late StreamSubscription<ThemeMode> _themeSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentStyleUrl = MapConfig.styleUrl; // Default light style
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _currentStyleUrl = _getStyleUrl(context);
+    _themeSubscription = context.read<ThemeCubit>().stream.listen((_) {
+      _updateMapStyle();
+    });
+  }
+
+  String _getStyleUrl(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    return MapConfig.getStyleUrl(brightness);
+  }
+
+  void _updateMapStyle() {
+    final newUrl = _getStyleUrl(context);
+    if (newUrl != _currentStyleUrl) {
+      setState(() {
+        _currentStyleUrl = newUrl;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _themeSubscription.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final hasLocation = donation.latitude != null && donation.longitude != null;
+    final hasLocation =
+        widget.donation.latitude != null && widget.donation.longitude != null;
     final target = hasLocation
-        ? LatLng(donation.latitude!, donation.longitude!)
+        ? LatLng(widget.donation.latitude!, widget.donation.longitude!)
         : MapConfig.defaultTarget;
 
     return ClipRRect(
@@ -377,7 +456,7 @@ class _LocationMapCard extends StatelessWidget {
           alignment: Alignment.center,
           children: [
             MapLibreMap(
-              styleString: MapConfig.styleUrl,
+              styleString: _currentStyleUrl,
               initialCameraPosition: MapConfig.cameraPosition(
                 target: target,
                 zoom: hasLocation ? 14 : MapConfig.defaultZoom,

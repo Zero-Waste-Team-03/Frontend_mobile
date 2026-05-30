@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -129,7 +130,9 @@ class _TopRankAvatar extends StatelessWidget {
                   clipBehavior: Clip.antiAlias,
                   child: hasAvatar
                       ? CircleAvatar(
-                          backgroundImage: NetworkImage(currentEntry.avatarUrl),
+                          backgroundImage: CachedNetworkImageProvider(
+                            currentEntry.avatarUrl,
+                          ),
                           foregroundColor: Colors.white,
                           onBackgroundImageError: (_, __) {},
                           child: currentEntry.avatarUrl.isEmpty

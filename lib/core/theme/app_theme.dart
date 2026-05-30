@@ -114,9 +114,9 @@ class AppTheme {
       space: 1,
     ),
     snackBarTheme: SnackBarThemeData(
-      backgroundColor: AppColors.textPrimary,
+      backgroundColor: AppColors.background,
       contentTextStyle: AppTextStyles.bodyMedium.copyWith(
-        color: AppColors.surface,
+        color: AppColors.textPrimary,
       ),
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(
@@ -259,9 +259,9 @@ class AppTheme {
       space: 1,
     ),
     snackBarTheme: SnackBarThemeData(
-      backgroundColor: AppDarkColors.textPrimary,
+      backgroundColor: AppDarkColors.onBackground,
       contentTextStyle: AppTextStyles.bodyMedium.copyWith(
-        color: AppDarkColors.surface,
+        color: AppDarkColors.background,
       ),
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(
