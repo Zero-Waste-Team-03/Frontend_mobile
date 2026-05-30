@@ -1,7 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gaspzero/features/auth/data/models/user_model.dart';
 import '../../../../shared/theme/app_colors.dart';
+
 
 class UserContactCard extends StatelessWidget {
   final UserModel user;
@@ -53,7 +55,7 @@ class UserContactCard extends StatelessWidget {
                   color: colors.lightGrayBackground,
                   image: user.avatarUrl != null && user.avatarUrl!.isNotEmpty
                       ? DecorationImage(
-                          image: NetworkImage(user.avatarUrl!),
+                          image: CachedNetworkImageProvider(user.avatarUrl!),
                           fit: BoxFit.cover,
                         )
                       : null,

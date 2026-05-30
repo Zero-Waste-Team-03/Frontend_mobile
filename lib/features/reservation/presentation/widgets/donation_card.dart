@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../shared/theme/app_colors.dart';
@@ -65,7 +66,7 @@ class DonationCard extends StatelessWidget {
                   AppDimensions.borderRadiusMedium,
                 ),
                 image: DecorationImage(
-                  image: NetworkImage(imageToUse),
+                  image: CachedNetworkImageProvider(imageToUse),
                   fit: BoxFit.cover,
                   onError: (_, __) {
                     // Fallback if image fails to load

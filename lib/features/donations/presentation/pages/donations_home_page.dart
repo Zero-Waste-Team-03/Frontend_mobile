@@ -16,6 +16,7 @@ import '../../../../core/map/map_marker_utils.dart';
 import '../../../../core/permissions/permission_request_coordinator.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/theme_cubit.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../bloc/donations_bloc.dart';
 import '../bloc/donations_event.dart';
@@ -35,6 +36,8 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
   final TextEditingController _searchController = TextEditingController();
 
   MapLibreMapController? _mapController;
+  late String _currentStyleUrl;
+  late StreamSubscription<ThemeMode> _themeSubscription;
   CameraPosition _cameraPosition = MapConfig.cameraPosition();
   Timer? _cameraDebounce;
   String _lastMarkerSignature = '';
@@ -46,13 +49,38 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
   @override
   void initState() {
     super.initState();
+    _currentStyleUrl = MapConfig.styleUrl; // Default light style
     _determinePosition();
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _currentStyleUrl = _getStyleUrl(context);
+    _themeSubscription = context.read<ThemeCubit>().stream.listen((_) {
+      _updateMapStyle();
+    });
+  }
+
+  String _getStyleUrl(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    return MapConfig.getStyleUrl(brightness);
+  }
+
+  Future<void> _updateMapStyle() async {
+    final newUrl = _getStyleUrl(context);
+    if (newUrl != _currentStyleUrl) {
+      setState(() {
+        _currentStyleUrl = newUrl;
+      });
+    }
+  }
+
+  @override
   void dispose() {
-    _cameraDebounce?.cancel();
     _searchController.dispose();
+    _cameraDebounce?.cancel();
+    _themeSubscription.cancel();
     _donationsBloc.close();
     super.dispose();
   }
@@ -213,7 +241,7 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
               children: [
                 Positioned.fill(
                   child: MapLibreMap(
-                    styleString: MapConfig.styleUrl,
+                    styleString: _currentStyleUrl,
                     initialCameraPosition: _cameraPosition,
                     trackCameraPosition: true,
                     onMapCreated: (controller) {

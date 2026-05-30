@@ -1,12 +1,15 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 
 import '../../../../core/map/map_config.dart';
+import '../../../../core/theme/theme_cubit.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../donations/domain/entities/donation.dart';
 
@@ -27,10 +30,13 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
   static const double _chatTopLimit = 116;
   static const double _chatBottomLimit = 118;
   late Color tagTextColor;
+  late String _currentStyleUrl;
+  late StreamSubscription<ThemeMode> _themeSubscription;
 
   @override
   void initState() {
     super.initState();
+    _currentStyleUrl = MapConfig.styleUrl; // Default light style
     if (widget.donation.condition.toUpperCase() == 'DRY') {
       tagTextColor = const Color(0xFFE87C3E);
     } else if (widget.donation.condition.toUpperCase() == 'FRESH' ||
@@ -39,6 +45,35 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
     } else {
       tagTextColor = const Color(0xFF3B82F6);
     }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _currentStyleUrl = _getStyleUrl(context);
+    _themeSubscription = context.read<ThemeCubit>().stream.listen((_) {
+      _updateMapStyle();
+    });
+  }
+
+  String _getStyleUrl(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    return MapConfig.getStyleUrl(brightness);
+  }
+
+  Future<void> _updateMapStyle() async {
+    final newUrl = _getStyleUrl(context);
+    if (newUrl != _currentStyleUrl) {
+      setState(() {
+        _currentStyleUrl = newUrl;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _themeSubscription.cancel();
+    super.dispose();
   }
 
   @override
@@ -307,16 +342,16 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
             ),
           ),
           SizedBox(height: 8.h),
-            Text(
-              widget.donation.description.isEmpty
-                  ? 'No additional description provided.'
-                  : widget.donation.description,
-              style: TextStyle(
-                fontSize: 14.sp,
-                color: colors.subText,
-                height: 1.5,
-              ),
+          Text(
+            widget.donation.description.isEmpty
+                ? 'No additional description provided.'
+                : widget.donation.description,
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: colors.subText,
+              height: 1.5,
             ),
+          ),
         ],
       ),
     );
@@ -367,10 +402,7 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
                         widget.donation.longitude != null
                     ? 'Lat ${widget.donation.latitude!.toStringAsFixed(3)}, Lng ${widget.donation.longitude!.toStringAsFixed(3)}'
                     : 'Coordinates unavailable',
-                style: TextStyle(
-                  fontSize: 12.sp,
-                  color: colors.subText,
-                ),
+                style: TextStyle(fontSize: 12.sp, color: colors.subText),
               ),
             ],
           ),
@@ -382,6 +414,7 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
   }
 
   Widget _buildChatButtonUI({required bool isDragging}) {
+    final colors = context.themeColors;
     return GestureDetector(
       onTap: () {
         context.push('/chats');
@@ -394,11 +427,11 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
           width: 56.w,
           height: 56.w,
           decoration: BoxDecoration(
-            color: AuthColors.primary,
+            color: colors.primary,
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: AuthColors.primary.withValues(alpha: 0.3),
+                color: colors.primary.withValues(alpha: 0.3),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -448,14 +481,14 @@ class _OwnerCard extends StatelessWidget {
                   donation.authorDetails!.avatarUrl!.isNotEmpty
               ? CircleAvatar(
                   radius: 20.r,
-                  backgroundColor: AuthColors.primary.withValues(alpha: 0.15),
-                  backgroundImage: NetworkImage(
+                  backgroundColor: colors.primary.withValues(alpha: 0.15),
+                  backgroundImage: CachedNetworkImageProvider(
                     donation.authorDetails!.avatarUrl!,
                   ),
                 )
               : CircleAvatar(
                   radius: 20.r,
-                  backgroundColor: AuthColors.primary.withValues(alpha: 0.15),
+                  backgroundColor: colors.primary.withValues(alpha: 0.15),
                   child: Icon(
                     Icons.person_rounded,
                     color: colors.primary,
@@ -480,10 +513,7 @@ class _OwnerCard extends StatelessWidget {
                 SizedBox(height: 2.h),
                 Text(
                   'Posted on ${donation.createdAt.toString().split(' ')[0]}',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: colors.subText,
-                  ),
+                  style: TextStyle(fontSize: 12.sp, color: colors.subText),
                 ),
               ],
             ),
@@ -494,16 +524,61 @@ class _OwnerCard extends StatelessWidget {
   }
 }
 
-class _LocationMapCard extends StatelessWidget {
+class _LocationMapCard extends StatefulWidget {
   final Donation donation;
 
   const _LocationMapCard({required this.donation});
 
   @override
+  State<_LocationMapCard> createState() => _LocationMapCardState();
+}
+
+class _LocationMapCardState extends State<_LocationMapCard> {
+  late String _currentStyleUrl;
+  late StreamSubscription<ThemeMode> _themeSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentStyleUrl = MapConfig.styleUrl; // Default light style
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _currentStyleUrl = _getStyleUrl(context);
+    _themeSubscription = context.read<ThemeCubit>().stream.listen((_) {
+      _updateMapStyle();
+    });
+  }
+
+  String _getStyleUrl(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    return MapConfig.getStyleUrl(brightness);
+  }
+
+  void _updateMapStyle() {
+    final newUrl = _getStyleUrl(context);
+    if (newUrl != _currentStyleUrl) {
+      setState(() {
+        _currentStyleUrl = newUrl;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _themeSubscription.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final hasLocation = donation.latitude != null && donation.longitude != null;
+    final colors = context.themeColors;
+    final hasLocation =
+        widget.donation.latitude != null && widget.donation.longitude != null;
     final target = hasLocation
-        ? LatLng(donation.latitude!, donation.longitude!)
+        ? LatLng(widget.donation.latitude!, widget.donation.longitude!)
         : MapConfig.defaultTarget;
 
     return ClipRRect(
@@ -515,7 +590,7 @@ class _LocationMapCard extends StatelessWidget {
           alignment: Alignment.center,
           children: [
             MapLibreMap(
-              styleString: MapConfig.styleUrl,
+              styleString: _currentStyleUrl,
               initialCameraPosition: MapConfig.cameraPosition(
                 target: target,
                 zoom: hasLocation ? 14 : MapConfig.defaultZoom,
@@ -543,7 +618,7 @@ class _LocationMapCard extends StatelessWidget {
               ),
               child: Icon(
                 Icons.location_on,
-                color: AuthColors.primary,
+                color: colors.primary,
                 size: 18.sp,
               ),
             ),

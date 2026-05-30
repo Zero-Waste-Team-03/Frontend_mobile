@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -93,7 +94,7 @@ class LeaderboardUserCard extends StatelessWidget {
                   radius: avatarSize / 2,
                   backgroundColor: colors.surface,
                   backgroundImage: hasAvatar
-                      ? NetworkImage(entry.avatarUrl)
+                      ? CachedNetworkImageProvider(entry.avatarUrl)
                       : null,
                   child: hasAvatar
                       ? null

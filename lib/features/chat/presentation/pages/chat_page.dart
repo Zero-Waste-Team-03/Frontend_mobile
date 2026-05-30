@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -152,7 +153,11 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  PreferredSizeWidget _buildAppBar(BuildContext context, ChatState state, ThemeColors colors) {
+  PreferredSizeWidget _buildAppBar(
+    BuildContext context,
+    ChatState state,
+    ThemeColors colors,
+  ) {
     final String? donationTitle = state is ChatLoaded
         ? state.conversation.donationTitle
         : null;
@@ -176,7 +181,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8.r),
                       image: DecorationImage(
-                        image: NetworkImage(
+                        image: CachedNetworkImageProvider(
                           state.conversation.donationImageUrl!,
                         ),
                         fit: BoxFit.cover,
@@ -186,7 +191,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 else
                   CircleAvatar(
                     radius: 18.r,
-                    backgroundImage: NetworkImage(
+                    backgroundImage: CachedNetworkImageProvider(
                       state.conversation.counterpartAvatarUrl!,
                     ),
                   ),
@@ -270,7 +275,11 @@ class _ChatScreenState extends State<ChatScreen> {
       actions: [
         if (state is ChatLoaded)
           IconButton(
-            icon: Icon(Icons.info_outline, size: 24.sp, color: colors.onPrimary),
+            icon: Icon(
+              Icons.info_outline,
+              size: 24.sp,
+              color: colors.onPrimary,
+            ),
             onPressed: () {
               _showUserReportDialog(context, state.conversation);
             },
@@ -288,7 +297,11 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 );
               },
-              icon: Icon(Icons.check_circle_outline, size: 20.sp, color: colors.onPrimary),
+              icon: Icon(
+                Icons.check_circle_outline,
+                size: 20.sp,
+                color: colors.onPrimary,
+              ),
               label: Text(
                 'Finish',
                 style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600),
@@ -300,7 +313,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _buildStatusBanner(ChatState state,ThemeColors colors) {
+  Widget _buildStatusBanner(ChatState state, ThemeColors colors) {
     if (state is ChatLoaded &&
         state.conversation.status != 'Active' &&
         state.conversation.status != 'ACTIVE') {
@@ -335,11 +348,13 @@ class _ChatScreenState extends State<ChatScreen> {
     return const SizedBox.shrink();
   }
 
-  Widget _buildMessageList(BuildContext context, ChatState state, ThemeColors colors) {
+  Widget _buildMessageList(
+    BuildContext context,
+    ChatState state,
+    ThemeColors colors,
+  ) {
     if (state is ChatLoading) {
-      return  Center(
-        child: CircularProgressIndicator(color: colors.primary),
-      );
+      return Center(child: CircularProgressIndicator(color: colors.primary));
     }
 
     if (state is ChatLoaded) {
@@ -446,7 +461,11 @@ class _ChatScreenState extends State<ChatScreen> {
     return const SizedBox.shrink();
   }
 
-  Widget _buildInputArea(BuildContext context, bool isActive, ThemeColors colors) {
+  Widget _buildInputArea(
+    BuildContext context,
+    bool isActive,
+    ThemeColors colors,
+  ) {
     // Input area implementation...
     return Container(
       // existing container code...
@@ -570,7 +589,9 @@ class _ChatScreenState extends State<ChatScreen> {
                 CircleAvatar(
                   radius: 30.r,
                   backgroundImage: conversation.counterpartAvatarUrl != null
-                      ? NetworkImage(conversation.counterpartAvatarUrl!)
+                      ? CachedNetworkImageProvider(
+                          conversation.counterpartAvatarUrl!,
+                        )
                       : null,
                   child: conversation.counterpartAvatarUrl == null
                       ? Icon(Icons.person, size: 30.sp)
@@ -630,7 +651,13 @@ class _ChatScreenState extends State<ChatScreen> {
               onTap: () {
                 Navigator.pop(innerContext);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Blocking feature coming soon',style: TextStyle(color: colors.background)),backgroundColor: colors.onBackground,),
+                  SnackBar(
+                    content: Text(
+                      'Blocking feature coming soon',
+                      style: TextStyle(color: colors.background),
+                    ),
+                    backgroundColor: colors.onBackground,
+                  ),
                 );
               },
             ),

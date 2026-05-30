@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'dart:math';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
@@ -8,6 +10,7 @@ import '../../core/app_icons.dart';
 import '../../core/map/map_config.dart';
 import '../../core/permissions/permission_request_coordinator.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_cubit.dart';
 import '../../l10n/app_localizations.dart';
 
 class AppLocationPicker extends StatefulWidget {
@@ -29,6 +32,8 @@ class AppLocationPicker extends StatefulWidget {
 class _AppLocationPickerState extends State<AppLocationPicker> {
   MapLibreMapController? _mapController;
   late CameraPosition _currentCamera;
+  late String _currentStyleUrl;
+  late StreamSubscription<ThemeMode> _themeSubscription;
   bool _locating = false;
 
   @override
@@ -42,6 +47,36 @@ class _AppLocationPickerState extends State<AppLocationPicker> {
           : MapConfig.defaultTarget,
       zoom: hasInitial ? 14 : MapConfig.defaultZoom,
     );
+    _currentStyleUrl = MapConfig.styleUrl; // Default light style
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _currentStyleUrl = _getStyleUrl(context);
+    _themeSubscription = context.read<ThemeCubit>().stream.listen((_) {
+      _updateMapStyle();
+    });
+  }
+
+  String _getStyleUrl(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    return MapConfig.getStyleUrl(brightness);
+  }
+
+  Future<void> _updateMapStyle() async {
+    final newUrl = _getStyleUrl(context);
+    if (newUrl != _currentStyleUrl) {
+      setState(() {
+        _currentStyleUrl = newUrl;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _themeSubscription.cancel();
+    super.dispose();
   }
 
   Future<void> _goToUserLocation() async {
@@ -122,7 +157,7 @@ class _AppLocationPickerState extends State<AppLocationPicker> {
               alignment: Alignment.center,
               children: [
                 MapLibreMap(
-                  styleString: MapConfig.styleUrl,
+                  styleString: _currentStyleUrl,
                   initialCameraPosition: _currentCamera,
                   trackCameraPosition: true,
                   onMapCreated: (controller) {
