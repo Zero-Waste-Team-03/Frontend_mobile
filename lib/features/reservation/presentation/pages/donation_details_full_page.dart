@@ -26,6 +26,20 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
   static const double _chatButtonSize = 56;
   static const double _chatTopLimit = 116;
   static const double _chatBottomLimit = 118;
+  late Color tagTextColor;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.donation.condition.toUpperCase() == 'DRY') {
+      tagTextColor = const Color(0xFFE87C3E);
+    } else if (widget.donation.condition.toUpperCase() == 'FRESH' ||
+        widget.donation.condition.toUpperCase() == 'FRESH PRODUCE') {
+      tagTextColor = const Color(0xFF2D6C50);
+    } else {
+      tagTextColor = const Color(0xFF3B82F6);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +65,7 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
                 child: Container(
                   clipBehavior: Clip.antiAlias,
                   decoration: BoxDecoration(
-                    color: colors.surface,
+                    color: colors.background,
                     borderRadius: BorderRadius.vertical(
                       top: Radius.circular(24.r),
                     ),
@@ -103,10 +117,11 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
   }
 
   Widget _buildSliverAppBar() {
+    final colors = context.themeColors;
     return SliverAppBar(
       expandedHeight: 300.h,
       pinned: true,
-      backgroundColor: AuthColors.primary,
+      backgroundColor: colors.primary,
       automaticallyImplyLeading: false,
       flexibleSpace: FlexibleSpaceBar(
         background: Stack(
@@ -117,12 +132,17 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
               child: CachedNetworkImage(
                 imageUrl: widget.donation.imageUrl,
                 fit: BoxFit.cover,
-                placeholder: (context, url) =>
-                    Container(color: Colors.grey[200]),
-                errorWidget: (context, url, error) => Container(
-                  color: Colors.grey[200],
-                  child: const Icon(Icons.error, color: Colors.grey),
-                ),
+                placeholder: (context, url) {
+                  final colors = context.themeColors;
+                  return Container(color: colors.lightGrayBackground);
+                },
+                errorWidget: (context, url, error) {
+                  final colors = context.themeColors;
+                  return Container(
+                    color: colors.lightGrayBackground,
+                    child: Icon(Icons.error, color: colors.divider),
+                  );
+                },
               ),
             ),
           ],
@@ -134,10 +154,10 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
           onTap: () => context.pop(),
           child: Container(
             decoration: BoxDecoration(
-              color: const Color(0xFF131615).withValues(alpha: 0.4),
+              color: colors.background,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.arrow_back, color: Colors.white),
+            child: Icon(Icons.arrow_back, color: colors.onPrimary),
           ),
         ),
       ),
@@ -145,6 +165,7 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
   }
 
   Widget _buildMainInfoCard() {
+    final colors = context.themeColors;
     return Padding(
       padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 0),
       child: Column(
@@ -155,7 +176,7 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
             style: TextStyle(
               fontSize: 24.sp,
               fontWeight: FontWeight.w800,
-              color: const Color(0xFF131615),
+              color: colors.textPrimary,
               height: 1.2,
             ),
           ),
@@ -165,7 +186,7 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
               Icon(
                 Icons.location_on_outlined,
                 size: 16.sp,
-                color: const Color(0xFF64748B),
+                color: colors.textTertiary,
               ),
               SizedBox(width: 4.w),
               Text(
@@ -175,7 +196,7 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
                     : 'Location unavailable',
                 style: TextStyle(
                   fontSize: 13.sp,
-                  color: const Color(0xFF64748B),
+                  color: colors.textTertiary,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -187,6 +208,7 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
   }
 
   Widget _buildKeyMetricsRow() {
+    final colors = context.themeColors;
     return Padding(
       padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 0),
       child: Row(
@@ -195,7 +217,7 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
             child: Container(
               padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
               decoration: BoxDecoration(
-                color: const Color(0xFFF0FDF4),
+                color: colors.statBackground,
                 borderRadius: BorderRadius.circular(16.r),
               ),
               child: Column(
@@ -205,7 +227,7 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
                     'Quantity',
                     style: TextStyle(
                       fontSize: 12.sp,
-                      color: const Color(0xFF15803D),
+                      color: colors.headingText,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -227,7 +249,7 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
             child: Container(
               padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFF7ED),
+                color: colors.statBackground,
                 borderRadius: BorderRadius.circular(16.r),
               ),
               child: Column(
@@ -238,14 +260,14 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
                       Icon(
                         Icons.access_time_rounded,
                         size: 14.sp,
-                        color: const Color(0xFFEA580C),
+                        color: tagTextColor,
                       ),
                       SizedBox(width: 4.w),
                       Text(
                         'Status',
                         style: TextStyle(
                           fontSize: 12.sp,
-                          color: const Color(0xFFEA580C),
+                          color: tagTextColor,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -256,7 +278,7 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
                     widget.donation.status,
                     style: TextStyle(
                       fontSize: 16.sp,
-                      color: const Color(0xFFEA580C),
+                      color: tagTextColor,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -270,6 +292,7 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
   }
 
   Widget _buildDescriptionSection() {
+    final colors = context.themeColors;
     return Padding(
       padding: EdgeInsets.fromLTRB(20.w, 24.h, 20.w, 0),
       child: Column(
@@ -280,26 +303,27 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF131615),
+              color: colors.headingText,
             ),
           ),
           SizedBox(height: 8.h),
-          Text(
-            widget.donation.description.isEmpty
-                ? 'No additional description provided.'
-                : widget.donation.description,
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: const Color(0xFF4A5550),
-              height: 1.5,
+            Text(
+              widget.donation.description.isEmpty
+                  ? 'No additional description provided.'
+                  : widget.donation.description,
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: colors.subText,
+                height: 1.5,
+              ),
             ),
-          ),
         ],
       ),
     );
   }
 
   Widget _buildPostedBySection() {
+    final colors = context.themeColors;
     return Padding(
       padding: EdgeInsets.fromLTRB(20.w, 24.h, 20.w, 0),
       child: Column(
@@ -310,7 +334,7 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF131615),
+              color: colors.headingText,
             ),
           ),
           SizedBox(height: 12.h),
@@ -321,6 +345,7 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
   }
 
   Widget _buildPickupLocationSection() {
+    final colors = context.themeColors;
     return Padding(
       padding: EdgeInsets.fromLTRB(20.w, 24.h, 20.w, 0),
       child: Column(
@@ -334,7 +359,7 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF131615),
+                  color: colors.headingText,
                 ),
               ),
               Text(
@@ -344,7 +369,7 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
                     : 'Coordinates unavailable',
                 style: TextStyle(
                   fontSize: 12.sp,
-                  color: const Color(0xFF64748B),
+                  color: colors.subText,
                 ),
               ),
             ],
@@ -407,13 +432,14 @@ class _OwnerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(14.w),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: colors.background,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: colors.border),
       ),
       child: Row(
         children: [
@@ -432,7 +458,7 @@ class _OwnerCard extends StatelessWidget {
                   backgroundColor: AuthColors.primary.withValues(alpha: 0.15),
                   child: Icon(
                     Icons.person_rounded,
-                    color: AuthColors.primary,
+                    color: colors.primary,
                     size: 20.sp,
                   ),
                 ),
@@ -448,7 +474,7 @@ class _OwnerCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF131615),
+                    color: colors.headingText,
                   ),
                 ),
                 SizedBox(height: 2.h),
@@ -456,7 +482,7 @@ class _OwnerCard extends StatelessWidget {
                   'Posted on ${donation.createdAt.toString().split(' ')[0]}',
                   style: TextStyle(
                     fontSize: 12.sp,
-                    color: const Color(0xFF64748B),
+                    color: colors.subText,
                   ),
                 ),
               ],

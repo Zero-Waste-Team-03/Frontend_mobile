@@ -9,12 +9,12 @@ class ReservationTimeline extends StatelessWidget {
   const ReservationTimeline({super.key, required this.reservation});
 
   bool get isReserved => reservation.status == ReservationStatus.confirmed;
-  bool get isConfirmed =>
-      reservation.status == ReservationStatus.confirmed;
+  bool get isConfirmed => reservation.status == ReservationStatus.confirmed;
   bool get isPickedUp => reservation.status == ReservationStatus.completed;
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -23,7 +23,7 @@ class ReservationTimeline extends StatelessWidget {
           style: TextStyle(
             fontSize: AppDimensions.captionSize.sp,
             fontWeight: FontWeight.w700,
-            color: AuthColors.labelText,
+            color: colors.textPrimary,
             fontFamily: AppFonts.primaryFont,
             letterSpacing: 0.5,
           ),
@@ -80,6 +80,7 @@ class _TimelineItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -92,26 +93,18 @@ class _TimelineItem extends StatelessWidget {
               height: 28.w,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: checked
-                    ? AuthColors.primary
-                    : AuthColors.dividerColor,
+                color: checked ? colors.primary : colors.divider,
                 border: Border.all(
-                  color: checked
-                      ? AuthColors.primary
-                      : AuthColors.dividerColor,
+                  color: checked ? colors.primary : colors.divider,
                   width: 2,
                 ),
               ),
               child: checked
-                  ? Icon(Icons.check, color: Colors.white, size: 16.sp)
+                  ? Icon(Icons.check, color: colors.onPrimary, size: 16.sp)
                   : null,
             ),
             if (!isLast)
-              Container(
-                width: 2.w,
-                height: 40.h,
-                color: AuthColors.dividerColor,
-              ),
+              Container(width: 2.w, height: 40.h, color: colors.divider),
           ],
         ),
         SizedBox(width: AppDimensions.paddingMedium.w),
@@ -128,7 +121,7 @@ class _TimelineItem extends StatelessWidget {
                   style: TextStyle(
                     fontSize: AppDimensions.bodySize.sp,
                     fontWeight: FontWeight.w600,
-                    color: AuthColors.headingText,
+                    color: colors.textPrimary,
                     fontFamily: AppFonts.primaryFont,
                   ),
                 ),
@@ -137,7 +130,7 @@ class _TimelineItem extends StatelessWidget {
                   time,
                   style: TextStyle(
                     fontSize: AppDimensions.captionSize.sp,
-                    color: AuthColors.subText,
+                    color: colors.textSecondary,
                     fontFamily: AppFonts.primaryFont,
                   ),
                 ),

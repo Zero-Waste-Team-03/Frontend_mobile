@@ -8,49 +8,50 @@ class StatusBadge extends StatelessWidget {
 
   const StatusBadge({super.key, required this.status, required this.label});
 
-  Color get _backgroundColor {
+  Color _getBackgroundColor(ThemeColors colors) {
     switch (status.toUpperCase()) {
       case 'ACTIVE':
       case 'PUBLISHED':
-        return AuthColors.statusActiveBackground;
+        return colors.primary.withValues(alpha: 0.08);
       case 'RESERVED':
-        return AuthColors.statusReservedBackground;
+        return colors.primary.withValues(alpha: 0.12);
       case 'COMPLETED':
-        return AuthColors.statusCompletedBackground;
+        return colors.lightGreenBackground;
       case 'EXPIRED':
       case 'DRAFT':
-        return AuthColors.statusExpiredBackground;
+        return colors.error.withValues(alpha: 0.08);
       default:
-        return AuthColors.statusExpiredBackground;
+        return colors.error.withValues(alpha: 0.08);
     }
   }
 
-  Color get _textColor {
+  Color _getTextColor(ThemeColors colors) {
     switch (status.toUpperCase()) {
       case 'ACTIVE':
       case 'PUBLISHED':
-        return AuthColors.statusActiveText;
+        return colors.primary;
       case 'RESERVED':
-        return AuthColors.statusReservedText;
+        return colors.primary;
       case 'COMPLETED':
-        return AuthColors.statusCompletedText;
+        return colors.primary;
       case 'EXPIRED':
       case 'DRAFT':
-        return AuthColors.statusExpiredText;
+        return colors.error;
       default:
-        return AuthColors.statusExpiredText;
+        return colors.error;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: AppDimensions.paddingMedium.w,
         vertical: AppDimensions.paddingSmall.h,
       ),
       decoration: BoxDecoration(
-        color: _backgroundColor,
+        color: _getBackgroundColor(colors),
         borderRadius: BorderRadius.circular(AppDimensions.borderRadiusMedium),
       ),
       child: Text(
@@ -58,7 +59,7 @@ class StatusBadge extends StatelessWidget {
         style: TextStyle(
           fontSize: AppDimensions.bodySize.sp,
           fontWeight: FontWeight.w600,
-          color: _textColor,
+          color: _getTextColor(colors),
           fontFamily: AppFonts.primaryFont,
         ),
       ),

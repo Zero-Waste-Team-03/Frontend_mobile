@@ -93,25 +93,24 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                     child: Container(
                       width: 40.w,
                       height: 40.w,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
+                      decoration:  BoxDecoration(
+                        color: colors.background,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         Icons.arrow_back,
-                        color: colors.textPrimary,
+                        color: colors.primary,
                         size: 20.sp,
                       ),
                     ),
                   ),
                   Expanded(
-                    child: Center(
-                      child: Padding(
+                    child: Padding(
                         padding: EdgeInsets.only(right: 40.w),
                         child: Text(
                           'Verification Requests',
                           style: TextStyle(
-                            color: colors.textPrimary,
+                            color: colors.primary,
                             fontSize: 18.sp,
                             fontWeight: FontWeight.w700,
                             fontFamily: 'Inter',
@@ -119,7 +118,6 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                         ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -182,10 +180,10 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                   Container(
                     padding: EdgeInsets.all(24.w),
                     decoration: BoxDecoration(
-                      color: colors.primary.withValues(alpha: 0.1),
+                      color: colors.surface,
                       borderRadius: BorderRadius.circular(32.r),
                       border: Border.all(
-                        color: colors.primary.withValues(alpha: 0.2),
+                        color: colors.inputBorder,
                       ),
                       boxShadow: [
                         BoxShadow(
@@ -203,7 +201,7 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                             Icon(
                               Icons.verified_user,
                               size: 16.sp,
-                              color: colors.primary,
+                              color: colors.onSurface,
                             ),
                             SizedBox(width: 8.w),
                             Text(
@@ -211,7 +209,7 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 13.sp,
                                 fontWeight: FontWeight.w600,
-                                color: colors.primary,
+                                color: colors.textPrimary,
                                 letterSpacing: 0.5.w,
                               ),
                             ),
@@ -223,7 +221,7 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.w400,
-                            color: colors.primary,
+                            color: colors.textSecondary,
                           ),
                         ),
                         SizedBox(height: 8.h),
@@ -245,7 +243,7 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 13.sp,
                       fontWeight: FontWeight.w600,
-                      color: colors.inputText,
+                      color: colors.textPrimary,
                       letterSpacing: 1.3.w,
                     ),
                   ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../../../shared/theme/app_colors.dart';
 
 void showApiErrorDialog(
   BuildContext context, {
@@ -71,6 +72,7 @@ class _ApiErrorDialogState extends State<ApiErrorDialog>
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return FadeTransition(
       opacity: _fadeAnimation,
       child: ScaleTransition(
@@ -79,7 +81,7 @@ class _ApiErrorDialogState extends State<ApiErrorDialog>
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.r),
           ),
-          backgroundColor: Colors.white,
+          backgroundColor: colors.surface,
           elevation: 8,
           contentPadding: EdgeInsets.all(24.w),
           content: SingleChildScrollView(
@@ -91,13 +93,13 @@ class _ApiErrorDialogState extends State<ApiErrorDialog>
                   width: 64.w,
                   height: 64.w,
                   decoration: BoxDecoration(
-                    color: Colors.red.withValues(alpha: 0.1),
+                    color: colors.error.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Center(
                     child: Icon(
                       Icons.error_outline_rounded,
-                      color: Colors.red,
+                      color: colors.error,
                       size: 40.sp,
                     ),
                   ),
@@ -110,7 +112,7 @@ class _ApiErrorDialogState extends State<ApiErrorDialog>
                   style: TextStyle(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: colors.textPrimary,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -120,10 +122,10 @@ class _ApiErrorDialogState extends State<ApiErrorDialog>
                 Container(
                   padding: EdgeInsets.all(12.w),
                   decoration: BoxDecoration(
-                    color: Colors.red.withValues(alpha: 0.05),
+                    color: colors.error.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(12.r),
                     border: Border.all(
-                      color: Colors.red.withValues(alpha: 0.2),
+                      color: colors.error.withValues(alpha: 0.2),
                       width: 1,
                     ),
                   ),
@@ -131,7 +133,7 @@ class _ApiErrorDialogState extends State<ApiErrorDialog>
                     widget.message,
                     style: TextStyle(
                       fontSize: 13.sp,
-                      color: Colors.red.shade700,
+                      color: colors.error,
                       height: 1.5,
                     ),
                     textAlign: TextAlign.center,
@@ -149,7 +151,7 @@ class _ApiErrorDialogState extends State<ApiErrorDialog>
                           vertical: 10.h,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
+                          color: colors.lightGrayBackground,
                           borderRadius: BorderRadius.circular(8.r),
                         ),
                         child: Column(
@@ -164,7 +166,7 @@ class _ApiErrorDialogState extends State<ApiErrorDialog>
                                       'Status Code: ',
                                       style: TextStyle(
                                         fontSize: 11.sp,
-                                        color: Colors.grey.shade700,
+                                        color: colors.textSecondary,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
@@ -174,7 +176,7 @@ class _ApiErrorDialogState extends State<ApiErrorDialog>
                                         vertical: 2.h,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: Colors.red.withValues(
+                                        color: colors.error.withValues(
                                           alpha: 0.1,
                                         ),
                                         borderRadius: BorderRadius.circular(
@@ -185,7 +187,7 @@ class _ApiErrorDialogState extends State<ApiErrorDialog>
                                         widget.statusCode!,
                                         style: TextStyle(
                                           fontSize: 11.sp,
-                                          color: Colors.red,
+                                          color: colors.error,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -200,7 +202,7 @@ class _ApiErrorDialogState extends State<ApiErrorDialog>
                                     'Time: ',
                                     style: TextStyle(
                                       fontSize: 11.sp,
-                                      color: Colors.grey.shade700,
+                                      color: colors.textSecondary,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -209,7 +211,7 @@ class _ApiErrorDialogState extends State<ApiErrorDialog>
                                       widget.timestamp!,
                                       style: TextStyle(
                                         fontSize: 11.sp,
-                                        color: Colors.grey.shade600,
+                                        color: colors.textMuted,
                                       ),
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -231,8 +233,8 @@ class _ApiErrorDialogState extends State<ApiErrorDialog>
                       child: ElevatedButton(
                         onPressed: () => Navigator.of(context).pop(),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.grey.shade200,
-                          foregroundColor: Colors.black87,
+                          backgroundColor: colors.lightGrayBackground,
+                          foregroundColor: colors.textPrimary,
                           padding: EdgeInsets.symmetric(vertical: 12.h),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.r),
@@ -256,8 +258,8 @@ class _ApiErrorDialogState extends State<ApiErrorDialog>
                             widget.onRetry?.call();
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            foregroundColor: Colors.white,
+                            backgroundColor: colors.error,
+                            foregroundColor: colors.onPrimary,
                             padding: EdgeInsets.symmetric(vertical: 12.h),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10.r),
