@@ -16,6 +16,7 @@ fragment UserFields on User {
     latitude
     longitude
     neighborhood
+    zipCode
   }
   avatar {
     id

@@ -77,18 +77,22 @@ class _EditProfilePageState extends State<EditProfilePage> {
         final city = _cityController.text.trim();
         final neighborhood = _neighborhoodController.text.trim();
         final zipCode = _zipCodeController.text.trim();
+        print('OnSave: zipCode = $zipCode');
+
+        final locationMap = {
+          if (city.isNotEmpty) 'city': city,
+          if (neighborhood.isNotEmpty) 'neighborhood': neighborhood,
+          if (zipCode.isNotEmpty) 'zipCode': zipCode,
+          if (_latitude != null) 'latitude': _latitude,
+          if (_longitude != null) 'longitude': _longitude,
+        };
+        print('OnSave: locationMap = $locationMap');
 
         profileBloc.add(
           ProfileUpdateRequested(
             displayName: fullName,
             phoneNumber: phone,
-            location: {
-              if (city.isNotEmpty) 'city': city,
-              if (neighborhood.isNotEmpty) 'neighborhood': neighborhood,
-              if (zipCode.isNotEmpty) 'zipCode': zipCode,
-              if (_latitude != null) 'latitude': _latitude,
-              if (_longitude != null) 'longitude': _longitude,
-            },
+            location: locationMap,
           ),
         );
       }
@@ -227,7 +231,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
         if (state is ProfileUpdateSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
              SnackBar(
-              content: Text('Profile updated successfully'),
+              content: Text(
+                'Profile updated successfully',
+                style: TextStyle(color: Colors.white),
+              ),
               backgroundColor: colors.primary,
               behavior: SnackBarBehavior.floating,
               duration: Duration(seconds: 2),

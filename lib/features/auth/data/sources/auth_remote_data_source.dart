@@ -345,6 +345,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (settings != null) 'settings': Map<String, dynamic>.from(settings),
     };
 
+    print('Updating profile with input: $updateProfileInput');
     final vars = GUpdateProfileVars.fromJson({
       'updateProfileInput': updateProfileInput,
     });
