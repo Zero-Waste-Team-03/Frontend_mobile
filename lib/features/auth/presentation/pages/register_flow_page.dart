@@ -142,7 +142,19 @@ class _RegisterFlowPageState extends State<RegisterFlowPage>
         listener: (context, state) {
           if (state is AuthSuccess) {
             FcmInitializationService.initializeAfterLogin();
-            context.go('/home');
+            final user = state.user;
+            if (user != null) {
+              final zipCode = user.location?['zipCode']?.toString();
+              if (zipCode == null || zipCode.trim().isEmpty) {
+                context.go('/profile/edit');
+              } else if (!user.isVerified) {
+                context.go('/profile/find-verifier');
+              } else {
+                context.go('/home');
+              }
+            } else {
+              context.go('/home');
+            }
           }
         },
         child: SafeArea(

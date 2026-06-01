@@ -115,10 +115,8 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       );
 
       result.fold((failure) => emit(ProfileError(failure.message)), (user) {
-        // Emit success state first (for UI feedback like snackbar)
         emit(ProfileUpdateSuccess(user));
-        // Then emit loaded state with updated user (for displaying the data)
-        emit(ProfileLoaded(user));
+        emit(ProfileLoaded(user, donationsState: currentState.donationsState));
       });
     }
   }

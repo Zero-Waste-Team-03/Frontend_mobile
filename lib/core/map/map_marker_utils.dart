@@ -46,14 +46,8 @@ class MapMarkerUtils {
   }) async {
     final withCoordinates = donations.where(hasCoordinates).toList();
 
-    try {
-      await controller.clearSymbols();
-    } catch (_) {
-      // Controller may not be fully initialized yet
-      return;
-    }
-
     if (withCoordinates.isEmpty) {
+      await controller.clearSymbols();
       return;
     }
 
@@ -80,6 +74,7 @@ class MapMarkerUtils {
         geometry: geometry,
         iconImage: imageIdForUrgency(urgency),
         iconSize: 1.0,
+        iconAnchor: "bottom",
       );
     }).toList();
 
@@ -87,6 +82,7 @@ class MapMarkerUtils {
         .map((donation) => <String, dynamic>{'donationId': donation.id})
         .toList();
 
+    await controller.clearSymbols();
     await controller.addSymbols(symbolOptions, symbolData);
   }
 }

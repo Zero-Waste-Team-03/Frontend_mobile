@@ -126,7 +126,14 @@ class _GaspZeroAppState extends State<GaspZeroApp> {
                     } catch (_) {}
                     appRouter.go('/home');
                   } else if (state is AuthUnauthenticated) {
-                    appRouter.go('/');
+                    final router = appRouter;
+                    final String location = router.routerDelegate.currentConfiguration.last.matchedLocation;
+                    if (location != '/login' && 
+                        location != '/register' && 
+                        location != '/forgot-password' && 
+                        location != '/') {
+                      router.go('/');
+                    }
                   } else if (state is AuthChecking) {
                     appRouter.go('/splash');
                   }

@@ -653,7 +653,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     Text(
                       '3 items expiring soon!',
                       style: AppTextStyles.bodyMedium.copyWith(
-                        color: Colors.white.withOpacity(0.8),
+                        color: Colors.white.withValues(alpha: 0.8),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -666,7 +666,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
           Text(
             'Save food in your area before it goes to waste.',
             style: AppTextStyles.bodySmall.copyWith(
-              color: Colors.white.withOpacity(0.9),
+              color: Colors.white.withValues(alpha: 0.9),
               height: 1.5,
             ),
           ),

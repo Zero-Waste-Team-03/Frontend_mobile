@@ -16,20 +16,58 @@ class LoginPage extends StatefulWidget {
   State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
+  bool _isWaitingForOAuth = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && _isWaitingForOAuth) {
+      // Give a small delay for deep links to be processed
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (!mounted) return;
+        final authBloc = context.read<AuthBloc>();
+        if (authBloc.state is AuthLoading) {
+          authBloc.add(AuthResetRequested());
+        }
+        setState(() {
+          _isWaitingForOAuth = false;
+        });
+      });
+    }
+  }
 
   void _onLogin() {
     if (!_formKey.currentState!.validate()) return;
+    setState(() {
+      _isWaitingForOAuth = false;
+    });
     final email = _emailController.text.trim();
     final password = _passwordController.text;
     context.read<AuthBloc>().add(AuthLoginRequested(email, password));
   }
 
   void _onGoogleSignIn() {
+    setState(() {
+      _isWaitingForOAuth = true;
+    });
     context.read<AuthBloc>().add(AuthGoogleLoginRequested());
   }
 
@@ -61,9 +99,26 @@ class _LoginPageState extends State<LoginPage> {
       ),
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
+          if (state is AuthSuccess || state is AuthError) {
+            setState(() {
+              _isWaitingForOAuth = false;
+            });
+          }
           if (state is AuthSuccess) {
             FcmInitializationService.initializeAfterLogin();
-            context.go('/home');
+            final user = state.user;
+            if (user != null) {
+              final zipCode = user.location?['zipCode']?.toString();
+              if (zipCode == null || zipCode.trim().isEmpty) {
+                context.go('/profile/edit');
+              } else if (!user.isVerified) {
+                context.go('/profile/find-verifier');
+              } else {
+                context.go('/home');
+              }
+            } else {
+              context.go('/home');
+            }
           } else if (state is AuthError) {
             ScaffoldMessenger.of(
               context,
@@ -71,7 +126,7 @@ class _LoginPageState extends State<LoginPage> {
           }
         },
         builder: (context, state) {
-          final isLoading = state is AuthLoading;
+          final isStandardLoading = state is AuthLoading && !_isWaitingForOAuth;
 
           return SafeArea(
             child: SingleChildScrollView(
@@ -161,7 +216,7 @@ class _LoginPageState extends State<LoginPage> {
                     SizedBox(height: 48.h),
 
                     ElevatedButton(
-                      onPressed: isLoading ? null : _onLogin,
+                      onPressed: isStandardLoading ? null : _onLogin,
                       style: ElevatedButton.styleFrom(
                         minimumSize: Size(double.infinity, 56.h),
                         backgroundColor: colors.primary,
@@ -173,7 +228,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         elevation: 0,
                       ),
-                      child: isLoading
+                      child: isStandardLoading
                           ? SizedBox(
                               width: AppDimensions.iconSize.w,
                               height: AppDimensions.iconSize.h,
@@ -219,7 +274,7 @@ class _LoginPageState extends State<LoginPage> {
                     SizedBox(height: AppDimensions.paddingLarge.h),
 
                     OutlinedButton.icon(
-                      onPressed: isLoading ? null : _onGoogleSignIn,
+                      onPressed: _onGoogleSignIn,
                       icon: SvgPicture.asset(
                         'assets/images/google_logo.svg',
                         width: 20.sp,

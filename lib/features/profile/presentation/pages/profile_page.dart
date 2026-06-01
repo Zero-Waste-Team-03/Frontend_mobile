@@ -42,17 +42,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final colors = context.themeColors;
     return BlocListener<ProfileBloc, ProfileState>(
       listener: (context, state) {
-        if (state is ProfileUpdateSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Profile updated successfully'),
-              backgroundColor: Colors.green,
-              duration: Duration(seconds: 2),
-            ),
-          );
-          // Auto-refresh after avatar update
-          Future.delayed(const Duration(milliseconds: 500), _onRefresh);
-        } else if (state is ProfileError && state is! ProfileUpdating) {
+        if (state is ProfileError && state is! ProfileUpdating) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.message),

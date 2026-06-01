@@ -28,6 +28,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthResetPasswordRequested>(_onAuthResetPasswordRequested);
     on<AuthCheckRequested>(_onAuthCheckRequested);
     on<AuthLogoutRequested>(_onAuthLogoutRequested);
+    on<AuthResetRequested>(_onAuthResetRequested);
+  }
+
+  void _onAuthResetRequested(
+    AuthResetRequested event,
+    Emitter<AuthState> emit,
+  ) {
+    emit(AuthInitial());
   }
 
   void _onAuthCheckRequested(
@@ -113,7 +121,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     result.fold(
       (failure) {
         _logger.e('🔴 [AuthBloc] Google OAuth failed: ${failure.message}');
+        // Reset state immediately on failure
         emit(AuthError(failure.message));
+        emit(AuthInitial());
       },
       (response) {
         _logger.i('🟢 [AuthBloc] Emitting AuthSuccess from Google OAuth');

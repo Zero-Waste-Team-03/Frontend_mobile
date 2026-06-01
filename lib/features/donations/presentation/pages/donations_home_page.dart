@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -43,7 +42,6 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
   String _lastMarkerSignature = '';
 
   List<Donation> _mapDonations = const [];
-  Donation? _selectedDonation;
   bool _loadingCurrentLocation = false;
 
   @override
@@ -135,6 +133,7 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
   }
 
   void _fetchDonationsAround(LatLng center, {double radiusKm = 10}) {
+    if (_donationsBloc.state is DonationsLoading) return;
     _donationsBloc.add(
       LoadDonationsEvent(
         searchQuery: _searchController.text,
@@ -188,6 +187,8 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
     final controller = _mapController;
     if (controller == null) return;
 
+    print("SYNCING ${donations.length} MARKERS");
+
     await MapMarkerUtils.registerDonationMarkers(
       donations: donations,
       controller: controller,
@@ -197,21 +198,25 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
   }
 
   void _selectDonationFromSymbol(Symbol symbol) {
+    debugPrint("SYMBOL TAPPED: ${symbol.data}");
     final rawData = symbol.data;
     final donationId = rawData is Map
         ? rawData['donationId']?.toString()
         : null;
     if (donationId == null || donationId.isEmpty) return;
-    if (_mapDonations.isEmpty) return;
+    
+    Donation? donation;
+    try {
+      donation = _mapDonations.firstWhere(
+        (item) => item.id == donationId,
+      );
+    } catch (_) {
+      // Fallback if not found in filtered list
+    }
 
-    final donation = _mapDonations.firstWhere(
-      (item) => item.id == donationId,
-      orElse: () => _selectedDonation ?? _mapDonations.first,
-    );
-
-    setState(() {
-      _selectedDonation = donation;
-    });
+    if (donation != null) {
+      context.push(AppRoutes.donationDetails, extra: donation);
+    }
   }
 
   @override
@@ -225,54 +230,48 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
           builder: (context, state) {
             final donations = state is DonationsLoaded
                 ? state.donations
-                : const <Donation>[];
+                : _mapDonations;
             _mapDonations = _applySearch(donations);
-
-            if (_selectedDonation != null &&
-                !_mapDonations.any(
-                  (element) => element.id == _selectedDonation!.id,
-                )) {
-              _selectedDonation = null;
-            }
 
             _scheduleMarkersSync(_mapDonations);
 
             return Stack(
               children: [
                 Positioned.fill(
-                  child: MapLibreMap(
-                    styleString: _currentStyleUrl,
-                    initialCameraPosition: _cameraPosition,
-                    trackCameraPosition: true,
-                    onMapCreated: (controller) {
-                      _mapController = controller;
-                      controller.addListener(() {
-                        _cameraPosition =
-                            controller.cameraPosition ?? _cameraPosition;
-                      });
-                      controller.onSymbolTapped.add(_selectDonationFromSymbol);
-                    },
-                    onStyleLoadedCallback: () {
-                      _lastMarkerSignature = '';
-                      _syncMarkers(_mapDonations);
-                    },
-                    onCameraIdle: () {
-                      _cameraDebounce?.cancel();
-                      _cameraDebounce = Timer(
-                        const Duration(milliseconds: 500),
-                        () {
-                          _fetchDonationsAround(
-                            _cameraPosition.target,
-                            radiusKm: 10,
-                          );
-                        },
-                      );
-                    },
-                    myLocationEnabled: true,
-                    myLocationTrackingMode: MyLocationTrackingMode.none,
-                    compassEnabled: false,
-                    attributionButtonMargins: Point<double>(12.w, 12.h),
-                  ),
+                    child: MapLibreMap(
+                      styleString: _currentStyleUrl,
+                      initialCameraPosition: _cameraPosition,
+                      trackCameraPosition: true,
+                      onMapCreated: (controller) {
+                        _mapController = controller;
+                        controller.addListener(() {
+                          _cameraPosition =
+                              controller.cameraPosition ?? _cameraPosition;
+                        });
+                        // Use onSymbolTapped on the controller
+                        controller.onSymbolTapped.add(_selectDonationFromSymbol);
+                      },
+                      onStyleLoadedCallback: () {
+                        _lastMarkerSignature = '';
+                        _syncMarkers(_mapDonations);
+                      },
+                      onCameraIdle: () {
+                        _cameraDebounce?.cancel();
+                        _cameraDebounce = Timer(
+                          const Duration(milliseconds: 500),
+                          () {
+                            _fetchDonationsAround(
+                              _cameraPosition.target,
+                              radiusKm: 10,
+                            );
+                          },
+                        );
+                      },
+                      myLocationEnabled: true,
+                      myLocationTrackingMode: MyLocationTrackingMode.none,
+                      compassEnabled: false,
+                      attributionButtonMargins: Point<double>(12.w, 12.h),
+                    ),
                 ),
                 Positioned(
                   left: 12.w,
@@ -312,13 +311,6 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
                       ? _buildBottomCard()
                       : const SizedBox.shrink(),
                 ),
-                if (_selectedDonation != null)
-                  Positioned(
-                    left: 12.w,
-                    right: 12.w,
-                    bottom: _selectedCardOffset(context),
-                    child: _buildSelectedDonationCard(_selectedDonation!),
-                  ),
               ],
             );
           },
@@ -395,87 +387,6 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
     );
   }
 
-  Widget _buildSelectedDonationCard(Donation donation) {
-    final colors = context.themeColors;
-    return GestureDetector(
-      onTap: () {
-        context.push(AppRoutes.donationDetails, extra: donation);
-      },
-      child: Container(
-        padding: EdgeInsets.all(10.w),
-        decoration: BoxDecoration(
-          color: colors.surface,
-          borderRadius: BorderRadius.circular(14.r),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10.r),
-              child: CachedNetworkImage(
-                imageUrl: donation.imageUrl,
-                width: 58.w,
-                height: 58.w,
-                fit: BoxFit.cover,
-                errorWidget: (_, __, ___) =>
-                    Container(width: 58.w, height: 58.w, color: colors.divider),
-              ),
-            ),
-            SizedBox(width: 10.w),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    donation.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w700,
-                      color: colors.textPrimary,
-                    ),
-                  ),
-                  SizedBox(height: 3.h),
-                  Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          donation.author,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            color: colors.textSecondary,
-                          ),
-                        ),
-                      ),
-                      if (donation.authorDetails?.isVerified ?? false) ...[
-                        SizedBox(width: 4.w),
-                        Icon(
-                          Icons.verified_rounded,
-                          color: colors.primary,
-                          size: 14.sp,
-                        ),
-                      ],
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   double _bottomNavBaseInset(BuildContext context) {
     return MediaQuery.paddingOf(context).bottom + 56.h;
   }
@@ -484,12 +395,7 @@ class _DonationsHomePageState extends State<DonationsHomePage> {
     return _bottomNavBaseInset(context);
   }
 
-  double _selectedCardOffset(BuildContext context) {
-    return _bottomNavBaseInset(context);
-  }
-
   double _fabBottomOffset(BuildContext context) {
-    final base = _bottomNavBaseInset(context);
-    return _selectedDonation == null ? base + 84.h : base + 84.h;
+    return _bottomNavBaseInset(context) + 84.h;
   }
 }
