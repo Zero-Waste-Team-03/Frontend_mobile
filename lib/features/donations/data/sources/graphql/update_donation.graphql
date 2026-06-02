@@ -10,6 +10,5 @@ mutation UpdateDonation($id: ID!, $input: UpdateDonationInput!) {
     expiryDate
     foodWeightKg
     createdAt
-    isDeletable
   }
 }
