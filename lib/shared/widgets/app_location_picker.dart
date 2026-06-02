@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 
@@ -29,12 +30,22 @@ class AppLocationPicker extends StatefulWidget {
   State<AppLocationPicker> createState() => _AppLocationPickerState();
 }
 
-class _AppLocationPickerState extends State<AppLocationPicker> {
+class _AppLocationPickerState extends State<AppLocationPicker>
+    with SingleTickerProviderStateMixin {
   MapLibreMapController? _mapController;
   late CameraPosition _currentCamera;
   late String _currentStyleUrl;
   late StreamSubscription<ThemeMode> _themeSubscription;
   bool _locating = false;
+  bool _isMapMoving = false;
+  String? _currentAddress;
+  bool _isLoadingAddress = false;
+
+  late AnimationController _pinAnimController;
+  late Animation<double> _pinScaleAnimation;
+  late Animation<double> _pinShadowAnimation;
+
+  Timer? _addressDebounce;
 
   @override
   void initState() {
@@ -47,7 +58,28 @@ class _AppLocationPickerState extends State<AppLocationPicker> {
           : MapConfig.defaultTarget,
       zoom: hasInitial ? 14 : MapConfig.defaultZoom,
     );
-    _currentStyleUrl = MapConfig.styleUrl; // Default light style
+    _currentStyleUrl = MapConfig.styleUrl;
+
+    _pinAnimController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 250),
+    );
+    _pinScaleAnimation = Tween<double>(begin: 1.0, end: 1.18).animate(
+      CurvedAnimation(
+        parent: _pinAnimController,
+        curve: Curves.easeInOut,
+      ),
+    );
+    _pinShadowAnimation = Tween<double>(begin: 1.0, end: 1.4).animate(
+      CurvedAnimation(
+        parent: _pinAnimController,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    if (hasInitial) {
+      _reverseGeocodeCurrentPosition();
+    }
   }
 
   @override
@@ -76,15 +108,59 @@ class _AppLocationPickerState extends State<AppLocationPicker> {
   @override
   void dispose() {
     _themeSubscription.cancel();
+    _pinAnimController.dispose();
+    _addressDebounce?.cancel();
     super.dispose();
+  }
+
+  Future<void> _reverseGeocodeCurrentPosition() async {
+    if (_isLoadingAddress) return;
+    setState(() => _isLoadingAddress = true);
+    try {
+      final target = _currentCamera.target;
+      final placemarks = await placemarkFromCoordinates(
+        target.latitude,
+        target.longitude,
+      );
+      if (!mounted) return;
+      if (placemarks.isNotEmpty) {
+        final p = placemarks.first;
+        final parts = <String>[
+          if (p.street != null && p.street!.isNotEmpty) p.street!,
+          if (p.locality != null && p.locality!.isNotEmpty) p.locality!,
+          if (p.country != null && p.country!.isNotEmpty) p.country!,
+        ];
+        setState(() => _currentAddress = parts.isNotEmpty ? parts.join(', ') : null);
+      }
+    } catch (_) {
+      if (mounted) setState(() => _currentAddress = null);
+    } finally {
+      if (mounted) setState(() => _isLoadingAddress = false);
+    }
+  }
+
+  void _onCameraChanged() {
+    if (!_isMapMoving) {
+      setState(() => _isMapMoving = true);
+      _pinAnimController.forward();
+    }
+    _addressDebounce?.cancel();
+    _addressDebounce = Timer(const Duration(milliseconds: 400), () {
+      if (!mounted) return;
+      setState(() => _isMapMoving = false);
+      _pinAnimController.reverse();
+      final cameraPosition = _mapController?.cameraPosition;
+      if (cameraPosition != null) {
+        _currentCamera = cameraPosition;
+        _reverseGeocodeCurrentPosition();
+      }
+    });
   }
 
   Future<void> _goToUserLocation() async {
     final l10n = AppLocalizations.of(context);
 
-    setState(() {
-      _locating = true;
-    });
+    setState(() => _locating = true);
 
     try {
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -128,9 +204,7 @@ class _AppLocationPickerState extends State<AppLocationPicker> {
       );
     } finally {
       if (mounted) {
-        setState(() {
-          _locating = false;
-        });
+        setState(() => _locating = false);
       }
     }
   }
@@ -143,6 +217,7 @@ class _AppLocationPickerState extends State<AppLocationPicker> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        SizedBox(height: 4.h),
         Text(
           l10n.addDonationLocationSubtitle,
           style: TextStyle(fontSize: 13.sp, color: colors.textSecondary),
@@ -151,7 +226,7 @@ class _AppLocationPickerState extends State<AppLocationPicker> {
         ClipRRect(
           borderRadius: BorderRadius.circular(16.r),
           child: SizedBox(
-            height: 220.h,
+            height: 280.h,
             width: double.infinity,
             child: Stack(
               alignment: Alignment.center,
@@ -162,44 +237,151 @@ class _AppLocationPickerState extends State<AppLocationPicker> {
                   trackCameraPosition: true,
                   onMapCreated: (controller) {
                     _mapController = controller;
-                    controller.addListener(() {
-                      _currentCamera =
-                          controller.cameraPosition ?? _currentCamera;
-                    });
-                  },
-                  onCameraIdle: () async {
-                    final cameraPosition = _mapController?.cameraPosition;
-                    if (cameraPosition != null) {
-                      _currentCamera = cameraPosition;
-                    }
+                    controller.addListener(_onCameraChanged);
                   },
                   compassEnabled: false,
                   attributionButtonMargins: Point<double>(12.w, 12.h),
                   myLocationEnabled: true,
                   myLocationTrackingMode: MyLocationTrackingMode.none,
                 ),
-                IgnorePointer(
-                  child: Container(
-                    width: 44.w,
-                    height: 44.w,
-                    decoration: BoxDecoration(
-                      color: colors.surface,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.15),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
+                AnimatedBuilder(
+                  animation: _pinAnimController,
+                  builder: (context, child) {
+                    final scale = _pinScaleAnimation.value;
+                    final shadowScale = _pinShadowAnimation.value;
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Transform.scale(
+                          scale: scale,
+                          child: Container(
+                            width: 48.w,
+                            height: 48.w,
+                            decoration: BoxDecoration(
+                              color: colors.primary,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: colors.primary.withValues(alpha: 0.3),
+                                  blurRadius: 8 * shadowScale,
+                                  spreadRadius: 1 * (shadowScale - 1) + 1,
+                                  offset: Offset(0, 2 * shadowScale),
+                                ),
+                              ],
+                            ),
+                            child: Icon(
+                              AppIcons.locationPin,
+                              size: 26.sp,
+                              color: colors.onPrimary,
+                            ),
+                          ),
+                        ),
+                        AnimatedOpacity(
+                          opacity: _isMapMoving ? 0.0 : 0.8,
+                          duration: const Duration(milliseconds: 200),
+                          child: Container(
+                            width: 6.w,
+                            height: 6.w,
+                            decoration: BoxDecoration(
+                              color: colors.primary,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: colors.primary.withValues(alpha: 0.5),
+                                  blurRadius: 4,
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ],
-                    ),
-                    child: Icon(
-                      AppIcons.locationPin,
-                      size: 24.sp,
-                      color: colors.primary,
+                    );
+                  },
+                ),
+                if (_isLoadingAddress)
+                  Positioned(
+                    top: 8.h,
+                    left: 8.w,
+                    right: 8.w,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12.w,
+                        vertical: 8.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: colors.surface.withValues(alpha: 0.9),
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            width: 12.w,
+                            height: 12.w,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 1.5,
+                              color: colors.primary,
+                            ),
+                          ),
+                          SizedBox(width: 8.w),
+                          Expanded(
+                            child: Text(
+                              'Getting address...',
+                              style: TextStyle(
+                                fontSize: 11.sp,
+                                color: colors.textSecondary,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
+                if (_currentAddress != null && !_isMapMoving && !_isLoadingAddress)
+                  Positioned(
+                    top: 8.h,
+                    left: 8.w,
+                    right: 8.w,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12.w,
+                        vertical: 8.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: colors.surface.withValues(alpha: 0.92),
+                        borderRadius: BorderRadius.circular(8.r),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.08),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            AppIcons.location,
+                            size: 14.sp,
+                            color: colors.primary,
+                          ),
+                          SizedBox(width: 6.w),
+                          Expanded(
+                            child: Text(
+                              _currentAddress!,
+                              style: TextStyle(
+                                fontSize: 11.sp,
+                                color: colors.textPrimary,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 Positioned(
                   right: 10.w,
                   bottom: 10.h,
@@ -225,6 +407,15 @@ class _AppLocationPickerState extends State<AppLocationPicker> {
           ),
         ),
         SizedBox(height: 10.h),
+        Text(
+          '${_currentCamera.target.latitude.toStringAsFixed(4)}, ${_currentCamera.target.longitude.toStringAsFixed(4)}',
+          style: TextStyle(
+            fontSize: 11.sp,
+            color: colors.textMuted,
+            fontFamily: 'monospace',
+          ),
+        ),
+        SizedBox(height: 2.h),
         Text(
           l10n.addDonationLocationInstruction,
           style: TextStyle(fontSize: 12.sp, color: colors.textTertiary),

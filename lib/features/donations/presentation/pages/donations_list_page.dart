@@ -17,6 +17,7 @@ import '../bloc/donations_event.dart';
 import '../bloc/donations_state.dart';
 import '../../domain/entities/donation.dart';
 import '../../domain/entities/category.dart';
+import '../widgets/donation_card_utils.dart';
 
 class DonationsListPage extends StatefulWidget {
   const DonationsListPage({super.key});
@@ -30,6 +31,7 @@ class _DonationsListPageState extends State<DonationsListPage> {
   String _selectedCategory = 'All';
   String? _selectedCategoryId;
   LatLng? _currentPosition;
+  bool _lastHasNextPage = true;
 
   final FocusNode _searchFocusNode = FocusNode();
   final TextEditingController _searchController = TextEditingController();
@@ -147,21 +149,20 @@ class _DonationsListPageState extends State<DonationsListPage> {
                   Expanded(
                     child: BlocBuilder<DonationsBloc, DonationsState>(
                       builder: (context, state) {
-                        if (state is DonationsLoading ||
-                            state is DonationsInitial) {
-                          return _buildLoadingSkeleton();
-                        } else if (state is DonationsLoaded) {
+                        if (state is DonationsLoaded) {
                           _donations = state.donations;
-                          if (_donations.isEmpty) {
-                            return const Center(
-                              child: Text('No donations found.'),
-                            );
-                          }
-                          return _buildDonationsList();
-                        } else if (state is DonationsError) {
+                          _lastHasNextPage = state.hasNextPage;
+                        }
+                        if (state is DonationsInitial ||
+                            (state is DonationsLoading &&
+                                _donations.isEmpty)) {
+                          return _buildLoadingSkeleton();
+                        }
+                        if (state is DonationsError &&
+                            _donations.isEmpty) {
                           return Center(child: Text('Error: ${state.message}'));
                         }
-                        return const SizedBox.shrink();
+                        return _buildDonationsList(state);
                       },
                     ),
                   ),
@@ -371,43 +372,41 @@ class _DonationsListPageState extends State<DonationsListPage> {
     );
   }
 
-  Widget _buildDonationsList() {
+  Widget _buildDonationsList(DonationsState state) {
     final colors = context.themeColors;
-    return BlocBuilder<DonationsBloc, DonationsState>(
-      builder: (context, state) {
-        final hasNextPage = state is DonationsLoaded
-            ? state.hasNextPage
-            : false;
+    final hasNextPage = state is DonationsLoaded
+        ? state.hasNextPage
+        : _lastHasNextPage;
 
-        return RefreshIndicator(
-          onRefresh: () async {
-            if (!mounted) return;
-            context.read<DonationsBloc>().add(
-              LoadDonationsEvent(
-                categoryId: _selectedCategoryId,
-                searchQuery: _searchController.text,
-                latitude: _currentPosition?.latitude,
-                longitude: _currentPosition?.longitude,
-              ),
-            );
-            await Future.delayed(const Duration(milliseconds: 500));
-          },
-          color: colors.primary,
-          backgroundColor: colors.surface,
-          child: ListView.builder(
-            controller: _scrollController,
-            padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 80.h),
-            itemCount: hasNextPage ? _donations.length + 1 : _donations.length,
-            itemBuilder: (context, index) {
-              if (index >= _donations.length) {
-                return _buildPaginationLoadingIndicator();
-              }
-              final donation = _donations[index];
-              return _buildDonationCard(donation, index);
-            },
-          ),
-        );
+    return RefreshIndicator(
+      onRefresh: () async {
+        if (!mounted) return;
+        final bloc = context.read<DonationsBloc>();
+        final done = bloc.stream
+            .where((s) => s is DonationsLoaded || s is DonationsError)
+            .first;
+        bloc.add(LoadDonationsEvent(
+          categoryId: _selectedCategoryId,
+          searchQuery: _searchController.text,
+          latitude: _currentPosition?.latitude,
+          longitude: _currentPosition?.longitude,
+        ));
+        await done.timeout(const Duration(seconds: 10));
       },
+      color: colors.primary,
+      backgroundColor: colors.surface,
+      child: ListView.builder(
+        controller: _scrollController,
+        padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 80.h),
+        itemCount: hasNextPage ? _donations.length + 1 : _donations.length,
+        itemBuilder: (context, index) {
+          if (index >= _donations.length) {
+            return _buildPaginationLoadingIndicator();
+          }
+          final donation = _donations[index];
+          return _buildDonationCard(donation, index);
+        },
+      ),
     );
   }
 
@@ -559,6 +558,31 @@ class _DonationsListPageState extends State<DonationsListPage> {
                             fontSize: 12.sp,
                             color: colors.textTertiary,
                             fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 6.w,
+                            vertical: 2.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: statusBackgroundColor(
+                              donation.status,
+                              context,
+                            ),
+                            borderRadius: BorderRadius.circular(4.r),
+                          ),
+                          child: Text(
+                            localizedStatusLabel(context, donation.status),
+                            style: TextStyle(
+                              fontSize: 9.sp,
+                              fontWeight: FontWeight.w700,
+                              color: statusTextColor(
+                                donation.status,
+                                context,
+                              ),
+                            ),
                           ),
                         ),
                       ],

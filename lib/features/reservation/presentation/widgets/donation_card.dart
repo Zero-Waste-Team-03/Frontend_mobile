@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../donations/domain/entities/donation.dart';
+import '../../../donations/presentation/widgets/donation_card_utils.dart';
 import 'status_badge.dart';
 
 class DonationCard extends StatelessWidget {
@@ -16,23 +17,6 @@ class DonationCard extends StatelessWidget {
     required this.onTap,
     String? imageUrl,
   }) : imageUrl = imageUrl ?? '';
-
-  String _getStatusLabel(String status) {
-    switch (status.toUpperCase()) {
-      case 'ACTIVE':
-      case 'PUBLISHED':
-        return 'ACTIVE';
-      case 'RESERVED':
-        return 'RESERVED';
-      case 'COMPLETED':
-        return 'COMPLETED';
-      case 'EXPIRED':
-      case 'DRAFT':
-        return 'EXPIRED';
-      default:
-        return status;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -131,7 +115,7 @@ class DonationCard extends StatelessWidget {
             // Status Badge
             StatusBadge(
               status: donation.status,
-              label: _getStatusLabel(donation.status),
+              label: localizedStatusLabel(context, donation.status),
             ),
           ],
         ),

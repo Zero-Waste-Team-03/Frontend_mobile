@@ -20,7 +20,7 @@ import '../../../reservation/presentation/bloc/reservation_event.dart';
 import '../../../reservation/presentation/bloc/reservation_state.dart';
 import '../../../reservation/presentation/widgets/api_error_dialog.dart';
 import '../../../reservation/presentation/widgets/reservation_confirmed_dialog.dart';
-import '../../../../core/enums/donation_status_value.dart';
+import '../widgets/donation_card_utils.dart';
 import '../../domain/entities/donation.dart';
 
 class DonationDetailsPage extends StatefulWidget {
@@ -575,6 +575,28 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (_donation.category != null)
+            Padding(
+              padding: EdgeInsets.only(bottom: 6.h),
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 10.w,
+                  vertical: 4.h,
+                ),
+                decoration: BoxDecoration(
+                  color: colors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(6.r),
+                ),
+                child: Text(
+                  _donation.category!.name,
+                  style: TextStyle(
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.w600,
+                    color: colors.primary,
+                  ),
+                ),
+              ),
+            ),
           Text(
             _donation.title,
             style: TextStyle(
@@ -664,14 +686,14 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                       Icon(
                         Icons.access_time_rounded,
                         size: 14.sp,
-                        color: tagTextColor,
+                        color: statusTextColor(_donation.status, context),
                       ),
                       SizedBox(width: 4.w),
                       Text(
                         'Status',
                         style: TextStyle(
                           fontSize: 12.sp,
-                          color: tagTextColor,
+                          color: statusTextColor(_donation.status, context),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -679,10 +701,10 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                   ),
                   SizedBox(height: 4.h),
                   Text(
-                    _donation.status.toDonationStatusValue().friendlyName,
+                    localizedStatusLabel(context, _donation.status),
                     style: TextStyle(
                       fontSize: 16.sp,
-                      color: tagTextColor,
+                      color: statusTextColor(_donation.status, context),
                       fontWeight: FontWeight.w700,
                     ),
                   ),

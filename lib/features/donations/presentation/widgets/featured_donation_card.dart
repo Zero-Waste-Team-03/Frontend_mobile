@@ -124,6 +124,30 @@ class FeaturedDonationCard extends StatelessWidget {
                     ),
                   ),
                 ),
+                if (donation.status != 'PUBLISHED' &&
+                    donation.status != 'DRAFT')
+                  Positioned(
+                    left: 10.w,
+                    bottom: 10.h,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 8.w,
+                        vertical: 5.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: statusBackgroundColor(donation.status, context),
+                        borderRadius: BorderRadius.circular(999.r),
+                      ),
+                      child: Text(
+                        localizedStatusLabel(context, donation.status),
+                        style: TextStyle(
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.w700,
+                          color: statusTextColor(donation.status, context),
+                        ),
+                      ),
+                    ),
+                  ),
               ],
             ),
             Padding(
