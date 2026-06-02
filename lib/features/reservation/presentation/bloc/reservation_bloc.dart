@@ -30,6 +30,7 @@ class ReservationBloc extends Bloc<ReservationEvent, ReservationState> {
     on<FetchReservationDetailsEvent>(_onFetchReservationDetails);
     on<CreateReservationEvent>(_onCreateReservation);
     on<UpdateReservationStatusEvent>(_onUpdateReservationStatus);
+    on<CancelReservationEvent>(_onCancelReservation);
     on<FilterDonationsEvent>(_onFilterDonations);
     on<FilterReservationsEvent>(_onFilterReservations);
   }
@@ -259,6 +260,58 @@ class ReservationBloc extends Bloc<ReservationEvent, ReservationState> {
         }
 
         emit(ReservationStatusUpdated(reservation));
+      },
+    );
+  }
+
+  Future<void> _onCancelReservation(
+    CancelReservationEvent event,
+    Emitter<ReservationState> emit,
+  ) async {
+    final previousState = state;
+    emit(const ReservationCancelling());
+
+    final result = await repository.cancelReservation(event.reservationId);
+
+    result.fold(
+      (failure) {
+        emit(ReservationCancellationError(failure.message));
+
+        // Restore previous UI state
+        if (previousState is ReservationDetailsLoaded) {
+          emit(previousState);
+        } else if (previousState is UserReservationsLoaded) {
+          emit(previousState);
+        }
+      },
+      (reservation) {
+        // Update state based on active page
+        if (previousState is ReservationDetailsLoaded) {
+          emit(ReservationDetailsLoaded(reservation));
+          emit(ReservationCancelled(reservation));
+          return;
+        }
+
+        if (previousState is UserReservationsLoaded) {
+          final updatedReservations = previousState.reservations
+              .map((item) => item.id == reservation.id ? reservation : item)
+              .toList();
+
+          emit(
+            UserReservationsLoaded(
+              updatedReservations,
+              activeRoleFilter: previousState.activeRoleFilter,
+              activeFilter: previousState.activeFilter,
+              currentPage: previousState.currentPage,
+              isLoadingMore: false,
+              hasReachedMax: previousState.hasReachedMax,
+            ),
+          );
+          emit(ReservationCancelled(reservation));
+          return;
+        }
+
+        emit(ReservationCancelled(reservation));
       },
     );
   }

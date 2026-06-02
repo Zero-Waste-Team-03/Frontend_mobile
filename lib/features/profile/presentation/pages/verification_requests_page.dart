@@ -186,7 +186,7 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                       border: Border.all(color: colors.inputBorder),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.04),
+                          color: colors.onBackground.withValues(alpha: 0.1),
                           blurRadius: 24,
                           offset: const Offset(0, 4),
                         ),
@@ -273,14 +273,14 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                       child: Container(
                         padding: EdgeInsets.all(20.w),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: colors.surface,
                           borderRadius: BorderRadius.circular(32.r),
                           border: Border.all(
                             color: colors.inputBorder.withValues(alpha: 0.3),
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.04),
+                              color: colors.onBackground.withValues(alpha: 0.05),
                               blurRadius: 24,
                               offset: const Offset(0, 4),
                             ),
@@ -295,7 +295,7 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                                   height: 56.w,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(20.r),
-                                    color: colors.lightGrayBackground,
+                                    color: colors.surface,
                                     image: displayUser?.avatarUrl != null
                                         ? DecorationImage(
                                             image: CachedNetworkImageProvider(
@@ -309,7 +309,7 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                                       ? Center(
                                           child: Icon(
                                             Icons.person,
-                                            color: colors.inputBorder,
+                                            color: colors.onSurface,
                                             size: 24.sp,
                                           ),
                                         )
@@ -362,9 +362,9 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                                                   width: 20.w,
                                                   height: 20.w,
                                                   child:
-                                                      const CircularProgressIndicator(
+                                                       CircularProgressIndicator(
                                                         strokeWidth: 2,
-                                                        color: Colors.white,
+                                                        color: colors.onPrimary,
                                                       ),
                                                 )
                                               : Text(
@@ -374,7 +374,7 @@ class _VerificationRequestsViewState extends State<VerificationRequestsView> {
                                                         fontSize: 13.sp,
                                                         fontWeight:
                                                             FontWeight.w600,
-                                                        color: Colors.white,
+                                                        color: colors.onPrimary,
                                                         letterSpacing: 0.65.w,
                                                       ),
                                                 ),

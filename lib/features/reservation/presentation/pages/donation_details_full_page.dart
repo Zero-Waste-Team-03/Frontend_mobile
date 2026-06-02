@@ -189,10 +189,10 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
           onTap: () => context.pop(),
           child: Container(
             decoration: BoxDecoration(
-              color: colors.background,
+              color: colors.lightGrayBackground.withValues(alpha: 0.7),
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.arrow_back, color: colors.onPrimary),
+            child: Icon(Icons.arrow_back, color: colors.primary),
           ),
         ),
       ),

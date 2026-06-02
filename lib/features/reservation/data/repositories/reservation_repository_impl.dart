@@ -206,4 +206,24 @@ class ReservationRepositoryImpl implements ReservationRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, Reservation>> cancelReservation(
+    String reservationId,
+  ) async {
+    if (remoteDataSource == null) {
+      return Left(ServerFailure('Reservation data source is not available'));
+    }
+
+    try {
+      final reservation = await remoteDataSource!.cancelReservation(
+        reservationId,
+      );
+      return Right(reservation.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
 }

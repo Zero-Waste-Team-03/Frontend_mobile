@@ -68,6 +68,7 @@ enum NOTIFICATION_TYPE {
   NEW_POST
   REPORT_ALERT
   RESERVATION_ALERT
+  RESERVATION_CANCELLED
   TEST
 }
 
@@ -832,17 +833,32 @@ type VerificationRequest {
 }
 
 type Query {
-  adminDangerousDonations(limit: Int = 20, page: Int = 1): PaginatedDangerousDonations!
+  adminDangerousDonations(
+    limit: Int = 20
+    page: Int = 1
+  ): PaginatedDangerousDonations!
   adminDashboardStats(input: AdminDashboardStatsInput): AdminDashboardStats!
   adminGetUserStats: UserStats!
   leaderboardAllTime(limit: Int = 10): [LeaderboardEntry!]!
   leaderboardLastMonth(limit: Int = 10): [LeaderboardEntry!]!
   myLeaderboardRankAllTime: LeaderboardEntry
   myLeaderboardRankLastMonth: LeaderboardEntry
-  adminGetUsers(limit: Int = 10, page: Int = 1, role: UserRole, search: String, status: String): PaginatedUsers!
+  adminGetUsers(
+    limit: Int = 10
+    page: Int = 1
+    role: UserRole
+    search: String
+    status: String
+  ): PaginatedUsers!
   adminGrowthStats(input: StatsGrowthInput!): StatsGrowth!
   adminReportStats(input: ReportStatsInput!): ReportStats!
-  adminReports(limit: Int = 10, page: Int = 1, status: ReportStatus, targetId: String, targetType: ReportTargetType): PaginatedReports!
+  adminReports(
+    limit: Int = 10
+    page: Int = 1
+    status: ReportStatus
+    targetId: String
+    targetType: ReportTargetType
+  ): PaginatedReports!
   badgeCatalog: [Badge!]!
   categories(pagination: PaginationInput): PaginatedCategories!
   category(id: ID!): Category!
@@ -851,27 +867,50 @@ type Query {
   currentUser: User!
   donation(id: ID!): Donation!
   donationStatistics: DonationStatistics!
-  donations(behaviorContext: DonationBehaviorContextInput, filter: DonationsFilterInput, pagination: PaginationInput): PaginatedDonations!
-  myDonations(filter: DonationsFilterInput, pagination: PaginationInput): PaginatedDonations!
+  donations(
+    behaviorContext: DonationBehaviorContextInput
+    filter: DonationsFilterInput
+    pagination: PaginationInput
+  ): PaginatedDonations!
+  myDonations(
+    filter: DonationsFilterInput
+    pagination: PaginationInput
+  ): PaginatedDonations!
   donationsHeatmap(input: DonationsHeatmapInput!): DonationsHeatmap!
   donationsMap(input: DonationsMapInput!): [DonationMapMarker!]!
   getNotifications(pagination: PaginationQueryInput): PaginatedNotifications!
   getNotificationStats: NotificationStats!
-  likedDonations(filter: DonationsFilterInput, pagination: PaginationInput): PaginatedDonations!
+  likedDonations(
+    filter: DonationsFilterInput
+    pagination: PaginationInput
+  ): PaginatedDonations!
   myAchievements: [Achievement!]!
   myActiveConversations: [ConversationPreview!]!
   myBadges: [Badge!]!
   myReports: [Report!]!
   myReservation(id: ID!): Reservation!
   myDonationsStats: UsersDonationsStats!
-  myReservations(filter: ReservationsFilterInput, pagination: PaginationInput): PaginatedReservations!
-  myArchivedConversations(pagination: PaginationInput): PaginatedConversationPreviews!
+  myReservations(
+    filter: ReservationsFilterInput
+    pagination: PaginationInput
+  ): PaginatedReservations!
+  myArchivedConversations(
+    pagination: PaginationInput
+  ): PaginatedConversationPreviews!
   myArchivedConversationsCount: Int!
-  
+
   # Verification Queries
-  getSentVerificationRequests(pagination: PaginationInput): PaginatedVerificationRequests!
-  getVerificationRequestsForFoodSaver(pagination: PaginationInput, search: String): PaginatedVerificationRequests!
-  getUsersFromSameNeighborhood(pagination: PaginationInput, search: String): PaginatedUsers!
+  getSentVerificationRequests(
+    pagination: PaginationInput
+  ): PaginatedVerificationRequests!
+  getVerificationRequestsForFoodSaver(
+    pagination: PaginationInput
+    search: String
+  ): PaginatedVerificationRequests!
+  getUsersFromSameNeighborhood(
+    pagination: PaginationInput
+    search: String
+  ): PaginatedUsers!
 }
 
 type Mutation {
@@ -879,10 +918,14 @@ type Mutation {
   adminCreateAccount(input: AdminCreateAccountInput!): User!
   adminReviewReport(input: ReviewReportInput!): Report!
   adminUpdateUserFoodSaverStatus(isFoodSaver: Boolean!, userId: String!): User!
-  adminUpdateUserVerificationStatus(isVerified: Boolean!, userId: String!): User!
+  adminUpdateUserVerificationStatus(
+    isVerified: Boolean!
+    userId: String!
+  ): User!
   approveDonation(donationId: ID!): Donation!
   approveSensitiveMessage(input: ApproveSensitiveMessageInput!): ChatMessage!
   changePassword(changePasswordInput: ChangePasswordInput!): MessageResponse!
+  cancelReservation(id: ID!): Reservation!
   confirmReservation(id: ID!): Reservation!
   confirmReservationCompleted(reservationId: ID!): Reservation!
   createBadge(input: CreateBadgeInput!): Badge!
@@ -901,7 +944,9 @@ type Mutation {
   logout: MessageResponse!
   logoutFromAllDevices: MessageResponse!
   markAllNotificationsAsRead: MessageResponse!
-  markNotificationsAsRead(input: UpdateReadNotificationsInput!): MessageResponse!
+  markNotificationsAsRead(
+    input: UpdateReadNotificationsInput!
+  ): MessageResponse!
   markTransactionCompleted(input: MarkTransactionCompletedInput!): Conversation!
   refreshTokens: AuthResponse!
   register(otp: String!, registerInput: RegisterInput!): MessageResponse!
@@ -918,5 +963,7 @@ type Mutation {
   updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
   updateDonation(id: ID!, input: UpdateDonationInput!): Donation!
   updateProfile(updateProfileInput: UpdateProfileInput!): User!
-  updateVerificationRequestStatus(updateVerificationRequest: UpdateVerificationStatusInput!): VerificationRequest!
+  updateVerificationRequestStatus(
+    updateVerificationRequest: UpdateVerificationStatusInput!
+  ): VerificationRequest!
 }

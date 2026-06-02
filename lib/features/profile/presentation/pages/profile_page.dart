@@ -421,9 +421,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                           );
                                         },
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(
-                                            0xFF2D6C50,
-                                          ),
+                                          backgroundColor: colors.primary,
                                           padding: EdgeInsets.symmetric(
                                             horizontal:
                                                 AppDimensions.paddingSmall.w,
@@ -448,9 +446,12 @@ class _ProfilePageState extends State<ProfilePage> {
                                       ),
                                     ),
                                   ],
+                                  SizedBox(
+                                    height: AppDimensions.paddingMedium.h,
+                                  ),
 
                                   SizedBox(
-                                    width: 140.w,
+                                    width: 180.w,
                                     height: 32.h,
                                     child: ElevatedButton(
                                       onPressed: isUpdating
@@ -703,7 +704,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                                       ),
                                                     );
                                                   },
-                                            activeThumbColor: colors.primary,
+                                            activeTrackColor: colors.primary,
+                                            activeThumbColor: Colors.white,
+                                            inactiveThumbColor: Colors.grey,
                                           ),
                                         ),
                                         Divider(
@@ -729,14 +732,21 @@ class _ProfilePageState extends State<ProfilePage> {
                                           height: 1.h,
                                           color: colors.dividerColor,
                                         ),
-                                        _PreferenceTile(
-                                          context: context,
-                                          icon: Icons.help_rounded,
-                                          title: 'Help & Support',
-                                          trailing: Icon(
-                                            Icons.chevron_right_rounded,
-                                            color: colors.subText,
-                                            size: AppDimensions.iconSize.sp,
+                                        GestureDetector(
+                                          onTap: () {
+                                            context.push(
+                                              '/profile/help-support',
+                                            );
+                                          },
+                                          child: _PreferenceTile(
+                                            context: context,
+                                            icon: Icons.help_rounded,
+                                            title: 'Help & Support',
+                                            trailing: Icon(
+                                              Icons.chevron_right_rounded,
+                                              color: colors.subText,
+                                              size: AppDimensions.iconSize.sp,
+                                            ),
                                           ),
                                         ),
                                       ],
@@ -1031,4 +1041,3 @@ class _PreferenceTile extends StatelessWidget {
     );
   }
 }
-

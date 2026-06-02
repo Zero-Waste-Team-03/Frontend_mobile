@@ -521,32 +521,14 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
           onTap: () => context.pop(),
           child: Container(
             decoration: BoxDecoration(
-              color: colors.background,
+              color: colors.lightGrayBackground.withValues(alpha: 0.7),
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.arrow_back, color: colors.onPrimary),
+            child: Icon(Icons.arrow_back, color: colors.onBackground),
           ),
         ),
       ),
       actions: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: GestureDetector(
-            onTap: () {},
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: colors.background,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.share_rounded,
-                color: colors.onPrimary,
-                size: 20,
-              ),
-            ),
-          ),
-        ),
         Padding(
           padding: const EdgeInsets.only(right: 16.0, top: 8.0, bottom: 8.0),
           child: GestureDetector(
@@ -554,7 +536,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: colors.background,
+                color: colors.lightGrayBackground.withValues(alpha: 0.7),
                 shape: BoxShape.circle,
               ),
               child: _isLikeUpdating
@@ -562,7 +544,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                       width: 20.w,
                       height: 20.w,
                       child: CircularProgressIndicator(
-                        color: colors.onPrimary,
+                        color: colors.primary,
                         strokeWidth: 2,
                       ),
                     )
@@ -572,7 +554,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                           : Icons.favorite_border_rounded,
                       color: _isLiked
                           ? const Color(0xFFFF6B6B)
-                          : colors.onPrimary,
+                          : colors.onBackground,
                       size: 20,
                     ),
             ),

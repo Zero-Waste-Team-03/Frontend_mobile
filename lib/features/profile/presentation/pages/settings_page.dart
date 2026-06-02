@@ -337,8 +337,8 @@ class _SettingsTile extends StatelessWidget {
           Switch(
             value: value,
             onChanged: enabled ? onChanged : null,
-            activeTrackColor: colors.primary.withValues(alpha: 0.3),
-            activeThumbColor: colors.onPrimary.withValues(alpha: 0.9),
+            activeTrackColor: colors.primary,
+            activeThumbColor: Colors.white,
             inactiveThumbColor: Colors.grey,
           ),
         ],

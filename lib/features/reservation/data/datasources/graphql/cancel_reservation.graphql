@@ -1,0 +1,8 @@
+# import './reservation_fields.graphql'
+
+mutation cancelReservation($id: ID!) {
+  cancelReservation(id: $id) {
+    id
+    ...ReservationFields
+  }
+}
