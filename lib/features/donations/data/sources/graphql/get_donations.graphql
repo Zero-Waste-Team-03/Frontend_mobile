@@ -1,9 +1,8 @@
 query GetDonations(
   $pagination: PaginationInput
   $filter: DonationsFilterInput
-  $searchName: String
 ) {
-  donations(pagination: $pagination, filter: $filter, searchName: $searchName) {
+  donations(pagination: $pagination, filter: $filter) {
     items {
       id
       createdAt
@@ -18,7 +17,6 @@ query GetDonations(
       status
       urgency
       isLikedByMe
-      isDeletable
       safetyChecklistCompleted
       mainAttachmentId
       mainAttachment {
