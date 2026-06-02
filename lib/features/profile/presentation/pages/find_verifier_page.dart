@@ -9,6 +9,7 @@ import '../bloc/verification/verification_bloc.dart';
 import '../bloc/verification/verification_event.dart';
 import '../bloc/verification/verification_state.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../widgets/verification_onboarding_card.dart';
 
 class FindVerifierPage extends StatelessWidget {
   const FindVerifierPage({super.key});
@@ -146,7 +147,11 @@ class _FindVerifierViewState extends State<FindVerifierView> {
           return Column(
             children: [
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
+                padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
+                child: const VerificationOnboardingCard(),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
