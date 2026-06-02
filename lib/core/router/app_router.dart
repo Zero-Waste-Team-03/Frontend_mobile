@@ -30,6 +30,7 @@ import '../../features/notification/presentation/pages/notifications_page.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
 import '../../features/profile/presentation/bloc/profile_event.dart';
 import '../../features/profile/presentation/pages/edit_profile_page.dart';
+import '../../features/profile/presentation/pages/help_support_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/profile/presentation/pages/saver_analytics_page.dart';
 import '../../features/profile/presentation/pages/verification_requests_page.dart';
@@ -231,6 +232,10 @@ final appRouter = GoRouter(
                       builder: (context, state) => const SettingsPage(),
                     ),
                     GoRoute(
+                      path: 'help-support',
+                      builder: (context, state) => const HelpSupportPage(),
+                    ),
+                    GoRoute(
                       path: 'my-listings',
                       builder: (context, state) => const MyListingsPage(),
                     ),
@@ -238,15 +243,15 @@ final appRouter = GoRouter(
                       path: 'saver-analytics',
                       builder: (context, state) => const SaverAnalyticsPage(),
                     ),
-                      GoRoute(
-                        path: 'verification-requests',
-                        builder: (context, state) => const VerificationRequestsPage(),
-                      ),
-                      GoRoute(
-                        path: 'find-verifier',
-                        builder: (context, state) => const FindVerifierPage(),
-                      ),
-
+                    GoRoute(
+                      path: 'verification-requests',
+                      builder: (context, state) =>
+                          const VerificationRequestsPage(),
+                    ),
+                    GoRoute(
+                      path: 'find-verifier',
+                      builder: (context, state) => const FindVerifierPage(),
+                    ),
                   ],
                 ),
               ],

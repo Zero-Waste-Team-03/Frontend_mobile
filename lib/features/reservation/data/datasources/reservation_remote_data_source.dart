@@ -36,6 +36,9 @@ abstract class ReservationRemoteDataSource {
 
   /// Mark reservation as picked up
   Future<ReservationModel> markAsPickedUp(String reservationId);
+
+  /// Cancel a reservation (only for ACTIVE reservations)
+  Future<ReservationModel> cancelReservation(String reservationId);
 }
 
 class ReservationRemoteDataSourceImpl implements ReservationRemoteDataSource {
@@ -233,6 +236,63 @@ class ReservationRemoteDataSourceImpl implements ReservationRemoteDataSource {
       return ReservationModel.fromJson(
         response.data['data']['confirmReservationCompleted']
             as Map<String, dynamic>,
+      );
+    } on DioException catch (e) {
+      throw ServerException(e.message ?? 'Network error');
+    } on ServerException {
+      rethrow;
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
+  }
+
+  @override
+  Future<ReservationModel> cancelReservation(String reservationId) async {
+    // Use raw GraphQL mutation until generated code is available
+    final mutation = '''
+      mutation cancelReservation(\$id: ID!) {
+        cancelReservation(id: \$id) {
+          id
+          donationId
+          beneficiaryId
+          status
+          createdAt
+          confirmedAt
+          updatedAt
+        }
+      }
+    ''';
+
+    try {
+      final response = await dio.post(
+        '/graphql',
+        data: {
+          'query': mutation,
+          'variables': {'id': reservationId},
+        },
+      );
+
+      if (response.statusCode != 200) {
+        throw ServerException(
+          'Failed to cancel reservation (${response.statusCode})',
+        );
+      }
+
+      if (response.data['errors'] != null) {
+        final errors = response.data['errors'] as List;
+        final errorMessage = errors.isNotEmpty
+            ? errors.first['message'] ?? 'Failed to cancel reservation'
+            : 'Unknown error occurred';
+        throw ServerException(errorMessage);
+      }
+
+      if (response.data['data'] == null ||
+          response.data['data']['cancelReservation'] == null) {
+        throw ServerException('Invalid response format');
+      }
+
+      return ReservationModel.fromJson(
+        response.data['data']['cancelReservation'] as Map<String, dynamic>,
       );
     } on DioException catch (e) {
       throw ServerException(e.message ?? 'Network error');

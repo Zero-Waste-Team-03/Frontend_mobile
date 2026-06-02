@@ -43,4 +43,7 @@ abstract class ReservationRepository {
   Future<Either<Failure, List<Reservation>>> getDonationReservations(
     String donationId,
   );
+
+  /// Cancel a reservation (only for ACTIVE reservations)
+  Future<Either<Failure, Reservation>> cancelReservation(String reservationId);
 }
