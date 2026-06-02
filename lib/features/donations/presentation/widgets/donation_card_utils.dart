@@ -56,7 +56,7 @@ String localizedStatusLabel(BuildContext context, String status) {
     case DonationStatusValue.expired:
       return l10n.statusExpired;
     case DonationStatusValue.pendingApproval:
-      return 'Pending Approval';
+      return 'Pending';
     case DonationStatusValue.rejected:
       return 'Rejected';
     case DonationStatusValue.unknown:
