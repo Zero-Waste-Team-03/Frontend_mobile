@@ -182,7 +182,7 @@ void showReservationConfirmedDialog(
   BuildContext context, {
   required VoidCallback onDismiss,
   String donationTitle = 'Donation',
-  String pickupWindow = '2 hours',
+  String pickupWindow = '24 hours',
   String? expiryAt,
   String reservation_id = '',
 }) {
