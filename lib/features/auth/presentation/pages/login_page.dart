@@ -112,7 +112,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
               if (zipCode == null || zipCode.trim().isEmpty) {
                 context.go('/profile/edit');
               } else if (!user.isVerified) {
-                context.go('/profile/find-verifier');
+                context.go('/profile/find-verifier?fromLogin=true');
               } else {
                 context.go('/home');
               }
