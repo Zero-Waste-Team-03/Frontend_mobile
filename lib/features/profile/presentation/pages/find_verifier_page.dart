@@ -11,6 +11,8 @@ import '../bloc/verification/verification_state.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../widgets/verification_onboarding_card.dart';
 
+const _fromLoginQueryKey = 'fromLogin';
+
 class FindVerifierPage extends StatelessWidget {
   const FindVerifierPage({super.key});
 
@@ -144,67 +146,75 @@ class _FindVerifierViewState extends State<FindVerifierView> {
           }
         },
         builder: (context, state) {
-          return Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
-                child: const VerificationOnboardingCard(),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8.w),
-                      child: Text(
-                        'Find Members to verify you',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w400,
-                          color: colors.textPrimary,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 16.h),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: colors.background,
-                        borderRadius: BorderRadius.circular(16.r),
-                      ),
-                      child: TextField(
-                        controller: _searchController,
-                        onChanged: (value) {
-                          context.read<VerificationBloc>().add(
-                            VerificationSearchRequested(search: value),
-                          );
-                        },
-                        decoration: InputDecoration(
-                          hintText: 'Search by name or badge ID...',
-                          hintStyle: GoogleFonts.plusJakartaSans(
-                            color: colors.textSecondary,
+          final fromLogin = GoRouterState.of(context)
+              .uri
+              .queryParameters[_fromLoginQueryKey];
+          return CustomScrollView(
+            controller: _scrollController,
+            slivers: [
+              if (fromLogin == 'true')
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
+                    child: const VerificationOnboardingCard(),
+                  ),
+                ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8.w),
+                        child: Text(
+                          'Find Members to verify you',
+                          style: GoogleFonts.plusJakartaSans(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.w400,
+                            color: colors.textPrimary,
                           ),
-                          prefixIcon: Padding(
-                            padding: EdgeInsets.only(left: 16.w, right: 12.w),
-                            child: Icon(
-                              Icons.search,
-                              color: colors.inputText,
-                              size: 18.sp,
-                            ),
-                          ),
-                          prefixIconConstraints: BoxConstraints(minWidth: 46.w),
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(vertical: 17.h),
                         ),
                       ),
-                    ),
-                  ],
+                      SizedBox(height: 16.h),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: colors.background,
+                          borderRadius: BorderRadius.circular(16.r),
+                        ),
+                        child: TextField(
+                          controller: _searchController,
+                          onChanged: (value) {
+                            context.read<VerificationBloc>().add(
+                              VerificationSearchRequested(search: value),
+                            );
+                          },
+                          decoration: InputDecoration(
+                            hintText: 'Search by name or badge ID...',
+                            hintStyle: GoogleFonts.plusJakartaSans(
+                              color: colors.textSecondary,
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w400,
+                            ),
+                            prefixIcon: Padding(
+                              padding: EdgeInsets.only(left: 16.w, right: 12.w),
+                              child: Icon(
+                                Icons.search,
+                                color: colors.inputText,
+                                size: 18.sp,
+                              ),
+                            ),
+                            prefixIconConstraints: BoxConstraints(minWidth: 46.w),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.symmetric(vertical: 17.h),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              SizedBox(height: 8.h),
-              Expanded(child: _buildContent(state)),
+              _buildContentSliver(state),
             ],
           );
         },
@@ -212,22 +222,22 @@ class _FindVerifierViewState extends State<FindVerifierView> {
     );
   }
 
-  Widget _buildContent(VerificationState state) {
+  Widget _buildContentSliver(VerificationState state) {
     final colors = context.themeColors;
     if (state is VerificationLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return SliverFillRemaining(
+        child: const Center(child: CircularProgressIndicator()),
+      );
     }
 
     if (state is VerificationLoaded) {
       if (state.searchResults.isEmpty && !state.isSearching) {
-        return _buildEmptyState();
+        return SliverFillRemaining(child: _buildEmptyState());
       }
 
-      return ListView.builder(
-        controller: _scrollController,
-        padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 128.h),
-        itemCount: state.searchResults.length + (state.isSearching ? 1 : 0),
-        itemBuilder: (context, index) {
+      return SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) {
           if (index == state.searchResults.length) {
             return Padding(
               padding: EdgeInsets.symmetric(vertical: 16.h),
@@ -355,11 +365,13 @@ class _FindVerifierViewState extends State<FindVerifierView> {
               ],
             ),
           );
-        },
+          },
+          childCount: state.searchResults.length + (state.isSearching ? 1 : 0),
+        ),
       );
     }
 
-    return const SizedBox.shrink();
+    return SliverFillRemaining(child: const SizedBox.shrink());
   }
 
   Widget _buildEmptyState() {
