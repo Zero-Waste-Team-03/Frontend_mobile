@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 
 import '../../../../core/di/injection.dart';
@@ -184,12 +185,9 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                 Navigator.of(context).pop();
               },
               donationTitle: widget.donation.title,
-              expiryAt: state.reservation.expiresAt != null
-                  ? state.reservation.expiresAt!.toLocal().toString().split(
-                      '.',
-                    )[0]
-                  : 'N/A',
-              reservation_id: state.reservation.id,
+              expiryAt: '${DateFormat('MMMM').format(
+                        state.reservation.createdAt.toLocal(),
+                        )} ${state.reservation.createdAt.add(Duration(hours: 24)).toLocal().day.toString().padLeft(2, '0')}/${state.reservation.createdAt.add(Duration(hours: 24)).toLocal().hour.toString().padLeft(2, '0')}:${state.reservation.createdAt.add(Duration(hours: 24)).toLocal().minute.toString().padLeft(2, '0')}',
             );
           } else if (state is ReservationCreationError) {
             _showErrorDialog(context, state.message);

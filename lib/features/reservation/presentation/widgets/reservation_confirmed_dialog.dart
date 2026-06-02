@@ -15,7 +15,7 @@ class ReservationConfirmedDialog extends StatelessWidget {
     super.key,
     required this.onDismiss,
     this.donationTitle = 'Donation',
-    this.pickupWindow = '2 hours',
+    this.pickupWindow = '24 hours',
     required this.expiryAt,
     required this.reservation_id,
   });
@@ -86,7 +86,37 @@ class ReservationConfirmedDialog extends StatelessWidget {
               ),
             ),
             SizedBox(height: 22.h),
+            SizedBox(height: 22.h),
 
+            // Timeframe Alert
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 11.h),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8F1DF),
+                borderRadius: BorderRadius.circular(40.r),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.access_time,
+                    color: const Color(0xFFC4680F),
+                    size: 20.sp,
+                  ),
+                  SizedBox(width: 10.w),
+                  Text(
+                    'Expiring at $expiryAt',
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      color: const Color(0xFFC4680F),
+                      fontFamily: AppFonts.primaryFont,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 28.h),
             // View Pickup Details Button
             SizedBox(
               width: double.infinity,
