@@ -21,14 +21,18 @@ class DonationCard extends StatelessWidget {
     switch (status.toUpperCase()) {
       case 'ACTIVE':
       case 'PUBLISHED':
-        return 'ACTIVE';
+        return 'Active';
       case 'RESERVED':
-        return 'RESERVED';
+        return 'Reserved';
       case 'COMPLETED':
-        return 'COMPLETED';
+        return 'Completed';
       case 'EXPIRED':
       case 'DRAFT':
-        return 'EXPIRED';
+        return 'Expired';
+      case 'REJECTED':
+        return 'Rejected';
+      case 'PENDING_APPROVAL':
+        return 'Pending';
       default:
         return status;
     }

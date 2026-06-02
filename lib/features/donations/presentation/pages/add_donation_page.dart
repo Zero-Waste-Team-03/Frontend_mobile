@@ -481,28 +481,31 @@ class _AddDonationPageState extends State<AddDonationPage> {
 
           _buildLabel('Best Before / Expiration'),
           GestureDetector(
-            onTap: () async {
-              final date = await showDatePicker(
-                context: context,
-                initialDate: DateTime.now(),
-                firstDate: DateTime.now(),
-                lastDate: DateTime.now().add(const Duration(days: 365 * 5)),
-                builder: (context, child) {
-                  return Theme(
-                    data: Theme.of(context).copyWith(
-                      colorScheme: ColorScheme.light(
-                        primary: colors.primary,
-                        onPrimary: colors.onPrimary,
-                      ),
-                    ),
-                    child: child!,
-                  );
-                },
-              );
-              if (date != null) {
-                setState(() => _expirationDate = date);
-              }
-            },
+  onTap: () async {
+    final theme = Theme.of(context);
+
+    final date = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365 * 5)),
+      builder: (context, child) {
+        return Theme(
+          data: theme.copyWith(
+            colorScheme: theme.colorScheme.copyWith(
+              primary: colors.primary,
+              onPrimary: colors.onPrimary,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (date != null) {
+      setState(() => _expirationDate = date);
+    }
+  },
             child: Container(
               height: AppDimensions.inputHeight.h,
               padding: EdgeInsets.symmetric(horizontal: 16.w),
