@@ -12,7 +12,7 @@ import '../../../../core/map/map_config.dart';
 import '../../../../core/theme/theme_cubit.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../donations/domain/entities/donation.dart';
-import '../../../../core/enums/donation_status_value.dart';
+import '../../../donations/presentation/widgets/donation_card_utils.dart';
 
 class DonationDetailsFullPage extends StatefulWidget {
   final Donation donation;
@@ -245,6 +245,28 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (_donation.category != null)
+            Padding(
+              padding: EdgeInsets.only(bottom: 6.h),
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 10.w,
+                  vertical: 4.h,
+                ),
+                decoration: BoxDecoration(
+                  color: colors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(6.r),
+                ),
+                child: Text(
+                  _donation.category!.name,
+                  style: TextStyle(
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.w600,
+                    color: colors.primary,
+                  ),
+                ),
+              ),
+            ),
           Text(
             _donation.title,
             style: TextStyle(
@@ -334,14 +356,14 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
                       Icon(
                         Icons.access_time_rounded,
                         size: 14.sp,
-                        color: tagTextColor,
+                        color: statusTextColor(_donation.status, context),
                       ),
                       SizedBox(width: 4.w),
                       Text(
                         'Status',
                         style: TextStyle(
                           fontSize: 12.sp,
-                          color: tagTextColor,
+                          color: statusTextColor(_donation.status, context),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -349,10 +371,10 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
                   ),
                   SizedBox(height: 4.h),
                   Text(
-                    _donation.status.toDonationStatusValue().friendlyName,
+                    localizedStatusLabel(context, _donation.status),
                     style: TextStyle(
                       fontSize: 16.sp,
-                      color: tagTextColor,
+                      color: statusTextColor(_donation.status, context),
                       fontWeight: FontWeight.w700,
                     ),
                   ),

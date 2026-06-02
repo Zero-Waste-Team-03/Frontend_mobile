@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -5,6 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -27,6 +31,10 @@ class _UpdateDeleteDonationPageState extends State<UpdateDeleteDonationPage> {
   late final TextEditingController _quantityController;
   late final TextEditingController _descriptionController;
   DateTime? _expiryDate;
+  File? _newImage;
+  bool _isUploadingImage = false;
+
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -43,6 +51,40 @@ class _UpdateDeleteDonationPageState extends State<UpdateDeleteDonationPage> {
     _quantityController.dispose();
     _descriptionController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    final XFile? picked = await _picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1024,
+      maxHeight: 1024,
+    );
+    if (picked != null) {
+      setState(() {
+        _newImage = File(picked.path);
+        _isUploadingImage = true;
+      });
+    }
+  }
+
+  Future<String?> _uploadImage() async {
+    if (_newImage == null) return null;
+    final bloc = context.read<DonationsBloc>();
+    final completer = Completer<String?>();
+    StreamSubscription? sub;
+    sub = bloc.stream.listen((state) {
+      if (state is DonationImageUploadSuccess) {
+        completer.complete(state.attachmentId);
+        sub?.cancel();
+      } else if (state is DonationImageUploadError) {
+        completer.complete(null);
+        sub?.cancel();
+      }
+    });
+    bloc.add(UploadDonationImageEvent(_newImage!));
+    final result = await completer.future;
+    setState(() => _isUploadingImage = false);
+    return result;
   }
 
   String _getRelativeTime(DateTime? date) {
@@ -85,7 +127,7 @@ class _UpdateDeleteDonationPageState extends State<UpdateDeleteDonationPage> {
     }
   }
 
-  void _onUpdate() {
+  Future<void> _onUpdate() async {
     final title = _itemNameController.text.trim();
     final quantity = int.tryParse(_quantityController.text.trim()) ?? 0;
     final description = _descriptionController.text.trim();
@@ -97,15 +139,31 @@ class _UpdateDeleteDonationPageState extends State<UpdateDeleteDonationPage> {
       return;
     }
 
-    context.read<DonationsBloc>().add(
-          UpdateDonationEvent(
-            id: widget.donation.id,
-            title: title,
-            quantity: quantity,
-            description: description,
-            expiryDate: _expiryDate,
-          ),
-        );
+    String? newAttachmentId;
+    if (_newImage != null) {
+      newAttachmentId = await _uploadImage();
+      if (newAttachmentId == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to upload image')),
+          );
+        }
+        return;
+      }
+    }
+
+    if (mounted) {
+      context.read<DonationsBloc>().add(
+            UpdateDonationEvent(
+              id: widget.donation.id,
+              title: title,
+              quantity: quantity,
+              description: description,
+              expiryDate: _expiryDate,
+              mainAttachmentId: newAttachmentId,
+            ),
+          );
+    }
   }
 
   void _onDelete() {
@@ -202,70 +260,95 @@ class _UpdateDeleteDonationPageState extends State<UpdateDeleteDonationPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Item Selection Card
-                Container(
-                  padding: EdgeInsets.all(16.w),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12.r),
-                    border: Border.all(color: const Color(0xFFBBCCBF).withValues(alpha: 0.3)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 24,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8.r),
-                        child: CachedNetworkImage(
-                          imageUrl: widget.donation.imageUrl,
-                          width: 96.w,
-                          height: 96.w,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) => Container(color: const Color(0xFFEDEEEF)),
-                          errorWidget: (context, url, error) => const Icon(Icons.error),
+                // Image Card (with picker)
+                GestureDetector(
+                  onTap: _pickImage,
+                  child: Container(
+                    padding: EdgeInsets.all(16.w),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12.r),
+                      border: Border.all(color: const Color(0xFFBBCCBF).withValues(alpha: 0.3)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 24,
+                          offset: const Offset(0, 4),
                         ),
-                      ),
-                      SizedBox(width: 16.w),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Current Listing',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.w600,
-                                color: colors.primary,
-                                letterSpacing: 0.65,
-                              ),
-                            ),
-                            SizedBox(height: 4.h),
-                            Text(
-                              widget.donation.title,
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w400,
-                                color: const Color(0xFF191C1D),
-                              ),
-                            ),
-                            SizedBox(height: 4.h),
-                            Text(
-                              _getRelativeTime(widget.donation.createdAt),
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w400,
-                                color: const Color(0xFF3C4A42),
-                              ),
-                            ),
-                          ],
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8.r),
+                          child: SizedBox(
+                            width: 96.w,
+                            height: 96.w,
+                            child: _newImage != null
+                                ? Image.file(_newImage!, fit: BoxFit.cover)
+                                : CachedNetworkImage(
+                                    imageUrl: widget.donation.imageUrl,
+                                    fit: BoxFit.cover,
+                                    placeholder: (context, url) =>
+                                        Container(color: const Color(0xFFEDEEEF)),
+                                    errorWidget: (context, url, error) =>
+                                        const Icon(Icons.error),
+                                  ),
+                          ),
                         ),
-                      ),
-                    ],
+                        SizedBox(width: 16.w),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _newImage != null ? 'New Image' : 'Current Listing',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 13.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: colors.primary,
+                                  letterSpacing: 0.65,
+                                ),
+                              ),
+                              SizedBox(height: 4.h),
+                              Text(
+                                widget.donation.title,
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.w400,
+                                  color: const Color(0xFF191C1D),
+                                ),
+                              ),
+                              SizedBox(height: 4.h),
+                              Text(
+                                _getRelativeTime(widget.donation.createdAt),
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.w400,
+                                  color: const Color(0xFF3C4A42),
+                                ),
+                              ),
+                              if (_newImage != null) ...[
+                                SizedBox(height: 4.h),
+                                Text(
+                                  'Tap to change photo',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 12.sp,
+                                    fontWeight: FontWeight.w400,
+                                    color: context.themeColors.primary,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                        Icon(
+                          Icons.camera_alt_outlined,
+                          color: context.themeColors.primary,
+                          size: 20.sp,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 SizedBox(height: 24.h),
@@ -324,7 +407,7 @@ class _UpdateDeleteDonationPageState extends State<UpdateDeleteDonationPage> {
                 // Action Buttons
                 BlocBuilder<DonationsBloc, DonationsState>(
                   builder: (context, state) {
-                    final isLoading = state is DonationUpdateLoading || state is DonationDeleteLoading;
+                    final isLoading = state is DonationUpdateLoading || state is DonationDeleteLoading || _isUploadingImage;
 
                     return Column(
                       children: [
@@ -339,7 +422,7 @@ class _UpdateDeleteDonationPageState extends State<UpdateDeleteDonationPage> {
                             ),
                             elevation: 0,
                           ),
-                          child: isLoading && state is DonationUpdateLoading
+                          child: isLoading
                               ? SizedBox(
                                   width: 24.w,
                                   height: 24.w,
@@ -472,89 +555,66 @@ class _UpdateDeleteDonationPageState extends State<UpdateDeleteDonationPage> {
     );
   }
 
+  InputDecoration _fieldDecoration(String hint) {
+    final borderColor = const Color(0xFFE2E8F0);
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: GoogleFonts.plusJakartaSans(
+        fontSize: 16.sp,
+        fontWeight: FontWeight.w400,
+        color: const Color(0xFF191C1D).withValues(alpha: 0.5),
+      ),
+      filled: true,
+      fillColor: Colors.white,
+      contentPadding: EdgeInsets.all(16.w),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12.r),
+        borderSide: BorderSide(color: borderColor),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12.r),
+        borderSide: BorderSide(color: borderColor),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12.r),
+        borderSide: BorderSide(color: context.themeColors.primary, width: 1.5),
+      ),
+    );
+  }
+
   Widget _buildTextField({
     required TextEditingController controller,
     required String hint,
     int maxLines = 1,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFFBBCCBF).withValues(alpha: 1),
-            blurRadius: 0,
-            spreadRadius: 1,
-            offset: const Offset(0, 0),
-          ),
-        ],
+    return TextField(
+      controller: controller,
+      maxLines: maxLines,
+      style: GoogleFonts.plusJakartaSans(
+        fontSize: 16.sp,
+        fontWeight: FontWeight.w400,
+        color: const Color(0xFF191C1D),
       ),
-      child: TextField(
-        controller: controller,
-        maxLines: maxLines,
-        style: GoogleFonts.plusJakartaSans(
-          fontSize: 16.sp,
-          fontWeight: FontWeight.w400,
-          color: const Color(0xFF191C1D),
-        ),
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: GoogleFonts.plusJakartaSans(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w400,
-            color: const Color(0xFF191C1D).withValues(alpha: 0.5),
-          ),
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.all(16.w),
-        ),
-      ),
+      decoration: _fieldDecoration(hint),
     );
   }
 
   Widget _buildQuantityField() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFFBBCCBF).withValues(alpha: 1),
-            blurRadius: 0,
-            spreadRadius: 1,
-            offset: const Offset(0, 0),
-          ),
-        ],
+    return TextField(
+      controller: _quantityController,
+      keyboardType: TextInputType.number,
+      style: GoogleFonts.plusJakartaSans(
+        fontSize: 16.sp,
+        fontWeight: FontWeight.w400,
+        color: const Color(0xFF191C1D),
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: _quantityController,
-              keyboardType: TextInputType.number,
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w400,
-                color: const Color(0xFF191C1D),
-              ),
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.all(16.w),
-              ),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(right: 16.w),
-            child: Text(
-              'units',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w400,
-                color: const Color(0xFF3C4A42),
-              ),
-            ),
-          ),
-        ],
+      decoration: _fieldDecoration('Quantity').copyWith(
+        suffixText: 'units',
+        suffixStyle: GoogleFonts.plusJakartaSans(
+          fontSize: 16.sp,
+          fontWeight: FontWeight.w400,
+          color: const Color(0xFF3C4A42),
+        ),
       ),
     );
   }
@@ -569,14 +629,7 @@ class _UpdateDeleteDonationPageState extends State<UpdateDeleteDonationPage> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12.r),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFFBBCCBF).withValues(alpha: 1),
-              blurRadius: 0,
-              spreadRadius: 1,
-              offset: const Offset(0, 0),
-            ),
-          ],
+          border: Border.all(color: const Color(0xFFE2E8F0)),
         ),
         child: Row(
           children: [
