@@ -469,7 +469,7 @@ class AuthRepositoryImpl implements AuthRepository {
     Map<String, dynamic>? settings,
   }) async {
     try {
-      final userModel = await remoteDataSource.updateProfile(
+      await remoteDataSource.updateProfile(
         displayName: displayName,
         email: email,
         phoneNumber: phoneNumber,
@@ -477,10 +477,12 @@ class AuthRepositoryImpl implements AuthRepository {
         settings: settings,
       );
 
-      // Cache the updated user profile
-      await localDataSource.cacheUserProfile(userModel);
+      final refreshedUser = await remoteDataSource.getCurrentUser();
 
-      return Right(userModel.toEntity());
+      // Cache the updated user profile
+      await localDataSource.cacheUserProfile(refreshedUser);
+
+      return Right(refreshedUser.toEntity());
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {
@@ -497,7 +499,7 @@ class AuthRepositoryImpl implements AuthRepository {
     required String appearance,
   }) async {
     try {
-      final userModel = await remoteDataSource.updateUserSettings(
+      await remoteDataSource.updateUserSettings(
         isPushNotificationsEnabled: isPushNotificationsEnabled,
         isNewDonationsAlertsEnabled: isNewDonationsAlertsEnabled,
         isUrgentAlertsEnabled: isUrgentAlertsEnabled,
@@ -505,9 +507,11 @@ class AuthRepositoryImpl implements AuthRepository {
         appearance: appearance,
       );
 
-      await localDataSource.cacheUserProfile(userModel);
+      final refreshedUser = await remoteDataSource.getCurrentUser();
 
-      return Right(userModel.toEntity());
+      await localDataSource.cacheUserProfile(refreshedUser);
+
+      return Right(refreshedUser.toEntity());
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {
@@ -581,14 +585,14 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<User> updateProfileWithAvatarId(String avatarAttachmentId) async {
     try {
-      final userModel = await remoteDataSource.updateProfileWithAvatarId(
-        avatarAttachmentId,
-      );
+      await remoteDataSource.updateProfileWithAvatarId(avatarAttachmentId);
+
+      final refreshedUser = await remoteDataSource.getCurrentUser();
 
       // Cache the updated user profile
-      await localDataSource.cacheUserProfile(userModel);
+      await localDataSource.cacheUserProfile(refreshedUser);
 
-      return userModel.toEntity();
+      return refreshedUser.toEntity();
     } on ServerException {
       rethrow;
     }

@@ -17,7 +17,6 @@ class DonationCard extends StatelessWidget {
     required this.onTap,
     String? imageUrl,
   }) : imageUrl = imageUrl ?? '';
-
   @override
   Widget build(BuildContext context) {
     final colors = context.themeColors;
