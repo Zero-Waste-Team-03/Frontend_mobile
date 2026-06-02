@@ -6,6 +6,7 @@ enum NotificationType {
   newPost,
   reportAlert,
   reservationAlert,
+  reservationCancelled,
   test,
 }
 
@@ -26,6 +27,8 @@ extension NotificationTypeExt on NotificationType {
         return 'REPORT_ALERT';
       case NotificationType.reservationAlert:
         return 'RESERVATION_ALERT';
+      case NotificationType.reservationCancelled:
+        return 'RESERVATION_CANCELLED';
       case NotificationType.test:
         return 'TEST';
     }
@@ -47,6 +50,8 @@ extension NotificationTypeExt on NotificationType {
         return 'Report Alert';
       case NotificationType.reservationAlert:
         return 'Reservation Alert';
+      case NotificationType.reservationCancelled:
+        return 'Reservation Cancelled';
       case NotificationType.test:
         return 'Test';
     }
@@ -68,6 +73,8 @@ extension NotificationTypeExt on NotificationType {
         return NotificationType.message;
       case 'DONATION':
         return NotificationType.reservationAlert;
+      case 'RESERVATION_CANCELLED':
+        return NotificationType.reservationCancelled;
       case 'IMPACT':
         return NotificationType.newAchievement;
       default:

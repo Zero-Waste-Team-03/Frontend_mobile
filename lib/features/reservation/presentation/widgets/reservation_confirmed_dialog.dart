@@ -87,32 +87,6 @@ class ReservationConfirmedDialog extends StatelessWidget {
             ),
             SizedBox(height: 22.h),
 
-            // Timeframe Alert
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 11.h),
-              decoration: BoxDecoration(
-                color: colors.lightGreenBackground,
-                borderRadius: BorderRadius.circular(40.r),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.access_time, color: colors.primary, size: 20.sp),
-                  SizedBox(width: 10.w),
-                  Text(
-                    'Expiring at $expiryAt',
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      color: colors.primary,
-                      fontFamily: AppFonts.primaryFont,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 26.h),
-
             // View Pickup Details Button
             SizedBox(
               width: double.infinity,

@@ -80,6 +80,15 @@ class UpdateReservationStatusEvent extends ReservationEvent {
   List<Object?> get props => [reservationId, newStatus];
 }
 
+class CancelReservationEvent extends ReservationEvent {
+  final String reservationId;
+
+  const CancelReservationEvent({required this.reservationId});
+
+  @override
+  List<Object?> get props => [reservationId];
+}
+
 class FilterDonationsEvent extends ReservationEvent {
   final String? statusFilter;
 

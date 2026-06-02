@@ -33,6 +33,7 @@ class NotificationCard extends StatelessWidget {
       case NotificationType.newPost:
       case NotificationType.reportAlert:
       case NotificationType.reservationAlert:
+      case NotificationType.reservationCancelled:
       case NotificationType.test:
         return colors.primary;
     }
@@ -51,6 +52,7 @@ class NotificationCard extends StatelessWidget {
         return colors.background;
       case NotificationType.reportAlert:
       case NotificationType.reservationAlert:
+      case NotificationType.reservationCancelled:
         return colors.background;
       case NotificationType.test:
         return colors.background;
@@ -72,6 +74,7 @@ class NotificationCard extends StatelessWidget {
       case NotificationType.reportAlert:
         return Icons.report_rounded;
       case NotificationType.reservationAlert:
+      case NotificationType.reservationCancelled:
         return Icons.event_available_rounded;
       case NotificationType.test:
         return Icons.notifications_rounded;
@@ -266,7 +269,9 @@ class NotificationCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             notification.title,
-                            style: AppTextStyles.labelLarge.copyWith(color: colors.headingText),
+                            style: AppTextStyles.labelLarge.copyWith(
+                              color: colors.headingText,
+                            ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),

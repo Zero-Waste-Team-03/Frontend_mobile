@@ -84,19 +84,18 @@ class _FindVerifierViewState extends State<FindVerifierView> {
                     child: Container(
                       width: 40.w,
                       height: 40.w,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
+                      decoration:  BoxDecoration(
+                        color: colors.background,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         Icons.arrow_back,
-                        color: colors.textPrimary,
+                        color: colors.primary,
                         size: 20.sp,
                       ),
                     ),
                   ),
                   Expanded(
-                    child: Center(
                       child: Padding(
                         padding: EdgeInsets.only(right: 40.w),
                         child: Text(
@@ -109,7 +108,6 @@ class _FindVerifierViewState extends State<FindVerifierView> {
                         ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -179,7 +177,7 @@ class _FindVerifierViewState extends State<FindVerifierView> {
                         decoration: InputDecoration(
                           hintText: 'Search by name or badge ID...',
                           hintStyle: GoogleFonts.plusJakartaSans(
-                            color: colors.inputBorder,
+                            color: colors.textSecondary,
                             fontSize: 16.sp,
                             fontWeight: FontWeight.w400,
                           ),
@@ -239,7 +237,7 @@ class _FindVerifierViewState extends State<FindVerifierView> {
             margin: EdgeInsets.only(bottom: 16.h),
             padding: EdgeInsets.all(20.w),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: colors.surface,
               borderRadius: BorderRadius.circular(24.r),
               border: Border.all(
                 color: colors.inputBorder.withValues(alpha: 0.3),
@@ -333,9 +331,9 @@ class _FindVerifierViewState extends State<FindVerifierView> {
                           ? SizedBox(
                               width: 20.w,
                               height: 20.w,
-                              child: const CircularProgressIndicator(
+                              child:  CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: Colors.white,
+                                color: colors.onPrimary,
                               ),
                             )
                           : Text(
@@ -343,7 +341,7 @@ class _FindVerifierViewState extends State<FindVerifierView> {
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 14.sp,
                                 fontWeight: FontWeight.w700,
-                                color: Colors.white,
+                                color: colors.onPrimary,
                               ),
                             ),
                     ),

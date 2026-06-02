@@ -17,6 +17,7 @@ import '../bloc/reservation_event.dart';
 import '../bloc/reservation_state.dart';
 import '../widgets/reservation_timeline.dart';
 import '../widgets/user_contact_card.dart';
+import 'package:gaspzero/shared/navigator/navigator.dart';
 
 class ReservationDetailsPage extends StatefulWidget {
   final String reservationId;
@@ -180,6 +181,15 @@ class _ReservationDetailsPageState extends State<ReservationDetailsPage> {
             if (state is ReservationDetailsError) {
               _showErrorDialog(context, state.message);
             }
+            if (state is ReservationCancellationError) {
+              _showErrorDialog(context, state.message);
+            }
+            if (state is ReservationCancelled) {
+              // Pop the page after successful cancellation
+              Future.delayed(const Duration(milliseconds: 500), () {
+                context.pop();
+              });
+            }
           },
           child: BlocBuilder<ReservationBloc, ReservationState>(
             builder: (context, state) {
@@ -250,7 +260,26 @@ class _ReservationDetailsPageState extends State<ReservationDetailsPage> {
                                   Expanded(
                                     child: OutlinedButton.icon(
                                       onPressed: () {
-                                        // Navigate to maps
+                                        if (reservation.donation!.latitude !=
+                                                null &&
+                                            reservation.donation!.longitude !=
+                                                null) {
+                                          openNavigation(
+                                            reservation.donation!.latitude!,
+                                            reservation.donation!.longitude!,
+                                          );
+                                        } else {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: const Text(
+                                                'Location data not available',
+                                              ),
+                                              backgroundColor: colors.error,
+                                            ),
+                                          );
+                                        }
                                       },
                                       icon: Icon(Icons.navigation, size: 18.sp),
                                       label: Text(
@@ -327,13 +356,129 @@ class _ReservationDetailsPageState extends State<ReservationDetailsPage> {
                             context.push('/chat', extra: reservation.id);
                           },
                           onCallPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: const Text('Call feature coming soon'),
-                                backgroundColor: colors.primary,
-                              ),
-                            );
+                            if (reservation.donation != null &&
+                                reservation.donation!.authorDetails != null &&
+                                reservation
+                                        .donation!
+                                        .authorDetails!
+                                        .phoneNumber !=
+                                    null) {
+                              callPhoneNumber(
+                                reservation
+                                    .donation!
+                                    .authorDetails!
+                                    .phoneNumber!,
+                              );
+                            }
                           },
+                        ),
+                      SizedBox(height: AppDimensions.paddingLarge.h),
+
+                      // Cancel Button (Only for active reservations)
+                      if (reservation.isActive)
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              // Show confirmation dialog before cancelling
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext dialogContext) {
+                                  return AlertDialog(
+                                    backgroundColor: colors.surface,
+                                    surfaceTintColor: colors.surface,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(
+                                        AppDimensions.borderRadiusLarge,
+                                      ),
+                                    ),
+                                    title: Text(
+                                      'Cancel Reservation?',
+                                      style: TextStyle(
+                                        fontSize: AppDimensions.titleSize.sp,
+                                        fontWeight: FontWeight.w700,
+                                        color: colors.headingText,
+                                        fontFamily: AppFonts.primaryFont,
+                                      ),
+                                    ),
+                                    content: Text(
+                                      'Are you sure you want to cancel this reservation? This action cannot be undone.',
+                                      style: TextStyle(
+                                        fontSize: AppDimensions.bodySize.sp,
+                                        color: colors.textSecondary,
+                                        fontFamily: AppFonts.primaryFont,
+                                      ),
+                                    ),
+                                    actionsAlignment: MainAxisAlignment.end,
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(dialogContext),
+                                        child: Text(
+                                          'Keep Reservation',
+                                          style: TextStyle(
+                                            color: colors.primary,
+                                            fontFamily: AppFonts.primaryFont,
+                                          ),
+                                        ),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.pop(dialogContext);
+                                          context.read<ReservationBloc>().add(
+                                            CancelReservationEvent(
+                                              reservationId: reservation.id,
+                                            ),
+                                          );
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: const Text(
+                                                'Reservation cancelled',
+                                              ),
+                                              backgroundColor: colors.primary,
+                                            ),
+                                          );
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: colors.error,
+                                        ),
+                                        child: Text(
+                                          'Cancel Reservation',
+                                          style: TextStyle(
+                                            color: colors.onPrimary,
+                                            fontFamily: AppFonts.primaryFont,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                            icon: Icon(Icons.cancel_outlined, size: 20.sp),
+                            label: Text(
+                              'Cancel Reservation',
+                              style: TextStyle(
+                                fontSize: AppDimensions.buttonTextSize.sp,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: colors.error.withValues(
+                                alpha: 0.12,
+                              ),
+                              foregroundColor: colors.error,
+                              padding: EdgeInsets.symmetric(
+                                vertical: AppDimensions.paddingMedium.h,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                  AppDimensions.borderRadiusLarge,
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                       SizedBox(height: AppDimensions.paddingLarge.h),
 

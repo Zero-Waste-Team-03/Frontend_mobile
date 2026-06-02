@@ -487,8 +487,6 @@ class _NotificationsPageState extends State<NotificationsPage> {
     final slot = _slotForDisplayIndex(index, notifications, isLoadingMore);
 
     switch (slot['type'] as String) {
-      case 'alert':
-        return _buildAlertBanner(context);
       case 'header':
         return Padding(
           padding: const EdgeInsets.only(
@@ -619,87 +617,5 @@ class _NotificationsPageState extends State<NotificationsPage> {
     return (current == 0 && next > 0) || (current > 0 && next == 0);
   }
 
-  Widget _buildAlertBanner(BuildContext context) {
-    final colors = context.themeColors;
-    final accentBackground = colors.primary;
-    final accentForeground = colors.onPrimary;
-    return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.lg, top: AppSpacing.md),
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: Color(0xFFFFA500), // bright orange,
-        borderRadius: BorderRadius.circular(AppRadius.xl),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.warning_rounded, color: accentForeground, size: 24.0),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'URGENT ALERT',
-                      style: AppTextStyles.titleMedium.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 4.0),
-                    Text(
-                      '3 items expiring soon!',
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: Colors.white.withValues(alpha: 0.8),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Text(
-            'Save food in your area before it goes to waste.',
-            style: AppTextStyles.bodySmall.copyWith(
-              color: Colors.white.withValues(alpha: 0.9),
-              height: 1.5,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          SizedBox(
-            width: double.infinity,
-            height: 44.0,
-            child: ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: colors.statBackground,
-                foregroundColor: accentBackground,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppRadius.xl),
-                ),
-              ),
-              child: Text(
-                'View Now',
-                style: AppTextStyles.titleMedium.copyWith(
-                  color: colors.textSecondary,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
+  
 }

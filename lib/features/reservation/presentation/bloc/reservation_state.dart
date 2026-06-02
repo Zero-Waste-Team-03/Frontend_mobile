@@ -170,3 +170,26 @@ class ReservationStatusUpdateError extends ReservationState {
   @override
   List<Object?> get props => [message];
 }
+
+// Reservation Cancellation States
+class ReservationCancelling extends ReservationState {
+  const ReservationCancelling();
+}
+
+class ReservationCancelled extends ReservationState {
+  final Reservation reservation;
+
+  const ReservationCancelled(this.reservation);
+
+  @override
+  List<Object?> get props => [reservation];
+}
+
+class ReservationCancellationError extends ReservationState {
+  final String message;
+
+  const ReservationCancellationError(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
