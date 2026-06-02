@@ -1,3 +1,4 @@
+
 scalar DateTime
 scalar JSON
 scalar JSONObject
@@ -967,3 +968,4 @@ type Mutation {
     updateVerificationRequest: UpdateVerificationStatusInput!
   ): VerificationRequest!
 }
+

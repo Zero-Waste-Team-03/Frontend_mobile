@@ -30,4 +30,20 @@ abstract class DonationRepository {
     double? latitude,
     double? longitude,
   });
+  Future<Either<Failure, Donation>> updateDonation({
+    required String id,
+    String? title,
+    String? description,
+    String? categoryId,
+    int? quantity,
+    double? foodWeightKg,
+    String? urgency,
+    String? mainAttachmentId,
+    List<String>? attachmentIds,
+    DateTime? expiryDate,
+    bool? safetyChecklistCompleted,
+    double? latitude,
+    double? longitude,
+  });
+  Future<Either<Failure, void>> deleteDonation(String id);
 }

@@ -107,4 +107,56 @@ class DonationRepositoryImpl implements DonationRepository {
       return left(ServerFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, Donation>> updateDonation({
+    required String id,
+    String? title,
+    String? description,
+    String? categoryId,
+    int? quantity,
+    double? foodWeightKg,
+    String? urgency,
+    String? mainAttachmentId,
+    List<String>? attachmentIds,
+    DateTime? expiryDate,
+    bool? safetyChecklistCompleted,
+    double? latitude,
+    double? longitude,
+  }) async {
+    try {
+      final donation = await remoteDataSource.updateDonation(
+        id: id,
+        title: title,
+        description: description,
+        categoryId: categoryId,
+        quantity: quantity,
+        foodWeightKg: foodWeightKg,
+        urgency: urgency,
+        mainAttachmentId: mainAttachmentId,
+        attachmentIds: attachmentIds,
+        expiryDate: expiryDate,
+        safetyChecklistCompleted: safetyChecklistCompleted,
+        latitude: latitude,
+        longitude: longitude,
+      );
+      return right(donation);
+    } on ServerException catch (e) {
+      return left(ServerFailure(e.message));
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteDonation(String id) async {
+    try {
+      await remoteDataSource.deleteDonation(id);
+      return right(null);
+    } on ServerException catch (e) {
+      return left(ServerFailure(e.message));
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
+    }
+  }
 }

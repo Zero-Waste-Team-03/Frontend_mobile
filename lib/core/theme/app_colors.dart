@@ -42,6 +42,8 @@ class AppColors {
     DonationStatusValue.reserved: Color(0xFFFEF3C7),
     DonationStatusValue.completed: Color(0xFFDBEAFE),
     DonationStatusValue.expired: Color(0xFFE5E7EB),
+    DonationStatusValue.pendingApproval: Color(0xFFFEF3C7),
+    DonationStatusValue.rejected: Color(0xFFFFDAD6),
     DonationStatusValue.unknown: Color(0xFFF1F5F9),
   };
 
@@ -51,6 +53,8 @@ class AppColors {
     DonationStatusValue.reserved: Color(0xFF92400E),
     DonationStatusValue.completed: Color(0xFF1D4ED8),
     DonationStatusValue.expired: Color(0xFF6B7280),
+    DonationStatusValue.pendingApproval: Color(0xFFD97706),
+    DonationStatusValue.rejected: Color(0xFFBA1A1A),
     DonationStatusValue.unknown: Color(0xFF334155),
   };
 

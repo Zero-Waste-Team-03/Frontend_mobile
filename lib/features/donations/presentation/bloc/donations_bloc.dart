@@ -17,6 +17,54 @@ class DonationsBloc extends Bloc<DonationsEvent, DonationsState> {
     on<LoadDonationsEvent>(_onLoadDonations);
     on<UploadDonationImageEvent>(_onUploadImage);
     on<AddDonationEvent>(_onAddDonation);
+    on<UpdateDonationEvent>(_onUpdateDonation);
+    on<DeleteDonationEvent>(_onDeleteDonation);
+  }
+
+  Future<void> _onUpdateDonation(
+    UpdateDonationEvent event,
+    Emitter<DonationsState> emit,
+  ) async {
+    emit(DonationUpdateLoading());
+    try {
+      final result = await donationRepository.updateDonation(
+        id: event.id,
+        title: event.title,
+        description: event.description,
+        categoryId: event.categoryId,
+        quantity: event.quantity,
+        foodWeightKg: event.foodWeightKg,
+        urgency: event.urgency,
+        mainAttachmentId: event.mainAttachmentId,
+        attachmentIds: event.attachmentIds,
+        expiryDate: event.expiryDate,
+        safetyChecklistCompleted: event.safetyChecklistCompleted,
+        latitude: event.latitude,
+        longitude: event.longitude,
+      );
+      result.fold(
+        (failure) => emit(DonationUpdateError(failure.message)),
+        (updatedDonation) => emit(DonationUpdateSuccess(updatedDonation)),
+      );
+    } catch (e) {
+      emit(DonationUpdateError(e.toString()));
+    }
+  }
+
+  Future<void> _onDeleteDonation(
+    DeleteDonationEvent event,
+    Emitter<DonationsState> emit,
+  ) async {
+    emit(DonationDeleteLoading());
+    try {
+      final result = await donationRepository.deleteDonation(event.id);
+      result.fold(
+        (failure) => emit(DonationDeleteError(failure.message)),
+        (_) => emit(DonationDeleteSuccess(event.id)),
+      );
+    } catch (e) {
+      emit(DonationDeleteError(e.toString()));
+    }
   }
 
   Future<void> _onLoadCategories(

@@ -18,6 +18,7 @@ query GetDonations(
       status
       urgency
       isLikedByMe
+      isDeletable
       safetyChecklistCompleted
       mainAttachmentId
       mainAttachment {

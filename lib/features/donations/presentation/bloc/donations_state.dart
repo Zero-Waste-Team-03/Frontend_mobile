@@ -112,3 +112,39 @@ class DonationAddError extends DonationsState {
   @override
   List<Object?> get props => [message];
 }
+
+class DonationUpdateLoading extends DonationsState {}
+
+class DonationUpdateSuccess extends DonationsState {
+  final Donation donation;
+  const DonationUpdateSuccess(this.donation);
+
+  @override
+  List<Object?> get props => [donation];
+}
+
+class DonationUpdateError extends DonationsState {
+  final String message;
+  const DonationUpdateError(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
+class DonationDeleteLoading extends DonationsState {}
+
+class DonationDeleteSuccess extends DonationsState {
+  final String id;
+  const DonationDeleteSuccess(this.id);
+
+  @override
+  List<Object?> get props => [id];
+}
+
+class DonationDeleteError extends DonationsState {
+  final String message;
+  const DonationDeleteError(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}

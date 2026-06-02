@@ -10,12 +10,16 @@ import '../models/category_model.dart';
 import '../models/donation_model.dart';
 import 'graphql/__generated__/create_donation.req.gql.dart';
 import 'graphql/__generated__/create_donation.var.gql.dart';
+import 'graphql/__generated__/delete_donation.req.gql.dart';
+import 'graphql/__generated__/delete_donation.var.gql.dart';
 import 'graphql/__generated__/get_categories.req.gql.dart';
 import 'graphql/__generated__/get_categories.var.gql.dart';
 import 'graphql/__generated__/get_donation_by_id.req.gql.dart';
 import 'graphql/__generated__/get_donation_by_id.var.gql.dart';
 import 'graphql/__generated__/get_donations.req.gql.dart';
 import 'graphql/__generated__/get_donations.var.gql.dart';
+import 'graphql/__generated__/update_donation.req.gql.dart';
+import 'graphql/__generated__/update_donation.var.gql.dart';
 
 abstract class DonationRemoteDataSource {
   Future<List<DonationModel>> getDonations({
@@ -44,6 +48,22 @@ abstract class DonationRemoteDataSource {
     double? latitude,
     double? longitude,
   });
+  Future<DonationModel> updateDonation({
+    required String id,
+    String? title,
+    String? description,
+    String? categoryId,
+    int? quantity,
+    double? foodWeightKg,
+    String? urgency,
+    String? mainAttachmentId,
+    List<String>? attachmentIds,
+    DateTime? expiryDate,
+    bool? safetyChecklistCompleted,
+    double? latitude,
+    double? longitude,
+  });
+  Future<void> deleteDonation(String id);
 }
 
 class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
@@ -278,6 +298,93 @@ class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
       );
     } catch (e) {
       _logger.e('createDonation error: $e', error: e);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<DonationModel> updateDonation({
+    required String id,
+    String? title,
+    String? description,
+    String? categoryId,
+    int? quantity,
+    double? foodWeightKg,
+    String? urgency,
+    String? mainAttachmentId,
+    List<String>? attachmentIds,
+    DateTime? expiryDate,
+    bool? safetyChecklistCompleted,
+    double? latitude,
+    double? longitude,
+  }) async {
+    _logger.i('updateDonation called with id=$id');
+
+    try {
+      final inputParams = <String, dynamic>{
+        if (title != null) 'title': title,
+        if (description != null) 'description': description,
+        if (categoryId != null) 'categoryId': categoryId,
+        if (quantity != null) 'quantity': quantity,
+        if (foodWeightKg != null) 'foodWeightKg': foodWeightKg,
+        if (urgency != null) 'urgency': urgency.trim().toUpperCase(),
+        if (mainAttachmentId != null) 'mainAttachmentId': mainAttachmentId,
+        if (attachmentIds != null) 'attachmentIds': attachmentIds,
+        if (expiryDate != null)
+          'expiryDate': expiryDate.toUtc().toIso8601String(),
+        if (safetyChecklistCompleted != null)
+          'safetyChecklistCompleted': safetyChecklistCompleted,
+      };
+
+      if (latitude != null && longitude != null) {
+        inputParams['locationInput'] = {
+          'latitude': latitude,
+          'longitude': longitude,
+        };
+      }
+
+      final varsMap = {'id': id, 'input': inputParams};
+      final vars = GUpdateDonationVars.fromJson(varsMap);
+      if (vars == null) {
+        throw ServerException('Failed to build updateDonation request');
+      }
+
+      final data = await _graphqlRequestExecutor.execute(
+        client: _ferryClient,
+        request: GUpdateDonationReq((b) => b.vars = vars.toBuilder()),
+        operationName: 'updateDonation',
+      );
+
+      _logger.i('Successfully updated donation with id=$id');
+      return DonationModel.fromJson(
+        Map<String, dynamic>.from(data.updateDonation.toJson()),
+      );
+    } catch (e) {
+      _logger.e('updateDonation error: $e', error: e);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> deleteDonation(String id) async {
+    _logger.i('deleteDonation called with id=$id');
+
+    try {
+      final varsMap = {'id': id};
+      final vars = GDeleteDonationVars.fromJson(varsMap);
+      if (vars == null) {
+        throw ServerException('Failed to build deleteDonation request');
+      }
+
+      await _graphqlRequestExecutor.execute(
+        client: _ferryClient,
+        request: GDeleteDonationReq((b) => b.vars = vars.toBuilder()),
+        operationName: 'deleteDonation',
+      );
+
+      _logger.i('Successfully deleted donation with id=$id');
+    } catch (e) {
+      _logger.e('deleteDonation error: $e', error: e);
       rethrow;
     }
   }

@@ -1,0 +1,15 @@
+mutation UpdateDonation($id: ID!, $input: UpdateDonationInput!) {
+  updateDonation(id: $id, input: $input) {
+    id
+    title
+    description
+    quantity
+    categoryId
+    urgency
+    status
+    expiryDate
+    foodWeightKg
+    createdAt
+    isDeletable
+  }
+}
