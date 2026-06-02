@@ -99,3 +99,60 @@ class AddDonationEvent extends DonationsEvent {
     longitude,
   ];
 }
+
+class UpdateDonationEvent extends DonationsEvent {
+  final String id;
+  final String? title;
+  final String? description;
+  final String? categoryId;
+  final int? quantity;
+  final double? foodWeightKg;
+  final String? urgency;
+  final String? mainAttachmentId;
+  final List<String>? attachmentIds;
+  final DateTime? expiryDate;
+  final bool? safetyChecklistCompleted;
+  final double? latitude;
+  final double? longitude;
+
+  const UpdateDonationEvent({
+    required this.id,
+    this.title,
+    this.description,
+    this.categoryId,
+    this.quantity,
+    this.foodWeightKg,
+    this.urgency,
+    this.mainAttachmentId,
+    this.attachmentIds,
+    this.expiryDate,
+    this.safetyChecklistCompleted,
+    this.latitude,
+    this.longitude,
+  });
+
+  @override
+  List<Object?> get props => [
+    id,
+    title,
+    description,
+    categoryId,
+    quantity,
+    foodWeightKg,
+    urgency,
+    mainAttachmentId,
+    attachmentIds,
+    expiryDate,
+    safetyChecklistCompleted,
+    latitude,
+    longitude,
+  ];
+}
+
+class DeleteDonationEvent extends DonationsEvent {
+  final String id;
+  const DeleteDonationEvent(this.id);
+
+  @override
+  List<Object?> get props => [id];
+}

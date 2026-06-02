@@ -22,6 +22,7 @@ class DonationModel extends Donation {
     super.createdAt,
     super.isLikedByMe,
     super.isReservable,
+    super.isDeletable,
     super.safetyChecklistCompleted,
     super.userId,
     super.authorDetails,
@@ -93,6 +94,7 @@ class DonationModel extends Donation {
     final urgency = json['urgency'] as String?;
     final isLikedByMe = json['isLikedByMe'] as bool?;
     final isReservable = json['isReservable'] as bool?;
+    final isDeletable = json['isDeletable'] as bool?;
     final safetyChecklistCompleted = json['safetyChecklistCompleted'] as bool?;
 
     return DonationModel(
@@ -117,6 +119,7 @@ class DonationModel extends Donation {
       createdAt: createdAt,
       isLikedByMe: isLikedByMe,
       isReservable: isReservable,
+      isDeletable: isDeletable,
       safetyChecklistCompleted: safetyChecklistCompleted,
     );
   }

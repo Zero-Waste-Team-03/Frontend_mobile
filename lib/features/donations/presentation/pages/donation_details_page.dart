@@ -19,6 +19,7 @@ import '../../../reservation/presentation/bloc/reservation_event.dart';
 import '../../../reservation/presentation/bloc/reservation_state.dart';
 import '../../../reservation/presentation/widgets/api_error_dialog.dart';
 import '../../../reservation/presentation/widgets/reservation_confirmed_dialog.dart';
+import '../../../../core/enums/donation_status_value.dart';
 import '../../domain/entities/donation.dart';
 
 class DonationDetailsPage extends StatefulWidget {
@@ -31,6 +32,7 @@ class DonationDetailsPage extends StatefulWidget {
 }
 
 class _DonationDetailsPageState extends State<DonationDetailsPage> {
+  late Donation _donation;
   late Color tagTextColor;
   late bool _isLiked;
   bool _isLikeUpdating = false;
@@ -50,12 +52,13 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
   @override
   void initState() {
     super.initState();
+    _donation = widget.donation;
     _currentStyleUrl = MapConfig.styleUrl; // Default light style
-    _isLiked = widget.donation.isLikedByMe ?? false;
-    if (widget.donation.condition.toUpperCase() == 'DRY') {
+    _isLiked = _donation.isLikedByMe ?? false;
+    if (_donation.condition.toUpperCase() == 'DRY') {
       tagTextColor = const Color(0xFFE87C3E);
-    } else if (widget.donation.condition.toUpperCase() == 'FRESH' ||
-        widget.donation.condition.toUpperCase() == 'FRESH PRODUCE') {
+    } else if (_donation.condition.toUpperCase() == 'FRESH' ||
+        _donation.condition.toUpperCase() == 'FRESH PRODUCE') {
       tagTextColor = const Color(0xFF2D6C50);
     } else {
       tagTextColor = const Color(0xFF3B82F6);
@@ -75,6 +78,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
     final brightness = Theme.of(context).brightness;
     return MapConfig.getStyleUrl(brightness);
   }
+
 
   Future<void> _updateMapStyle() async {
     final newUrl = _getStyleUrl(context);
@@ -110,10 +114,10 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
       return null;
     }
 
-    if (parsed > widget.donation.quantity) {
+    if (parsed > _donation.quantity) {
       setState(() {
         _reserveQuantityError =
-            'Only ${widget.donation.quantity} units available';
+            'Only ${_donation.quantity} units available';
       });
       return null;
     }
@@ -134,9 +138,9 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
     try {
       final favoritesRepository = getIt<FavoritesRepository>();
       if (_isLiked) {
-        await favoritesRepository.unlikeDonation(widget.donation.id);
+        await favoritesRepository.unlikeDonation(_donation.id);
       } else {
-        await favoritesRepository.likeDonation(widget.donation.id);
+        await favoritesRepository.likeDonation(_donation.id);
       }
 
       if (!mounted) {
@@ -183,7 +187,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
               onDismiss: () {
                 Navigator.of(context).pop();
               },
-              donationTitle: widget.donation.title,
+              donationTitle: _donation.title,
               expiryAt: state.reservation.expiresAt != null
                   ? state.reservation.expiresAt!.toLocal().toString().split(
                       '.',
@@ -258,8 +262,8 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                               return ElevatedButton(
                                 onPressed:
                                     isReserving ||
-                                        widget.donation.quantity <= 0 ||
-                                        widget.donation.isReservable == false
+                                        _donation.quantity <= 0 ||
+                                        _donation.isReservable == false
                                     ? null
                                     : () {
                                         final quantity =
@@ -269,7 +273,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                                         }
                                         context.read<ReservationBloc>().add(
                                           CreateReservationEvent(
-                                            donationId: widget.donation.id,
+                                            donationId: _donation.id,
                                             quantity: quantity,
                                           ),
                                         );
@@ -375,7 +379,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
         }
         context.read<ReservationBloc>().add(
           CreateReservationEvent(
-            donationId: widget.donation.id,
+            donationId: _donation.id,
             quantity: quantity,
           ),
         );
@@ -437,7 +441,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
           ),
           SizedBox(height: 8.h),
           Text(
-            'Available quantity: ${widget.donation.quantity} items',
+            'Available quantity: ${_donation.quantity} items',
             style: TextStyle(fontSize: 12.sp, color: colors.subText),
           ),
         ],
@@ -501,9 +505,9 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
           fit: StackFit.expand,
           children: [
             Hero(
-              tag: 'donation_img_${widget.donation.id}',
+              tag: 'donation_img_${_donation.id}',
               child: CachedNetworkImage(
-                imageUrl: widget.donation.imageUrl,
+                imageUrl: _donation.imageUrl,
                 fit: BoxFit.cover,
                 placeholder: (context, url) => Container(color: colors.border),
                 errorWidget: (context, url, error) => Container(
@@ -529,24 +533,6 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
         ),
       ),
       actions: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: GestureDetector(
-            onTap: () {},
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: colors.background,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.share_rounded,
-                color: colors.onPrimary,
-                size: 20,
-              ),
-            ),
-          ),
-        ),
         Padding(
           padding: const EdgeInsets.only(right: 16.0, top: 8.0, bottom: 8.0),
           child: GestureDetector(
@@ -590,7 +576,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            widget.donation.title,
+            _donation.title,
             style: TextStyle(
               fontSize: 24.sp,
               fontWeight: FontWeight.w800,
@@ -608,9 +594,9 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
               ),
               SizedBox(width: 4.w),
               Text(
-                widget.donation.latitude != null &&
-                        widget.donation.longitude != null
-                    ? '${widget.donation.latitude!.toStringAsFixed(4)}, ${widget.donation.longitude!.toStringAsFixed(4)}'
+                _donation.latitude != null &&
+                        _donation.longitude != null
+                    ? '${_donation.latitude!.toStringAsFixed(4)}, ${_donation.longitude!.toStringAsFixed(4)}'
                     : 'Location unavailable',
                 style: TextStyle(
                   fontSize: 13.sp,
@@ -651,7 +637,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                   ),
                   SizedBox(height: 4.h),
                   Text(
-                    '${widget.donation.quantity} units',
+                    '${_donation.quantity} units',
                     style: TextStyle(
                       fontSize: 16.sp,
                       color: const Color(0xFF15803D),
@@ -693,7 +679,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                   ),
                   SizedBox(height: 4.h),
                   Text(
-                    widget.donation.status,
+                    _donation.status.toDonationStatusValue().friendlyName,
                     style: TextStyle(
                       fontSize: 16.sp,
                       color: tagTextColor,
@@ -726,9 +712,9 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
           ),
           SizedBox(height: 8.h),
           Text(
-            widget.donation.description.isEmpty
+            _donation.description.isEmpty
                 ? 'No additional description provided by donor.'
-                : widget.donation.description,
+                : _donation.description,
             style: TextStyle(
               fontSize: 14.sp,
               color: colors.subText,
@@ -756,7 +742,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
             ),
           ),
           SizedBox(height: 12.h),
-          _OwnerCard(donation: widget.donation),
+          _OwnerCard(donation: _donation),
         ],
       ),
     );
@@ -781,16 +767,16 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
                 ),
               ),
               Text(
-                widget.donation.latitude != null &&
-                        widget.donation.longitude != null
-                    ? 'Lat ${widget.donation.latitude!.toStringAsFixed(3)}, Lng ${widget.donation.longitude!.toStringAsFixed(3)}'
+                _donation.latitude != null &&
+                        _donation.longitude != null
+                    ? 'Lat ${_donation.latitude!.toStringAsFixed(3)}, Lng ${_donation.longitude!.toStringAsFixed(3)}'
                     : 'Coordinates unavailable',
                 style: TextStyle(fontSize: 12.sp, color: colors.subText),
               ),
             ],
           ),
           SizedBox(height: 12.h),
-          _LocationMapCard(donation: widget.donation),
+          _LocationMapCard(donation: _donation),
         ],
       ),
     );

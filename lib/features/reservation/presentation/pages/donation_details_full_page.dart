@@ -12,6 +12,7 @@ import '../../../../core/map/map_config.dart';
 import '../../../../core/theme/theme_cubit.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../donations/domain/entities/donation.dart';
+import '../../../../core/enums/donation_status_value.dart';
 
 class DonationDetailsFullPage extends StatefulWidget {
   final Donation donation;
@@ -24,6 +25,7 @@ class DonationDetailsFullPage extends StatefulWidget {
 }
 
 class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
+  late Donation _donation;
   Offset _chatPos = const Offset(300, 500);
   final GlobalKey _stackKey = GlobalKey();
   static const double _chatButtonSize = 56;
@@ -36,11 +38,12 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
   @override
   void initState() {
     super.initState();
+    _donation = widget.donation;
     _currentStyleUrl = MapConfig.styleUrl; // Default light style
-    if (widget.donation.condition.toUpperCase() == 'DRY') {
+    if (_donation.condition.toUpperCase() == 'DRY') {
       tagTextColor = const Color(0xFFE87C3E);
-    } else if (widget.donation.condition.toUpperCase() == 'FRESH' ||
-        widget.donation.condition.toUpperCase() == 'FRESH PRODUCE') {
+    } else if (_donation.condition.toUpperCase() == 'FRESH' ||
+        _donation.condition.toUpperCase() == 'FRESH PRODUCE') {
       tagTextColor = const Color(0xFF2D6C50);
     } else {
       tagTextColor = const Color(0xFF3B82F6);
@@ -163,9 +166,9 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
           fit: StackFit.expand,
           children: [
             Hero(
-              tag: 'donation_img_${widget.donation.id}',
+              tag: 'donation_img_${_donation.id}',
               child: CachedNetworkImage(
-                imageUrl: widget.donation.imageUrl,
+                imageUrl: _donation.imageUrl,
                 fit: BoxFit.cover,
                 placeholder: (context, url) {
                   final colors = context.themeColors;
@@ -196,6 +199,42 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
           ),
         ),
       ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: GestureDetector(
+            onTap: () async {
+              final result = await context.push('/update-donation', extra: _donation);
+              if (result == 'DELETED' && mounted) {
+                context.pop();
+              } else if (result is Donation && mounted) {
+                setState(() {
+                  _donation = result;
+                });
+              }
+            },
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: colors.background,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Icon(
+                Icons.edit_rounded,
+                color: colors.primary,
+                size: 20,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -207,7 +246,7 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            widget.donation.title,
+            _donation.title,
             style: TextStyle(
               fontSize: 24.sp,
               fontWeight: FontWeight.w800,
@@ -225,9 +264,9 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
               ),
               SizedBox(width: 4.w),
               Text(
-                widget.donation.latitude != null &&
-                        widget.donation.longitude != null
-                    ? '${widget.donation.latitude!.toStringAsFixed(4)}, ${widget.donation.longitude!.toStringAsFixed(4)}'
+                _donation.latitude != null &&
+                        _donation.longitude != null
+                    ? '${_donation.latitude!.toStringAsFixed(4)}, ${_donation.longitude!.toStringAsFixed(4)}'
                     : 'Location unavailable',
                 style: TextStyle(
                   fontSize: 13.sp,
@@ -268,7 +307,7 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
                   ),
                   SizedBox(height: 4.h),
                   Text(
-                    '${widget.donation.quantity} units',
+                    '${_donation.quantity} units',
                     style: TextStyle(
                       fontSize: 16.sp,
                       color: const Color(0xFF15803D),
@@ -310,7 +349,7 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
                   ),
                   SizedBox(height: 4.h),
                   Text(
-                    widget.donation.status,
+                    _donation.status.toDonationStatusValue().friendlyName,
                     style: TextStyle(
                       fontSize: 16.sp,
                       color: tagTextColor,
@@ -343,9 +382,9 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
           ),
           SizedBox(height: 8.h),
           Text(
-            widget.donation.description.isEmpty
+            _donation.description.isEmpty
                 ? 'No additional description provided.'
-                : widget.donation.description,
+                : _donation.description,
             style: TextStyle(
               fontSize: 14.sp,
               color: colors.subText,
@@ -373,7 +412,7 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
             ),
           ),
           SizedBox(height: 12.h),
-          _OwnerCard(donation: widget.donation),
+          _OwnerCard(donation: _donation),
         ],
       ),
     );
@@ -398,16 +437,16 @@ class _DonationDetailsFullPageState extends State<DonationDetailsFullPage> {
                 ),
               ),
               Text(
-                widget.donation.latitude != null &&
-                        widget.donation.longitude != null
-                    ? 'Lat ${widget.donation.latitude!.toStringAsFixed(3)}, Lng ${widget.donation.longitude!.toStringAsFixed(3)}'
+                _donation.latitude != null &&
+                        _donation.longitude != null
+                    ? 'Lat ${_donation.latitude!.toStringAsFixed(3)}, Lng ${_donation.longitude!.toStringAsFixed(3)}'
                     : 'Coordinates unavailable',
                 style: TextStyle(fontSize: 12.sp, color: colors.subText),
               ),
             ],
           ),
           SizedBox(height: 12.h),
-          _LocationMapCard(donation: widget.donation),
+          _LocationMapCard(donation: _donation),
         ],
       ),
     );

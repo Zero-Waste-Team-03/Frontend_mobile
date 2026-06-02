@@ -24,6 +24,7 @@ class Donation {
   final String? urgency;
   final bool? isLikedByMe;
   final bool? isReservable;
+  final bool? isDeletable;
   final bool? safetyChecklistCompleted;
   final UserModel? authorDetails;
   final DateTime? createdAt;
@@ -49,6 +50,7 @@ class Donation {
     this.urgency,
     this.isLikedByMe,
     this.isReservable,
+    this.isDeletable,
     this.safetyChecklistCompleted,
     this.authorDetails,
     this.createdAt,

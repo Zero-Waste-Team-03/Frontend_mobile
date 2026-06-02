@@ -17,6 +17,7 @@ import '../../features/chat/presentation/pages/chats_list_page.dart';
 import '../../features/donations/domain/entities/donation.dart';
 import '../../features/donations/presentation/bloc/donations_bloc.dart';
 import '../../features/donations/presentation/bloc/donations_event.dart';
+import '../../features/donations/presentation/pages/update_delete_donation_page.dart';
 import '../../features/profile/presentation/pages/my_activities_page.dart';
 import '../../features/donations/presentation/pages/add_donation_page.dart';
 import '../../features/donations/presentation/pages/donation_details_page.dart';
@@ -63,6 +64,16 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final donation = state.extra as Donation;
         return DonationDetailsPage(donation: donation);
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.updateDonation,
+      builder: (context, state) {
+        final donation = state.extra as Donation;
+        return BlocProvider(
+          create: (context) => getIt<DonationsBloc>(),
+          child: UpdateDeleteDonationPage(donation: donation),
+        );
       },
     ),
     GoRoute(
