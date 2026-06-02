@@ -13,14 +13,14 @@ class VerificationOnboardingCard extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.all(24.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(20.r),
         border: Border.all(
-          color: const Color(0xFFBBCABF).withValues(alpha: 0.3),
+          color: colors.border,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: colors.onBackground.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -35,11 +35,11 @@ class VerificationOnboardingCard extends StatelessWidget {
                 width: 48.w,
                 height: 48.w,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF10B981),
+                  color:  colors.background,
                   borderRadius: BorderRadius.circular(16.r),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: colors.onBackground.withValues(alpha: 0.05),
                       blurRadius: 1,
                       offset: const Offset(0, 1),
                     ),
@@ -47,7 +47,7 @@ class VerificationOnboardingCard extends StatelessWidget {
                 ),
                 child: Icon(
                   Icons.auto_awesome,
-                  color: const Color(0xFF00422B),
+                  color: colors.primary,
                   size: 24.sp,
                 ),
               ),
@@ -72,19 +72,21 @@ class VerificationOnboardingCard extends StatelessWidget {
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w400,
-                color: const Color(0xFF3C4A42),
+                color: colors.textSecondary,
                 height: 1.4,
               ),
             ),
           ),
           SizedBox(height: 20.h),
           _buildStepCard(
+            context: context,
             icon: Icons.calendar_today,
             title: 'Find food savers',
             description: 'Search for food savers near you and send them a verification request.',
           ),
           SizedBox(height: 12.h),
           _buildStepCard(
+            context: context,
             icon: Icons.verified,
             title: 'Receive verification',
             description: 'Meet with food savers who will confirm your identity and verify your profile.',
@@ -95,15 +97,17 @@ class VerificationOnboardingCard extends StatelessWidget {
   }
 
   Widget _buildStepCard({
+    required BuildContext context,
     required IconData icon,
     required String title,
     required String description,
   }) {
+    final colors = context.themeColors;
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: const Color(0xFFF3F4F5).withValues(alpha: 0.5),
+        color: colors.background,
         borderRadius: BorderRadius.circular(16.r),
       ),
       child: Row(
@@ -113,7 +117,7 @@ class VerificationOnboardingCard extends StatelessWidget {
             width: 24.w,
             height: 24.w,
             decoration: BoxDecoration(
-              color: const Color(0xFF006C49),
+              color: colors.primary,
               borderRadius: BorderRadius.circular(6.r),
             ),
             child: Icon(
@@ -132,7 +136,7 @@ class VerificationOnboardingCard extends StatelessWidget {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
-                    color: const Color(0xFF191C1D),
+                    color: colors.textPrimary,
                   ),
                 ),
                 SizedBox(height: 4.h),
@@ -141,7 +145,7 @@ class VerificationOnboardingCard extends StatelessWidget {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w400,
-                    color: const Color(0xFF3C4A42),
+                    color: colors.textSecondary,
                     height: 1.3,
                   ),
                 ),

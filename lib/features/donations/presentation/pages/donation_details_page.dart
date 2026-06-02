@@ -188,7 +188,7 @@ class _DonationDetailsPageState extends State<DonationDetailsPage> {
               onDismiss: () {
                 Navigator.of(context).pop();
               },
-
+              reservation_id: state.reservation.id,
               donationTitle: widget.donation.title,
               expiryAt: '${DateFormat('MMMM').format(
                         state.reservation.createdAt.toLocal(),

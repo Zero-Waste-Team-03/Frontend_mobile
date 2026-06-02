@@ -148,7 +148,7 @@ class _FindVerifierViewState extends State<FindVerifierView> {
             children: [
               Padding(
                 padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
-                child: const VerificationOnboardingCard(),
+                child: VerificationOnboardingCard(),
               ),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),

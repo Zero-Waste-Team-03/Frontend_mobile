@@ -395,7 +395,7 @@ class _ReservationDetailsPageState extends State<ReservationDetailsPage> {
                                     title: Text(
                                       'Cancel Reservation?',
                                       style: TextStyle(
-                                        fontSize: AppDimensions.titleSize.sp,
+                                        fontSize: AppDimensions.subtitleSize.sp,
                                         fontWeight: FontWeight.w700,
                                         color: colors.headingText,
                                         fontFamily: AppFonts.primaryFont,
@@ -409,16 +409,18 @@ class _ReservationDetailsPageState extends State<ReservationDetailsPage> {
                                         fontFamily: AppFonts.primaryFont,
                                       ),
                                     ),
-                                    actionsAlignment: MainAxisAlignment.end,
+                                    actionsAlignment: MainAxisAlignment.start,
                                     actions: [
-                                      TextButton(
-                                        onPressed: () =>
-                                            Navigator.pop(dialogContext),
-                                        child: Text(
-                                          'Keep Reservation',
-                                          style: TextStyle(
-                                            color: colors.primary,
-                                            fontFamily: AppFonts.primaryFont,
+                                      Center(
+                                        child: TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(dialogContext),
+                                          child: Text(
+                                            'Keep Reservation',
+                                            style: TextStyle(
+                                              color: colors.primary,
+                                              fontFamily: AppFonts.primaryFont,
+                                            ),
                                           ),
                                         ),
                                       ),
