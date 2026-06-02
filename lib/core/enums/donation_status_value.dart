@@ -46,7 +46,7 @@ extension DonationStatusValueFriendly on DonationStatusValue {
       case DonationStatusValue.expired:
         return 'Expired';
       case DonationStatusValue.pendingApproval:
-        return 'Pending Approval';
+        return 'Pending';
       case DonationStatusValue.rejected:
         return 'Rejected';
       case DonationStatusValue.unknown:
